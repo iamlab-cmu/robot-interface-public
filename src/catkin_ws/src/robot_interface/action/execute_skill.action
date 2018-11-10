@@ -10,7 +10,6 @@ float32[] traj_gen_params
 int32 feedback_controller_type
 float32[] feedback_controller_params
 
-
 # termination
 int32 terimination_type
 float32[] termination_params 
