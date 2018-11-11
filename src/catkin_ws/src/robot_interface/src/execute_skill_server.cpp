@@ -21,6 +21,7 @@ protected:
 
 public:
 
+  // TODO: Shouldn't we pass in the node handle here?
   execute_skillAction(std::string name) :
     as_(nh_, name, boost::bind(&execute_skillAction::executeCB, this, _1), false),
     action_name_(name) {
@@ -35,15 +36,27 @@ public:
     ros::Rate r(1);
     bool success = true;
 
-    // push_back the seeds for the fibonacci sequence
-    feedback_.sequence.clear();
-    feedback_.sequence.push_back(0);
-    feedback_.sequence.push_back(1);
+    // Clear the feedback for this message
+    feedback_.execution_result.clear();
 
     // publish info to the console for the user
     ROS_INFO("%s: Executing, creating execute_skill sequence of order %i " \
-        "with seeds %i, %i", action_name_.c_str(), goal->order,
+        "with seeds %i, %i", action_name_.c_str(), goal->topic,
         feedback_.sequence[0], feedback_.sequence[1]);
+
+    // Start executing the action
+    //
+    // First parse the parameters
+    float initial_value = goal->initial_sensor_values[0];
+    
+    // Now create the trajectory generator
+    int traj_gen_type = goal->traj_gen_type;
+    TrajectoryGenerator generator = TrajectoryGenerator(goal->traj_gen_params,
+                                                        &nh_)
+    
+
+    // TODO: There should be some way to check if this new skill has finished 
+    // executing or not.
 
     // start executing the action
     for(int i=1; i<=goal->order; i++) {
