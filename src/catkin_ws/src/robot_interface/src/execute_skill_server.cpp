@@ -31,8 +31,8 @@ public:
 
   void executeCB(const robot_interface::execute_skillGoalConstPtr &goal)
   {
-    // helper variables
-    ros::Rate r(1000);
+    // helper variables (Run the loop in 1KHZ)
+    ros::Rate r(1);
     bool success = true;
 
     // push_back the seeds for the fibonacci sequence
