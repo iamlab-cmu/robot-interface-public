@@ -5,10 +5,11 @@
 
 #include <cerrno>
 #include <cstring>
-#include <string>
 #include <exception>
 #include <fstream>
 #include <iostream>
+#include <string>
+#include <thread>
 
 
 void setCurrentThreadToRealtime(bool throw_on_error) {
@@ -51,12 +52,15 @@ void RunLoop::update() {
 void RunLoop::run() {
   auto milli = std::chrono::milliseconds(1);
   auto start = std::chrono::high_resolution_clock::now();
-  while (1) {
+  int t = 0;
+  while (t < 10) {
     start = std::chrono::high_resolution_clock::now();
     update();
-    auto finish = std::chrono::high_resolution_clock:now();
+    auto finish = std::chrono::high_resolution_clock::now();
     // Wait for start + milli - finish
-    auto x = start + milli - finish;
-    std::this_thread::sleep_for(std::chrono::milliseconds(x));
+    auto elapsed = start + milli - finish;
+    std::this_thread::sleep_for(elapsed);
+    std::cout << "Waited " << elapsed.count() << " ms\n";
+    t = t + 1;
   }
 }
