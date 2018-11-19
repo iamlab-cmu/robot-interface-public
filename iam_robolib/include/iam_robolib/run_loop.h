@@ -10,8 +10,10 @@ void setCurrentThreadToRealtime(bool throw_on_error);
 // TODO(Mohit): Add a namespace to these declarations.
 // TODO(Mohit): Need to make this an interface.
 class RunLoop {
- public:
-  // TODO(Mohit): Maybe we should pass in a pointer to the main loop interface?
+ public: // TODO(Mohit): Maybe we should pass in a pointer to the main loop interface?
+  RunLoop() : limit_rate_(false), cutoff_frequency_(0.0), elapsed_time_(0.0) {}
+  // ~RunLoop();
+
   bool init();
   void start();
   void stop();

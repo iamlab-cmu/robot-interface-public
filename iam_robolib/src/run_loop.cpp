@@ -37,7 +37,7 @@ bool RunLoop::init() {
 
 void RunLoop::start() {
   // Start processing, might want to do some pre-processing 
-  std::cout << "Will start run loop.\n";
+  std::cout << "start run loop.\n";
 }
 
 void RunLoop::stop() {

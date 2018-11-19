@@ -4,7 +4,7 @@
 
 int main() {
   std::cout << "Hello world\n";
-  RunLoop run_loop = new RunLoop();
+  RunLoop run_loop = RunLoop();
   std::cout << "Will start run loop.\n";
   run_loop.start();
   std::cout << "Did start run loop.\n";
