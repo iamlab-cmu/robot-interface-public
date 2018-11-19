@@ -53,3 +53,5 @@ Thumbs.db
 # Add workspace build files
 src/catkin_ws/build
 src/catkin_ws/devel
+
+build
