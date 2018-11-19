@@ -3,7 +3,7 @@
 #include <cmath>
 #include <functional>
 
-#include <libiam/motion_generator.h>
+// #include <libiam/motion_generator.h>
 
 void setCurrentThreadToRealtime(bool throw_on_error);
 
@@ -20,7 +20,7 @@ class RunLoop {
 
  private:
 
-  MotionGenerator motion_generator;
+  // MotionGenerator motion_generator;
 
   const bool limit_rate_;  // NOLINT(readability-identifier-naming)
   const double cutoff_frequency_; // NOLINT(readability-identifier-naming)
