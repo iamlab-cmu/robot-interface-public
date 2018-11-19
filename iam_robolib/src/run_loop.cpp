@@ -49,7 +49,14 @@ void RunLoop::update() {
 }
 
 void RunLoop::run() {
+  auto milli = std::chrono::milliseconds(1);
+  auto start = std::chrono::high_resolution_clock::now();
   while (1) {
+    start = std::chrono::high_resolution_clock::now();
     update();
+    auto finish = std::chrono::high_resolution_clock:now();
+    // Wait for start + milli - finish
+    auto x = start + milli - finish;
+    std::this_thread::sleep_for(std::chrono::milliseconds(x));
   }
 }
