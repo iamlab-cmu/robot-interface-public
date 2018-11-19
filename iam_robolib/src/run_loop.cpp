@@ -1,4 +1,4 @@
-#include "run_loop.h"
+#include <iam_robolib/duration.h>
 
 #include <pthread.h>
 

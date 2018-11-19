@@ -21,24 +21,33 @@ add_library(iam_robolib SHARED
   src/run_loop.cpp
   src/duration.cpp
 )
-add_library(IAM_RoboLib::IAM_RoboLib ALIAS iam_robolib)
+# Add namespace
+# add_library(IAM_RoboLib::IAM_RoboLib ALIAS iam_robolib)
+
+target_link_libraries(iam_robolib PRIVATE
+  # Eigen3::Eigen3
+  Threads::Threads
+)
+
 
 target_include_directories(iam_robolib PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
 
+set_target_properties(iam_robolib PROPERTIES PUBLIC_HEADER include/run_loop.h)
+
+target_include_directories(iam_robolib PRIVATE src)
+target_include_directories(iam_robolib PRIVATE include)
+
+
 ## Installation
 include(GNUInstallDirs)
 install(TARGETS iam_robolib
   # EXPORT FrankaTargets
-  DESTINATION lib
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  # RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-#install(DIRECTORY include/ 
-  #DESTINATION include
-#)

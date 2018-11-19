@@ -14,8 +14,6 @@
 /**
  * Represents a duration with millisecond resolution.
  */
-namespace iam_robolib {
-
 class Duration {
  public:
   /**
@@ -259,5 +257,3 @@ class Duration {
  * @return Result of the multiplication.
  */
 Duration operator*(uint64_t lhs, const Duration& rhs) noexcept;
-
-} // namespace iam_robolib
