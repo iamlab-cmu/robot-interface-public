@@ -2,8 +2,6 @@
 // Use of this source code is governed by the Apache-2.0 license, see LICENSE
 #include <iam_robolib/duration.h>
 
-namespace iam_robolib {
-
 Duration::Duration() noexcept : duration_{0u} {}
 
 Duration::Duration(std::chrono::duration<uint64_t, std::milli> duration) noexcept
@@ -108,5 +106,3 @@ bool Duration::operator>=(const Duration& rhs) const noexcept {
 Duration operator*(uint64_t lhs, const Duration& rhs) noexcept {
   return rhs * lhs;
 }
-
-}  // namespace franka
