@@ -12,6 +12,7 @@
 #include <string>
 #include <thread>
 
+using SharedBuffer = std::array<float, 1024>;
 
 void setCurrentThreadToRealtime(bool throw_on_error) {
   // Change prints to exceptions.
@@ -86,15 +87,24 @@ void RunLoop::stop() {
 }
 
 void RunLoop::update() {
-  std::cout << "update run loop\n";
+  std::cout << "In run loop update, will read from buffer\n";
+
+  auto& buffer = *reinterpret_cast<SharedBuffer*>(region_1_.get_address());
+  for (int i = 0; i < 10; i++) {
+    std::cout << buffer[i] << ", ";
+  }
+  std::cout << "Read from buffer\n";
 }
 
 void RunLoop::run() {
+  // Wait for sometime to let the client add data to the buffer
+  using namespace std::chrono_literals;
+  std::this_thread::sleep_for(10s);
+
   auto milli = std::chrono::milliseconds(1);
-  auto start = std::chrono::high_resolution_clock::now();
   int t = 0;
   while (t < 10) {
-    start = std::chrono::high_resolution_clock::now();
+    auto start = std::chrono::high_resolution_clock::now();
     update();
     auto finish = std::chrono::high_resolution_clock::now();
     // Wait for start + milli - finish
