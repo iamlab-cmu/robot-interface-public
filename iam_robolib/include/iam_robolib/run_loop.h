@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <functional>
+#include <boost/interprocess/managed_shared_memory.hpp>
 
 // #include <libiam/motion_generator.h>
 
@@ -27,5 +28,7 @@ class RunLoop {
   const bool limit_rate_;  // NOLINT(readability-identifier-naming)
   const double cutoff_frequency_; // NOLINT(readability-identifier-naming)
   uint32_t elapsed_time_;
+  boost::interprocess::managed_shared_memory managed_shared_memory_1_{} ;
+  boost::interprocess::managed_shared_memory managed_shared_memory_2_();
 
 };

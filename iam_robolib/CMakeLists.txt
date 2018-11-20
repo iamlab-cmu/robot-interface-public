@@ -15,6 +15,9 @@ find_package(Eigen3 REQUIRED)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
+find_package(Boost COMPONENTS REQUIRED filesystem system thread)
+
+include_directories(${Boost_INCLUDE_DIRS})
 
 ## Library
 add_library(iam_robolib SHARED
@@ -27,6 +30,8 @@ add_library(iam_robolib SHARED
 target_link_libraries(iam_robolib PRIVATE
   # Eigen3::Eigen3
   Threads::Threads
+  ${Boost_LIBRARIES}
+  rt
 )
 
 

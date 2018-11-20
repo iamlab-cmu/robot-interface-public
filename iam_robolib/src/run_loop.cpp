@@ -1,6 +1,7 @@
 #include <iam_robolib/run_loop.h>
 #include <iam_robolib/duration.h>
 
+#include <boost/interprocess/managed_shared_memory.hpp>
 #include <pthread.h>
 
 #include <cerrno>
@@ -38,6 +39,21 @@ bool RunLoop::init() {
 void RunLoop::start() {
   // Start processing, might want to do some pre-processing 
   std::cout << "start run loop.\n";
+
+  // Create shared memory here.
+  boost::interprocess::shared_memory_object::remove("run_loop_shared_memory_1");
+  boost::interprocess::managed_shared_memory managed_shm_1(
+          boost::interprocess::create_only,
+          "run_loop_shared_memory_1",
+          4 * 1024);
+
+  boost::interprocess::shared_memory_object::remove("run_loop_shared_memory_2");
+  boost::interprocess::managed_shared_memory managed_shm_2(
+          boost::interprocess::create_only,
+          "run_loop_shared_memory_2",
+          4 * 1024
+  );
+
 }
 
 void RunLoop::stop() {
