@@ -54,6 +54,30 @@ void RunLoop::start() {
           4 * 1024
   );
 
+  // Create shared memory object.
+  /* TODO(Mohit): Maybe we shold be using shared memory object instead of
+   * managed managed shared memory.*/
+  shared_memory_object_1_ = boost::interprocess::shared_memory_object(
+          boost::interprocess::open_or_create,  // open or create
+          "run_loop_shared_obj_1",              // name
+          boost::interprocess::read_write       // read-only mode
+  );
+
+  // Allocate memory
+  shared_memory_object_1_.truncate(8 * 1024);
+
+  // TODO(Mohit): We can create multiple regions, each of which will hold
+  // data for different types, e.g. trajectory generator params,
+  // controller params, etc.
+  // Map the region
+  region_1_ =  boost::interprocess::mapped_region(
+          shared_memory_object_1_,              // Memory-mappable object
+          boost::interprocess::read_write,      // Access mode
+          0,                                    // Offset from the beginning of shm
+          8 * 1024                              // Length of the region
+  );
+
+
 }
 
 void RunLoop::stop() {
