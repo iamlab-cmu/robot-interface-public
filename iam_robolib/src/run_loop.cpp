@@ -42,13 +42,13 @@ void RunLoop::start() {
 
   // Create shared memory here.
   boost::interprocess::shared_memory_object::remove("run_loop_shared_memory_1");
-  boost::interprocess::managed_shared_memory managed_shm_1(
+  managed_shared_memory_1_ = boost::interprocess::managed_shared_memory(
           boost::interprocess::create_only,
           "run_loop_shared_memory_1",
           4 * 1024);
 
   boost::interprocess::shared_memory_object::remove("run_loop_shared_memory_2");
-  boost::interprocess::managed_shared_memory managed_shm_2(
+  managed_shared_memory_2_ = boost::interprocess::managed_shared_memory(
           boost::interprocess::create_only,
           "run_loop_shared_memory_2",
           4 * 1024

@@ -29,6 +29,6 @@ class RunLoop {
   const double cutoff_frequency_; // NOLINT(readability-identifier-naming)
   uint32_t elapsed_time_;
   boost::interprocess::managed_shared_memory managed_shared_memory_1_{} ;
-  boost::interprocess::managed_shared_memory managed_shared_memory_2_();
+  boost::interprocess::managed_shared_memory managed_shared_memory_2_{};
 
 };
