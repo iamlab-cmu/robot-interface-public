@@ -103,7 +103,7 @@ void RunLoop::run() {
 
   auto milli = std::chrono::milliseconds(1);
   int t = 0;
-  while (t < 10) {
+  while (1) {
     auto start = std::chrono::high_resolution_clock::now();
     update();
     auto finish = std::chrono::high_resolution_clock::now();
