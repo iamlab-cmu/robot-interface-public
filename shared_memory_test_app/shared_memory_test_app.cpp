@@ -20,10 +20,15 @@ int main() {
   // Add run loop process info to the main loop.
   std::pair<RunLoopProcessInfo*, std::size_t> res = segment.find<RunLoopProcessInfo>
     ("run_loop_info");
+  RunLoopProcessInfo *run_loop_process_info = res.first;
+  // Make sure the process info object can be found in memory. 
+  assert(run_loop_process_info != 0);
+
+  std::string shm_name = run_loop_process_info.get_current_shared_memory_name()
 
   boost::interprocess::shared_memory_object shm_1(
           boost::interprocess::open_only,       // open 
-          "run_loop_shared_obj_1",              // name
+          shm_name,                             // name
           boost::interprocess::read_write       // read-only mode
   );
 
