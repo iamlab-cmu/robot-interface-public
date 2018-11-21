@@ -7,6 +7,8 @@
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 
+#include "run_loop_process_info.h"
+
 using SharedBuffer = std::array<float, 1024>;
 
 int main() {
@@ -14,6 +16,10 @@ int main() {
   boost::interprocess::managed_shared_memory segment(
       boost::interprocess::open_only,
       "run_loop_shared_memory_1"); //Shared memory object name
+
+  // Add run loop process info to the main loop.
+  std::pair<RunLoopProcessInfo*, std::size_t> res = segment.find<RunLoopProcessInfo>
+    ("run_loop_info");
 
   boost::interprocess::shared_memory_object shm_1(
           boost::interprocess::open_only,       // open 

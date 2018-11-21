@@ -17,6 +17,13 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 add_executable(shared_memory_test_app shared_memory_test_app.cpp)
 
+target_sources(shared_memory_test_app 
+  PRIVATE
+    "${CMAKE_CURRENT_LIST_DIR}/run_loop_process_info.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/run_loop_process_info.h"
+)
+    
+
 target_link_libraries(shared_memory_test_app PRIVATE
   Threads::Threads
   ${Boost_LIBRARIES}
