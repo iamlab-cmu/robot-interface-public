@@ -1,5 +1,6 @@
 #include <iam_robolib/run_loop.h>
 #include <iam_robolib/duration.h>
+#include <iam_robolib/run_loop_process_info.h>
 
 #include <boost/interprocess/managed_shared_memory.hpp>
 #include <pthread.h>
@@ -54,6 +55,12 @@ void RunLoop::start() {
           "run_loop_shared_memory_2",
           4 * 1024
   );
+
+
+  // Add run loop process info to the main loop.
+  run_loop_info_ = managed_shared_memory_1_.construct<RunLoopProcessInfo>
+            ("run_loop_info")
+            (0);
 
   // Create shared memory object.
   /* TODO(Mohit): Maybe we shold be using shared memory object instead of

@@ -6,6 +6,7 @@
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 
+#include <iam_robolib/run_loop_process_info.h>
 
 // #include <libiam/motion_generator.h>
 
@@ -28,12 +29,17 @@ class RunLoop {
 
   // MotionGenerator motion_generator;
 
+  RunLoopProcessInfo *run_loop_info_=NULL;
+
   const bool limit_rate_;  // NOLINT(readability-identifier-naming)
   const double cutoff_frequency_; // NOLINT(readability-identifier-naming)
   uint32_t elapsed_time_;
+
+  // Managed memory segments
   boost::interprocess::managed_shared_memory managed_shared_memory_1_{};
   boost::interprocess::managed_shared_memory managed_shared_memory_2_{};
 
+  // Managed memory objects
   boost::interprocess::shared_memory_object shared_memory_object_1_{};
   boost::interprocess::shared_memory_object shared_memory_object_2_{};
 
