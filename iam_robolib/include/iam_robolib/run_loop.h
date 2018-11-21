@@ -1,7 +1,9 @@
 #pragma once
 
+#include <chrono>
 #include <cmath>
 #include <functional>
+
 #include <boost/interprocess/managed_shared_memory.hpp>
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
@@ -9,6 +11,8 @@
 
 
 #include <iam_robolib/run_loop_process_info.h>
+
+#include "skill_info_manager.h"
 
 // #include <libiam/motion_generator.h>
 
@@ -49,11 +53,10 @@ class RunLoop {
  private:
 
   // MotionGenerator motion_generator;
+  SkillInfoManager skill_manager_;
 
   boost::interprocess::interprocess_mutex *run_loop_info_mutex_=NULL;
-  RunLoopProcessInfo *run_loop_info_=NULL;
-
-  const bool limit_rate_;  // NOLINT(readability-identifier-naming)
+  RunLoopProcessInfo *run_loop_info_=NULL; const bool limit_rate_;  // NOLINT(readability-identifier-naming)
   const double cutoff_frequency_; // NOLINT(readability-identifier-naming)
   uint32_t elapsed_time_;
 

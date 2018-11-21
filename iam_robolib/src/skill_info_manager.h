@@ -8,17 +8,19 @@
 
 #include "skill_info.h"
 
-class TaskInfoManager {
-    public:
-        SkillInfo get_current_task();
+class SkillInfoManager {
+ public:
+  SkillInfoManager();
 
-        bool is_currently_executing_task();
+  SkillInfo get_current_skill();
 
-        bool is_waiting_for_new_task();
+  bool is_currently_executing_skill();
 
-        void add_task(SkillInfo task):
+  bool is_waiting_for_new_skill();
 
-    private:
-        std::vector<SkillInfo> task_list_;
+  void add_skill(SkillInfo skill);
+
+ private:
+  std::vector<SkillInfo> skill_list_{};
 };
 

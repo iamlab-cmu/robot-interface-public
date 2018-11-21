@@ -8,16 +8,16 @@ enum class SkillStatus { TO_START, RUNNING, FINISHED };  // enum class
 
 class SkillInfo {
   public:
-    SkillInfo(int task_idx): task_idx_(task_idx) {};
+    SkillInfo(int skill_idx): skill_idx_(skill_idx) {};
 
-    int get_current_task_id();
+    int get_current_skill_id();
 
-    void set_task_status(SkillStatus new_task_status);
-    SkillStatus get_current_task_status();
+    void set_skill_status(SkillStatus new_task_status);
+    SkillStatus get_current_skill_status();
 
 
   private:
-    int task_idx_;
-    SkillStatus task_status_{SkillStatus::TO_START};
+    int skill_idx_;
+    SkillStatus skill_status_{SkillStatus::TO_START};
 };
 

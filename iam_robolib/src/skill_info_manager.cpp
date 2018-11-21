@@ -4,19 +4,21 @@
 
 #include "skill_info_manager.h"
 
+SkillInfoManager::SkillInfoManager() {
+}
 
-SkillInfo TaskInfoManager::get_current_task() {
+SkillInfo SkillInfoManager::get_current_skill() {
 
 }
 
-bool TaskInfoManager::is_currently_executing_task() {
+bool SkillInfoManager::is_currently_executing_skill() {
 
 }
 
-bool TaskInfoManager::is_waiting_for_new_task() {
+bool SkillInfoManager::is_waiting_for_new_skill() {
 
 }
 
-void TaskInfoManager::add_task(SkillInfo task) {
+void SkillInfoManager::add_skill(SkillInfo skill) {
 
 }

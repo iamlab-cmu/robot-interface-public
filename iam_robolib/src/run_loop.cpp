@@ -137,12 +137,13 @@ void RunLoop::finish_current_task() {
 
 void RunLoop::run() {
   // Wait for sometime to let the client add data to the buffer
-  using namespace std::chrono_literals;
-  std::this_thread::sleep_for(10s);
+  std::this_thread::sleep_for(std::chrono::seconds(10));
 
+  std::chrono::time_point<std::chrono::high_resolution_clock> start;
   auto milli = std::chrono::milliseconds(1);
+
   while (1) {
-    auto start = std::chrono::high_resolution_clock::now();
+    start = std::chrono::high_resolution_clock::now();
     bool curr_task_status = update();
 
     if (!curr_task_status) {
@@ -153,6 +154,6 @@ void RunLoop::run() {
     auto finish = std::chrono::high_resolution_clock::now();
     // Wait for start + milli - finish
     auto elapsed = start + milli - finish;
-    std::this_thread::sleep_for(0.01s);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 }
