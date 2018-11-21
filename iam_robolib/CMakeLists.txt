@@ -24,10 +24,10 @@ add_library(iam_robolib SHARED
   src/run_loop.cpp
   src/duration.cpp
   src/run_loop_process_info.cpp
-  src/task_info.cpp
-  src/task_info.h
-  src/task_info_manager.cpp
-  src/task_info_manager.h
+  src/skill_info.cpp
+  src/skill_info.h
+  src/skill_info_manager.cpp
+  src/skill_info_manager.h
   src/trajectory_generator.cpp
   src/trajectory_generator.h
   src/counter_trajectory_generator.cpp

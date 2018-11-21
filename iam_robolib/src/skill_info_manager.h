@@ -6,19 +6,19 @@
 
 #include <vector>
 
-#include "task_info.h"
+#include "skill_info.h"
 
 class TaskInfoManager {
     public:
-        TaskInfo get_current_task();
+        SkillInfo get_current_task();
 
         bool is_currently_executing_task();
 
         bool is_waiting_for_new_task();
 
-        void add_task(TaskInfo task):
+        void add_task(SkillInfo task):
 
     private:
-        std::vector<TaskInfo> task_list_;
+        std::vector<SkillInfo> task_list_;
 };
 
