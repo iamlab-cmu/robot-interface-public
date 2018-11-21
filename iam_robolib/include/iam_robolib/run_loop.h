@@ -5,6 +5,8 @@
 #include <boost/interprocess/managed_shared_memory.hpp>
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
+#include <boost/interprocess/sync/interprocess_mutex.hpp>
+
 
 #include <iam_robolib/run_loop_process_info.h>
 
@@ -17,23 +19,44 @@ void setCurrentThreadToRealtime(bool throw_on_error);
 class RunLoop {
  public: // TODO(Mohit): Maybe we should pass in a pointer to the main loop interface?
   RunLoop() : limit_rate_(false), cutoff_frequency_(0.0), elapsed_time_(0.0) {}
+
+  // Todo(Mohit): Implement this!!! We should free up the shared memory correctly.
   // ~RunLoop();
 
   bool init();
+  /**
+   *  Start the RunLoop.
+   *
+   *  This will allocate the shared memory buffers i.e., shared memory object and
+   *  shared memory segment used to communicate between the actionlib interface and
+   *  the real time loop.
+   */
   void start();
+
   void stop();
-  void update();
+
+  /**
+   *  Update the currently executing task. Maybe we should pass in the TaskInfo or
+   *  it should return some task info from it.
+   */
+  bool update();
+
+  /**
+   *  Start running the real time loop.
+   */
   void run();
 
  private:
 
   // MotionGenerator motion_generator;
 
+  boost::interprocess::interprocess_mutex *run_loop_info_mutex_=NULL;
   RunLoopProcessInfo *run_loop_info_=NULL;
 
   const bool limit_rate_;  // NOLINT(readability-identifier-naming)
   const double cutoff_frequency_; // NOLINT(readability-identifier-naming)
   uint32_t elapsed_time_;
+
 
   // Managed memory segments
   boost::interprocess::managed_shared_memory managed_shared_memory_1_{};
@@ -45,5 +68,17 @@ class RunLoop {
 
   boost::interprocess::mapped_region region_1_{};
   boost::interprocess::mapped_region region_2_{};
+
+  /**
+   *  Start executing new task.
+   */
+  void start_new_task();
+
+  /**
+   *  Finish current executing task.
+   *
+   * TODO(Mohit): Pass in the current Task Info object to it or return from it?
+   */
+  void finish_current_task();
 
 };

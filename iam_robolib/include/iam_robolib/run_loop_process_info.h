@@ -11,6 +11,11 @@ class RunLoopProcessInfo {
     public:
         RunLoopProcessInfo(int memory_region_idx): current_memory_region_(memory_region_idx) {};
 
+        bool new_task_available_{false};
+        bool is_running_task_{false};
+
+        bool can_run_new_task();
+
         std::string  get_current_shared_memory_name();
         int get_current_shared_memory_index();
 

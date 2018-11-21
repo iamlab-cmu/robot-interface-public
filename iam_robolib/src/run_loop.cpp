@@ -3,6 +3,7 @@
 #include <iam_robolib/run_loop_process_info.h>
 
 #include <boost/interprocess/managed_shared_memory.hpp>
+#include <boost/interprocess/sync/scoped_lock.hpp>
 #include <pthread.h>
 
 #include <cerrno>
@@ -56,11 +57,17 @@ void RunLoop::start() {
           4 * 1024
   );
 
-
   // Add run loop process info to the main loop.
   run_loop_info_ = managed_shared_memory_1_.construct<RunLoopProcessInfo>
-            ("run_loop_info")
-            (0);
+          ("run_loop_info")
+          (1);
+  run_loop_info_mutex_ = managed_shared_memory_1_.construct<boost::interprocess::interprocess_mutex>
+          ("run_loop_info_mutex")
+          ();
+
+  // Add the inter-process mutex into memory. We will grab this each time we want
+  // to update anything in the memory.
+
 
   // Create shared memory object.
   /* TODO(Mohit): Maybe we shold be using shared memory object instead of
@@ -93,14 +100,39 @@ void RunLoop::stop() {
   // Stop the interface gracefully.
 }
 
-void RunLoop::update() {
+bool RunLoop::update() {
   std::cout << "In run loop update, will read from buffer\n";
 
   auto& buffer = *reinterpret_cast<SharedBuffer*>(region_1_.get_address());
   for (int i = 0; i < 10; i++) {
+     if (buffer[i] == -1) {
+       // Task finished
+       return false;
+     }
     std::cout << buffer[i] << ", ";
   }
   std::cout << "Read from buffer\n";
+
+  return true;
+}
+
+void RunLoop::start_new_task() {
+}
+
+void RunLoop::finish_current_task() {
+  {
+    boost::interprocess::scoped_lock<
+            boost::interprocess::interprocess_mutex> lock(*run_loop_info_mutex_);
+    try {
+      if (lock.try_lock()) {
+        run_loop_info_->is_running_task_ = false;
+      }
+    } catch (boost::interprocess::lock_exception) {
+      // TODO(Mohit): Do something better here.
+      std::cout << "Cannot acquire lock for run loop info";
+    }
+  }
+
 }
 
 void RunLoop::run() {
@@ -109,15 +141,18 @@ void RunLoop::run() {
   std::this_thread::sleep_for(10s);
 
   auto milli = std::chrono::milliseconds(1);
-  int t = 0;
   while (1) {
     auto start = std::chrono::high_resolution_clock::now();
-    update();
+    bool curr_task_status = update();
+
+    if (!curr_task_status) {
+      finish_current_task();
+    }
+
+
     auto finish = std::chrono::high_resolution_clock::now();
     // Wait for start + milli - finish
     auto elapsed = start + milli - finish;
-    std::this_thread::sleep_for(elapsed);
-    std::cout << "Waited " << elapsed.count() << " ms\n";
-    t = t + 1;
+    std::this_thread::sleep_for(0.01s);
   }
 }
