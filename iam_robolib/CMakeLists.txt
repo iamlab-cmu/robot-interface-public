@@ -23,7 +23,16 @@ include_directories(${Boost_INCLUDE_DIRS})
 add_library(iam_robolib SHARED
   src/run_loop.cpp
   src/duration.cpp
-  src/run_loop_process_info.cpp src/task_info.cpp src/task_info.h src/task_info_manager.cpp src/task_info_manager.h)
+  src/run_loop_process_info.cpp
+  src/task_info.cpp
+  src/task_info.h
+  src/task_info_manager.cpp
+  src/task_info_manager.h
+  src/trajectory_generator.cpp
+  src/trajectory_generator.h
+  src/counter_trajectory_generator.cpp
+  src/counter_trajectory_generator.h)
+
 # Add namespace
 # add_library(IAM_RoboLib::IAM_RoboLib ALIAS iam_robolib)
 
