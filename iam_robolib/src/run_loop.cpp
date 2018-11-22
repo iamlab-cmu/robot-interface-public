@@ -190,8 +190,9 @@ void RunLoop::update_process_info() {
         run_loop_info_->is_running_task_ = is_executing_skill;
         process_info_requires_update_ = false;
 
-        // Check if new task is available
-        if (run_loop_info_->new_task_available_) {
+        // Check if new skill is available only if no current skill is being
+        // currently executed.
+        if (!is_executing_skill && run_loop_info_->new_task_available_) {
 
           // Get the parameters
           // Create new task Skill
@@ -207,6 +208,7 @@ void RunLoop::update_process_info() {
           // will now write to the other memory region, i.e. not the current memory
           // region.
           run_loop_info_->update_shared_memory_region();
+          run_loop_info_->new_task_available_ = false;
         }
       }
     } catch (boost::interprocess::lock_exception) {
