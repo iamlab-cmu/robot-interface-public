@@ -6,7 +6,7 @@
 
 #include <cassert>
 
-int SkillInfo::get_current_skill_id(){
+int SkillInfo::get_skill_id() {
     return skill_idx_;
 }
 
@@ -19,7 +19,7 @@ void SkillInfo::set_skill_status(SkillStatus status) {
 void SkillInfo::start_skill(TrajectoryGenerator *traj_generator) {
   skill_status_ = SkillStatus::TO_START;
   traj_generator_ = traj_generator;
-  traj_generator_->initialiize_trajectory();
+  traj_generator_->initialize_trajectory();
 }
 
 SkillStatus SkillInfo::get_current_skill_status() {

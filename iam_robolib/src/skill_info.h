@@ -13,7 +13,8 @@ class SkillInfo {
     SkillInfo(int skill_idx): skill_idx_(skill_idx),
                               skill_status_(SkillStatus::TO_START) {};
 
-    int get_current_skill_id();
+    int get_skill_id();
+
     void set_skill_status(SkillStatus new_task_status);
 
     void start_skill(TrajectoryGenerator *traj_generator);

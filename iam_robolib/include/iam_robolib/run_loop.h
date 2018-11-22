@@ -13,7 +13,13 @@
 
 // TODO(Mohit): Fix this, CANNOT do private imports in public headers. FML.
 #include "../../src/skill_info_manager.h"
+#include "../../src/trajectory_generator.h"
 
+
+// SharedBuffer type to share memory (Change size later)
+using SharedBuffer = std::array<float, 1024>;
+
+// Set thread to real time priority.
 void setCurrentThreadToRealtime(bool throw_on_error);
 
 // TODO(Mohit): Add a namespace to these declarations.
@@ -66,15 +72,16 @@ class RunLoop {
 
 
   // Managed memory segments
-  boost::interprocess::managed_shared_memory managed_shared_memory_1_{};
-  boost::interprocess::managed_shared_memory managed_shared_memory_2_{};
+  boost::interprocess::managed_shared_memory managed_shared_memory_{};
 
   // Managed memory objects
+  boost::interprocess::shared_memory_object shared_memory_object_0_{};
   boost::interprocess::shared_memory_object shared_memory_object_1_{};
-  boost::interprocess::shared_memory_object shared_memory_object_2_{};
-
+  boost::interprocess::mapped_region region_0_{};
   boost::interprocess::mapped_region region_1_{};
-  boost::interprocess::mapped_region region_2_{};
+
+  SharedBuffer traj_gen_buffer_0_;
+  SharedBuffer traj_gen_buffer_1_;
 
   /**
    *  Start executing new task.
@@ -94,4 +101,11 @@ class RunLoop {
    */
   void update_process_info();
 
+  /**
+   * Get trajectory generator for skill.
+   *
+   * @param memory_region  Region of the memory where the parameters
+   * will be stored.
+   */
+  TrajectoryGenerator* get_trajectory_generator_for_skill(int memory_region);
 };

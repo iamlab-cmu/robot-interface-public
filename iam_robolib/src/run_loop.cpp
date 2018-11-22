@@ -13,7 +13,8 @@
 #include <string>
 #include <thread>
 
-using SharedBuffer = std::array<float, 1024>;
+#include "counter_trajectory_generator.h"
+
 
 void setCurrentThreadToRealtime(bool throw_on_error) {
   // Change prints to exceptions.
@@ -42,33 +43,25 @@ void RunLoop::start() {
   // Start processing, might want to do some pre-processing 
   std::cout << "start run loop.\n";
 
-  // Create shared memory here.
+  // Create managed shared memory (segments) here.
   boost::interprocess::shared_memory_object::remove("run_loop_shared_memory_1");
-  managed_shared_memory_1_ = boost::interprocess::managed_shared_memory(
+  managed_shared_memory_ = boost::interprocess::managed_shared_memory(
           boost::interprocess::create_only,
-          "run_loop_shared_memory_1",
+          "run_loop_shared_memory",
           4 * 1024);
-
-  boost::interprocess::shared_memory_object::remove("run_loop_shared_memory_2");
-  managed_shared_memory_2_ = boost::interprocess::managed_shared_memory(
-          boost::interprocess::create_only,
-          "run_loop_shared_memory_2",
-          4 * 1024
-  );
-
   // Add run loop process info to the main loop.
-  run_loop_info_ = managed_shared_memory_1_.construct<RunLoopProcessInfo>
+  run_loop_info_ = managed_shared_memory_.construct<RunLoopProcessInfo>
           ("run_loop_info")
           (1);
-  run_loop_info_mutex_ = managed_shared_memory_1_.construct<boost::interprocess::interprocess_mutex>
+  // Add the inter-process mutex into memory. We will grab this each
+  // time we want to update anything in the memory.
+  run_loop_info_mutex_ = managed_shared_memory_.construct<
+      boost::interprocess::interprocess_mutex>
           ("run_loop_info_mutex")
           ();
 
-  // Add the inter-process mutex into memory. We will grab this each time we want
-  // to update anything in the memory.
 
-
-  // Create shared memory object.
+  // Create shared memory objects.
   /* TODO(Mohit): Maybe we shold be using shared memory object instead of
    * managed managed shared memory.*/
   shared_memory_object_1_ = boost::interprocess::shared_memory_object(
@@ -90,8 +83,57 @@ void RunLoop::start() {
           0,                                    // Offset from the beginning of shm
           8 * 1024                              // Length of the region
   );
+  traj_gen_buffer_1_ = *reinterpret_cast<SharedBuffer*>(
+      region_1_.get_address());
+
+  shared_memory_object_0_ = boost::interprocess::shared_memory_object(
+      boost::interprocess::open_or_create,  // open or create
+      "run_loop_shared_obj_0",              // name
+      boost::interprocess::read_write       // read-only mode
+  );
+
+  // Allocate memory
+  shared_memory_object_0_.truncate(8 * 1024);
+
+  // TODO(Mohit): We can create multiple regions, each of which will hold
+  // data for different types, e.g. trajectory generator params,
+  // controller params, etc.
+  // Map the region
+  region_0_ =  boost::interprocess::mapped_region(
+      shared_memory_object_0_,              // Memory-mappable object
+      boost::interprocess::read_write,      // Access mode
+      0,                                    // Offset from the beginning of shm
+      8 * 1024                              // Length of the region
+  );
+  traj_gen_buffer_0_ = *reinterpret_cast<SharedBuffer*>(
+      region_0_.get_address());
 
 
+}
+
+TrajectoryGenerator* RunLoop::get_trajectory_generator_for_skill(
+    int memory_region) {
+
+  SharedBuffer buffer;
+  if (memory_region == 0) {
+    buffer = traj_gen_buffer_0_;
+  } else {
+    buffer = traj_gen_buffer_1_;
+  }
+  int traj_gen_id = buffer[0];
+
+  if (traj_gen_id == 1) {
+    // Create Counter based trajectory.
+    CounterTrajectoryGenerator *traj_generator = \
+      new CounterTrajectoryGenerator(buffer);
+    traj_generator->parse_parameters();
+    return traj_generator;
+  } else {
+    // Cannot create Trajectory generator for this skill. Throw error
+    std::cout << "Cannot generate trajectory generator. Should throw exception."
+        << std::endl;
+    return 0;
+  }
 }
 
 void RunLoop::stop() {
@@ -138,7 +180,19 @@ void RunLoop::update_process_info() {
 
         // Check if new task is available
         if (run_loop_info_->new_task_available_) {
+          // Get the parameters
+          // Create new task Skill
+          int new_skill_id = run_loop_info_->get_new_skill_id();
+          run_loop_info_->update_current_skill(new_skill_id);
 
+          // Add new skill
+          SkillInfo *new_skill = new SkillInfo(new_skill_id);
+          skill_manager_.add_skill(new_skill);
+
+          // Update the shared memory region. This means that the actionlib service
+          // will now write to the other memory region, i.e. not the current memory
+          // region.
+          run_loop_info_->update_shared_memory_region();
         }
       }
     } catch (boost::interprocess::lock_exception) {
@@ -173,7 +227,23 @@ void RunLoop::run() {
       }
     }
 
+    // Complete old skills and aquire new skills
     update_process_info();
+
+    SkillInfo *new_skill = skill_manager_.get_current_skill();
+    // Found new skill. Let's initialize it.
+    if (new_skill != 0) {
+      if ((skill != 0 && new_skill->get_skill_id() != skill->get_skill_id())
+       ||  skill == 0) {
+        // Generate things that are required here.
+        TrajectoryGenerator *traj_generator = \
+            get_trajectory_generator_for_skill(
+                run_loop_info_->get_current_shared_memory_index());
+
+        // Start skill, does any pre-processing if required.
+        new_skill->start_skill(traj_generator);
+      }
+    }
 
 
     auto finish = std::chrono::high_resolution_clock::now();

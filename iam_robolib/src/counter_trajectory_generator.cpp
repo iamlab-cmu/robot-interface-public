@@ -11,7 +11,7 @@ void CounterTrajectoryGenerator::parse_parameters() {
   delta_ = int(params_[3]);
 }
 
-void CounterTrajectoryGenerator::initialiize_trajectory() {
+void CounterTrajectoryGenerator::initialize_trajectory() {
   current_val_ = start_;
 }
 

@@ -6,12 +6,13 @@
 
 #include "trajectory_generator.h"
 
-class CounterTrajectoryGenerator : TrajectoryGenerator {
+class CounterTrajectoryGenerator : public TrajectoryGenerator {
  public:
+  using TrajectoryGenerator::TrajectoryGenerator;
 
   void parse_parameters() override;
 
-  void initialiize_trajectory() override;
+  void initialize_trajectory() override;
 
   void get_next_step() override;
 

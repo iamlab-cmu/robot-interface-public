@@ -8,7 +8,7 @@
 
 class TrajectoryGenerator {
  public:
-  TrajectoryGenerator(std::array<float, 1024> p) : params_{p} {};
+  explicit TrajectoryGenerator(std::array<float, 1024> p) : params_{p} {};
 
   /**
    * Parse parameters from memory.
@@ -18,7 +18,7 @@ class TrajectoryGenerator {
   /**
    * Initialize trajectory generation after parameter parsing.
    */
-  virtual void initialiize_trajectory() = 0;
+  virtual void initialize_trajectory() = 0;
 
   /**
    *  Get next trajectory step.
