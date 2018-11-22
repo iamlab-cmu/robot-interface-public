@@ -2,10 +2,13 @@
 #include <thread>
 #include <array>
 #include <chrono>
+#include <cassert>
 
 #include <boost/interprocess/managed_shared_memory.hpp>
-#include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
+#include <boost/interprocess/shared_memory_object.hpp>
+#include <boost/interprocess/sync/scoped_lock.hpp>
+#include <boost/interprocess/sync/interprocess_mutex.hpp>
 
 #include "run_loop_process_info.h"
 
@@ -25,7 +28,7 @@ struct Task {
     buffer[2] = end_;
     buffer[3] = delta_;
   }
-}
+};
 
 int main() {
   std::cout << "Hello world\n";
@@ -41,10 +44,10 @@ int main() {
   assert(run_loop_process_info != 0);
   
   // Get mutex for ProcessInfo from the shared memory segment.
-  std::pair<boost::interprocess::interprocess_mutex, std::size_t> mutex_pair = \
+  std::pair<boost::interprocess::interprocess_mutex *, std::size_t> mutex_pair = \
       segment.find<boost::interprocess::interprocess_mutex>
           ("run_loop_info_mutex");
-  boost::interprocess::mutex *run_loop_info_mutex = mutex_pair.first
+  boost::interprocess::interprocess_mutex *run_loop_info_mutex = mutex_pair.first;
   assert(run_loop_info_mutex != 0);
 
 
@@ -58,7 +61,7 @@ int main() {
   auto& buffer_0 = *reinterpret_cast<SharedBuffer*>(region_0.get_address());
 
   // Get shared memory object 1
-  std::string shm_name = run_loop_process_info.get_current_shared_memory_name()
+  std::string shm_name = run_loop_process_info->get_current_shared_memory_name();
   boost::interprocess::shared_memory_object shm_1(
           boost::interprocess::open_only,
           "run_loop_shared_obj_1",
@@ -87,7 +90,7 @@ int main() {
     {
       boost::interprocess::scoped_lock<
                     boost::interprocess::interprocess_mutex> lock(*run_loop_info_mutex);
-      Task current_task;
+      Task current_task(0, 0, 0);
       if (current_task_up) {
         current_task = up_count_task;
       } else {
@@ -96,43 +99,42 @@ int main() {
 
       try {
         // TODO(Mohit): Should we use a timed locked here?  This will block forever otherwise.
-        if (lock.lock()) {
-          if (run_loop_info->new_task_available_) {
-            std::cout << "New task still available. Should not overwrite. Throw exception?"<< 
-                std::endl;
+        lock.lock();
+        
+        if (run_loop_process_info->new_task_available_) {
+          std::cout << "New task still available. Should not overwrite. Throw exception?"<< std::endl;
+        } else {
+          int memory_index = run_loop_process_info->get_current_shared_memory_index(); 
+          int actionlib_memory_index = 1 - memory_index;
+
+          SharedBuffer buffer;
+          if (actionlib_memory_index == 0) {
+            buffer = buffer_0;
+          } else if (actionlib_memory_index == 1) {
+            buffer = buffer_1;
           } else {
-            int memory_index = run_loop_info->get_current_shared_memory_index(); 
-            int actionlib_memory_index = 1 - memory_index;
-
-            SharedBuffer buffer;
-            if (actionlib_memory_index == 0) {
-              buffer = buffer_0;
-            } else if (actionlib_memory_index == 1) {
-              buffer = buffer_1;
-            } else {
-              // Memory index is neither 0 nor 1. WTF!!
-              std::cout << "Memory index is " << actionlib_memory_index << std::endl;
-              assert(false);
-            }
-
-            // Reset the memory.
-            std::memset(buffer, -1, 1024);
-            current_task.write_task_params_to_buffer(buffer)
-            run_loop_info->update_new_skill(current_task_id);
-            run_loop_info->new_task_available_ = true;
-
-            // Update to new task
-            int old_start = task.start;
-            int new_start = task.end_;
-            int old_end = task.end_;
-            int new_end = old_end + (old_end - old_start);
-            task.start = new_start;
-            task.end = new_end;
-            current_task_up = (!current_task_up);
-            current_task_id = current_task_id + 1;
+            // Memory index is neither 0 nor 1. WTF!!
+            std::cout << "Memory index is " << actionlib_memory_index << std::endl;
+            assert(false);
           }
 
+          // Reset the memory.
+          buffer.fill(-1);
+          current_task.write_task_params_to_buffer(buffer);
+          run_loop_process_info->update_new_skill(current_task_id);
+          run_loop_process_info->new_task_available_ = true;
+
+          // Update to new task
+          int old_start = current_task.start_;
+          int new_start = current_task.end_;
+          int old_end = current_task.end_;
+          int new_end = old_end + (old_end - old_start);
+          current_task.start_ = new_start;
+          current_task.end_ = new_end;
+          current_task_up = (!current_task_up);
+          current_task_id = current_task_id + 1;
         }
+
       } catch (boost::interprocess::lock_exception) {
         // TODO(Mohit): Do something better here.
         std::cout << "Cannot acquire lock for run loop info";
