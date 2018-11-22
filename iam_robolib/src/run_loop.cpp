@@ -101,7 +101,15 @@ void RunLoop::stop() {
 }
 
 bool RunLoop::update() {
+
   std::cout << "In run loop update, will read from buffer\n";
+
+  // Pointers might be a bit slow??
+  // (Well we should be caching these so hopefully not)
+  SkillInfo *skill = skill_manager_.get_current_skill();
+  if (skill != 0) {
+    skill->execute_skill();
+  }
 
   auto& buffer = *reinterpret_cast<SharedBuffer*>(region_1_.get_address());
   for (int i = 0; i < 10; i++) {
@@ -144,12 +152,18 @@ void RunLoop::run() {
 
   while (1) {
     start = std::chrono::high_resolution_clock::now();
-    bool curr_task_status = update();
 
-    if (!curr_task_status) {
-      finish_current_task();
+    // Execute the current skill (traj_generator, FBC are here)
+    SkillInfo *skill = skill_manager_.get_current_skill();
+    if (skill != 0) {
+      skill->execute_skill();
+
+      SkillStatus status = skill->get_current_skill_status();
+
+      if (status == SkillStatus::FINISHED) {
+        finish_current_task();
+      }
     }
-
 
     auto finish = std::chrono::high_resolution_clock::now();
     // Wait for start + milli - finish

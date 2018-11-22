@@ -12,9 +12,8 @@
 
 #include <iam_robolib/run_loop_process_info.h>
 
-#include "skill_info_manager.h"
-
-// #include <libiam/motion_generator.h>
+// TODO(Mohit): Fix this, CANNOT do private imports in public headers. FML.
+#include "../../src/skill_info_manager.h"
 
 void setCurrentThreadToRealtime(bool throw_on_error);
 
@@ -53,7 +52,7 @@ class RunLoop {
  private:
 
   // MotionGenerator motion_generator;
-  SkillInfoManager skill_manager_;
+  SkillInfoManager skill_manager_{};
 
   boost::interprocess::interprocess_mutex *run_loop_info_mutex_=NULL;
   RunLoopProcessInfo *run_loop_info_=NULL; const bool limit_rate_;  // NOLINT(readability-identifier-naming)
