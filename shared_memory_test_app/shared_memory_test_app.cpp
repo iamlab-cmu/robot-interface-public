@@ -12,21 +12,24 @@
 
 #include "run_loop_process_info.h"
 
-using SharedBuffer = std::array<float, 1024>;
+typedef float *SharedBuffer;
+// using SharedBuffer = std::array<float, 1024>;
 
 struct Task {
-  int start_;
-  int end_;
-  int delta_;
+  float start_;
+  float end_;
+  float delta_;
 
-  Task(int start, int end, int delta) : start_(start), end_(end), delta_(delta) {};
+  Task(float start, float end, float delta) : start_(start), end_(end), delta_(delta) {};
 
   void write_task_params_to_buffer(SharedBuffer buffer) {
     // first index is the task type. Default to 1.
-    buffer[0] = 1;
+    buffer[0] = 1.0f;
     buffer[1] = start_;
     buffer[2] = end_;
     buffer[3] = delta_;
+    std::cout << "Did write to memory "<< buffer[0] << " " << buffer[1] << " "  << buffer[2] << " "
+        << buffer[3] << "\n";
   }
 };
 
@@ -62,7 +65,7 @@ int main() {
           boost::interprocess::read_write
   );
   boost::interprocess::mapped_region region_0(shm_0, boost::interprocess::read_write);
-  auto& buffer_0 = *reinterpret_cast<SharedBuffer*>(region_0.get_address());
+  SharedBuffer buffer_0 = reinterpret_cast<SharedBuffer>(region_0.get_address());
 
   // Get shared memory object 1
   std::string shm_name = run_loop_process_info->get_current_shared_memory_name();
@@ -72,7 +75,7 @@ int main() {
           boost::interprocess::read_write
   );
   boost::interprocess::mapped_region region_1(shm_1, boost::interprocess::read_write);
-  auto& buffer_1 = *reinterpret_cast<SharedBuffer*>(region_1.get_address());
+  SharedBuffer buffer_1 = reinterpret_cast<SharedBuffer>(region_1.get_address());
 
   // Now we will have new tasks coming in every 'x' seconds. Each task is a counter
   // based trajectory generator. We count up and down alternatively, beginning from 0, i.e.
@@ -114,23 +117,21 @@ int main() {
         } else {
           int memory_index = run_loop_process_info->get_current_shared_memory_index();
           int actionlib_memory_index = 1 - memory_index;
+          std::cout << "Did get lock. Will write to memory: " << actionlib_memory_index << "\n";
 
-          SharedBuffer buffer;
-          if (actionlib_memory_index == 0) {
-            buffer = buffer_0;
-          } else if (actionlib_memory_index == 1) {
+          SharedBuffer buffer = buffer_0;
+          if (actionlib_memory_index == 1) {
             buffer = buffer_1;
-          } else {
-            // Memory index is neither 0 nor 1. WTF!!
-            std::cout << "Memory index is " << actionlib_memory_index << std::endl;
-            assert(false);
           }
 
           // Reset the memory.
-          buffer.fill(-1);
+          // buffer.fill(-1.0);
+          std::memset(buffer, -1, sizeof(float) * 1024);
           current_task.write_task_params_to_buffer(buffer);
           run_loop_process_info->update_new_skill(current_task_id);
           run_loop_process_info->new_task_available_ = true;
+
+          std::cout << "Did write task: " << current_task_id << " to shared buffer.\n";
 
           // Update to new task
           int old_start = current_task.start_;

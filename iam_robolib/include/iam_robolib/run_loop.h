@@ -18,7 +18,9 @@
 
 
 // SharedBuffer type to share memory (Change size later)
-using SharedBuffer = std::array<float, 1024>;
+// using SharedBuffer = std::array<float, 1024>;
+
+typedef float *SharedBuffer;
 
 // Set thread to real time priority.
 void setCurrentThreadToRealtime(bool throw_on_error);
@@ -81,8 +83,8 @@ class RunLoop {
   boost::interprocess::mapped_region region_0_{};
   boost::interprocess::mapped_region region_1_{};
 
-  SharedBuffer traj_gen_buffer_0_;
-  SharedBuffer traj_gen_buffer_1_;
+  SharedBuffer traj_gen_buffer_0_=0;
+  SharedBuffer traj_gen_buffer_1_=0;
 
   /**
    * Check if new skill should be started or not. Starting a new skill

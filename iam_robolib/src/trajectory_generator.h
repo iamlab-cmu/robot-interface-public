@@ -8,7 +8,7 @@
 
 class TrajectoryGenerator {
  public:
-  explicit TrajectoryGenerator(std::array<float, 1024> p) : params_{p} {};
+  explicit TrajectoryGenerator(float *p) : params_{p} {};
 
   /**
    * Parse parameters from memory.
@@ -26,7 +26,7 @@ class TrajectoryGenerator {
   virtual void get_next_step() = 0;
 
  protected:
-  std::array<float, 1024> params_;
+  float *params_=0;
 
 };
 

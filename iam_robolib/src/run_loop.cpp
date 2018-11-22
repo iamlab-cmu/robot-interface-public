@@ -62,7 +62,7 @@ void RunLoop::start() {
 
 
   // Create shared memory objects.
-  /* TODO(Mohit): Maybe we shold be using shared memory object instead of
+  /* TODO(Mohit): Maybe we should be using shared memory object instead of
    * managed managed shared memory.*/
   boost::interprocess::shared_memory_object::remove("run_loop_shared_obj_1");
   shared_memory_object_1_ = boost::interprocess::shared_memory_object(
@@ -82,9 +82,9 @@ void RunLoop::start() {
           shared_memory_object_1_,              // Memory-mappable object
           boost::interprocess::read_write,      // Access mode
           0,                                    // Offset from the beginning of shm
-          8 * 1024                              // Length of the region
+          sizeof(float) * 1024                              // Length of the region
   );
-  traj_gen_buffer_1_ = *reinterpret_cast<SharedBuffer*>(
+  traj_gen_buffer_1_ = reinterpret_cast<SharedBuffer>(
       region_1_.get_address());
 
   boost::interprocess::shared_memory_object::remove("run_loop_shared_obj_0");
@@ -105,9 +105,9 @@ void RunLoop::start() {
       shared_memory_object_0_,              // Memory-mappable object
       boost::interprocess::read_write,      // Access mode
       0,                                    // Offset from the beginning of shm
-      8 * 1024                              // Length of the region
+      sizeof(float) * 1024                              // Length of the region
   );
-  traj_gen_buffer_0_ = *reinterpret_cast<SharedBuffer*>(
+  traj_gen_buffer_0_ = reinterpret_cast<SharedBuffer>(
       region_0_.get_address());
 
 
@@ -116,13 +116,11 @@ void RunLoop::start() {
 TrajectoryGenerator* RunLoop::get_trajectory_generator_for_skill(
     int memory_region) {
 
-  SharedBuffer buffer;
-  if (memory_region == 0) {
-    buffer = traj_gen_buffer_0_;
-  } else {
+  SharedBuffer buffer = traj_gen_buffer_0_;
+  if (memory_region == 1) {
     buffer = traj_gen_buffer_1_;
   }
-  int traj_gen_id = buffer[0];
+  int traj_gen_id = static_cast<int>(traj_gen_buffer_0_[0]);
 
   if (traj_gen_id == 1) {
     // Create Counter based trajectory.
@@ -132,8 +130,8 @@ TrajectoryGenerator* RunLoop::get_trajectory_generator_for_skill(
     return traj_generator;
   } else {
     // Cannot create Trajectory generator for this skill. Throw error
-    std::cout << "Cannot generate trajectory generator. Should throw exception.\n"
-        << std::endl;
+    std::cout << "Cannot generate trajectory generator: " << traj_gen_id <<
+        " Should throw exception\n" << std::endl;
     return 0;
   }
 }
@@ -162,9 +160,10 @@ bool RunLoop::should_start_new_skill(SkillInfo *old_skill, SkillInfo *new_skill)
 
 void RunLoop::start_new_skill(SkillInfo *new_skill) {
   // Generate things that are required here.
+  int memory_index = run_loop_info_->get_current_shared_memory_index();
+  std::cout << "Create skill from memory: " << memory_index << std::endl;
   TrajectoryGenerator *traj_generator = \
-      get_trajectory_generator_for_skill(
-          run_loop_info_->get_current_shared_memory_index());
+      get_trajectory_generator_for_skill(memory_index);
 
   // Start skill, does any pre-processing if required.
   new_skill->start_skill(traj_generator);
@@ -193,12 +192,14 @@ void RunLoop::update_process_info() {
 
         // Check if new task is available
         if (run_loop_info_->new_task_available_) {
+
           // Get the parameters
           // Create new task Skill
           int new_skill_id = run_loop_info_->get_new_skill_id();
-          run_loop_info_->update_current_skill(new_skill_id);
+          std::cout << "Did find new task with id: " << new_skill_id << std::endl;
 
           // Add new skill
+          run_loop_info_->update_current_skill(new_skill_id);
           SkillInfo *new_skill = new SkillInfo(new_skill_id);
           skill_manager_.add_skill(new_skill);
 

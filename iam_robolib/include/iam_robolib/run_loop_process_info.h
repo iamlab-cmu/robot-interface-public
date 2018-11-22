@@ -43,7 +43,7 @@ class RunLoopProcessInfo {
         void update_new_skill(int new_skill_id);
 
     private:
-        int current_memory_region_{0};
+        int current_memory_region_{1};
         int current_skill_id_{-1};
         int new_skill_id_{-1};
 

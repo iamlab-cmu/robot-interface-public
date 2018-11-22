@@ -6,9 +6,9 @@
 
 void CounterTrajectoryGenerator::parse_parameters() {
   // First parameter is reserved for the type
-  start_ = int(params_[1]);
-  end_ = int(params_[2]);
-  delta_ = int(params_[3]);
+  start_ = (int)params_[1];
+  end_ = (int)params_[2];
+  delta_ = (int)params_[3];
 }
 
 void CounterTrajectoryGenerator::initialize_trajectory() {
