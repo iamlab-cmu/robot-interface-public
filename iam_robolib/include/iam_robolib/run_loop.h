@@ -9,7 +9,6 @@
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 
-
 #include <iam_robolib/run_loop_process_info.h>
 
 // TODO(Mohit): Fix this, CANNOT do private imports in public headers. FML.
@@ -21,7 +20,8 @@ void setCurrentThreadToRealtime(bool throw_on_error);
 // TODO(Mohit): Need to make this an interface.
 class RunLoop {
  public: // TODO(Mohit): Maybe we should pass in a pointer to the main loop interface?
-  RunLoop() : limit_rate_(false), cutoff_frequency_(0.0), elapsed_time_(0.0) {}
+  RunLoop() : limit_rate_(false), cutoff_frequency_(0.0), elapsed_time_(0.0),
+              process_info_requires_update_(false) {}
 
   // Todo(Mohit): Implement this!!! We should free up the shared memory correctly.
   // ~RunLoop();
@@ -54,8 +54,13 @@ class RunLoop {
   // MotionGenerator motion_generator;
   SkillInfoManager skill_manager_{};
 
+  // If this flag is true at every loop we will try to get the lock and update
+  // process info.
+  bool process_info_requires_update_;
   boost::interprocess::interprocess_mutex *run_loop_info_mutex_=NULL;
   RunLoopProcessInfo *run_loop_info_=NULL; const bool limit_rate_;  // NOLINT(readability-identifier-naming)
+
+
   const double cutoff_frequency_; // NOLINT(readability-identifier-naming)
   uint32_t elapsed_time_;
 
@@ -82,5 +87,11 @@ class RunLoop {
    * TODO(Mohit): Pass in the current Task Info object to it or return from it?
    */
   void finish_current_task();
+
+  /**
+   * Update process info in the shared memory to reflect run-loop's
+   * current status.
+   */
+  void update_process_info();
 
 };

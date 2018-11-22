@@ -1,6 +1,5 @@
 #include <iam_robolib/run_loop.h>
 #include <iam_robolib/duration.h>
-#include <iam_robolib/run_loop_process_info.h>
 
 #include <boost/interprocess/managed_shared_memory.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
@@ -127,13 +126,20 @@ bool RunLoop::update() {
 void RunLoop::start_new_task() {
 }
 
-void RunLoop::finish_current_task() {
+void RunLoop::update_process_info() {
+  bool is_executing_skill = skill_manager_.is_currently_executing_skill();
   {
     boost::interprocess::scoped_lock<
             boost::interprocess::interprocess_mutex> lock(*run_loop_info_mutex_);
     try {
       if (lock.try_lock()) {
-        run_loop_info_->is_running_task_ = false;
+        run_loop_info_->is_running_task_ = is_executing_skill;
+        process_info_requires_update_ = false;
+
+        // Check if new task is available
+        if (run_loop_info_->new_task_available_) {
+
+        }
       }
     } catch (boost::interprocess::lock_exception) {
       // TODO(Mohit): Do something better here.
@@ -155,15 +161,20 @@ void RunLoop::run() {
 
     // Execute the current skill (traj_generator, FBC are here)
     SkillInfo *skill = skill_manager_.get_current_skill();
-    if (skill != 0) {
-      skill->execute_skill();
 
+    // NOTE: We keep on running the last skill even if it is finished!!
+    if (skill != 0) {
+
+      skill->execute_skill();
       SkillStatus status = skill->get_current_skill_status();
 
       if (status == SkillStatus::FINISHED) {
-        finish_current_task();
+        process_info_requires_update_ = true;
       }
     }
+
+    update_process_info();
+
 
     auto finish = std::chrono::high_resolution_clock::now();
     // Wait for start + milli - finish

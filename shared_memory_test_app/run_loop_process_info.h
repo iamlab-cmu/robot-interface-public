@@ -2,8 +2,7 @@
 // Created by mohit on 11/20/18.
 //
 
-#ifndef IAM_ROBOLIB_RUN_LOOP_PROCESS_INFO_H
-#define IAM_ROBOLIB_RUN_LOOP_PROCESS_INFO_H
+#pragma once
 
 #include <string>
 
@@ -18,7 +17,5 @@ class RunLoopProcessInfo {
 
     private:
         int current_memory_region_;
+        int current_skill_id = -1;
 };
-
-
-#endif // IAM_ROBOLIB_RUN_LOOP_PROCESS_INFO_H
