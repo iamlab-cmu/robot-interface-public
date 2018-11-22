@@ -43,3 +43,9 @@ void RunLoopProcessInfo::update_shared_memory_region() {
   assert(current_memory_region_ == 0 or current_memory_region_ == 1);
   current_memory_region_ = (current_memory_region_ + 1) % 2;
 }
+
+void RunLoopProcessInfo::update_new_skill(int new_skill_id) {
+  // Make sure we are getting the new skill
+  assert(new_skill_id > current_skill_id_);
+  new_skill_id_ = new_skill_id;
+}

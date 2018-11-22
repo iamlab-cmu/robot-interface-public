@@ -17,6 +17,9 @@ class RunLoopProcessInfo {
 
         std::string get_shared_memory_for_actionlib();
 
+        /**
+         * Memory index being used by the run loop.
+         */
         int get_current_shared_memory_index();
 
         /**
@@ -33,6 +36,11 @@ class RunLoopProcessInfo {
          * Update current skill being executed.
          */
         void update_current_skill(int new_skill_id);
+
+        /**
+         * Update new skill id. Written from actionlib.
+         */
+        void update_new_skill(int new_skill_id);
 
     private:
         int current_memory_region_{0};
