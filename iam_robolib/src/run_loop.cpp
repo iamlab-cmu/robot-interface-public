@@ -132,7 +132,7 @@ TrajectoryGenerator* RunLoop::get_trajectory_generator_for_skill(
     return traj_generator;
   } else {
     // Cannot create Trajectory generator for this skill. Throw error
-    std::cout << "Cannot generate trajectory generator. Should throw exception."
+    std::cout << "Cannot generate trajectory generator. Should throw exception.\n"
         << std::endl;
     return 0;
   }
@@ -183,7 +183,9 @@ void RunLoop::update_process_info() {
   bool is_executing_skill = skill_manager_.is_currently_executing_skill();
   {
     boost::interprocess::scoped_lock<
-            boost::interprocess::interprocess_mutex> lock(*run_loop_info_mutex_);
+            boost::interprocess::interprocess_mutex> lock(
+                *run_loop_info_mutex_,
+                boost::interprocess::defer_lock);
     try {
       if (lock.try_lock()) {
         run_loop_info_->is_running_task_ = is_executing_skill;
@@ -208,7 +210,7 @@ void RunLoop::update_process_info() {
       }
     } catch (boost::interprocess::lock_exception) {
       // TODO(Mohit): Do something better here.
-      std::cout << "Cannot acquire lock for run loop info";
+      std::cout << "Cannot acquire lock for run loop info\n";
     }
   }
 

@@ -31,10 +31,14 @@ struct Task {
 };
 
 int main() {
+  // TODO(Mohit): All these shared memory methods throw exceptions which we should
+  // be catching.
+
+
   std::cout << "Hello world\n";
   boost::interprocess::managed_shared_memory segment(
       boost::interprocess::open_only,
-      "run_loop_shared_memory_1"); //Shared memory object name
+      "run_loop_shared_memory"); //Shared memory object name
 
   // Get RunLoopProcessInfo from the the shared memory segment.
   std::pair<RunLoopProcessInfo*, std::size_t> res = segment.find<RunLoopProcessInfo>
@@ -42,7 +46,7 @@ int main() {
   RunLoopProcessInfo *run_loop_process_info = res.first;
   // Make sure the process info object can be found in memory.
   assert(run_loop_process_info != 0);
-  
+
   // Get mutex for ProcessInfo from the shared memory segment.
   std::pair<boost::interprocess::interprocess_mutex *, std::size_t> mutex_pair = \
       segment.find<boost::interprocess::interprocess_mutex>
@@ -78,18 +82,20 @@ int main() {
 
   Task up_count_task = Task(0, 10, 1);
   Task down_count_task = Task(0, -10, -1);
-  
+
   int t = 0;
   int current_task_id = 1;
   bool current_task_up = true;
   // Wait for some time
   std::this_thread::sleep_for(std::chrono::seconds(2));
   while (1) {
-    // Now we have our task. Try to send it to the shared memory buffer.    
+    // Now we have our task. Try to send it to the shared memory buffer.
     // Use scoped locks
     {
       boost::interprocess::scoped_lock<
-                    boost::interprocess::interprocess_mutex> lock(*run_loop_info_mutex);
+                    boost::interprocess::interprocess_mutex> lock(
+                        *run_loop_info_mutex,
+                        boost::interprocess::defer_lock);
       Task current_task(0, 0, 0);
       if (current_task_up) {
         current_task = up_count_task;
@@ -97,14 +103,16 @@ int main() {
         current_task = down_count_task;
       }
 
+      assert(lock.mutex() != 0);
+      std::cout << "will try to get lock\n";
       try {
         // TODO(Mohit): Should we use a timed locked here?  This will block forever otherwise.
         lock.lock();
-        
+
         if (run_loop_process_info->new_task_available_) {
           std::cout << "New task still available. Should not overwrite. Throw exception?"<< std::endl;
         } else {
-          int memory_index = run_loop_process_info->get_current_shared_memory_index(); 
+          int memory_index = run_loop_process_info->get_current_shared_memory_index();
           int actionlib_memory_index = 1 - memory_index;
 
           SharedBuffer buffer;
@@ -137,13 +145,13 @@ int main() {
 
       } catch (boost::interprocess::lock_exception) {
         // TODO(Mohit): Do something better here.
-        std::cout << "Cannot acquire lock for run loop info";
+        std::cout << "Cannot acquire lock for run loop info\n";
       }
     }
 
     // sleep for sometime before new task begins.
     std::this_thread::sleep_for(std::chrono::seconds(2));
-  } 
+  }
 
   std::cout << "Will exit the shared_memory_test_app" << std::endl;
   return 0;
