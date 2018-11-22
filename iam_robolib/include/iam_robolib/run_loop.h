@@ -12,6 +12,7 @@
 #include <iam_robolib/run_loop_process_info.h>
 
 // TODO(Mohit): Fix this, CANNOT do private imports in public headers. FML.
+#include "../../src/skill_info.h"
 #include "../../src/skill_info_manager.h"
 #include "../../src/trajectory_generator.h"
 
@@ -84,16 +85,26 @@ class RunLoop {
   SharedBuffer traj_gen_buffer_1_;
 
   /**
-   *  Start executing new task.
+   * Check if new skill should be started or not. Starting a new skill
+   * initializes it's trajectory generator, feedback controller and other
+   * associated things.
+   *
+   * @param old_skill
+   * @param new_skill
+   * @return True if new skill should be started else false.
    */
-  void start_new_task();
+  bool should_start_new_skill(SkillInfo *old_skill, SkillInfo *new_skill);
 
   /**
-   *  Finish current executing task.
-   *
-   * TODO(Mohit): Pass in the current Task Info object to it or return from it?
+   * Start executing new skill.
+   * @param new_skill New skill to start.
    */
-  void finish_current_task();
+  void start_new_skill(SkillInfo *new_skill);
+
+  /**
+   *  Finish current executing skill.
+   */
+  void finish_current_skill(SkillInfo *skill);
 
   /**
    * Update process info in the shared memory to reflect run-loop's

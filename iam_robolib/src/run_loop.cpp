@@ -44,7 +44,7 @@ void RunLoop::start() {
   std::cout << "start run loop.\n";
 
   // Create managed shared memory (segments) here.
-  boost::interprocess::shared_memory_object::remove("run_loop_shared_memory_1");
+  boost::interprocess::shared_memory_object::remove("run_loop_shared_memory");
   managed_shared_memory_ = boost::interprocess::managed_shared_memory(
           boost::interprocess::create_only,
           "run_loop_shared_memory",
@@ -64,6 +64,7 @@ void RunLoop::start() {
   // Create shared memory objects.
   /* TODO(Mohit): Maybe we shold be using shared memory object instead of
    * managed managed shared memory.*/
+  boost::interprocess::shared_memory_object::remove("run_loop_shared_obj_1");
   shared_memory_object_1_ = boost::interprocess::shared_memory_object(
           boost::interprocess::open_or_create,  // open or create
           "run_loop_shared_obj_1",              // name
@@ -86,6 +87,7 @@ void RunLoop::start() {
   traj_gen_buffer_1_ = *reinterpret_cast<SharedBuffer*>(
       region_1_.get_address());
 
+  boost::interprocess::shared_memory_object::remove("run_loop_shared_obj_0");
   shared_memory_object_0_ = boost::interprocess::shared_memory_object(
       boost::interprocess::open_or_create,  // open or create
       "run_loop_shared_obj_0",              // name
@@ -141,31 +143,40 @@ void RunLoop::stop() {
   // Stop the interface gracefully.
 }
 
-bool RunLoop::update() {
-
-  std::cout << "In run loop update, will read from buffer\n";
-
-  // Pointers might be a bit slow??
-  // (Well we should be caching these so hopefully not)
-  SkillInfo *skill = skill_manager_.get_current_skill();
-  if (skill != 0) {
-    skill->execute_skill();
+bool RunLoop::should_start_new_skill(SkillInfo *old_skill, SkillInfo *new_skill) {
+  // No new skill to start.
+  if (new_skill == 0) {
+    return false;
+  }
+  // Old  skill was null, new skill is not null. should start it.
+  if (old_skill == 0) {
+    return true;
+  }
+  // If new skill is different than old skill, we should start it.
+  if (new_skill->get_skill_id() != old_skill->get_skill_id()) {
+    return true;
   }
 
-  auto& buffer = *reinterpret_cast<SharedBuffer*>(region_1_.get_address());
-  for (int i = 0; i < 10; i++) {
-     if (buffer[i] == -1) {
-       // Task finished
-       return false;
-     }
-    std::cout << buffer[i] << ", ";
-  }
-  std::cout << "Read from buffer\n";
-
-  return true;
+  return false;
 }
 
-void RunLoop::start_new_task() {
+void RunLoop::start_new_skill(SkillInfo *new_skill) {
+  // Generate things that are required here.
+  TrajectoryGenerator *traj_generator = \
+      get_trajectory_generator_for_skill(
+          run_loop_info_->get_current_shared_memory_index());
+
+  // Start skill, does any pre-processing if required.
+  new_skill->start_skill(traj_generator);
+}
+
+void RunLoop::finish_current_skill(SkillInfo *skill) {
+  SkillStatus status = skill->get_current_skill_status();
+
+  if (status == SkillStatus::FINISHED) {
+    process_info_requires_update_ = true;
+  }
+  // TODO(Mohit): Do any other-preprocessing if required
 }
 
 void RunLoop::update_process_info() {
@@ -218,37 +229,26 @@ void RunLoop::run() {
 
     // NOTE: We keep on running the last skill even if it is finished!!
     if (skill != 0) {
-
+      // Execute skill.
       skill->execute_skill();
-      SkillStatus status = skill->get_current_skill_status();
 
-      if (status == SkillStatus::FINISHED) {
-        process_info_requires_update_ = true;
-      }
+      // Finish skill if possible.
+      finish_current_skill(skill);
     }
 
-    // Complete old skills and aquire new skills
+    // Complete old skills and acquire new skills
     update_process_info();
 
+    // Start new skill, if possible
     SkillInfo *new_skill = skill_manager_.get_current_skill();
-    // Found new skill. Let's initialize it.
-    if (new_skill != 0) {
-      if ((skill != 0 && new_skill->get_skill_id() != skill->get_skill_id())
-       ||  skill == 0) {
-        // Generate things that are required here.
-        TrajectoryGenerator *traj_generator = \
-            get_trajectory_generator_for_skill(
-                run_loop_info_->get_current_shared_memory_index());
-
-        // Start skill, does any pre-processing if required.
-        new_skill->start_skill(traj_generator);
-      }
+    if (should_start_new_skill(skill, new_skill)) {
+      start_new_skill(new_skill);
     }
 
-
+    // Sleep to maintain 1Khz frequency, not sure if this is required or not.
     auto finish = std::chrono::high_resolution_clock::now();
     // Wait for start + milli - finish
     auto elapsed = start + milli - finish;
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
 }
