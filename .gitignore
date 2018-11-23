@@ -1,4 +1,4 @@
-ompiled source #
+Compiled source #
 ###################
 *.com
 *.class
@@ -8,6 +8,7 @@ ompiled source #
 *.so
 *.pyc
 *.pyo
+*.out
 
 # Packages #
 ############
@@ -45,13 +46,23 @@ Thumbs.db
 .settings
 .idea
 .metadata
+*.cbp
 *.iml
 *.ipr
 *.swp
 *.swo
+
+# CMakeFiles #
+######################
+*.cmake
+CMakeFiles/
+Makefile
+CMakeCache.txt
+iam_robolib/cmake-build-debug/
 
 # Add workspace build files
 src/catkin_ws/build
 src/catkin_ws/devel
 
 build
+test_iam_robolib
