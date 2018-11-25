@@ -32,7 +32,11 @@ add_library(iam_robolib SHARED
   src/trajectory_generator.h
   src/counter_trajectory_generator.cpp
   src/counter_trajectory_generator.h 
-  src/SharedMemoryInfo.cpp 
+  src/SharedMemoryInfo.cpp
+  src/FeedbackController.cpp
+  src/FeedbackController.h
+  src/NoopFeedbackController.cpp
+  src/NoopFeedbackController.h
 )
 
 # Add namespace
