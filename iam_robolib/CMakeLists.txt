@@ -31,7 +31,9 @@ add_library(iam_robolib SHARED
   src/trajectory_generator.cpp
   src/trajectory_generator.h
   src/counter_trajectory_generator.cpp
-  src/counter_trajectory_generator.h)
+  src/counter_trajectory_generator.h 
+  src/SharedMemoryInfo.cpp 
+)
 
 # Add namespace
 # add_library(IAM_RoboLib::IAM_RoboLib ALIAS iam_robolib)
