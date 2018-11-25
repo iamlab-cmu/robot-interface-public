@@ -37,6 +37,10 @@ add_library(iam_robolib SHARED
   src/FeedbackController.h
   src/NoopFeedbackController.cpp
   src/NoopFeedbackController.h
+  src/TerminationHandler.cpp
+  src/TerminationHandler.h
+  src/CounterTerminationHandler.cpp
+  src/CounterTerminationHandler.h
 )
 
 # Add namespace
