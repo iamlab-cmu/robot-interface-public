@@ -12,7 +12,7 @@ class CounterTerminationHandler : TerminationHandler {
 
   void parse_parameters() override;
 
-  void initialize_trajectory() override;
+  void initialize_handler() override;
 
   bool should_terminate(SkillInfo *skill_info) override;
 

@@ -8,8 +8,8 @@ void CounterTerminationHandler::parse_parameters() {
 
 }
 
-void CounterTerminationHandler::initialize_trajectory() {
-
+void CounterTerminationHandler::initialize_handler() {
+  
 }
 
 bool CounterTerminationHandler::should_terminate(SkillInfo *skill_info) {

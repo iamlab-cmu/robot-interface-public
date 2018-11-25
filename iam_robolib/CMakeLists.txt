@@ -41,6 +41,8 @@ add_library(iam_robolib SHARED
   src/TerminationHandler.h
   src/CounterTerminationHandler.cpp
   src/CounterTerminationHandler.h
+  src/SensorData.cpp
+  src/SensorData.h
 )
 
 # Add namespace
