@@ -26,6 +26,16 @@ std::string SharedMemoryInfo::getSharedMemoryNameForObjects() {
   return objects_memory_name_;
 }
 
+std::string SharedMemoryInfo::getSharedMemoryNameForSensorData(int index) {
+  if (index == 0) {
+    return sensor_data_memory_name_0_;
+  } else if (index == 1) {
+    return sensor_data_memory_name_1_;
+  } else {
+    assert(false);
+  }
+}
+
 std::string SharedMemoryInfo::getRunLoopInfoObjectName() {
   return run_loop_info_name_;
 }
@@ -56,6 +66,10 @@ int SharedMemoryInfo::getParameterMemorySize(int index) {
   }
 }
 
+int SharedMemoryInfo::getSensorDataMemorySize() {
+  return sensor_buffer_size_;
+}
+
 int SharedMemoryInfo::getObjectMemorySize() {
   return objects_memory_size_;
 
@@ -69,12 +83,28 @@ int SharedMemoryInfo::getOffsetForTrajectoryParameters() {
   return 0;
 }
 
+int SharedMemoryInfo::getSizeForTrajectorySensorData() {
+  return trajectory_sensor_data_buffer_size_;
+}
+
+int SharedMemoryInfo::getOffsetForTrajectorySensorData() {
+  return 0;
+}
+
 int SharedMemoryInfo::getSizeForFeedbackControllerParameters() {
   return feedback_controller_params_buffer_size_;
 }
 
 int SharedMemoryInfo::getOffsetForFeedbackControllerParameters() {
   return trajectory_params_buffer_size_;
+}
+
+int SharedMemoryInfo::getSizeForFeedbackControllerSensorData() {
+  return feedback_controller_sensor_data_buffer_size_;
+}
+
+int SharedMemoryInfo::getOffsetForFeedbackControllerSensorData() {
+  return trajectory_sensor_data_buffer_size_;
 }
 
 int SharedMemoryInfo::getSizeForTerminationParameters() {
@@ -85,6 +115,14 @@ int SharedMemoryInfo::getOffsetForTerminationParameters() {
   return trajectory_params_buffer_size_ + feedback_controller_params_buffer_size_;
 }
 
+int SharedMemoryInfo::getSizeForTerminationSensorData() {
+  return termination_sensor_data_buffer_size_;
+}
+
+int SharedMemoryInfo::getOffsetForTerminationSensorData() {
+  return trajectory_sensor_data_buffer_size_ + feedback_controller_sensor_data_buffer_size_;
+}
+
 int SharedMemoryInfo::getSizeForTimerParameters() {
   return timer_params_buffer_size_;
 }
@@ -93,4 +131,25 @@ int SharedMemoryInfo::getOffsetForTimerParameters() {
   return (trajectory_params_buffer_size_
     + feedback_controller_params_buffer_size_
     + termination_params_buffer_size_);
+}
+
+int SharedMemoryInfo::getSizeForTimerSensorData() {
+  return timer_sensor_data_buffer_size_;
+}
+
+int SharedMemoryInfo::getOffsetForTimerSensorData() {
+  return trajectory_sensor_data_buffer_size_
+      + feedback_controller_sensor_data_buffer_size_
+      + termination_sensor_data_buffer_size_;
+}
+
+int SharedMemoryInfo::getSizeForExtraSensorData() {
+  return extra_sensor_data_buffer_size_;
+}
+
+int SharedMemoryInfo::getOffsetForExtraSensorData() {
+  return trajectory_sensor_data_buffer_size_
+      + feedback_controller_sensor_data_buffer_size_
+      + termination_sensor_data_buffer_size_
+      + timer_sensor_data_buffer_size_;
 }

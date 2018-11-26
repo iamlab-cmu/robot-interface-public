@@ -90,7 +90,7 @@ void RunLoop::start() {
       shared_memory_info_.getSizeForFeedbackControllerParameters()
       );
   feedback_controller_buffer_0_ = reinterpret_cast<SharedBuffer>
-  (region_feedback_controller_params_0_.get_address());
+      (region_feedback_controller_params_0_.get_address());
   region_termination_params_0_ = boost::interprocess::mapped_region(
       shared_memory_object_0_,
       boost::interprocess::read_write,
@@ -156,6 +156,95 @@ void RunLoop::start() {
       );
   timer_buffer_1_ = reinterpret_cast<SharedBuffer>(region_timer_params_1_.get_address());
 
+  /**
+   * Create shared memory region for sensor data buffer 0.
+   */
+  // Create shared memory objects. for different parameters
+  const char *sensor_name_0 = shared_memory_info_.getSharedMemoryNameForSensorData(0).c_str();
+  boost::interprocess::shared_memory_object::remove(sensor_name_0);
+  shared_sensor_data_0_ = boost::interprocess::shared_memory_object(
+      boost::interprocess::open_or_create,
+      shared_memory_info_.getSharedMemoryNameForSensorData(0).c_str(),
+      boost::interprocess::read_write
+  );
+  shared_sensor_data_0_.truncate(shared_memory_info_.getSensorDataMemorySize());
+  region_traj_sensor_data_0_ =  boost::interprocess::mapped_region(
+      shared_sensor_data_0_,
+      boost::interprocess::read_write,
+      shared_memory_info_.getOffsetForTrajectorySensorData(),
+      shared_memory_info_.getSizeForTrajectorySensorData()
+  );
+  traj_gen_sensor_buffer_0_ = reinterpret_cast<SharedBuffer>(
+      region_traj_sensor_data_0_.get_address());
+  region_feedback_controller_sensor_data_0_= boost::interprocess::mapped_region(
+      shared_sensor_data_0_,
+      boost::interprocess::read_write,
+      shared_memory_info_.getOffsetForFeedbackControllerSensorData(),
+      shared_memory_info_.getSizeForFeedbackControllerSensorData()
+  );
+  feedback_controller_sensor_buffer_0_ = reinterpret_cast<SharedBuffer>
+    (region_feedback_controller_sensor_data_0_.get_address());
+  region_termination_sensor_data_0_ = boost::interprocess::mapped_region(
+      shared_sensor_data_0_,
+      boost::interprocess::read_write,
+      shared_memory_info_.getOffsetForTerminationSensorData(),
+      shared_memory_info_.getSizeForTerminationSensorData()
+  );
+  termination_sensor_buffer_0_ = reinterpret_cast<SharedBuffer>(
+      region_termination_sensor_data_0_.get_address());
+  region_timer_sensor_data_0_= boost::interprocess::mapped_region(
+      shared_sensor_data_0_,
+      boost::interprocess::read_write,
+      shared_memory_info_.getOffsetForTimerParameters(),
+      shared_memory_info_.getSizeForTimerParameters()
+  );
+  timer_sensor_buffer_0_ = reinterpret_cast<SharedBuffer>(
+      region_timer_sensor_data_0_.get_address());
+
+  /**
+   * Create shared memory region for sensor data buffer 1.
+   */
+  // Create shared memory objects. for different parameters
+  const char *sensor_name_1 = shared_memory_info_.getSharedMemoryNameForSensorData(1).c_str();
+  boost::interprocess::shared_memory_object::remove(sensor_name_1);
+  shared_sensor_data_1_ = boost::interprocess::shared_memory_object(
+      boost::interprocess::open_or_create,
+      shared_memory_info_.getSharedMemoryNameForSensorData(1).c_str(),
+      boost::interprocess::read_write
+  );
+  shared_sensor_data_1_.truncate(shared_memory_info_.getSensorDataMemorySize());
+  region_traj_sensor_data_1_ =  boost::interprocess::mapped_region(
+      shared_sensor_data_1_,
+      boost::interprocess::read_write,
+      shared_memory_info_.getOffsetForTrajectorySensorData(),
+      shared_memory_info_.getSizeForTrajectorySensorData()
+  );
+  traj_gen_sensor_buffer_1_ = reinterpret_cast<SharedBuffer>(
+      region_traj_sensor_data_1_.get_address());
+  region_feedback_controller_sensor_data_1_= boost::interprocess::mapped_region(
+      shared_sensor_data_1_,
+      boost::interprocess::read_write,
+      shared_memory_info_.getOffsetForFeedbackControllerSensorData(),
+      shared_memory_info_.getSizeForFeedbackControllerSensorData()
+  );
+  feedback_controller_sensor_buffer_1_ = reinterpret_cast<SharedBuffer>
+    (region_feedback_controller_sensor_data_1_.get_address());
+  region_termination_sensor_data_1_ = boost::interprocess::mapped_region(
+      shared_sensor_data_1_,
+      boost::interprocess::read_write,
+      shared_memory_info_.getOffsetForTerminationSensorData(),
+      shared_memory_info_.getSizeForTerminationSensorData()
+  );
+  termination_sensor_buffer_1_ = reinterpret_cast<SharedBuffer>(
+      region_termination_sensor_data_1_.get_address());
+  region_timer_sensor_data_1_= boost::interprocess::mapped_region(
+      shared_sensor_data_1_,
+      boost::interprocess::read_write,
+      shared_memory_info_.getOffsetForTimerParameters(),
+      shared_memory_info_.getSizeForTimerParameters()
+  );
+  timer_sensor_buffer_1_ = reinterpret_cast<SharedBuffer>(
+      region_timer_sensor_data_1_.get_address());
 }
 
 TrajectoryGenerator* RunLoop::get_trajectory_generator_for_skill(
@@ -239,19 +328,18 @@ void RunLoop::update_process_info() {
         // currently executed.
         if (!is_executing_skill && run_loop_info_->new_task_available_) {
 
-          // Get the parameters
           // Create new task Skill
           int new_skill_id = run_loop_info_->get_new_skill_id();
-          std::cout << "Did find new task with id: " << new_skill_id << std::endl;
+          std::cout << "Did find new skill with id: " << new_skill_id << std::endl;
 
           // Add new skill
           run_loop_info_->update_current_skill(new_skill_id);
           SkillInfo *new_skill = new SkillInfo(new_skill_id);
           skill_manager_.add_skill(new_skill);
 
-          // Update the shared memory region. This means that the actionlib service
-          // will now write to the other memory region, i.e. not the current memory
-          // region.
+          // Update the shared memory region. This means that the actionlib service will now write
+          // to the other memory region, i.e. not the current memory region.
+          // TODO(Mohit): We should lock the other memory so that ActionLibServer cannot modify it?
           run_loop_info_->update_shared_memory_region();
           run_loop_info_->new_task_available_ = false;
         }

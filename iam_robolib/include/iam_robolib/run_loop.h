@@ -87,6 +87,7 @@ class RunLoop {
   boost::interprocess::mapped_region region_termination_params_0_{};
   boost::interprocess::mapped_region region_timer_params_0_{};
 
+
   boost::interprocess::mapped_region region_traj_params_1_{};
   boost::interprocess::mapped_region region_feedback_controller_params_1_{};
   boost::interprocess::mapped_region region_termination_params_1_{};
@@ -101,6 +102,30 @@ class RunLoop {
   SharedBuffer feedback_controller_buffer_1_=0;
   SharedBuffer termination_buffer_1_=0;
   SharedBuffer timer_buffer_1_=0;
+
+  boost::interprocess::shared_memory_object shared_sensor_data_0_{};
+  boost::interprocess::shared_memory_object shared_sensor_data_1_{};
+
+  boost::interprocess::mapped_region region_traj_sensor_data_0_{};
+  boost::interprocess::mapped_region region_feedback_controller_sensor_data_0_{};
+  boost::interprocess::mapped_region region_termination_sensor_data_0_{};
+  boost::interprocess::mapped_region region_timer_sensor_data_0_{};
+
+
+  boost::interprocess::mapped_region region_traj_sensor_data_1_{};
+  boost::interprocess::mapped_region region_feedback_controller_sensor_data_1_{};
+  boost::interprocess::mapped_region region_termination_sensor_data_1_{};
+  boost::interprocess::mapped_region region_timer_sensor_data_1_{};
+
+  SharedBuffer traj_gen_sensor_buffer_0_=0;
+  SharedBuffer feedback_controller_sensor_buffer_0_=0;
+  SharedBuffer termination_sensor_buffer_0_=0;
+  SharedBuffer timer_sensor_buffer_0_=0;
+
+  SharedBuffer traj_gen_sensor_buffer_1_=0;
+  SharedBuffer feedback_controller_sensor_buffer_1_=0;
+  SharedBuffer termination_sensor_buffer_1_=0;
+  SharedBuffer timer_sensor_buffer_1_=0;
 
   /**
    * Check if new skill should be started or not. Starting a new skill

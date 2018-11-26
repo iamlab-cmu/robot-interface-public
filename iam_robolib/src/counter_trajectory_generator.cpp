@@ -4,6 +4,8 @@
 
 #include "counter_trajectory_generator.h"
 
+#include <iostream>
+
 void CounterTrajectoryGenerator::parse_parameters() {
   // First parameter is reserved for the type
   start_ = (int)params_[1];
@@ -17,5 +19,6 @@ void CounterTrajectoryGenerator::initialize_trajectory() {
 
 void CounterTrajectoryGenerator::get_next_step() {
   current_val_ = current_val_ + delta_;
+  std::cout << "Curr value is: " << current_val_;
 }
 
