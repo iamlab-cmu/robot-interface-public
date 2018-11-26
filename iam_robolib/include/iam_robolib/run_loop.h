@@ -81,11 +81,26 @@ class RunLoop {
   // Managed memory objects
   boost::interprocess::shared_memory_object shared_memory_object_0_{};
   boost::interprocess::shared_memory_object shared_memory_object_1_{};
-  boost::interprocess::mapped_region region_0_{};
-  boost::interprocess::mapped_region region_1_{};
+
+  boost::interprocess::mapped_region region_traj_params_0_{};
+  boost::interprocess::mapped_region region_feedback_controller_params_0_{};
+  boost::interprocess::mapped_region region_termination_params_0_{};
+  boost::interprocess::mapped_region region_timer_params_0_{};
+
+  boost::interprocess::mapped_region region_traj_params_1_{};
+  boost::interprocess::mapped_region region_feedback_controller_params_1_{};
+  boost::interprocess::mapped_region region_termination_params_1_{};
+  boost::interprocess::mapped_region region_timer_params_1_{};
 
   SharedBuffer traj_gen_buffer_0_=0;
+  SharedBuffer feedback_controller_buffer_0_=0;
+  SharedBuffer termination_buffer_0_=0;
+  SharedBuffer timer_buffer_0_=0;
+
   SharedBuffer traj_gen_buffer_1_=0;
+  SharedBuffer feedback_controller_buffer_1_=0;
+  SharedBuffer termination_buffer_1_=0;
+  SharedBuffer timer_buffer_1_=0;
 
   /**
    * Check if new skill should be started or not. Starting a new skill

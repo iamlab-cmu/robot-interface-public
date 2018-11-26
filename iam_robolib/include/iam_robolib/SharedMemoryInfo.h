@@ -25,6 +25,18 @@ class SharedMemoryInfo {
 
   int getObjectMemorySize();
 
+  int getSizeForTrajectoryParameters();
+  int getOffsetForTrajectoryParameters();
+
+  int getSizeForFeedbackControllerParameters();
+  int getOffsetForFeedbackControllerParameters();
+
+  int getSizeForTerminationParameters();
+  int getOffsetForTerminationParameters();
+
+  int getSizeForTimerParameters();
+  int getOffsetForTimerParameters();
+
 
  private:
   const std::string params_memory_name_0_="run_loop_shared_obj_0";
@@ -40,9 +52,14 @@ class SharedMemoryInfo {
   const std::string params_memory_mutex_name_1_="run_loop_shared_obj_1_mutex";
 
   // Declare sizes
-  const int params_memory_size_0_=1024;
-  const int params_memory_size_1_=1024;
-  const int objects_memory_size_=1024;
+  const int params_memory_size_0_=4*1024*sizeof(float);
+  const int params_memory_size_1_=4*1024*sizeof(float);
+  const int objects_memory_size_=1024*sizeof(float);
+
+  const int trajectory_params_buffer_size_= 1024 * sizeof(float);
+  const int feedback_controller_params_buffer_size_=1024 * sizeof(float);
+  const int termination_params_buffer_size_=1024 * sizeof(float);
+  const int timer_params_buffer_size_=1024 * sizeof(float);
 };
 
 #endif //TEST_IAM_ROBOLIB_SHAREDMEMORYINFO_H

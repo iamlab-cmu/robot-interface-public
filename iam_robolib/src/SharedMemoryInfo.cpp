@@ -58,4 +58,39 @@ int SharedMemoryInfo::getParameterMemorySize(int index) {
 
 int SharedMemoryInfo::getObjectMemorySize() {
   return objects_memory_size_;
+
+}
+
+int SharedMemoryInfo::getSizeForTrajectoryParameters() {
+  return trajectory_params_buffer_size_;
+}
+
+int SharedMemoryInfo::getOffsetForTrajectoryParameters() {
+  return 0;
+}
+
+int SharedMemoryInfo::getSizeForFeedbackControllerParameters() {
+  return feedback_controller_params_buffer_size_;
+}
+
+int SharedMemoryInfo::getOffsetForFeedbackControllerParameters() {
+  return trajectory_params_buffer_size_;
+}
+
+int SharedMemoryInfo::getSizeForTerminationParameters() {
+  return termination_params_buffer_size_;
+}
+
+int SharedMemoryInfo::getOffsetForTerminationParameters() {
+  return trajectory_params_buffer_size_ + feedback_controller_params_buffer_size_;
+}
+
+int SharedMemoryInfo::getSizeForTimerParameters() {
+  return timer_params_buffer_size_;
+}
+
+int SharedMemoryInfo::getOffsetForTimerParameters() {
+  return (trajectory_params_buffer_size_
+    + feedback_controller_params_buffer_size_
+    + termination_params_buffer_size_);
 }
