@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "FeedbackController.h"
+#include "TerminationHandler.h"
 #include "trajectory_generator.h"
 
 enum class SkillStatus { TO_START, RUNNING, FINISHED };  // enum class
@@ -17,7 +19,9 @@ class SkillInfo {
 
     void set_skill_status(SkillStatus new_task_status);
 
-    void start_skill(TrajectoryGenerator *traj_generator);
+    void start_skill(TrajectoryGenerator *traj_generator,
+                     FeedbackController *feedback_controller,
+                     TerminationHandler *termination_handler);
 
     SkillStatus get_current_skill_status();
 
@@ -28,6 +32,7 @@ class SkillInfo {
     SkillStatus skill_status_;
 
     TrajectoryGenerator *traj_generator_=0;
-    // TODO(Mohit): Add Feedback controller and other things here.
+    FeedbackController *feedback_controller_=0;
+    TerminationHandler *termination_handler_=0;
 };
 

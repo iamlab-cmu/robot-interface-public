@@ -16,7 +16,8 @@
 #include "../../src/skill_info.h"
 #include "../../src/skill_info_manager.h"
 #include "../../src/trajectory_generator.h"
-
+#include "../../src/FeedbackController.h"
+#include "../../src/TerminationHandler.h"
 
 // SharedBuffer type to share memory (Change size later)
 // using SharedBuffer = std::array<float, 1024>;
@@ -162,4 +163,22 @@ class RunLoop {
    * will be stored.
    */
   TrajectoryGenerator* get_trajectory_generator_for_skill(int memory_region);
+
+  /**
+   * Get feedback controller for skill.
+   *
+   * @param memory_region  Region of the memory where the parameters
+   * will be stored.
+   * @return FeedbackController instance for this skill
+   */
+  FeedbackController* get_feedback_controller_for_skill(int memory_region);
+
+  /**
+   * Get termination handler for skill.
+   *
+   * @param memory_region  Region of the memory where the parameters
+   * will be stored.
+   * @return TermatinationHanndler instance for this skill
+   */
+  TerminationHandler* get_termination_handler_for_skill(int memory_region);
 };

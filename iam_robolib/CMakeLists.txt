@@ -43,6 +43,8 @@ add_library(iam_robolib SHARED
   src/CounterTerminationHandler.h
   src/SensorData.cpp
   src/SensorData.h
+  src/NoopTerminationHandler.cpp
+  src/NoopTerminationHandler.h
 )
 
 # Add namespace

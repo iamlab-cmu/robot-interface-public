@@ -6,7 +6,7 @@
 
 #include "FeedbackController.h"
 
-class NoopFeedbackController : FeedbackController {
+class NoopFeedbackController : public FeedbackController {
  public:
   using FeedbackController::FeedbackController;
 

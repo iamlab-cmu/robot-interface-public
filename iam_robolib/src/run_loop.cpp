@@ -14,6 +14,8 @@
 #include <thread>
 
 #include "counter_trajectory_generator.h"
+#include "NoopFeedbackController.h"
+#include "NoopTerminationHandler.h"
 
 
 void setCurrentThreadToRealtime(bool throw_on_error) {
@@ -247,19 +249,16 @@ void RunLoop::start() {
       region_timer_sensor_data_1_.get_address());
 }
 
-TrajectoryGenerator* RunLoop::get_trajectory_generator_for_skill(
-    int memory_region) {
-
+TrajectoryGenerator* RunLoop::get_trajectory_generator_for_skill(int memory_region) {
   SharedBuffer buffer = traj_gen_buffer_0_;
   if (memory_region == 1) {
     buffer = traj_gen_buffer_1_;
   }
-  int traj_gen_id = static_cast<int>(traj_gen_buffer_0_[0]);
+  int traj_gen_id = static_cast<int>(buffer[0]);
 
   if (traj_gen_id == 1) {
     // Create Counter based trajectory.
-    CounterTrajectoryGenerator *traj_generator = \
-      new CounterTrajectoryGenerator(buffer);
+    CounterTrajectoryGenerator *traj_generator = new CounterTrajectoryGenerator(buffer);
     traj_generator->parse_parameters();
     return traj_generator;
   } else {
@@ -269,6 +268,47 @@ TrajectoryGenerator* RunLoop::get_trajectory_generator_for_skill(
     return 0;
   }
 }
+
+FeedbackController* RunLoop::get_feedback_controller_for_skill(int memory_region) {
+  SharedBuffer buffer = feedback_controller_buffer_0_;
+  if (memory_region == 1) {
+    buffer = feedback_controller_buffer_1_;
+  }
+  int feedback_controller_id = static_cast<int>(buffer[0]);
+
+  if (feedback_controller_id == 1) {
+    // Create Counter based trajectory.
+    NoopFeedbackController *feedback_contoller = new NoopFeedbackController(buffer);
+    feedback_contoller->parse_parameters();
+    return feedback_contoller;
+  } else {
+    // Cannot create Trajectory generator for this skill. Throw error
+    std::cout << "Cannot generate feedback controller: " << feedback_controller_id <<
+              " Should throw exception\n" << std::endl;
+    return 0;
+  }
+}
+
+TerminationHandler* RunLoop::get_termination_handler_for_skill(int memory_region) {
+  SharedBuffer buffer = termination_buffer_0_;
+  if (memory_region == 1) {
+    buffer = termination_buffer_1_;
+  }
+  int termination_handler_id = static_cast<int>(buffer[0]);
+
+  if (termination_handler_id == 1) {
+    // Create Counter based trajectory.
+    NoopTerminationHandler *termination_handler = new NoopTerminationHandler(buffer);
+    termination_handler->parse_parameters();
+    return termination_handler;
+  } else {
+    // Cannot create Trajectory generator for this skill. Throw error
+    std::cout << "Cannot generate feedback controller: " << termination_handler_id <<
+              " Should throw exception\n" << std::endl;
+    return 0;
+  }
+}
+
 
 void RunLoop::stop() {
   // Maybe call this after exceptions or SIGINT or any Interrupt.
@@ -296,11 +336,15 @@ void RunLoop::start_new_skill(SkillInfo *new_skill) {
   // Generate things that are required here.
   int memory_index = run_loop_info_->get_current_shared_memory_index();
   std::cout << "Create skill from memory: " << memory_index << std::endl;
-  TrajectoryGenerator *traj_generator = \
+  TrajectoryGenerator *traj_generator =
       get_trajectory_generator_for_skill(memory_index);
+  FeedbackController *feedback_controller =
+      get_feedback_controller_for_skill(memory_index);
+  TerminationHandler* termination_handler =
+      get_termination_handler_for_skill(memory_index);
 
   // Start skill, does any pre-processing if required.
-  new_skill->start_skill(traj_generator);
+  new_skill->start_skill(traj_generator, feedback_controller, termination_handler);
 }
 
 void RunLoop::finish_current_skill(SkillInfo *skill) {

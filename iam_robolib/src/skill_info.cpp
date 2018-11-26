@@ -16,10 +16,16 @@ void SkillInfo::set_skill_status(SkillStatus status) {
   skill_status_ = status;
 }
 
-void SkillInfo::start_skill(TrajectoryGenerator *traj_generator) {
+void SkillInfo::start_skill(TrajectoryGenerator *traj_generator,
+                            FeedbackController *feedback_controller,
+                            TerminationHandler *termination_handler) {
   skill_status_ = SkillStatus::TO_START;
   traj_generator_ = traj_generator;
   traj_generator_->initialize_trajectory();
+  feedback_controller_ = feedback_controller;
+  feedback_controller_->initialize_controller();
+  termination_handler_ = termination_handler;
+  termination_handler_->initialize_handler();
 }
 
 SkillStatus SkillInfo::get_current_skill_status() {
