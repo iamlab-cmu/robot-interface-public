@@ -44,73 +44,65 @@ void RunLoop::start() {
   std::cout << "start run loop.\n";
 
   // Create managed shared memory (segments) here.
-  boost::interprocess::shared_memory_object::remove("run_loop_shared_memory");
+  boost::interprocess::shared_memory_object::remove(shared_memory_info_
+  .getSharedMemoryNameForObjects().c_str());
   managed_shared_memory_ = boost::interprocess::managed_shared_memory(
           boost::interprocess::create_only,
-          "run_loop_shared_memory",
-          4 * 1024);
+          shared_memory_info_.getSharedMemoryNameForObjects().c_str(),
+          sizeof(float) * shared_memory_info_.getObjectMemorySize());
+
   // Add run loop process info to the main loop.
   run_loop_info_ = managed_shared_memory_.construct<RunLoopProcessInfo>
-          ("run_loop_info")
+          (shared_memory_info_.getRunLoopInfoObjectName().c_str())
           (1);
+
   // Add the inter-process mutex into memory. We will grab this each
   // time we want to update anything in the memory.
   run_loop_info_mutex_ = managed_shared_memory_.construct<
       boost::interprocess::interprocess_mutex>
-          ("run_loop_info_mutex")
+          (shared_memory_info_.getRunLoopInfoMutexName().c_str())
           ();
 
-
-  // Create shared memory objects.
-  /* TODO(Mohit): Maybe we should be using shared memory object instead of
-   * managed managed shared memory.*/
-  boost::interprocess::shared_memory_object::remove("run_loop_shared_obj_1");
+  // Create shared memory objects. for different parameters
+  const char *shm_name_1 = shared_memory_info_.getSharedMemoryNameForParameters(1).c_str();
+  boost::interprocess::shared_memory_object::remove(shm_name_1);
   shared_memory_object_1_ = boost::interprocess::shared_memory_object(
-          boost::interprocess::open_or_create,  // open or create
-          "run_loop_shared_obj_1",              // name
-          boost::interprocess::read_write       // read-only mode
+          boost::interprocess::open_or_create,
+          shared_memory_info_.getSharedMemoryNameForParameters(1).c_str(),
+          boost::interprocess::read_write
   );
 
   // Allocate memory
-  shared_memory_object_1_.truncate(8 * 1024);
+  shared_memory_object_1_.truncate(sizeof(float) * shared_memory_info_.getParameterMemorySize(1));
 
   // TODO(Mohit): We can create multiple regions, each of which will hold
   // data for different types, e.g. trajectory generator params,
   // controller params, etc.
   // Map the region
   region_1_ =  boost::interprocess::mapped_region(
-          shared_memory_object_1_,              // Memory-mappable object
-          boost::interprocess::read_write,      // Access mode
-          0,                                    // Offset from the beginning of shm
-          sizeof(float) * 1024                              // Length of the region
+          shared_memory_object_1_,
+          boost::interprocess::read_write,
+          0,
+          sizeof(float) * shared_memory_info_.getParameterMemorySize(1)
   );
-  traj_gen_buffer_1_ = reinterpret_cast<SharedBuffer>(
-      region_1_.get_address());
+  traj_gen_buffer_1_ = reinterpret_cast<SharedBuffer>(region_1_.get_address());
 
-  boost::interprocess::shared_memory_object::remove("run_loop_shared_obj_0");
+  const char *shm_name_0 = shared_memory_info_.getSharedMemoryNameForParameters(0).c_str();
+  boost::interprocess::shared_memory_object::remove(shm_name_0);
   shared_memory_object_0_ = boost::interprocess::shared_memory_object(
-      boost::interprocess::open_or_create,  // open or create
-      "run_loop_shared_obj_0",              // name
-      boost::interprocess::read_write       // read-only mode
+      boost::interprocess::open_or_create,
+      shared_memory_info_.getSharedMemoryNameForParameters(0).c_str(),
+      boost::interprocess::read_write
   );
+  shared_memory_object_0_.truncate(sizeof(float) * shared_memory_info_.getParameterMemorySize(0));
 
-  // Allocate memory
-  shared_memory_object_0_.truncate(8 * 1024);
-
-  // TODO(Mohit): We can create multiple regions, each of which will hold
-  // data for different types, e.g. trajectory generator params,
-  // controller params, etc.
-  // Map the region
   region_0_ =  boost::interprocess::mapped_region(
-      shared_memory_object_0_,              // Memory-mappable object
-      boost::interprocess::read_write,      // Access mode
-      0,                                    // Offset from the beginning of shm
-      sizeof(float) * 1024                              // Length of the region
+      shared_memory_object_0_,
+      boost::interprocess::read_write,
+      0,
+      sizeof(float) * shared_memory_info_.getParameterMemorySize(0)
   );
-  traj_gen_buffer_0_ = reinterpret_cast<SharedBuffer>(
-      region_0_.get_address());
-
-
+  traj_gen_buffer_0_ = reinterpret_cast<SharedBuffer>(region_0_.get_address());
 }
 
 TrajectoryGenerator* RunLoop::get_trajectory_generator_for_skill(

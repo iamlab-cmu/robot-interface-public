@@ -11,6 +11,21 @@ class SharedMemoryInfo {
  public:
   SharedMemoryInfo();
 
+  std::string getSharedMemoryNameForParameters(int index);
+
+  std::string getSharedMemoryNameForObjects();
+
+  std::string getRunLoopInfoObjectName();
+
+  std::string getRunLoopInfoMutexName();
+
+  std::string getParameterMemoryMutexName(int index);
+
+  int getParameterMemorySize(int index);
+
+  int getObjectMemorySize();
+
+
  private:
   const std::string params_memory_name_0_="run_loop_shared_obj_0";
   const std::string params_memory_name_1_="run_loop_shared_obj_1";

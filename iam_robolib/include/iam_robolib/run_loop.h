@@ -10,6 +10,7 @@
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 
 #include <iam_robolib/run_loop_process_info.h>
+#include <iam_robolib/SharedMemoryInfo.h>
 
 // TODO(Mohit): Fix this, CANNOT do private imports in public headers. FML.
 #include "../../src/skill_info.h"
@@ -19,18 +20,17 @@
 
 // SharedBuffer type to share memory (Change size later)
 // using SharedBuffer = std::array<float, 1024>;
-
 typedef float *SharedBuffer;
 
 // Set thread to real time priority.
 void setCurrentThreadToRealtime(bool throw_on_error);
 
 // TODO(Mohit): Add a namespace to these declarations.
-// TODO(Mohit): Need to make this an interface.
+
 class RunLoop {
- public: // TODO(Mohit): Maybe we should pass in a pointer to the main loop interface?
+ public:
   RunLoop() : limit_rate_(false), cutoff_frequency_(0.0), elapsed_time_(0.0),
-              process_info_requires_update_(false) {}
+              process_info_requires_update_(false) {};
 
   // Todo(Mohit): Implement this!!! We should free up the shared memory correctly.
   // ~RunLoop();
@@ -59,6 +59,7 @@ class RunLoop {
   void run();
 
  private:
+  SharedMemoryInfo shared_memory_info_=SharedMemoryInfo();
 
   // MotionGenerator motion_generator;
   SkillInfoManager skill_manager_{};
