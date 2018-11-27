@@ -462,6 +462,7 @@ void RunLoop::finish_current_skill(SkillInfo *skill) {
 }
 
 void RunLoop::update_process_info() {
+  SkillInfo *skill = skill_manager_.get_current_skill();
   bool is_executing_skill = skill_manager_.is_currently_executing_skill();
   {
     boost::interprocess::scoped_lock<
@@ -471,7 +472,8 @@ void RunLoop::update_process_info() {
     try {
       if (lock.try_lock()) {
         run_loop_info_->set_is_running_skill(is_executing_skill);
-        if (!is_executing_skill) {
+        if (skill != 0 && !is_executing_skill && !run_loop_info_->get_skill_done()) {
+          std::cout << "Set skill done to true in run_loop_info";
           run_loop_info_->set_skill_done(true);
         }
         process_info_requires_update_ = false;
