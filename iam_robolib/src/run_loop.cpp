@@ -453,6 +453,14 @@ void RunLoop::finish_current_skill(SkillInfo *skill) {
 
   if (skill->should_terminate()) {
     skill->set_skill_status(SkillStatus::FINISHED);
+
+    // Write results to memory
+    int memory_index = run_loop_info_->get_current_shared_memory_index();
+    SharedBuffer buffer = execution_result_buffer_0_;
+    if (memory_index == 1) {
+      buffer = execution_result_buffer_1_;
+    }
+    skill->write_result_to_shared_memory(buffer);
   }
 
   if (status == SkillStatus::FINISHED) {
@@ -497,13 +505,6 @@ void RunLoop::update_process_info() {
                 run_loop_info_->get_done_skill_id() << " current_skill_id: " <<
                 current_skill_id << ". Not continuous. ERROR!!\n";
           } else {
-            // Write results to memory
-            int memory_index = run_loop_info_->get_current_shared_memory_index();
-            SharedBuffer buffer = execution_result_buffer_0_;
-            if (memory_index == 1) {
-              buffer = execution_result_buffer_1_;
-            }
-            skill->write_result_to_shared_memory(buffer);
             run_loop_info_->set_done_skill_id(current_skill_id);
           }
         }
@@ -554,6 +555,13 @@ void RunLoop::run() {
     if (skill != 0) {
       // Execute skill.
       skill->execute_skill();
+
+      int memory_index = run_loop_info_->get_current_shared_memory_index();
+      SharedBuffer buffer = execution_feedback_buffer_0_;
+      if (memory_index == 1) {
+        buffer = execution_feedback_buffer_1_;
+      }
+      skill->write_feedback_to_shared_memory(buffer);
 
       // Finish skill if possible.
       finish_current_skill(skill);

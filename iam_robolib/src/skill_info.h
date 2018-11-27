@@ -29,7 +29,17 @@ class SkillInfo {
 
     bool should_terminate();
 
+    /**
+     * Write result to the shared memory after skill is done.
+     * @param result_buffer
+     */
     void write_result_to_shared_memory(float *result_buffer);
+
+    /**
+     * Write feedback result to the shared memory as feedback for a skill.
+     * @param feedback_buffer
+     */
+    void write_feedback_to_shared_memory(float *feedback_buffer);
 
   private:
     int skill_idx_;

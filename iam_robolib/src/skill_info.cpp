@@ -52,3 +52,7 @@ void SkillInfo::write_result_to_shared_memory(float *result_buffer) {
   std::cout << "Should write result to shared memory\n";
 }
 
+void SkillInfo::write_feedback_to_shared_memory(float *feedback_buffer) {
+  std::cout << "Should write feedback to shared memory\n";
+}
+
