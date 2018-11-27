@@ -492,12 +492,12 @@ void RunLoop::update_process_info() {
           if (run_loop_info_->get_done_skill_id() > current_skill_id) {
             // Make sure get done skill id is not ahead of us.
             std::cout << "INVALID: RunLoopProcInfo has done skill id " <<
-                run_loop_info_->get_done_skill_id() << " greater than current skill id"
-                << " " << current_skill_id << "\n";
-          } else if (run_loop_info_->get_result_skill_id() + 2 >= current_skill_id) {
+                run_loop_info_->get_done_skill_id() << " greater than current skill id "
+                << current_skill_id << "\n";
+          } else if (run_loop_info_->get_result_skill_id() + 2 <= current_skill_id) {
             // Make sure that ActionLib has read the skill results before we overwrite them.
             std::cout << "ActionLib server has not read previous result: " <<
-                run_loop_info_->get_result_skill_id() << ". Cannot write new result" <<
+                run_loop_info_->get_result_skill_id() << ". Cannot write new result " <<
                 current_skill_id << "\n";
           } else if (run_loop_info_->get_done_skill_id() != current_skill_id - 1) {
             // Make sure we are only updating skill sequentially.
@@ -506,6 +506,7 @@ void RunLoop::update_process_info() {
                 current_skill_id << ". Not continuous. ERROR!!\n";
           } else {
             run_loop_info_->set_done_skill_id(current_skill_id);
+            std::cout << "Did set done_skill_id: " << current_skill_id << "\n";
           }
         }
         process_info_requires_update_ = false;
