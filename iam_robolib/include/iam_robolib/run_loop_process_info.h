@@ -2,7 +2,8 @@
 // Created by mohit on 11/20/18.
 //
 
-#pragma once
+#ifndef FRANKA_ACTION_LIB_RUN_LOOP_PROCESS_INFO_H
+#define FRANKA_ACTION_LIB_RUN_LOOP_PROCESS_INFO_H
 
 #include <cassert>
 #include <string>
@@ -18,10 +19,6 @@ class RunLoopProcessInfo {
   void set_is_running_skill(bool is_running_skill);
 
   bool get_is_running_skill();
-
-  void set_skill_done(bool skill_done);
-
-  bool get_skill_done();
 
   void set_skill_preempted(bool skill_preempted);
 
@@ -75,24 +72,48 @@ class RunLoopProcessInfo {
   bool can_run_new_skill();
 
 /**
- * Return the id for the latest skill available.
+ * Return the id for the current skill.
+ */
+  int get_current_skill_id();
+
+/**
+ * Set current skill id being executed.
+ */
+  void set_current_skill_id(int new_skill_id);
+
+/**
+ * Return the id for the new skill.
  */
   int get_new_skill_id();
 
 /**
- * Update current skill being executed.
+ * Set new skill id. Written from actionlib.
  */
-  void update_current_skill(int new_skill_id);
+  void set_new_skill_id(int new_skill_id);
 
 /**
- * Update new skill id. Written from actionlib.
+ * Return the id for the done skill.
  */
-  void update_new_skill(int new_skill_id);
+  int get_done_skill_id();
+
+/**
+ * Set done skill id.
+ */
+  void set_done_skill_id(int done_skill_id);
+
+/**
+ * Return the id for the result skill.
+ */
+  int get_result_skill_id();
+
+/**
+ * Set result skill id.
+ */
+  void set_result_skill_id(int result_skill_id);
 
  private:
   bool new_skill_available_{false};
   bool is_running_skill_{false};
-  bool skill_done_{false};
   bool skill_preempted_{false};
 
   int current_memory_region_{1};
@@ -100,4 +121,8 @@ class RunLoopProcessInfo {
   int current_feedback_region_{1};
   int current_skill_id_{-1};
   int new_skill_id_{-1};
+  int done_skill_id_{-1};
+  int result_skill_id_{-1};
 };
+
+#endif //FRANKA_ACTION_LIB_RUN_LOOP_PROCESS_INFO_H
