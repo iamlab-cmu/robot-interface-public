@@ -12,7 +12,7 @@ void NoopTerminationHandler::initialize_handler() {
   // pass
 }
 
-bool NoopTerminationHandler::should_terminate(SkillInfo *skill_info) {
+bool NoopTerminationHandler::should_terminate() {
   // Never Terminate (or some canonical condition).
   return false;
 }

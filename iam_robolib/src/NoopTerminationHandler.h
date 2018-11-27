@@ -23,6 +23,5 @@ class NoopTerminationHandler : public TerminationHandler {
   /**
    * Should we terminate the current skill.
    */
-  bool should_terminate(SkillInfo *skill_info) override;
-
+  bool should_terminate() override;
 };

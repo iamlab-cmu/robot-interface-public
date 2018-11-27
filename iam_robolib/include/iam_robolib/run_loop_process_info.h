@@ -2,6 +2,8 @@
 // Created by mohit on 11/20/18.
 //
 
+#pragma once
+
 #include <string>
 
 class RunLoopProcessInfo {

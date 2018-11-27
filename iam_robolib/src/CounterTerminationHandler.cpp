@@ -9,9 +9,9 @@ void CounterTerminationHandler::parse_parameters() {
 }
 
 void CounterTerminationHandler::initialize_handler() {
-  
+
 }
 
-bool CounterTerminationHandler::should_terminate(SkillInfo *skill_info) {
+bool CounterTerminationHandler::should_terminate() {
 
 }

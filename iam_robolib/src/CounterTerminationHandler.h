@@ -6,7 +6,7 @@
 
 #include "TerminationHandler.h"
 
-class CounterTerminationHandler : TerminationHandler {
+class CounterTerminationHandler : public TerminationHandler {
  public:
   using TerminationHandler::TerminationHandler;
 
@@ -14,7 +14,7 @@ class CounterTerminationHandler : TerminationHandler {
 
   void initialize_handler() override;
 
-  bool should_terminate(SkillInfo *skill_info) override;
+  bool should_terminate() override;
 
  private:
   int start_ = 0;

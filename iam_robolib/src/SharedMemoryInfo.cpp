@@ -33,6 +33,18 @@ std::string SharedMemoryInfo::getSharedMemoryNameForSensorData(int index) {
     return sensor_data_memory_name_1_;
   } else {
     assert(false);
+    return "";
+  }
+}
+
+std::string SharedMemoryInfo::getSharedMemoryNameForResults(int index) {
+  if (index == 0) {
+    return execution_response_name_0_;
+  } else if (index == 1) {
+    return execution_response_name_1_;
+  } else {
+    assert(false);
+    return "";
   }
 }
 
@@ -72,7 +84,10 @@ int SharedMemoryInfo::getSensorDataMemorySize() {
 
 int SharedMemoryInfo::getObjectMemorySize() {
   return objects_memory_size_;
+}
 
+int SharedMemoryInfo::getExecutionResponseMemorySize() {
+  return execution_response_feedback_size_ + execution_response_return_size_;
 }
 
 int SharedMemoryInfo::getSizeForTrajectoryParameters() {
@@ -152,4 +167,20 @@ int SharedMemoryInfo::getOffsetForExtraSensorData() {
       + feedback_controller_sensor_data_buffer_size_
       + termination_sensor_data_buffer_size_
       + timer_sensor_data_buffer_size_;
+}
+
+int SharedMemoryInfo::getSizeForExecutionFeedbackData() {
+  return execution_response_feedback_size_;
+}
+
+int SharedMemoryInfo::getOffsetForExecutionFeedbackData() {
+  return 0;
+}
+
+int SharedMemoryInfo::getSizeForExecutionReturnData() {
+  return execution_response_return_size_;
+}
+
+int SharedMemoryInfo::getOffsetForExecutionReturnData() {
+  return execution_response_feedback_size_;
 }
