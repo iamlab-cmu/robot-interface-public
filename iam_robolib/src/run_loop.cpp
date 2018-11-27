@@ -158,6 +158,19 @@ void RunLoop::start() {
       );
   timer_buffer_1_ = reinterpret_cast<SharedBuffer>(region_timer_params_1_.get_address());
 
+
+  /**
+   * Create mutexes for parameter buffers.
+   */
+  shared_memory_mutex_0_ = managed_shared_memory_.construct<
+      boost::interprocess::interprocess_mutex>
+      (shared_memory_info_.getParameterMemoryMutexName(0).c_str())
+      ();
+  shared_memory_mutex_1_ = managed_shared_memory_.construct<
+      boost::interprocess::interprocess_mutex>
+      (shared_memory_info_.getParameterMemoryMutexName(1).c_str())
+      ();
+
   /**
    * Create shared memory region for sensor data buffer 0.
    */
@@ -324,6 +337,8 @@ void RunLoop::start() {
       boost::interprocess::interprocess_mutex>
       (shared_memory_info_.getExecutionResponseMutexName(1).c_str())
       ();
+
+  std::cout << "Did create all shared memory buffers." << std::endl;
 }
 
 TrajectoryGenerator* RunLoop::get_trajectory_generator_for_skill(int memory_region) {

@@ -82,6 +82,9 @@ class RunLoop {
   // Managed memory objects
   boost::interprocess::shared_memory_object shared_memory_object_0_{};
   boost::interprocess::shared_memory_object shared_memory_object_1_{};
+  boost::interprocess::interprocess_mutex *shared_memory_mutex_0_= nullptr;
+  boost::interprocess::interprocess_mutex *shared_memory_mutex_1_= nullptr;
+
 
   boost::interprocess::mapped_region region_traj_params_0_{};
   boost::interprocess::mapped_region region_feedback_controller_params_0_{};
