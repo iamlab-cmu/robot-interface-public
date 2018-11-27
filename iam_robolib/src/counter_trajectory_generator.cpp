@@ -23,13 +23,16 @@ void CounterTrajectoryGenerator::initialize_trajectory() {
   for (int i=0; i < 3; i++) {
     current_point_[i] = start_point_[i];
   }
+  std::cout << "Initial traj point: " << current_point_[0] << ", " << current_point_[1] << ", "
+    << current_point_[2] << std::endl;
 }
 
 void CounterTrajectoryGenerator::get_next_step() {
+  std::cout << "delta: " << delta_ << std::endl;
   std::cout << "Current location: ";
   for (int i=0; i < 3; i++) {
     current_point_[i] += delta_;
-    std::cout << current_point_[i];
+    std::cout << current_point_[i] << ", ";
   }
   std::cout << "\n";
 }
