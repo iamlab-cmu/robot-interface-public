@@ -29,12 +29,14 @@ class SkillInfo {
 
     bool should_terminate();
 
+    void write_result_to_shared_memory(float *result_buffer);
+
   private:
     int skill_idx_;
     SkillStatus skill_status_;
 
-    TrajectoryGenerator *traj_generator_=0;
-    FeedbackController *feedback_controller_=0;
-    TerminationHandler *termination_handler_=0;
+    TrajectoryGenerator *traj_generator_= nullptr;
+    FeedbackController *feedback_controller_= nullptr;
+    TerminationHandler *termination_handler_= nullptr;
 };
 

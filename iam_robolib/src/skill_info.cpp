@@ -48,3 +48,7 @@ bool SkillInfo::should_terminate() {
   return termination_handler_->should_terminate(traj_generator_);
 }
 
+void SkillInfo::write_result_to_shared_memory(float *result_buffer) {
+  std::cout << "Should write result to shared memory\n";
+}
+

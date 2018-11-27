@@ -410,11 +410,11 @@ void RunLoop::stop() {
 
 bool RunLoop::should_start_new_skill(SkillInfo *old_skill, SkillInfo *new_skill) {
   // No new skill to start.
-  if (new_skill == 0) {
+  if (new_skill == nullptr) {
     return false;
   }
   // Old  skill was null, new skill is not null. should start it.
-  if (old_skill == 0) {
+  if (old_skill == nullptr) {
     return true;
   }
   // If new skill is different than old skill, we should start it.
@@ -443,8 +443,8 @@ void RunLoop::start_new_skill(SkillInfo *new_skill) {
   CounterTrajectoryGenerator *ctg = static_cast<CounterTrajectoryGenerator *>(traj_generator);
   NoopFeedbackController *noopfbc = static_cast<NoopFeedbackController *>(feedback_controller);
   ctg->delta_ = noopfbc->delta_;
-  assert(noopfbc->delta_ >= 0.001);
-  assert(ctg->delta_ >= 0.001);
+  assert(noopfbc->delta_ >= 0.0001);
+  assert(ctg->delta_ >= 0.0001);
 }
 
 
@@ -464,7 +464,7 @@ void RunLoop::finish_current_skill(SkillInfo *skill) {
 void RunLoop::update_process_info() {
   SkillInfo *skill = skill_manager_.get_current_skill();
   int current_skill_id = -1;
-  if (skill != 0) {
+  if (skill != nullptr) {
     current_skill_id = skill->get_skill_id();
   }
   bool is_executing_skill = skill_manager_.is_currently_executing_skill();
@@ -479,22 +479,32 @@ void RunLoop::update_process_info() {
       if (lock.try_lock()) {
         run_loop_info_->set_is_running_skill(is_executing_skill);
 
-        if (skill != 0 && !is_executing_skill) {
-          // Make sure get done skill id is not ahead of us.
+        // We have a skill that we have finished. Make sure we update this in RunLoopProcessInfo.
+        if (skill != nullptr && !is_executing_skill) {
           if (run_loop_info_->get_done_skill_id() > current_skill_id) {
+            // Make sure get done skill id is not ahead of us.
             std::cout << "INVALID: RunLoopProcInfo has done skill id " <<
                 run_loop_info_->get_done_skill_id() << " greater than current skill id"
                 << " " << current_skill_id << "\n";
           } else if (run_loop_info_->get_result_skill_id() + 2 >= current_skill_id) {
+            // Make sure that ActionLib has read the skill results before we overwrite them.
             std::cout << "ActionLib server has not read previous result: " <<
                 run_loop_info_->get_result_skill_id() << ". Cannot write new result" <<
                 current_skill_id << "\n";
           } else if (run_loop_info_->get_done_skill_id() != current_skill_id - 1) {
+            // Make sure we are only updating skill sequentially.
             std::cout << "RunLoopProcInfo done_skill_id: " <<
                 run_loop_info_->get_done_skill_id() << " current_skill_id: " <<
                 current_skill_id << ". Not continuous. ERROR!!\n";
           } else {
-            run_loop_info_ ->set_done_skill_id(current_skill_id);
+            // Write results to memory
+            int memory_index = run_loop_info_->get_current_shared_memory_index();
+            SharedBuffer buffer = execution_result_buffer_0_;
+            if (memory_index == 1) {
+              buffer = execution_result_buffer_1_;
+            }
+            skill->write_result_to_shared_memory(buffer);
+            run_loop_info_->set_done_skill_id(current_skill_id);
           }
         }
         process_info_requires_update_ = false;
