@@ -24,10 +24,17 @@ class SharedMemoryInfo {
 
   std::string getRunLoopInfoObjectName();
 
+  /**
+   * Declare mutex names.
+   */
   std::string getRunLoopInfoMutexName();
-
   std::string getParameterMemoryMutexName(int index);
+  std::string getSensorDataMutexName(int index);
+  std::string getExecutionResponseMutexName(int index);
 
+  /**
+   * Get sizes for different buffers.
+   */
   int getParameterMemorySize(int index);
   int getSensorDataMemorySize();
   int getExecutionResponseMemorySize();
@@ -83,6 +90,10 @@ class SharedMemoryInfo {
   // Declare mutexes
   const std::string params_memory_mutex_name_0_="run_loop_shared_obj_0_mutex";
   const std::string params_memory_mutex_name_1_="run_loop_shared_obj_1_mutex";
+  const std::string sensor_data_mutex_name_0_="run_loop_sensor_data_0_mutex";
+  const std::string sensor_data_mutex_name_1_="run_loop_sensor_data_1_mutex";
+  const std::string execution_response_mutex_name_0_="run_loop_execution_response_0_mutex";
+  const std::string execution_response_mutex_name_1_="run_loop_execution_response_1_mutex";
 
   // Declare sizes
   const int params_memory_size_0_=4*1024*sizeof(float);

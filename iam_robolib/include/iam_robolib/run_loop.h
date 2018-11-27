@@ -105,6 +105,8 @@ class RunLoop {
 
   boost::interprocess::shared_memory_object shared_sensor_data_0_{};
   boost::interprocess::shared_memory_object shared_sensor_data_1_{};
+  boost::interprocess::interprocess_mutex *shared_sensor_data_mutex_0_= nullptr;
+  boost::interprocess::interprocess_mutex *shared_sensor_data_mutex_1_= nullptr;
 
   boost::interprocess::mapped_region region_traj_sensor_data_0_{};
   boost::interprocess::mapped_region region_feedback_controller_sensor_data_0_{};
@@ -128,6 +130,9 @@ class RunLoop {
 
   boost::interprocess::shared_memory_object shared_execution_result_0_{};
   boost::interprocess::shared_memory_object shared_execution_result_1_{};
+  boost::interprocess::interprocess_mutex *shared_execution_result_mutex_0_= nullptr;
+  boost::interprocess::interprocess_mutex *shared_execution_result_mutex_1_= nullptr;
+
   SharedBuffer execution_feedback_buffer_0_=nullptr;
   SharedBuffer execution_result_buffer_0_=nullptr;
   SharedBuffer execution_feedback_buffer_1_=nullptr;

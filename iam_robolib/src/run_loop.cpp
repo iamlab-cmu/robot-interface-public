@@ -248,6 +248,18 @@ void RunLoop::start() {
   timer_sensor_buffer_1_ = reinterpret_cast<SharedBuffer>(
       region_timer_sensor_data_1_.get_address());
 
+  /**
+   * Create mutexes for sensor data.
+   */
+  shared_sensor_data_mutex_0_ = managed_shared_memory_.construct<
+      boost::interprocess::interprocess_mutex>
+      (shared_memory_info_.getSensorDataMutexName(0).c_str())
+      ();
+  shared_sensor_data_mutex_1_ = managed_shared_memory_.construct<
+      boost::interprocess::interprocess_mutex>
+      (shared_memory_info_.getSensorDataMutexName(1).c_str())
+      ();
+
 
   /**
    * Create memory 0 for execution response.
@@ -300,6 +312,18 @@ void RunLoop::start() {
       shared_memory_info_.getSizeForExecutionReturnData()
   );
   execution_result_buffer_1_ = reinterpret_cast<SharedBuffer>(region.get_address());
+
+  /**
+   * Create mutexes for execution response.
+   */
+  shared_execution_result_mutex_0_ = managed_shared_memory_.construct<
+      boost::interprocess::interprocess_mutex>
+      (shared_memory_info_.getExecutionResponseMutexName(0).c_str())
+      ();
+  shared_sensor_data_mutex_1_ = managed_shared_memory_.construct<
+      boost::interprocess::interprocess_mutex>
+      (shared_memory_info_.getExecutionResponseMutexName(1).c_str())
+      ();
 }
 
 TrajectoryGenerator* RunLoop::get_trajectory_generator_for_skill(int memory_region) {
