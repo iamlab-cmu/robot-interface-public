@@ -463,7 +463,13 @@ void RunLoop::finish_current_skill(SkillInfo *skill) {
 
 void RunLoop::update_process_info() {
   SkillInfo *skill = skill_manager_.get_current_skill();
+  int current_skill_id = -1;
+  if (skill != 0) {
+    current_skill_id = skill->get_skill_id();
+  }
   bool is_executing_skill = skill_manager_.is_currently_executing_skill();
+
+  // Grab the lock and update process info.
   {
     boost::interprocess::scoped_lock<
             boost::interprocess::interprocess_mutex> lock(
@@ -472,9 +478,24 @@ void RunLoop::update_process_info() {
     try {
       if (lock.try_lock()) {
         run_loop_info_->set_is_running_skill(is_executing_skill);
-        if (skill != 0 && !is_executing_skill && !run_loop_info_->get_skill_done()) {
-          std::cout << "Set skill done to true in run_loop_info";
-          run_loop_info_->set_skill_done(true);
+
+        if (skill != 0 && !is_executing_skill) {
+          // Make sure get done skill id is not ahead of us.
+          if (run_loop_info_->get_done_skill_id() > current_skill_id) {
+            std::cout << "INVALID: RunLoopProcInfo has done skill id " <<
+                run_loop_info_->get_done_skill_id() << " greater than current skill id"
+                << " " << current_skill_id << "\n";
+          } else if (run_loop_info_->get_result_skill_id() + 2 >= current_skill_id) {
+            std::cout << "ActionLib server has not read previous result: " <<
+                run_loop_info_->get_result_skill_id() << ". Cannot write new result" <<
+                current_skill_id << "\n";
+          } else if (run_loop_info_->get_done_skill_id() != current_skill_id - 1) {
+            std::cout << "RunLoopProcInfo done_skill_id: " <<
+                run_loop_info_->get_done_skill_id() << " current_skill_id: " <<
+                current_skill_id << ". Not continuous. ERROR!!\n";
+          } else {
+            run_loop_info_ ->set_done_skill_id(current_skill_id);
+          }
         }
         process_info_requires_update_ = false;
 
@@ -487,7 +508,7 @@ void RunLoop::update_process_info() {
           std::cout << "Did find new skill with id: " << new_skill_id << std::endl;
 
           // Add new skill
-          run_loop_info_->update_current_skill(new_skill_id);
+          run_loop_info_->set_current_skill_id(new_skill_id);
           SkillInfo *new_skill = new SkillInfo(new_skill_id);
           skill_manager_.add_skill(new_skill);
 
