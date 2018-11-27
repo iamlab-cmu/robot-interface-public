@@ -452,12 +452,12 @@ void RunLoop::update_process_info() {
                 boost::interprocess::defer_lock);
     try {
       if (lock.try_lock()) {
-        run_loop_info_->is_running_task_ = is_executing_skill;
+        run_loop_info_->set_is_running_skill(is_executing_skill);
         process_info_requires_update_ = false;
 
         // Check if new skill is available only if no current skill is being
         // currently executed.
-        if (!is_executing_skill && run_loop_info_->new_task_available_) {
+        if (!is_executing_skill && run_loop_info_->get_new_skill_available()) {
 
           // Create new task Skill
           int new_skill_id = run_loop_info_->get_new_skill_id();
@@ -472,7 +472,7 @@ void RunLoop::update_process_info() {
           // to the other memory region, i.e. not the current memory region.
           // TODO(Mohit): We should lock the other memory so that ActionLibServer cannot modify it?
           run_loop_info_->update_shared_memory_region();
-          run_loop_info_->new_task_available_ = false;
+          run_loop_info_->set_new_skill_available(false);
         }
       }
     } catch (boost::interprocess::lock_exception) {
