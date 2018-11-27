@@ -5,6 +5,7 @@
 #include "skill_info.h"
 
 #include <cassert>
+#include <iostream>
 
 int SkillInfo::get_skill_id() {
     return skill_idx_;
@@ -35,6 +36,11 @@ SkillStatus SkillInfo::get_current_skill_status() {
 void SkillInfo::execute_skill() {
   assert(traj_generator_ != 0);
   // HACK
+  std::string skill_status_string = "Running";
+  if (skill_status_ == SkillStatus::FINISHED) {
+    skill_status_string = "Finished";
+  }
+  std::cout << "Will execute skill with status: " << skill_status_string << "\n";
   traj_generator_->get_next_step();
 }
 

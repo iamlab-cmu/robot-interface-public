@@ -12,6 +12,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <cassert>
 
 #include "counter_trajectory_generator.h"
 #include "NoopFeedbackController.h"
@@ -442,6 +443,8 @@ void RunLoop::start_new_skill(SkillInfo *new_skill) {
   CounterTrajectoryGenerator *ctg = static_cast<CounterTrajectoryGenerator *>(traj_generator);
   NoopFeedbackController *noopfbc = static_cast<NoopFeedbackController *>(feedback_controller);
   ctg->delta_ = noopfbc->delta_;
+  assert(noopfbc->delta_ >= 0.001);
+  assert(ctg->delta_ >= 0.001);
 }
 
 
@@ -468,6 +471,9 @@ void RunLoop::update_process_info() {
     try {
       if (lock.try_lock()) {
         run_loop_info_->set_is_running_skill(is_executing_skill);
+        if (!is_executing_skill) {
+          run_loop_info_->set_skill_done(true);
+        }
         process_info_requires_update_ = false;
 
         // Check if new skill is available only if no current skill is being

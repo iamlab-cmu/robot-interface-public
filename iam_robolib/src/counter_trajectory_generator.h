@@ -17,7 +17,7 @@ class CounterTrajectoryGenerator : public TrajectoryGenerator {
   void get_next_step() override;
 
   float current_point_[3] = {};
-  int delta_ = 0;
+  float delta_ = 0;
 
  private:
   int start_ = 0;
