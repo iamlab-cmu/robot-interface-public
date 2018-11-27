@@ -34,6 +34,11 @@ SkillStatus SkillInfo::get_current_skill_status() {
 
 void SkillInfo::execute_skill() {
   assert(traj_generator_ != 0);
+  // HACK
   traj_generator_->get_next_step();
+}
+
+bool SkillInfo::should_terminate() {
+  return termination_handler_->should_terminate(traj_generator_);
 }
 

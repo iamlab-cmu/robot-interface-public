@@ -5,7 +5,7 @@
 #include "NoopFeedbackController.h"
 
 void NoopFeedbackController::parse_parameters() {
-  // pass
+  delta_ = params_[2];
 }
 
 void NoopFeedbackController::initialize_controller() {

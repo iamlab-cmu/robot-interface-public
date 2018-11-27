@@ -422,10 +422,20 @@ void RunLoop::start_new_skill(SkillInfo *new_skill) {
 
   // Start skill, does any pre-processing if required.
   new_skill->start_skill(traj_generator, feedback_controller, termination_handler);
+
+  // HACK
+  CounterTrajectoryGenerator *ctg = static_cast<CounterTrajectoryGenerator *>(traj_generator);
+  NoopFeedbackController *noopfbc = static_cast<NoopFeedbackController *>(feedback_controller);
+  ctg->delta_ = noopfbc->delta_;
 }
+
 
 void RunLoop::finish_current_skill(SkillInfo *skill) {
   SkillStatus status = skill->get_current_skill_status();
+
+  if (skill->should_terminate()) {
+    skill->set_skill_status(SkillStatus::FINISHED);
+  }
 
   if (status == SkillStatus::FINISHED) {
     process_info_requires_update_ = true;

@@ -15,4 +15,6 @@ class NoopFeedbackController : public FeedbackController {
   void initialize_controller() override;
 
   void get_next_step() override;
+
+  float delta_=0.0;
 };

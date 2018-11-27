@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "trajectory_generator.h"
+
 class TerminationHandler {
  public:
   explicit TerminationHandler(float *p) : params_{p} {};
@@ -21,7 +23,7 @@ class TerminationHandler {
   /**
    * Should we terminate the current skill.
    */
-  virtual bool should_terminate() = 0;
+  virtual bool should_terminate(TrajectoryGenerator *traj_generator) = 0;
 
  protected:
   float *params_=0;

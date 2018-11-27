@@ -27,6 +27,8 @@ class SkillInfo {
 
     void execute_skill();
 
+    bool should_terminate();
+
   private:
     int skill_idx_;
     SkillStatus skill_status_;

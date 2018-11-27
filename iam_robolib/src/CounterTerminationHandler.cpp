@@ -12,6 +12,6 @@ void CounterTerminationHandler::initialize_handler() {
 
 }
 
-bool CounterTerminationHandler::should_terminate() {
+bool CounterTerminationHandler::should_terminate(TrajectoryGenerator *traj_generator) {
 
 }

@@ -23,5 +23,8 @@ class NoopTerminationHandler : public TerminationHandler {
   /**
    * Should we terminate the current skill.
    */
-  bool should_terminate() override;
+  bool should_terminate(TrajectoryGenerator *traj_generator) override;
+
+ private:
+  float end_point_[3]={};
 };

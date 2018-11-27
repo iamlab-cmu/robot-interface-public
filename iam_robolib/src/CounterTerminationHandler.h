@@ -14,7 +14,7 @@ class CounterTerminationHandler : public TerminationHandler {
 
   void initialize_handler() override;
 
-  bool should_terminate() override;
+  bool should_terminate(TrajectoryGenerator *traj_generator) override;
 
  private:
   int start_ = 0;
