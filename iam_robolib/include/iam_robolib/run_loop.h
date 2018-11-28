@@ -9,8 +9,8 @@
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 
-#include <iam_robolib/run_loop_process_info.h>
-#include <iam_robolib/SharedMemoryInfo.h>
+#include <iam_robolib_common/run_loop_process_info.h>
+#include <iam_robolib_common/SharedMemoryInfo.h>
 
 // TODO(Mohit): Fix this, CANNOT do private imports in public headers. FML.
 #include "../../src/skill_info.h"

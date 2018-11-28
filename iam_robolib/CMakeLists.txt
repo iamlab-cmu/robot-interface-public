@@ -19,11 +19,14 @@ find_package(Boost COMPONENTS REQUIRED filesystem system thread)
 
 include_directories(${Boost_INCLUDE_DIRS})
 
+# find_library(iam_robolib_common PATHS ../)
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../iam_robolib_common")
+
 ## Library
+
 add_library(iam_robolib SHARED
   src/run_loop.cpp
   src/duration.cpp
-  src/run_loop_process_info.cpp
   src/skill_info.cpp
   src/skill_info.h
   src/skill_info_manager.cpp
@@ -31,8 +34,7 @@ add_library(iam_robolib SHARED
   src/trajectory_generator.cpp
   src/trajectory_generator.h
   src/counter_trajectory_generator.cpp
-  src/counter_trajectory_generator.h 
-  src/SharedMemoryInfo.cpp
+  src/counter_trajectory_generator.h
   src/FeedbackController.cpp
   src/FeedbackController.h
   src/NoopFeedbackController.cpp
@@ -55,6 +57,7 @@ target_link_libraries(iam_robolib PRIVATE
   Threads::Threads
   ${Boost_LIBRARIES}
   rt
+  iam_robolib_common
 )
 
 
@@ -67,7 +70,6 @@ set_target_properties(iam_robolib PROPERTIES PUBLIC_HEADER include/run_loop.h)
 
 target_include_directories(iam_robolib PRIVATE src)
 target_include_directories(iam_robolib PRIVATE include)
-
 
 ## Installation
 include(GNUInstallDirs)

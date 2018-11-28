@@ -9,9 +9,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory(iam_robolib)
+add_subdirectory(iam_robolib_common)
 
 add_executable(test_iam_robolib test_robolib.cpp)
 
-target_link_libraries(test_iam_robolib iam_robolib)
+target_link_libraries(test_iam_robolib iam_robolib iam_robolib_common)
 
 install(TARGETS test_iam_robolib DESTINATION bin)

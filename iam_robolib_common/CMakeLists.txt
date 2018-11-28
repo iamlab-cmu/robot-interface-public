@@ -28,7 +28,7 @@ add_library(iam_robolib_common SHARED
 # Add namespace
 # add_library(IAM_RoboLib::IAM_RoboLib ALIAS iam_robolib)
 
-target_link_libraries(iam_robolib_common PRIVATE
+target_link_libraries(iam_robolib_common PUBLIC
   Threads::Threads
   ${Boost_LIBRARIES}
   rt
@@ -39,18 +39,16 @@ target_include_directories(iam_robolib_common PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
-
-set_target_properties(iam_robolib_common PROPERTIES PUBLIC_HEADER include/run_loop_info.h)
-
 target_include_directories(iam_robolib_common PRIVATE src)
 
 
 ## Installation
 include(GNUInstallDirs)
 install(TARGETS iam_robolib_common
-  # EXPORT FrankaTargets
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+  EXPORT iam_robolib_common
+  LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+  RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+  PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/iam_robolib_common"
 )
 
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
