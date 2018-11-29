@@ -22,6 +22,8 @@ include_directories(${Boost_INCLUDE_DIRS})
 # find_library(iam_robolib_common PATHS ../)
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../iam_robolib_common")
 
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../libfranka")
+
 ## Library
 
 add_library(iam_robolib SHARED
@@ -58,6 +60,7 @@ target_link_libraries(iam_robolib PRIVATE
   ${Boost_LIBRARIES}
   rt
   iam_robolib_common
+  Franka::Franka
 )
 
 

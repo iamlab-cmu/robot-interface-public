@@ -10,9 +10,13 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory(iam_robolib)
 add_subdirectory(iam_robolib_common)
+add_subdirectory(libfranka)
 
 add_executable(test_iam_robolib test_robolib.cpp)
 
-target_link_libraries(test_iam_robolib iam_robolib iam_robolib_common)
+target_link_libraries(test_iam_robolib 
+  iam_robolib 
+  iam_robolib_common
+  Franka::Franka)
 
 install(TARGETS test_iam_robolib DESTINATION bin)
