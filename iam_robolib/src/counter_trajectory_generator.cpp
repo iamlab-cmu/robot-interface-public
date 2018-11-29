@@ -5,6 +5,7 @@
 #include "counter_trajectory_generator.h"
 
 #include <iostream>
+#include <cassert>
 
 void CounterTrajectoryGenerator::parse_parameters() {
   // First parameter is reserved for the type
@@ -25,6 +26,11 @@ void CounterTrajectoryGenerator::initialize_trajectory() {
   }
   std::cout << "Initial traj point: " << current_point_[0] << ", " << current_point_[1] << ", "
     << current_point_[2] << std::endl;
+}
+
+void initialize_trajectory(franka::RobotState robot_state)
+{
+  assert(false);
 }
 
 void CounterTrajectoryGenerator::get_next_step() {

@@ -596,3 +596,42 @@ void RunLoop::run() {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
 }
+
+void RunLoop::run_on_franka() {
+  // Wait for sometime to let the client add data to the buffer
+  std::this_thread::sleep_for(std::chrono::seconds(10));
+
+  std::chrono::time_point<std::chrono::high_resolution_clock> start;
+  auto milli = std::chrono::milliseconds(1);
+
+  while (1) {
+    start = std::chrono::high_resolution_clock::now();
+
+    // Execute the current skill (traj_generator, FBC are here)
+    SkillInfo *skill = skill_manager_.get_current_skill();
+
+    // NOTE: We keep on running the last skill even if it is finished!!
+    if (skill != 0) {
+      // Execute skill.
+      skill->execute_skill_on_franka(this);
+
+      // Finish skill if possible.
+      finish_current_skill(skill);
+    }
+
+    // Complete old skills and acquire new skills
+    update_process_info();
+
+    // Start new skill, if possible
+    SkillInfo *new_skill = skill_manager_.get_current_skill();
+    if (should_start_new_skill(skill, new_skill)) {
+      start_new_skill(new_skill);
+    }
+
+    // Sleep to maintain 1Khz frequency, not sure if this is required or not.
+    auto finish = std::chrono::high_resolution_clock::now();
+    // Wait for start + milli - finish
+    auto elapsed = start + milli - finish;
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
+}

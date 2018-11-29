@@ -5,6 +5,7 @@
 #pragma once
 
 #include "trajectory_generator.h"
+#include <franka/robot.h>
 
 class CounterTrajectoryGenerator : public TrajectoryGenerator {
  public:
@@ -13,6 +14,8 @@ class CounterTrajectoryGenerator : public TrajectoryGenerator {
   void parse_parameters() override;
 
   void initialize_trajectory() override;
+
+  void initialize_trajectory(franka::RobotState robot_state) override;
 
   void get_next_step() override;
 

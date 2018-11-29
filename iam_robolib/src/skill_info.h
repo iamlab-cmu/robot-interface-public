@@ -4,9 +4,17 @@
 
 #pragma once
 
+#include <franka/duration.h>
+#include <franka/exception.h>
+#include <franka/model.h>
+#include <franka/rate_limiting.h>
+#include <franka/robot.h>
+
 #include "FeedbackController.h"
 #include "TerminationHandler.h"
 #include "trajectory_generator.h"
+
+class RunLoop;
 
 enum class SkillStatus { TO_START, RUNNING, FINISHED };  // enum class
 
@@ -26,6 +34,8 @@ class SkillInfo {
     SkillStatus get_current_skill_status();
 
     void execute_skill();
+
+    void execute_skill_on_franka(RunLoop *run_loop);
 
     bool should_terminate();
 
@@ -48,5 +58,9 @@ class SkillInfo {
     TrajectoryGenerator *traj_generator_= nullptr;
     FeedbackController *feedback_controller_= nullptr;
     TerminationHandler *termination_handler_= nullptr;
+
+    const std::array<double, 7> k_gains_ = {{600.0, 600.0, 600.0, 600.0, 250.0, 150.0, 50.0}};
+    // Damping
+    const std::array<double, 7> d_gains_ = {{50.0, 50.0, 50.0, 50.0, 30.0, 25.0, 15.0}};
 };
 

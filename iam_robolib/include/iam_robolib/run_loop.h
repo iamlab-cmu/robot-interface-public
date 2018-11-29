@@ -12,6 +12,12 @@
 #include <iam_robolib_common/run_loop_process_info.h>
 #include <iam_robolib_common/SharedMemoryInfo.h>
 
+#include <franka/duration.h>
+#include <franka/exception.h>
+#include <franka/model.h>
+#include <franka/rate_limiting.h>
+#include <franka/robot.h>
+
 // TODO(Mohit): Fix this, CANNOT do private imports in public headers. FML.
 #include "../../src/skill_info.h"
 #include "../../src/skill_info_manager.h"
@@ -35,7 +41,8 @@ class RunLoop {
                                      cutoff_frequency_(0.0),
                                      elapsed_time_(0.0),
                                      process_info_requires_update_(false),
-                                     logger_(logger_mutex) {};
+                                     logger_(logger_mutex),
+                                     robot_("172.16.0.2") {};
 
   // Todo(Mohit): Implement this!!! We should free up the shared memory correctly.
   // ~RunLoop();
@@ -63,6 +70,11 @@ class RunLoop {
    */
   void run();
 
+  /**
+   *  Start running the real time loop on franka
+   */
+  void run_on_franka();
+
  private:
   SharedMemoryInfo shared_memory_info_=SharedMemoryInfo();
 
@@ -75,6 +87,7 @@ class RunLoop {
   boost::interprocess::interprocess_mutex *run_loop_info_mutex_=NULL;
   RunLoopProcessInfo *run_loop_info_=NULL; const bool limit_rate_;  // NOLINT(readability-identifier-naming)
 
+  franka::Robot robot_;
 
   const double cutoff_frequency_; // NOLINT(readability-identifier-naming)
   uint32_t elapsed_time_;

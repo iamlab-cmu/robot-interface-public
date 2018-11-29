@@ -5,6 +5,7 @@
 #pragma once
 
 #include <array>
+#include <franka/robot.h>
 
 class TrajectoryGenerator {
  public:
@@ -19,6 +20,11 @@ class TrajectoryGenerator {
    * Initialize trajectory generation after parameter parsing.
    */
   virtual void initialize_trajectory() = 0;
+
+  /**
+   * Initialize trajectory generation after parameter parsing.
+   */
+  virtual void initialize_trajectory(franka::RobotState robot_state) = 0;
 
   /**
    *  Get next trajectory step.
