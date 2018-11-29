@@ -49,7 +49,8 @@ add_library(iam_robolib SHARED
   src/SensorData.h
   src/NoopTerminationHandler.cpp
   src/NoopTerminationHandler.h
-)
+  src/RunLoopLogger.cpp
+  src/RunLoopLogger.h)
 
 # Add namespace
 # add_library(IAM_RoboLib::IAM_RoboLib ALIAS iam_robolib)

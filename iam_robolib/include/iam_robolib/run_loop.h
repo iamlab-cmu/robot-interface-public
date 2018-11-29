@@ -18,6 +18,7 @@
 #include "../../src/trajectory_generator.h"
 #include "../../src/FeedbackController.h"
 #include "../../src/TerminationHandler.h"
+#include "../../src/RunLoopLogger.h"
 
 // SharedBuffer type to share memory (Change size later)
 // using SharedBuffer = std::array<float, 1024>;
@@ -30,8 +31,11 @@ void setCurrentThreadToRealtime(bool throw_on_error);
 
 class RunLoop {
  public:
-  RunLoop() : limit_rate_(false), cutoff_frequency_(0.0), elapsed_time_(0.0),
-              process_info_requires_update_(false) {};
+  RunLoop(std::mutex& logger_mutex) : limit_rate_(false),
+                                     cutoff_frequency_(0.0),
+                                     elapsed_time_(0.0),
+                                     process_info_requires_update_(false),
+                                     logger_(logger_mutex) {};
 
   // Todo(Mohit): Implement this!!! We should free up the shared memory correctly.
   // ~RunLoop();
@@ -62,8 +66,8 @@ class RunLoop {
  private:
   SharedMemoryInfo shared_memory_info_=SharedMemoryInfo();
 
-  // MotionGenerator motion_generator;
   SkillInfoManager skill_manager_{};
+  RunLoopLogger logger_;
 
   // If this flag is true at every loop we will try to get the lock and update
   // process info.

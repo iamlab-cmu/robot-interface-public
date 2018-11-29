@@ -19,6 +19,15 @@
 #include "NoopTerminationHandler.h"
 
 
+template<typename ... Args>
+std::string string_format(const std::string& format, Args ... args )
+{
+  size_t size = snprintf( nullptr, 0, format.c_str(), args ... ) + 1; // Extra space for '\0'
+  std::unique_ptr<char[]> buf( new char[ size ] );
+  snprintf( buf.get(), size, format.c_str(), args ... );
+  return std::string( buf.get(), buf.get() + size - 1 ); // We don't want the '\0' inside
+}
+
 void setCurrentThreadToRealtime(bool throw_on_error) {
   // Change prints to exceptions.
   const int thread_priority = sched_get_priority_max(SCHED_FIFO);
@@ -356,9 +365,9 @@ TrajectoryGenerator* RunLoop::get_trajectory_generator_for_skill(int memory_regi
     return traj_generator;
   } else {
     // Cannot create Trajectory generator for this skill. Throw error
-    std::cout << "Cannot generate trajectory generator: " << traj_gen_id <<
-        " Should throw exception\n" << std::endl;
-    return 0;
+    logger_.add_error_log(string_format(
+        "Cannot create TrajectoryGenerator with class_id: %d\n", traj_gen_id));
+    return nullptr;
   }
 }
 
@@ -375,10 +384,9 @@ FeedbackController* RunLoop::get_feedback_controller_for_skill(int memory_region
     feedback_contoller->parse_parameters();
     return feedback_contoller;
   } else {
-    // Cannot create Trajectory generator for this skill. Throw error
-    std::cout << "Cannot generate feedback controller: " << feedback_controller_id <<
-              " Should throw exception\n" << std::endl;
-    return 0;
+    logger_.add_error_log(string_format(
+        "Cannot create FeedbackController with class_id: %d\n", feedback_controller_id));
+    return nullptr;
   }
 }
 
@@ -396,9 +404,9 @@ TerminationHandler* RunLoop::get_termination_handler_for_skill(int memory_region
     return termination_handler;
   } else {
     // Cannot create Trajectory generator for this skill. Throw error
-    std::cout << "Cannot generate feedback controller: " << termination_handler_id <<
-              " Should throw exception\n" << std::endl;
-    return 0;
+    logger_.add_error_log(string_format(
+        "Cannot create TerminationHandler with class_id: %d\n", termination_handler_id));
+    return nullptr;
   }
 }
 
@@ -428,7 +436,8 @@ bool RunLoop::should_start_new_skill(SkillInfo *old_skill, SkillInfo *new_skill)
 void RunLoop::start_new_skill(SkillInfo *new_skill) {
   // Generate things that are required here.
   int memory_index = run_loop_info_->get_current_shared_memory_index();
-  std::cout << "Create skill from memory: " << memory_index << std::endl;
+  logger_.add_info_log(string_format("Create skill from memory index: %d\n", memory_index));
+
   TrajectoryGenerator *traj_generator =
       get_trajectory_generator_for_skill(memory_index);
   FeedbackController *feedback_controller =
@@ -491,22 +500,25 @@ void RunLoop::update_process_info() {
         if (skill != nullptr && !is_executing_skill) {
           if (run_loop_info_->get_done_skill_id() > current_skill_id) {
             // Make sure get done skill id is not ahead of us.
-            std::cout << "INVALID: RunLoopProcInfo has done skill id " <<
-                run_loop_info_->get_done_skill_id() << " greater than current skill id "
-                << current_skill_id << "\n";
+            logger_.add_error_log(string_format("INVALID: RunLoopProcInfo has done skill id %d "
+                                                " greater than current skill id %d\n",
+                                                run_loop_info_->get_done_skill_id(),
+                                                current_skill_id));
           } else if (run_loop_info_->get_result_skill_id() + 2 <= current_skill_id) {
             // Make sure that ActionLib has read the skill results before we overwrite them.
-            std::cout << "ActionLib server has not read previous result: " <<
-                run_loop_info_->get_result_skill_id() << ". Cannot write new result " <<
-                current_skill_id << "\n";
+            logger_.add_error_log(
+                string_format("ActionLib server has not read previous result %d. "
+                              "Cannot write new result %d\n",
+                              run_loop_info_->get_result_skill_id(),
+                              current_skill_id));
           } else if (run_loop_info_->get_done_skill_id() != current_skill_id - 1) {
             // Make sure we are only updating skill sequentially.
-            std::cout << "RunLoopProcInfo done_skill_id: " <<
-                run_loop_info_->get_done_skill_id() << " current_skill_id: " <<
-                current_skill_id << ". Not continuous. ERROR!!\n";
+            logger_.add_info_log(
+                string_format("RunLoopProcInfo done skill id: %d current skill id: %d\n",
+                    run_loop_info_->get_done_skill_id(), current_skill_id));
           } else {
             run_loop_info_->set_done_skill_id(current_skill_id);
-            std::cout << "Did set done_skill_id: " << current_skill_id << "\n";
+            logger_.add_info_log(string_format("Did set done_skill_id %d\n", current_skill_id));
           }
         }
         process_info_requires_update_ = false;
@@ -517,7 +529,7 @@ void RunLoop::update_process_info() {
 
           // Create new task Skill
           int new_skill_id = run_loop_info_->get_new_skill_id();
-          std::cout << "Did find new skill with id: " << new_skill_id << std::endl;
+          logger_.add_info_log(string_format("Did find new skill with id %d\n", new_skill_id));
 
           // Add new skill
           run_loop_info_->set_current_skill_id(new_skill_id);
@@ -533,7 +545,7 @@ void RunLoop::update_process_info() {
       }
     } catch (boost::interprocess::lock_exception) {
       // TODO(Mohit): Do something better here.
-      std::cout << "Cannot acquire lock for run loop info\n";
+      logger_.add_info_log("Cannot acquire lock for run loop info");
     }
   }
 

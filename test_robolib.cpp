@@ -1,10 +1,12 @@
 #include<iostream>
 
 #include <iam_robolib/run_loop.h>
+#include <mutex>
 
 int main() {
   std::cout << "Hello world\n";
-  RunLoop run_loop = RunLoop();
+  std::mutex m;
+  RunLoop run_loop = RunLoop(std::ref(m));
   std::cout << "Will start run loop.\n";
   run_loop.start();
   std::cout << "Did start run loop.\n";
