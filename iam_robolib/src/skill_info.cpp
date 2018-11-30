@@ -6,6 +6,10 @@
 
 #include <cassert>
 #include <iostream>
+#include <vector>
+#include <array>
+
+#include <franka/exception.h>
 
 #include "ControlLoopData.h"
 
@@ -48,11 +52,19 @@ void SkillInfo::execute_skill() {
 
 void SkillInfo::execute_skill_on_franka(franka::Robot* robot, ControlLoopData *control_loop_data) {
 
+  std::vector<std::array<double, 16>> log_pose_desired{};
+  std::vector<std::array<double, 16>> log_robot_state{};
+  std::vector<std::array<double, 7>> log_tau_j;
+  std::vector<std::array<double, 7>> log_dq;
+  std::vector<double> log_control_time;
+try { 
   double time = 0.0;
+  int log_counter = 0;
+
 
   std::cout << "Will run the control loop\n";
   std::function<franka::CartesianPose(const franka::RobotState&, franka::Duration)> cartesian_pose_callback =
-                                  [=, &time](const franka::RobotState&
+                                  [=, &time, &log_counter, &log_pose_desired, &log_robot_state, &log_control_time, &log_tau_j, &log_dq](const franka::RobotState&
                                   robot_state,
                                              franka::Duration period) -> franka::CartesianPose {
     if (time == 0.0) {
@@ -66,14 +78,22 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot, ControlLoopData *c
       control_loop_data->has_data_ = true;
       control_loop_data->mutex_.unlock();
     }
-
+    traj_generator_->time_ += period.toSec();
     time += period.toSec();
+    log_counter += 1;
 
     traj_generator_->get_next_step();
 
     bool done = termination_handler_->should_terminate(traj_generator_);
 
     franka::CartesianPose pose_desired(traj_generator_->pose_desired_);
+    if (log_counter % 1 == 0) {
+      log_pose_desired.push_back(traj_generator_->pose_desired_);
+      log_robot_state.push_back(robot_state.O_T_EE_c);
+      log_tau_j.push_back(robot_state.tau_J);
+      log_dq.push_back(robot_state.dq);
+      log_control_time.push_back(time);
+    }
 
     if(done or time >= traj_generator_->run_time_ + traj_generator_->acceleration_time_)
     {
@@ -82,6 +102,28 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot, ControlLoopData *c
 
     return pose_desired;
   };
+
+    // robot.control([&initial_position, &time](const franka::RobotState& robot_state,
+    //                                          franka::Duration period) -> franka::JointPositions {
+    //   time += period.toSec();
+
+    //   if (time == 0.0) {
+    //     initial_position = robot_state.q_d;
+    //   }
+
+    //   double delta_angle = M_PI / 8.0 * (1 - std::cos(M_PI / 2.5 * time));
+
+    //   franka::JointPositions output = {{initial_position[0], initial_position[1],
+    //                                     initial_position[2], initial_position[3] + delta_angle,
+    //                                     initial_position[4] + delta_angle, initial_position[5],
+    //                                     initial_position[6] + delta_angle}};
+
+    //   if (time >= 5.0) {
+    //     std::cout << std::endl << "Finished motion, shutting down example" << std::endl;
+    //     return franka::MotionFinished(output);
+    //   }
+    //   return output;
+    // });
 
 
   franka::Model model = robot->loadModel();
@@ -120,7 +162,102 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot, ControlLoopData *c
 
   robot.control()*/
 
-  robot->control(impedance_control_callback, cartesian_pose_callback);
+  // robot->control(impedance_control_callback, cartesian_pose_callback);
+  robot->control(cartesian_pose_callback, franka::ControllerMode::kCartesianImpedance, true, 1000.0);
+} catch (const franka::Exception& ex) {
+    std::cerr << ex.what() << std::endl;
+    
+    std::cout << "===== Robots state ======\n";
+    int print_last = 50;
+    int print_counter = 1;
+    for (auto it = log_robot_state.rbegin(); it != log_robot_state.rend(); it++, print_counter++) {
+      std::array<double, 16> temp = *it;
+      std::cout << "Time: " << log_control_time[log_robot_state.size() - print_counter] << ",   ";
+      for (size_t j = 0; j < temp.size(); j++) {
+        std::cout << temp[j] << " ";  
+      }
+      std::cout << "\n" << std::endl;
+      print_last = print_last - 1;
+      if (print_last < 0) {
+        break;
+      }
+    }
+
+    std::cout << "===== Desired Pose ======\n";
+
+    print_last = 50;
+    print_counter = 1;
+    for (auto it = log_pose_desired.rbegin(); it != log_pose_desired.rend(); it++, print_counter++) {
+      std::cout << "Time: " << log_control_time[log_robot_state.size() - print_counter] << ",   ";
+      std::array<double, 16> temp = *it;
+
+      for (size_t j = 0; j < temp.size(); j++) {
+        std::cout << temp[j] << " ";  
+      }
+      std::cout << "\n" << std::endl;
+      print_last = print_last - 1;
+      if (print_last < 0) {
+        break;
+      }
+    }
+
+    std::cout << "===== Measured link-side joint torque sensor signals ======\n";
+
+    print_last = 50;
+    print_counter = 1;
+    for (auto it = log_tau_j.rbegin(); it != log_tau_j.rend(); it++, print_counter++) {
+      std::cout << "Time: " << log_control_time[log_robot_state.size() - print_counter] << ",   ";
+      std::array<double, 7> temp = *it;
+
+      for (size_t j = 0; j < temp.size(); j++) {
+        std::cout << temp[j] << " ";  
+      }
+      std::cout << "\n" << std::endl;
+      print_last = print_last - 1;
+      if (print_last < 0) {
+        break;
+      }
+    }
+
+    std::cout << "===== Measured joint velocity ======\n";
+
+    print_last = 50;
+    print_counter = 1;
+    for (auto it = log_dq.rbegin(); it != log_dq.rend(); it++, print_counter++) {
+      std::cout << "Time: " << log_control_time[log_robot_state.size() - print_counter] << ",   ";
+      std::array<double, 7> temp = *it;
+
+      for (size_t j = 0; j < temp.size(); j++) {
+        std::cout << temp[j] << " ";  
+      }
+      std::cout << "\n" << std::endl;
+      print_last = print_last - 1;
+      if (print_last < 0) {
+        break;
+      }
+    }
+
+    std::cout << "===== Measured joint jerks ======\n";
+
+    print_last = 50;
+    print_counter = 1;
+    for (auto it = log_dq.rbegin(); it != log_dq.rend(); it++, print_counter++) {
+      std::cout << "Time: " << log_control_time[log_robot_state.size() - print_counter] << ",   ";
+      std::array<double, 7> temp = *it;
+      std::array<double, 7> temp2 = *(it+1);
+      std::array<double, 7> temp3 = *(it+2);
+
+      for (size_t j = 0; j < temp.size(); j++) {
+        std::cout << (((temp3[j] - temp2[j]) * 1000) - ((temp2[j] - temp[j]) * 1000)) * 1000  << " ";  
+      }
+      std::cout << "\n" << std::endl;
+      print_last = print_last - 1;
+      if (print_last < 0) {
+        break;
+      }
+    }
+
+}
 }
 
 bool SkillInfo::should_terminate() {

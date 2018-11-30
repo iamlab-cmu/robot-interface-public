@@ -11,11 +11,15 @@ namespace franka_action_lib
 
     as_.start();
 
+    ROS_INFO("Action Lib Started");
+
   }
 
   void ExecuteSkillActionServer::executeCB(const franka_action_lib::ExecuteSkillGoalConstPtr &goal)
   {
     ros::Rate r(publish_frequency_);
+
+    ROS_INFO("New Skill received");
 
     // Load skill parameters into shared memory and returns the skill_id
     int skill_id = shared_memory_handler_.loadSkillParametersIntoSharedMemory(goal);

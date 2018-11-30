@@ -36,6 +36,7 @@ class TrajectoryGenerator {
   const double acceleration_time_ = 5.0;
   float run_time_ = 20.0;
   float dt_ = 0.001;
+  double time_ = 0.0;
 
  protected:
   float *params_=0;

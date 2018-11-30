@@ -549,6 +549,7 @@ void RunLoop::update_process_info() {
         // currently executed.
         if (!is_executing_skill && run_loop_info_->get_new_skill_available()) {
 
+          std::cout << "Did get new skill";
           // Create new task Skill
           int new_skill_id = run_loop_info_->get_new_skill_id();
           logger_.add_info_log(string_format("Did find new skill with id %d\n", new_skill_id));
@@ -642,7 +643,24 @@ std::thread RunLoop::setup_print_thread() {
 
 void RunLoop::run_on_franka() {
 
-  std::thread print_thread = setup_print_thread();
+  int print_rate = 30.0;
+  std::thread print_thread([&, print_rate]() {
+      // Sleep to achieve the desired print rate.
+      // std::this_thread::sleep_for(
+      //     std::chrono::milliseconds(static_cast<int>((1.0 / print_rate * 1000.0))));
+      std::cout << "WTF, will wait for " << static_cast<int>(1.0/print_rate * 1000.0) << "\n";
+      // Try to lock data to avoid read write collisions. 
+      if (control_loop_data_.mutex_.try_lock()) {
+        if (control_loop_data_.has_data_) {
+          control_loop_data_.has_data_ = false;
+          std::cout << "Count: " << control_loop_data_.counter_<< " time: " <<
+            control_loop_data_.time_ << std::endl;
+        }
+        control_loop_data_.mutex_.unlock();
+      }
+  });
+
+
 
   // Wait for sometime to let the client add data to the buffer
   std::this_thread::sleep_for(std::chrono::seconds(10));
@@ -670,6 +688,7 @@ void RunLoop::run_on_franka() {
       // NOTE: We keep on running the last skill even if it is finished!!
       if (skill != 0) {
         // Execute skill.
+        std::cout << "Will execute skill";
         skill->execute_skill_on_franka(&robot_, &control_loop_data_);
 
         // Finish skill if possible.
@@ -682,6 +701,7 @@ void RunLoop::run_on_franka() {
       // Start new skill, if possible
       SkillInfo *new_skill = skill_manager_.get_current_skill();
       if (should_start_new_skill(skill, new_skill)) {
+        std::cout << "WIll start skill\n";
         start_new_skill(new_skill);
       }
 
@@ -689,9 +709,9 @@ void RunLoop::run_on_franka() {
       auto finish = std::chrono::high_resolution_clock::now();
       // Wait for start + milli - finish
       auto elapsed = start + milli - finish;
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
   } catch (const franka::Exception& ex) {
+
     std::cerr << ex.what() << std::endl;
     logger_.print_error_log();
     logger_.print_warning_log();
