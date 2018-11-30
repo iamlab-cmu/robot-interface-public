@@ -61,7 +61,10 @@ add_library(iam_robolib SHARED
   src/FinalPoseTerminationHandler.h
   src/ControlLoopData.cpp
   src/ControlLoopData.h
-)
+  src/FinalJointTerminationHandler.cpp
+  src/FinalJointTerminationHandler.h
+  src/LinearJointTrajectoryController.cpp
+  src/LinearJointTrajectoryController.h)
 
 # Add namespace
 # add_library(IAM_RoboLib::IAM_RoboLib ALIAS iam_robolib)

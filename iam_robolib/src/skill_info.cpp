@@ -69,7 +69,6 @@ try {
                                              franka::Duration period) -> franka::CartesianPose {
     if (time == 0.0) {
       traj_generator_->initialize_trajectory(robot_state);
-      traj_generator_->dt_ = period.toSec();
     }
 
     if (control_loop_data->mutex_.try_lock()) {
@@ -78,6 +77,8 @@ try {
       control_loop_data->has_data_ = true;
       control_loop_data->mutex_.unlock();
     }
+
+    traj_generator_->dt_ = period.toSec();
     traj_generator_->time_ += period.toSec();
     time += period.toSec();
     log_counter += 1;
@@ -103,28 +104,34 @@ try {
     return pose_desired;
   };
 
-    // robot.control([&initial_position, &time](const franka::RobotState& robot_state,
-    //                                          franka::Duration period) -> franka::JointPositions {
-    //   time += period.toSec();
+  std::function<franka::JointPositions(const franka::RobotState&, franka::Duration)>
+    joint_pose_callback = [=, &time](const franka::RobotState& robot_state,
+                                     franka::Duration period) -> franka::JointPositions {
+    if (time == 0.0) {
+      traj_generator_->initialize_trajectory(robot_state);
+    }
+    time += period.toSec();
+    traj_generator_->time_ = time;
+    traj_generator_->dt_ = period.toSec();
+    traj_generator_->get_next_step();
 
-    //   if (time == 0.0) {
-    //     initial_position = robot_state.q_d;
-    //   }
+    bool done = termination_handler_->should_terminate(traj_generator_);
+    franka::JointPositions joint_desired(traj_generator_->joint_desired_);
 
-    //   double delta_angle = M_PI / 8.0 * (1 - std::cos(M_PI / 2.5 * time));
+    log_counter += 1;
+    if (log_counter % 1 == 0) {
+      log_pose_desired.push_back(traj_generator_->pose_desired_);
+      log_robot_state.push_back(robot_state.O_T_EE_c);
+      log_tau_j.push_back(robot_state.tau_J);
+      log_dq.push_back(robot_state.dq);
+      log_control_time.push_back(time);
+    }
 
-    //   franka::JointPositions output = {{initial_position[0], initial_position[1],
-    //                                     initial_position[2], initial_position[3] + delta_angle,
-    //                                     initial_position[4] + delta_angle, initial_position[5],
-    //                                     initial_position[6] + delta_angle}};
-
-    //   if (time >= 5.0) {
-    //     std::cout << std::endl << "Finished motion, shutting down example" << std::endl;
-    //     return franka::MotionFinished(output);
-    //   }
-    //   return output;
-    // });
-
+    if(done or time >= traj_generator_->run_time_) {
+      return franka::MotionFinished(joint_desired);
+    }
+    return joint_desired;
+  };
 
   franka::Model model = robot->loadModel();
 
