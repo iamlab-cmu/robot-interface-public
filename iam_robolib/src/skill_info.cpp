@@ -48,7 +48,7 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot) {
 
   double time = 0.0;
 
-  std::cout << "Will run the run loop\n";
+  std::cout << "Will run the control loop\n";
   std::function<franka::CartesianPose(const franka::RobotState&, franka::Duration)> cartesian_pose_callback = 
                                   [=, &time](
                                                    const franka::RobotState& robot_state,

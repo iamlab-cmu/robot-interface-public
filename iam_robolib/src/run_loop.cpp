@@ -628,6 +628,8 @@ void RunLoop::run_on_franka() {
       {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}},
       {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}});
 
+  robot_.setJointImpedance({{3000, 3000, 3000, 2500, 2500, 2000, 2000}});
+  robot_.setCartesianImpedance({{3000, 3000, 3000, 300, 300, 300}});
   try {
     while (1) {
       start = std::chrono::high_resolution_clock::now();
@@ -659,7 +661,8 @@ void RunLoop::run_on_franka() {
       auto elapsed = start + milli - finish;
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-  } catch (const franka::Exception& ex){
+  } catch (const franka::Exception& ex) {
+    std::cerr << ex.what() << std::endl;
     logger_.print_error_log();
     logger_.print_warning_log();
     logger_.print_info_log();

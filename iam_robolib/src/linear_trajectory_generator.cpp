@@ -20,7 +20,7 @@ void LinearTrajectoryGenerator::parse_parameters() {
 }
 
 void LinearTrajectoryGenerator::initialize_trajectory() {
-  assert(false);
+  // assert(false);
 }
 
 void LinearTrajectoryGenerator::initialize_trajectory(franka::RobotState robot_state) {
