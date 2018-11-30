@@ -31,8 +31,12 @@ class TrajectoryGenerator {
    */
   virtual void get_next_step() = 0;
 
+
+  franka::CartesianPose pose_desired_ = franka::CartesianPose(cartesian_pose);
+
  protected:
   float *params_=0;
+  std::array<double, 16> cartesian_pose;
 
 };
 

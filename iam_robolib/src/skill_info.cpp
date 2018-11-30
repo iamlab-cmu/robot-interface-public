@@ -49,7 +49,7 @@ void SkillInfo::execute_skill_on_franka(RunLoop *run_loop) {
   double time = 0.0;
 
   std::function<franka::CartesianPose(const franka::RobotState&, franka::Duration)> cartesian_pose_callback = 
-                                  [=, &time, &traj_generator_, &feedback_controller_, &termination_handler_](
+                                  [=, &time](
                                                    const franka::RobotState& robot_state,
                                                    franka::Duration period) -> franka::CartesianPose {
 
@@ -57,11 +57,11 @@ void SkillInfo::execute_skill_on_franka(RunLoop *run_loop) {
 
     traj_generator_->get_next_step();
 
-    should_terminate = termination_handler_->should_terminate(traj_generator_);
+    bool done = termination_handler_->should_terminate(traj_generator_);
 
-    pose_desired = traj_generator_.pose_desired_;
+    franka::CartesianPose pose_desired = traj_generator_->pose_desired_;
 
-    if(should_terminate or time >= 20.0)
+    if(done or time >= 20.0)
     {
       return franka::MotionFinished(pose_desired);
     }
@@ -70,13 +70,13 @@ void SkillInfo::execute_skill_on_franka(RunLoop *run_loop) {
   };
 
 
-  franka::Model model = run_loop->robot_.loadModel()
+  franka::Model model = robot_.loadModel();
 
   std::function<franka::Torques(const franka::RobotState&, franka::Duration)> impedance_control_callback =
-            [&model, k_gains_, d_gains_](
+            [=, &model](
                 const franka::RobotState& state, franka::Duration /*period*/) -> franka::Torques {
       // Read current coriolis terms from model.
-      std::array<double, 7> coriolis = run_loop->model_.coriolis(state);
+      std::array<double, 7> coriolis = model.coriolis(state);
 
       // Compute torque command from joint impedance control law.
       // Note: The answer to our Cartesian pose inverse kinematics is always in state.q_d with one
@@ -106,7 +106,7 @@ void SkillInfo::execute_skill_on_franka(RunLoop *run_loop) {
 
   robot.control()*/
 
-  run_loop_->robot_.control(cartesian_pose_callback);
+  robot_.control(cartesian_pose_callback);
 }
 
 bool SkillInfo::should_terminate() {

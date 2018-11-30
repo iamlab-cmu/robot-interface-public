@@ -21,7 +21,8 @@ enum class SkillStatus { TO_START, RUNNING, FINISHED };  // enum class
 class SkillInfo {
   public:
     SkillInfo(int skill_idx): skill_idx_(skill_idx),
-                              skill_status_(SkillStatus::TO_START) {};
+                              skill_status_(SkillStatus::TO_START),
+                              robot_("172.16.0.2") {};
 
     int get_skill_id();
 
@@ -54,6 +55,8 @@ class SkillInfo {
   private:
     int skill_idx_;
     SkillStatus skill_status_;
+
+    franka::Robot robot_;
 
     TrajectoryGenerator *traj_generator_= nullptr;
     FeedbackController *feedback_controller_= nullptr;
