@@ -11,6 +11,6 @@ int main() {
   run_loop.start();
   std::cout << "Did start run loop.\n";
   std::cout << "Will run..\n";
-  run_loop.run();
+  run_loop.run_on_franka();
   return 0;
 }
