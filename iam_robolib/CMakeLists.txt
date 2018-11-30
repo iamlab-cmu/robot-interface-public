@@ -37,6 +37,8 @@ add_library(iam_robolib SHARED
   src/skill_info_manager.h
   src/trajectory_generator.cpp
   src/trajectory_generator.h
+  src/goal_linear_trajectory_generator.cpp
+  src/goal_linear_trajectory_generator.h
   src/linear_trajectory_generator.cpp
   src/linear_trajectory_generator.h
   src/counter_trajectory_generator.cpp

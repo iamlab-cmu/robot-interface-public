@@ -17,6 +17,7 @@
 #include <franka/exception.h>
 
 #include "counter_trajectory_generator.h"
+#include "goal_linear_trajectory_generator.h"
 #include "linear_trajectory_generator.h"
 #include "NoopFeedbackController.h"
 
@@ -371,6 +372,10 @@ TrajectoryGenerator* RunLoop::get_trajectory_generator_for_skill(int memory_regi
     return traj_generator;
   } else if (traj_gen_id == 2) {
     LinearTrajectoryGenerator *traj_generator = new LinearTrajectoryGenerator(buffer);
+    traj_generator->parse_parameters();
+    return traj_generator;
+  } else if (traj_gen_id == 3) {
+    GoalLinearTrajectoryGenerator *traj_generator = new GoalLinearTrajectoryGenerator(buffer);
     traj_generator->parse_parameters();
     return traj_generator;
   } else {

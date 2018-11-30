@@ -8,11 +8,11 @@
 #include <iostream>
 #include <franka/robot.h>
 
-#include "trajectory_generator.h"
+#include "linear_trajectory_generator.h"
 
-class LinearTrajectoryGenerator : public TrajectoryGenerator {
+class GoalLinearTrajectoryGenerator : public LinearTrajectoryGenerator {
  public:
-  using TrajectoryGenerator::TrajectoryGenerator;
+  using LinearTrajectoryGenerator::LinearTrajectoryGenerator;
 
   void parse_parameters() override;
 
@@ -22,11 +22,8 @@ class LinearTrajectoryGenerator : public TrajectoryGenerator {
 
   void get_next_step() override;
 
-  const float vel_max_ = 0.25;
-  float time_ = 0.0;
-  float deltas_[16]={};
-
  private:
-  float velocity_ = 0.0;
+  float goal_pos_[16]={};
+  float velocities_[16] = {};
 };
 
