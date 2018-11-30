@@ -28,5 +28,5 @@ class FinalPoseTerminationHandler : public TerminationHandler {
   bool should_terminate(TrajectoryGenerator *traj_generator) override;
 
  private:
-  franka::CartesianPose pose_final_{};
+  franka::CartesianPose pose_final_;
 };

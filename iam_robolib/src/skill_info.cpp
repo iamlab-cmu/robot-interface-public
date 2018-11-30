@@ -48,10 +48,15 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot) {
 
   double time = 0.0;
 
+  std::cout << "Will run the run loop\n";
   std::function<franka::CartesianPose(const franka::RobotState&, franka::Duration)> cartesian_pose_callback = 
                                   [=, &time](
                                                    const franka::RobotState& robot_state,
                                                    franka::Duration period) -> franka::CartesianPose {
+
+    if (time == 0.0) {
+      traj_generator_->initialize_trajectory(robot_state);
+    }
 
     time += period.toSec();
 

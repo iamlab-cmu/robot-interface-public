@@ -22,9 +22,9 @@ class RunLoopLogger {
 
   void print_error_log();
 
-  void print_warning_log(std::string log);
+  void print_warning_log();
 
-  void print_info_log(std::string log);
+  void print_info_log();
 
  private:
   std::vector<std::string> error_logs_={};

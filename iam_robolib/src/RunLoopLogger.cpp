@@ -56,10 +56,10 @@ void RunLoopLogger::print_error_log() {
   print_error_logs_to_console(error_logs_);
 }
 
-void RunLoopLogger::print_warning_log(std::string log) {
+void RunLoopLogger::print_warning_log() {
   print_error_logs_to_console(warning_logs_);
 }
 
-void RunLoopLogger::print_info_log(std::string log) {
+void RunLoopLogger::print_info_log() {
   print_error_logs_to_console(info_logs_);
 }

@@ -14,6 +14,8 @@
 #include <thread>
 #include <cassert>
 
+#include <franka/exception.h>
+
 #include "counter_trajectory_generator.h"
 #include "linear_trajectory_generator.h"
 #include "NoopFeedbackController.h"
@@ -451,11 +453,12 @@ void RunLoop::start_new_skill(SkillInfo *new_skill) {
 
   TrajectoryGenerator *traj_generator =
       get_trajectory_generator_for_skill(memory_index);
+  std::cout << "Did get traj generator\n";
   FeedbackController *feedback_controller =
       get_feedback_controller_for_skill(memory_index);
   TerminationHandler* termination_handler =
       get_termination_handler_for_skill(memory_index);
-
+  std::cout << "Did get termination_handler\n";
   // Start skill, does any pre-processing if required.
   new_skill->start_skill(traj_generator, feedback_controller, termination_handler);
 
@@ -625,34 +628,40 @@ void RunLoop::run_on_franka() {
       {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}},
       {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}});
 
-  while (1) {
-    start = std::chrono::high_resolution_clock::now();
+  try {
+    while (1) {
+      start = std::chrono::high_resolution_clock::now();
 
-    // Execute the current skill (traj_generator, FBC are here)
-    SkillInfo *skill = skill_manager_.get_current_skill();
+      // Execute the current skill (traj_generator, FBC are here)
+      SkillInfo *skill = skill_manager_.get_current_skill();
 
-    // NOTE: We keep on running the last skill even if it is finished!!
-    if (skill != 0) {
-      // Execute skill.
-      skill->execute_skill_on_franka(&robot_);
+      // NOTE: We keep on running the last skill even if it is finished!!
+      if (skill != 0) {
+        // Execute skill.
+        skill->execute_skill_on_franka(&robot_);
 
-      // Finish skill if possible.
-      finish_current_skill(skill);
+        // Finish skill if possible.
+        finish_current_skill(skill);
+      }
+
+      // Complete old skills and acquire new skills
+      update_process_info();
+
+      // Start new skill, if possible
+      SkillInfo *new_skill = skill_manager_.get_current_skill();
+      if (should_start_new_skill(skill, new_skill)) {
+        start_new_skill(new_skill);
+      }
+
+      // Sleep to maintain 1Khz frequency, not sure if this is required or not.
+      auto finish = std::chrono::high_resolution_clock::now();
+      // Wait for start + milli - finish
+      auto elapsed = start + milli - finish;
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-
-    // Complete old skills and acquire new skills
-    update_process_info();
-
-    // Start new skill, if possible
-    SkillInfo *new_skill = skill_manager_.get_current_skill();
-    if (should_start_new_skill(skill, new_skill)) {
-      start_new_skill(new_skill);
-    }
-
-    // Sleep to maintain 1Khz frequency, not sure if this is required or not.
-    auto finish = std::chrono::high_resolution_clock::now();
-    // Wait for start + milli - finish
-    auto elapsed = start + milli - finish;
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  } catch (const franka::Exception& ex){
+    logger_.print_error_log();
+    logger_.print_warning_log();
+    logger_.print_info_log();
   }
 }
