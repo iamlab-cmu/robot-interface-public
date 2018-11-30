@@ -56,6 +56,7 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot) {
 
     if (time == 0.0) {
       traj_generator_->initialize_trajectory(robot_state);
+      traj_generator_->dt_ = period.toSec();
     }
 
     time += period.toSec();
@@ -66,7 +67,7 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot) {
 
     franka::CartesianPose pose_desired(traj_generator_->pose_desired_);
 
-    if(done or time >= 20.0)
+    if(done or time >= traj_generator_->run_time_ + traj_generator_->acceleration_time_)
     {
       return franka::MotionFinished(pose_desired);
     }

@@ -28,8 +28,19 @@ void LinearTrajectoryGenerator::initialize_trajectory(franka::RobotState robot_s
 }
 
 void LinearTrajectoryGenerator::get_next_step() {
+  if(velocity_ < vel_max_ && time_ < run_time_)
+  {
+    velocity_ += dt_ * std::fabs(vel_max_ / acceleration_time_);
+  }
+  if(velocity_ > 0.0 && time_ > run_time_)
+  {
+    velocity_ -= dt_ * std::fabs(vel_max_ / acceleration_time_);
+  }
+  velocity_ = std::fmax(velocity_, 0.0);
+  velocity_ = std::fmin(velocity_, vel_max_);
+
   for(int i = 13; i < 15; i++) {
-    pose_desired_[i] += deltas_[i];
+    pose_desired_[i] += velocity_ * deltas_[i];
   }
 }
 
