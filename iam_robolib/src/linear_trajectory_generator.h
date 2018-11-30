@@ -23,7 +23,7 @@ class LinearTrajectoryGenerator : public TrajectoryGenerator {
   void get_next_step() override;
 
  private:
-  const float vel_max_ = 1.57;
+  const float vel_max_ = 0.25;
   float time_ = 0.0;
   float deltas_[16]={};
   float jerk_ = 0.0;

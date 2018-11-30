@@ -64,6 +64,7 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot, ControlLoopData *c
       control_loop_data->counter_ += 1;
       control_loop_data->time_ =  period.toSec();
       control_loop_data->has_data_ = true;
+      control_loop_data->mutex_.unlock();
     }
 
     time += period.toSec();

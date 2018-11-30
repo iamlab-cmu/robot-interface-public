@@ -65,6 +65,7 @@ src/catkin_ws/build
 src/catkin_ws/devel
 
 build
+Release
 test_iam_robolib
 iam_robolib/build
 iam_robolib_common/build

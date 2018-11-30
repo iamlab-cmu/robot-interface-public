@@ -615,13 +615,13 @@ void RunLoop::run() {
 }
 
 std::thread RunLoop::setup_print_thread() {
-  int print_rate = control_loop_data_.print_rate_;
+  int print_rate = 30.0;
   std::thread print_thread([&, print_rate]() {
       // Sleep to achieve the desired print rate.
       std::this_thread::sleep_for(
           std::chrono::milliseconds(static_cast<int>((1.0 / print_rate * 1000.0))));
-
-      // Try to lock data to avoid read write collisions.
+      std::cout << "WTF, will wait for " << static_cast<int>(1.0/print_rate * 1000.0) << "\n";
+      // Try to lock data to avoid read write collisions. 
       if (control_loop_data_.mutex_.try_lock()) {
         if (control_loop_data_.has_data_) {
           control_loop_data_.has_data_ = false;
@@ -629,7 +629,7 @@ std::thread RunLoop::setup_print_thread() {
             control_loop_data_.time_ << std::endl;
         }
         control_loop_data_.mutex_.unlock();
-    }
+      }
   });
   return print_thread;
 }
