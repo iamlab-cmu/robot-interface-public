@@ -35,7 +35,7 @@ class SkillInfo {
 
     void execute_skill();
 
-    void execute_skill_on_franka(franka::Robot *robot, RunLoopInfoLogger *logger);
+    void execute_skill_on_franka(franka::Robot *robot);
 
     bool should_terminate();
 

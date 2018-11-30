@@ -6,7 +6,8 @@
 int main() {
   std::cout << "Hello world\n";
   std::mutex m;
-  RunLoop run_loop = RunLoop(std::ref(m));
+  std::mutex control_loop_data_mutex;
+  RunLoop run_loop = RunLoop(std::ref(m), std::ref(control_loop_data_mutex));
   std::cout << "Will start run loop.\n";
   run_loop.start();
   std::cout << "Did start run loop.\n";

@@ -1,7 +1,9 @@
 #include <mutex>
 
+#pragma once
+
 class ControlLoopData {
-  public:
+ public:
   	ControlLoopData(std::mutex &m): mutex_(m) {};
 
   	std::mutex& mutex_;
@@ -9,6 +11,9 @@ class ControlLoopData {
 
   	double time_;
   	int counter_; 
+
+  	// Utils for printing
+  	const int print_rate_=10;
 
   private:
  };

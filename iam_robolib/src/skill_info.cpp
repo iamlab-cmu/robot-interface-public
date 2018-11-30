@@ -7,8 +7,6 @@
 #include <cassert>
 #include <iostream>
 
-#include "RunLoopInfoLogger.h"
-
 int SkillInfo::get_skill_id() {
     return skill_idx_;
 }
@@ -46,16 +44,14 @@ void SkillInfo::execute_skill() {
   traj_generator_->get_next_step();
 }
 
-void SkillInfo::execute_skill_on_franka(franka::Robot* robot, RunLoopInfoLogger *logger) {
+void SkillInfo::execute_skill_on_franka(franka::Robot* robot) {
 
   double time = 0.0;
 
   std::cout << "Will run the control loop\n";
   std::function<franka::CartesianPose(const franka::RobotState&, franka::Duration)> cartesian_pose_callback = 
-                                  [=, &time](
-                                                   const franka::RobotState& robot_state,
-                                                   franka::Duration period) -> franka::CartesianPose {
-
+                                  [=, &time](const franka::RobotState& robot_state,
+                                             franka::Duration period) -> franka::CartesianPose {
     if (time == 0.0) {
       traj_generator_->initialize_trajectory(robot_state);
       traj_generator_->dt_ = period.toSec();
