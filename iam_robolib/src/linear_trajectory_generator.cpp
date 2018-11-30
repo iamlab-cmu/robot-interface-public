@@ -29,7 +29,7 @@ void LinearTrajectoryGenerator::initialize_trajectory(franka::RobotState robot_s
 
 void LinearTrajectoryGenerator::get_next_step() {
   for(int i = 13; i < 15; i++) {
-    pose_desired_.O_T_EE[i] += deltas_[i];
+    pose_desired_[i] += deltas_[i];
   }
 }
 

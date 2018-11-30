@@ -24,6 +24,5 @@ class LinearTrajectoryGenerator : public TrajectoryGenerator {
 
  private:
   float deltas_[16]={};
-  float initial_pose_[16]={0.};
 };
 

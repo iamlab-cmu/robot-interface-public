@@ -17,11 +17,9 @@ void FinalPoseTerminationHandler::parse_parameters() {
     std::cout << "Incorrect number of params given: " << num_params << std::endl;
   }
 
-  std::array<double, 16> pose{};
-  for (size_t i=0; i < pose.size(); i++) {
-    pose[i] = static_cast<double>(params_[2 + i]);
+  for (size_t i=0; i < pose_final_.size(); i++) {
+    pose_final_[i] = static_cast<double>(params_[2 + i]);
   }
-  pose_final_ = franka::CartesianPose(pose);
 }
 
 void FinalPoseTerminationHandler::initialize_handler() {
@@ -32,7 +30,7 @@ bool FinalPoseTerminationHandler::should_terminate(TrajectoryGenerator *trajecto
   LinearTrajectoryGenerator *linear_traj_generator =
         static_cast<LinearTrajectoryGenerator *>(trajectory_generator);
   for(size_t i = 0; i < 16; i++) {
-    if(fabs(pose_final_.O_T_EE[i] - linear_traj_generator->pose_desired_.O_T_EE[i]) > 0.0001) {
+    if(fabs(pose_final_[i] - linear_traj_generator->pose_desired_[i]) > 0.0001) {
       return false;
     }
   }

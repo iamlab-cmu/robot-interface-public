@@ -64,7 +64,7 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot) {
 
     bool done = termination_handler_->should_terminate(traj_generator_);
 
-    franka::CartesianPose pose_desired = traj_generator_->pose_desired_;
+    franka::CartesianPose pose_desired(traj_generator_->pose_desired_);
 
     if(done or time >= 20.0)
     {

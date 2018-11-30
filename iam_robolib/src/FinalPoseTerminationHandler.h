@@ -6,11 +6,7 @@
 
 class FinalPoseTerminationHandler : public TerminationHandler {
  public:
-  // using TerminationHandler::TerminationHandler;
-
-  FinalPoseTerminationHandler(float *p) :
-      TerminationHandler(p),
-      pose_final_(std::array<double, 16>()) {}
+  using TerminationHandler::TerminationHandler;
 
   /**
    * Parse parameters from memory.
@@ -28,5 +24,5 @@ class FinalPoseTerminationHandler : public TerminationHandler {
   bool should_terminate(TrajectoryGenerator *traj_generator) override;
 
  private:
-  franka::CartesianPose pose_final_;
+  std::array<double, 16> pose_final_{};
 };
