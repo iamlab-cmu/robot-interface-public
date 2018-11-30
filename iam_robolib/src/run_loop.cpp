@@ -15,8 +15,11 @@
 #include <cassert>
 
 #include "counter_trajectory_generator.h"
+#include "linear_trajectory_generator.h"
 #include "NoopFeedbackController.h"
+
 #include "NoopTerminationHandler.h"
+#include "FinalPoseTerminationHandler.h"
 
 
 template<typename ... Args>
@@ -363,6 +366,10 @@ TrajectoryGenerator* RunLoop::get_trajectory_generator_for_skill(int memory_regi
     CounterTrajectoryGenerator *traj_generator = new CounterTrajectoryGenerator(buffer);
     traj_generator->parse_parameters();
     return traj_generator;
+  } else if (traj_gen_id == 2) {
+    LinearTrajectoryGenerator *traj_generator = new LinearTrajectoryGenerator(buffer);
+    traj_generator->parse_parameters();
+    return traj_generator;
   } else {
     // Cannot create Trajectory generator for this skill. Throw error
     logger_.add_error_log(string_format(
@@ -402,11 +409,15 @@ TerminationHandler* RunLoop::get_termination_handler_for_skill(int memory_region
     NoopTerminationHandler *termination_handler = new NoopTerminationHandler(buffer);
     termination_handler->parse_parameters();
     return termination_handler;
+  } else if (termination_handler_id == 2) {
+    FinalPoseTerminationHandler *termination_handler = new FinalPoseTerminationHandler(buffer);
+    termination_handler->parse_parameters();
+    return termination_handler;
   } else {
-    // Cannot create Trajectory generator for this skill. Throw error
-    logger_.add_error_log(string_format(
-        "Cannot create TerminationHandler with class_id: %d\n", termination_handler_id));
-    return nullptr;
+      // Cannot create Trajectory generator for this skill. Throw error
+      logger_.add_error_log(string_format(
+          "Cannot create TerminationHandler with class_id: %d\n", termination_handler_id));
+      return nullptr;
   }
 }
 
@@ -448,12 +459,14 @@ void RunLoop::start_new_skill(SkillInfo *new_skill) {
   // Start skill, does any pre-processing if required.
   new_skill->start_skill(traj_generator, feedback_controller, termination_handler);
 
-  // HACK
+  /**
+   * HACK - Used for counter based testing only.
   CounterTrajectoryGenerator *ctg = static_cast<CounterTrajectoryGenerator *>(traj_generator);
   NoopFeedbackController *noopfbc = static_cast<NoopFeedbackController *>(feedback_controller);
   ctg->delta_ = noopfbc->delta_;
   assert(noopfbc->delta_ >= 0.0001);
   assert(ctg->delta_ >= 0.0001);
+  */
 }
 
 
@@ -604,6 +617,14 @@ void RunLoop::run_on_franka() {
   std::chrono::time_point<std::chrono::high_resolution_clock> start;
   auto milli = std::chrono::milliseconds(1);
 
+  // Set additional parameters always before the control loop, NEVER in the control loop!
+  // Set collision behavior.
+  robot_.setCollisionBehavior(
+      {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}},
+      {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}},
+      {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}},
+      {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}});
+
   while (1) {
     start = std::chrono::high_resolution_clock::now();
 
@@ -613,7 +634,7 @@ void RunLoop::run_on_franka() {
     // NOTE: We keep on running the last skill even if it is finished!!
     if (skill != 0) {
       // Execute skill.
-      skill->execute_skill_on_franka();
+      skill->execute_skill_on_franka(&robot_);
 
       // Finish skill if possible.
       finish_current_skill(skill);

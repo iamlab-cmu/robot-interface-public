@@ -19,8 +19,7 @@ enum class SkillStatus { TO_START, RUNNING, FINISHED };  // enum class
 class SkillInfo {
   public:
     SkillInfo(int skill_idx): skill_idx_(skill_idx),
-                              skill_status_(SkillStatus::TO_START),
-                              robot_("172.16.0.2") {};
+                              skill_status_(SkillStatus::TO_START) {};
 
     int get_skill_id();
 
@@ -34,7 +33,7 @@ class SkillInfo {
 
     void execute_skill();
 
-    void execute_skill_on_franka();
+    void execute_skill_on_franka(franka::Robot *robot);
 
     bool should_terminate();
 
@@ -53,8 +52,6 @@ class SkillInfo {
   private:
     int skill_idx_;
     SkillStatus skill_status_;
-
-    franka::Robot robot_;
 
     TrajectoryGenerator *traj_generator_= nullptr;
     FeedbackController *feedback_controller_= nullptr;

@@ -8,7 +8,6 @@
 
 void NoopFeedbackController::parse_parameters() {
   delta_ = params_[2];
-  std::cout << "delta parsed in fbc " << delta_ << std::endl;
 }
 
 void NoopFeedbackController::initialize_controller() {

@@ -44,7 +44,7 @@ void SkillInfo::execute_skill() {
   traj_generator_->get_next_step();
 }
 
-void SkillInfo::execute_skill_on_franka() {
+void SkillInfo::execute_skill_on_franka(franka::Robot* robot) {
 
   double time = 0.0;
 
@@ -70,7 +70,7 @@ void SkillInfo::execute_skill_on_franka() {
   };
 
 
-  franka::Model model = robot_.loadModel();
+  franka::Model model = robot->loadModel();
 
   std::function<franka::Torques(const franka::RobotState&, franka::Duration)> impedance_control_callback =
             [=, &model](
@@ -106,7 +106,7 @@ void SkillInfo::execute_skill_on_franka() {
 
   robot.control()*/
 
-  robot_.control(cartesian_pose_callback);
+  robot->control(impedance_control_callback, cartesian_pose_callback);
 }
 
 bool SkillInfo::should_terminate() {

@@ -12,6 +12,8 @@
 #include <iam_robolib_common/run_loop_process_info.h>
 #include <iam_robolib_common/SharedMemoryInfo.h>
 
+#include <franka/robot.h>
+
 // TODO(Mohit): Fix this, CANNOT do private imports in public headers. FML.
 #include "../../src/skill_info.h"
 #include "../../src/skill_info_manager.h"
@@ -32,10 +34,11 @@ void setCurrentThreadToRealtime(bool throw_on_error);
 class RunLoop {
  public:
   RunLoop(std::mutex& logger_mutex) : limit_rate_(false),
-                                     cutoff_frequency_(0.0),
-                                     elapsed_time_(0.0),
-                                     process_info_requires_update_(false),
-                                     logger_(logger_mutex) {};
+                                      cutoff_frequency_(0.0),
+                                      elapsed_time_(0.0),
+                                      process_info_requires_update_(false),
+                                      logger_(logger_mutex),
+                                      robot_("172.16.0.2") {};
 
   // Todo(Mohit): Implement this!!! We should free up the shared memory correctly.
   // ~RunLoop();
@@ -70,6 +73,8 @@ class RunLoop {
 
  private:
   SharedMemoryInfo shared_memory_info_=SharedMemoryInfo();
+
+  franka::Robot robot_;
 
   SkillInfoManager skill_manager_{};
   RunLoopLogger logger_;
