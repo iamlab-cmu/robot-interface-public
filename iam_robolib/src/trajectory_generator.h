@@ -33,7 +33,7 @@ class TrajectoryGenerator {
 
   std::array<double, 16> pose_desired_{};
 
-  const double acceleration_time_ = 2.0;
+  const double acceleration_time_ = 5.0;
   float run_time_ = 20.0;
   float dt_ = 0.001;
 

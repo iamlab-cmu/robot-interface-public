@@ -40,7 +40,7 @@ void LinearTrajectoryGenerator::get_next_step() {
   velocity_ = std::fmin(velocity_, vel_max_);
 
   for(int i = 13; i < 15; i++) {
-    pose_desired_[i] += velocity_ * deltas_[i];
+    pose_desired_[i] += (1 - std::cos(1 - std::cos(velocity_))) * deltas_[i];
   }
 }
 
