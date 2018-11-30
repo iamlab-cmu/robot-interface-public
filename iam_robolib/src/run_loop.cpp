@@ -19,10 +19,12 @@
 #include "counter_trajectory_generator.h"
 #include "goal_linear_trajectory_generator.h"
 #include "linear_trajectory_generator.h"
+#include "LinearJointTrajectoryController.h"
 #include "NoopFeedbackController.h"
 
 #include "NoopTerminationHandler.h"
 #include "FinalPoseTerminationHandler.h"
+#include "FinalJointTerminationHandler.h"
 #include "ControlLoopData.h"
 
 
@@ -375,7 +377,7 @@ TrajectoryGenerator* RunLoop::get_trajectory_generator_for_skill(int memory_regi
     traj_generator->parse_parameters();
     return traj_generator;
   } else if (traj_gen_id == 3) {
-    GoalLinearTrajectoryGenerator *traj_generator = new GoalLinearTrajectoryGenerator(buffer);
+    LinearJointTrajectoryController *traj_generator = new LinearJointTrajectoryController(buffer);
     traj_generator->parse_parameters();
     return traj_generator;
   } else {
@@ -419,6 +421,10 @@ TerminationHandler* RunLoop::get_termination_handler_for_skill(int memory_region
     return termination_handler;
   } else if (termination_handler_id == 2) {
     FinalPoseTerminationHandler *termination_handler = new FinalPoseTerminationHandler(buffer);
+    termination_handler->parse_parameters();
+    return termination_handler;
+  } else if (termination_handler_id == 3) {
+    FinalJointTerminationHandler *termination_handler = new FinalJointTerminationHandler(buffer);
     termination_handler->parse_parameters();
     return termination_handler;
   } else {

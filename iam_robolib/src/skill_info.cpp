@@ -105,7 +105,8 @@ try {
   };
 
   std::function<franka::JointPositions(const franka::RobotState&, franka::Duration)>
-    joint_pose_callback = [=, &time](const franka::RobotState& robot_state,
+    joint_pose_callback = [=, &time, &log_counter, &log_pose_desired, &log_robot_state, 
+                           &log_control_time, &log_tau_j, &log_dq](const franka::RobotState& robot_state,
                                      franka::Duration period) -> franka::JointPositions {
     if (time == 0.0) {
       traj_generator_->initialize_trajectory(robot_state);
@@ -170,7 +171,9 @@ try {
   robot.control()*/
 
   // robot->control(impedance_control_callback, cartesian_pose_callback);
-  robot->control(cartesian_pose_callback, franka::ControllerMode::kCartesianImpedance, true, 1000.0);
+  // robot->control(cartesian_pose_callback, franka::ControllerMode::kCartesianImpedance, true, 1000.0);
+  robot->control(joint_pose_callback);
+
 } catch (const franka::Exception& ex) {
     std::cerr << ex.what() << std::endl;
     
