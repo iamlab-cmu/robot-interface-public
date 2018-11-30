@@ -613,7 +613,7 @@ void RunLoop::run_on_franka() {
     // NOTE: We keep on running the last skill even if it is finished!!
     if (skill != 0) {
       // Execute skill.
-      skill->execute_skill_on_franka(this);
+      skill->execute_skill_on_franka();
 
       // Finish skill if possible.
       finish_current_skill(skill);

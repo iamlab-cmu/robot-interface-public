@@ -44,7 +44,7 @@ void SkillInfo::execute_skill() {
   traj_generator_->get_next_step();
 }
 
-void SkillInfo::execute_skill_on_franka(RunLoop *run_loop) {
+void SkillInfo::execute_skill_on_franka() {
 
   double time = 0.0;
 

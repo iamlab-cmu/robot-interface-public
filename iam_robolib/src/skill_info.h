@@ -14,8 +14,6 @@
 #include "TerminationHandler.h"
 #include "trajectory_generator.h"
 
-class RunLoop;
-
 enum class SkillStatus { TO_START, RUNNING, FINISHED };  // enum class
 
 class SkillInfo {
@@ -36,7 +34,7 @@ class SkillInfo {
 
     void execute_skill();
 
-    void execute_skill_on_franka(RunLoop *run_loop);
+    void execute_skill_on_franka();
 
     bool should_terminate();
 
