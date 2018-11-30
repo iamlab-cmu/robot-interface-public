@@ -16,6 +16,8 @@
 
 enum class SkillStatus { TO_START, RUNNING, FINISHED };  // enum class
 
+class RunLoopInfoLogger;
+
 class SkillInfo {
   public:
     SkillInfo(int skill_idx): skill_idx_(skill_idx),
@@ -33,7 +35,7 @@ class SkillInfo {
 
     void execute_skill();
 
-    void execute_skill_on_franka(franka::Robot *robot);
+    void execute_skill_on_franka(franka::Robot *robot, RunLoopInfoLogger *logger);
 
     bool should_terminate();
 

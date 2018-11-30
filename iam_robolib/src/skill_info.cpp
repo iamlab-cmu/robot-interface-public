@@ -7,6 +7,8 @@
 #include <cassert>
 #include <iostream>
 
+#include "RunLoopInfoLogger.h"
+
 int SkillInfo::get_skill_id() {
     return skill_idx_;
 }
@@ -44,7 +46,7 @@ void SkillInfo::execute_skill() {
   traj_generator_->get_next_step();
 }
 
-void SkillInfo::execute_skill_on_franka(franka::Robot* robot) {
+void SkillInfo::execute_skill_on_franka(franka::Robot* robot, RunLoopInfoLogger *logger) {
 
   double time = 0.0;
 

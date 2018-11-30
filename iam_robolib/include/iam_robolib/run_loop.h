@@ -21,6 +21,7 @@
 #include "../../src/FeedbackController.h"
 #include "../../src/TerminationHandler.h"
 #include "../../src/RunLoopLogger.h"
+#include "../../src/control_loop_data.h"
 
 // SharedBuffer type to share memory (Change size later)
 // using SharedBuffer = std::array<float, 1024>;
@@ -33,12 +34,13 @@ void setCurrentThreadToRealtime(bool throw_on_error);
 
 class RunLoop {
  public:
-  RunLoop(std::mutex& logger_mutex) : limit_rate_(false),
-                                      cutoff_frequency_(0.0),
-                                      elapsed_time_(0.0),
-                                      process_info_requires_update_(false),
-                                      logger_(logger_mutex),
-                                      robot_("172.16.0.2") {};
+  RunLoop(std::mutex& logger_mutex, std::mutex& control_loop_data_mutex) : limit_rate_(false),
+                                                                           cutoff_frequency_(0.0),
+                                                                           elapsed_time_(0.0),
+                                                                           process_info_requires_update_(false),
+                                                                           logger_(logger_mutex),
+                                                                           control_loop_data_(control_loop_data_mutex)
+                                                                           robot_("172.16.0.2") {};
 
   // Todo(Mohit): Implement this!!! We should free up the shared memory correctly.
   // ~RunLoop();
@@ -78,12 +80,14 @@ class RunLoop {
 
   SkillInfoManager skill_manager_{};
   RunLoopLogger logger_;
+  ControlLoopData control_loop_data_;
 
   // If this flag is true at every loop we will try to get the lock and update
   // process info.
   bool process_info_requires_update_;
   boost::interprocess::interprocess_mutex *run_loop_info_mutex_=NULL;
-  RunLoopProcessInfo *run_loop_info_=NULL; const bool limit_rate_;  // NOLINT(readability-identifier-naming)
+  RunLoopProcessInfo *run_loop_info_=NULL;
+  const bool limit_rate_;  // NOLINT(readability-identifier-naming)
 
   const double cutoff_frequency_; // NOLINT(readability-identifier-naming)
   uint32_t elapsed_time_;
@@ -207,4 +211,7 @@ class RunLoop {
    * @return TermatinationHanndler instance for this skill
    */
   TerminationHandler* get_termination_handler_for_skill(int memory_region);
+
+  
+  void setup_print_thread;
 };

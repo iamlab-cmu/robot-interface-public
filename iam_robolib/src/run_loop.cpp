@@ -22,6 +22,7 @@
 
 #include "NoopTerminationHandler.h"
 #include "FinalPoseTerminationHandler.h"
+#include "ControlLoopData.h"
 
 
 template<typename ... Args>
@@ -613,7 +614,45 @@ void RunLoop::run() {
   }
 }
 
+void RunLoop::setup_print_thread() {
+ std::thread print_thread([print_rate, &print_data, &running]() {
+    while (running) {
+      // Sleep to achieve the desired print rate.
+      std::this_thread::sleep_for(
+          std::chrono::milliseconds(static_cast<int>((1.0 / print_rate * 1000.0))));
+
+      // Try to lock data to avoid read write collisions.
+      if (print_data.mutex.try_lock()) {
+        if (print_data.has_data) {
+          std::array<double, 7> tau_error{};
+          double error_rms(0.0);
+          std::array<double, 7> tau_d_actual{};
+          for (size_t i = 0; i < 7; ++i) {
+            tau_d_actual[i] = print_data.tau_d_last[i] + print_data.gravity[i];
+            tau_error[i] = tau_d_actual[i] - print_data.robot_state.tau_J[i];
+            error_rms += std::pow(tau_error[i], 2.0) / tau_error.size();
+          }
+          error_rms = std::sqrt(error_rms);
+
+          // Print data to console
+          std::cout << "tau_error [Nm]: " << tau_error << std::endl
+                    << "tau_commanded [Nm]: " << tau_d_actual << std::endl
+                    << "tau_measured [Nm]: " << print_data.robot_state.tau_J << std::endl
+                    << "root mean square of tau_error [Nm]: " << error_rms << std::endl
+                    << "-----------------------" << std::endl;
+          print_data.has_data = false;
+        }
+        print_data.mutex.unlock();
+      }
+    }
+  });
+  return print_thread;
+}
+
+
 void RunLoop::run_on_franka() {
+
+
   // Wait for sometime to let the client add data to the buffer
   std::this_thread::sleep_for(std::chrono::seconds(10));
 
