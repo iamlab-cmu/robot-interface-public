@@ -41,6 +41,8 @@ add_library(iam_robolib SHARED
   src/goal_linear_trajectory_generator.h
   src/linear_trajectory_generator.cpp
   src/linear_trajectory_generator.h
+  src/linear_trajectory_generator_with_time_and_goal.cpp
+  src/linear_trajectory_generator_with_time_and_goal.h
   src/counter_trajectory_generator.cpp
   src/counter_trajectory_generator.h
   src/FeedbackController.cpp

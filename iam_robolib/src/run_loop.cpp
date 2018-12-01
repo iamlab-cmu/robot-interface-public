@@ -19,6 +19,7 @@
 #include "counter_trajectory_generator.h"
 #include "goal_linear_trajectory_generator.h"
 #include "linear_trajectory_generator.h"
+#include "linear_trajectory_generator_with_time_and_goal.h"
 #include "LinearJointTrajectoryController.h"
 #include "NoopFeedbackController.h"
 
@@ -378,6 +379,10 @@ TrajectoryGenerator* RunLoop::get_trajectory_generator_for_skill(int memory_regi
     return traj_generator;
   } else if (traj_gen_id == 3) {
     LinearJointTrajectoryGenerator *traj_generator = new LinearJointTrajectoryGenerator(buffer);
+    traj_generator->parse_parameters();
+    return traj_generator;
+  } else if (traj_gen_id == 4) {
+    LinearTrajectoryGeneratorWithTimeAndGoal *traj_generator = new LinearTrajectoryGeneratorWithTimeAndGoal(buffer);
     traj_generator->parse_parameters();
     return traj_generator;
   } else {

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <array>
+#include <Eigen/Dense>
 #include <franka/robot.h>
 
 class TrajectoryGenerator {
@@ -33,6 +34,8 @@ class TrajectoryGenerator {
 
   std::array<double, 16> pose_desired_{};
   std::array<double, 7> joint_desired_{};
+  Eigen::Vector3d desired_position_;
+  Eigen::Quaterniond desired_orientation_;
 
   const double acceleration_time_ = 5.0;
   float run_time_ = 20.5;
