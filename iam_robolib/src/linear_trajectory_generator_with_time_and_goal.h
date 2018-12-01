@@ -24,11 +24,12 @@ class LinearTrajectoryGeneratorWithTimeAndGoal : public TrajectoryGenerator {
 
   void get_next_step() override;
 
+  Eigen::Vector3d goal_position_;
+  Eigen::Quaterniond goal_orientation_;
+
  private:
   Eigen::Vector3d initial_position_;
   Eigen::Quaterniond initial_orientation_;
-  Eigen::Vector3d goal_position_;
-  Eigen::Quaterniond goal_orientation_;
   double t_ = 0.0;
 };
 

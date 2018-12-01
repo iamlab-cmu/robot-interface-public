@@ -25,6 +25,11 @@ class FinalJointTerminationHandler :public TerminationHandler{
    */
   bool should_terminate(TrajectoryGenerator *traj_generator) override;
 
+  /**
+   * Should we terminate the current skill.
+   */
+  bool should_terminate(franka::RobotState *robot_state, TrajectoryGenerator *traj_generator) override;
+
  private:
   std::array<double, 16> joint_final_{};
 

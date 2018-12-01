@@ -37,3 +37,14 @@ bool FinalJointTerminationHandler::should_terminate(TrajectoryGenerator *traject
   return true;
 }
 
+bool FinalJointTerminationHandler::should_terminate(franka::RobotState *robot_state, TrajectoryGenerator *trajectory_generator) {
+  LinearJointTrajectoryGenerator *linear_traj_generator =
+      static_cast<LinearJointTrajectoryGenerator *>(trajectory_generator);
+  for(size_t i = 0; i < joint_final_.size(); i++) {
+    if(fabs(joint_final_[i] - linear_traj_generator->joint_desired_[i]) > 0.0001) {
+      return false;
+    }
+  }
+  return true;
+}
+

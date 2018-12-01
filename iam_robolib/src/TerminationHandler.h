@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <franka/robot.h>
 #include "trajectory_generator.h"
 
 class TerminationHandler {
@@ -24,6 +25,11 @@ class TerminationHandler {
    * Should we terminate the current skill.
    */
   virtual bool should_terminate(TrajectoryGenerator *traj_generator) = 0;
+
+  /**
+   * Should we terminate the current skill.
+   */
+  virtual bool should_terminate(franka::RobotState *robot_state, TrajectoryGenerator *traj_generator) = 0;
 
  protected:
   float *params_=0;

@@ -23,6 +23,7 @@
 #include "LinearJointTrajectoryController.h"
 #include "NoopFeedbackController.h"
 
+#include "linear_trajectory_generator_with_time_and_goal_termination_handler.h"
 #include "NoopTerminationHandler.h"
 #include "FinalPoseTerminationHandler.h"
 #include "FinalJointTerminationHandler.h"
@@ -431,6 +432,10 @@ TerminationHandler* RunLoop::get_termination_handler_for_skill(int memory_region
     return termination_handler;
   } else if (termination_handler_id == 3) {
     FinalJointTerminationHandler *termination_handler = new FinalJointTerminationHandler(buffer);
+    termination_handler->parse_parameters();
+    return termination_handler;
+  } else if (termination_handler_id == 4) {
+    LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler *termination_handler = new LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler(buffer);
     termination_handler->parse_parameters();
     return termination_handler;
   } else {
