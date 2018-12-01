@@ -33,7 +33,7 @@ bool NoopTerminationHandler::should_terminate(TrajectoryGenerator *trajectory_ge
   return false;
 }
 
-bool NoopTerminationHandler::should_terminate(franka::RobotState *robot_state, TrajectoryGenerator *trajectory_generator) {
+bool NoopTerminationHandler::should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *trajectory_generator) {
   CounterTrajectoryGenerator *counter_traj_generator = static_cast<CounterTrajectoryGenerator
       *>(trajectory_generator);
   if (fabs(end_point_[0] - counter_traj_generator->current_point_[0]) < 0.0001 &&

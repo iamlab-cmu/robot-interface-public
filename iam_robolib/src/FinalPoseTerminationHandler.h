@@ -26,7 +26,7 @@ class FinalPoseTerminationHandler : public TerminationHandler {
   /**
    * Should we terminate the current skill.
    */
-  bool should_terminate(franka::RobotState *robot_state, TrajectoryGenerator *traj_generator) override;
+  bool should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) override;
 
  private:
   std::array<double, 16> pose_final_{};

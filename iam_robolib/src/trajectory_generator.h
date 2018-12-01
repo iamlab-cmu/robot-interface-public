@@ -6,7 +6,7 @@
 
 #include <array>
 #include <Eigen/Dense>
-#include <franka/robot.h>
+#include <franka/robot_state.h>
 
 class TrajectoryGenerator {
  public:
@@ -25,7 +25,7 @@ class TrajectoryGenerator {
   /**
    * Initialize trajectory generation after parameter parsing.
    */
-  virtual void initialize_trajectory(franka::RobotState robot_state) = 0;
+  virtual void initialize_trajectory(const franka::RobotState &robot_state) = 0;
 
   /**
    *  Get next trajectory step.

@@ -6,7 +6,6 @@
 
 #include <cstring>
 #include <iostream>
-#include <franka/robot.h>
 
 #include "trajectory_generator.h"
 
@@ -18,7 +17,7 @@ class LinearTrajectoryGenerator : public TrajectoryGenerator {
 
   void initialize_trajectory() override;
 
-  void initialize_trajectory(franka::RobotState robot_state) override;
+  void initialize_trajectory(const franka::RobotState &robot_state) override;
 
   void get_next_step() override;
 

@@ -16,6 +16,6 @@ bool CounterTerminationHandler::should_terminate(TrajectoryGenerator *traj_gener
 
 }
 
-bool CounterTerminationHandler::should_terminate(franka::RobotState *robot_state, TrajectoryGenerator *traj_generator) {
+bool CounterTerminationHandler::should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) {
 	
 }

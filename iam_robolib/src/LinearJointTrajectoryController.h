@@ -14,7 +14,7 @@ class LinearJointTrajectoryGenerator : public TrajectoryGenerator {
 
   void initialize_trajectory() override;
 
-  void initialize_trajectory(franka::RobotState robot_state) override;
+  void initialize_trajectory(const franka::RobotState &robot_state) override;
 
   void get_next_step() override;
 

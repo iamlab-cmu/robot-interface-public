@@ -24,7 +24,7 @@ void LinearJointTrajectoryGenerator::initialize_trajectory() {
   // assert(false);
 }
 
-void LinearJointTrajectoryGenerator::initialize_trajectory(franka::RobotState robot_state) {
+void LinearJointTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
   joint_desired_ = robot_state.q;
   joint_initial_ = robot_state.q;
 }

@@ -88,7 +88,7 @@ bool LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::should_terminat
 }
 
 
-bool LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::should_terminate(franka::RobotState *robot_state, TrajectoryGenerator *trajectory_generator) {
+bool LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *trajectory_generator) {
   LinearTrajectoryGeneratorWithTimeAndGoal *linear_trajectory_generator_with_time_and_goal =
         static_cast<LinearTrajectoryGeneratorWithTimeAndGoal *>(trajectory_generator);
 
@@ -97,7 +97,7 @@ bool LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::should_terminat
     return true;
   }
 
-  Eigen::Affine3d current_transform(Eigen::Matrix4d::Map(robot_state->O_T_EE.data()));
+  Eigen::Affine3d current_transform(Eigen::Matrix4d::Map(robot_state.O_T_EE.data()));
   Eigen::Vector3d current_position(current_transform.translation());
   Eigen::Quaterniond current_orientation(current_transform.linear());
 

@@ -28,7 +28,7 @@ void CounterTrajectoryGenerator::initialize_trajectory() {
     << current_point_[2] << std::endl;
 }
 
-void CounterTrajectoryGenerator::initialize_trajectory(franka::RobotState robot_state)
+void CounterTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state)
 {
   assert(false);
 }

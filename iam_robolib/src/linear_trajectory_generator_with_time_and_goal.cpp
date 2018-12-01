@@ -75,7 +75,7 @@ void LinearTrajectoryGeneratorWithTimeAndGoal::initialize_trajectory() {
   // assert(false);
 }
 
-void LinearTrajectoryGeneratorWithTimeAndGoal::initialize_trajectory(franka::RobotState robot_state) {
+void LinearTrajectoryGeneratorWithTimeAndGoal::initialize_trajectory(const franka::RobotState &robot_state) {
   Eigen::Affine3d initial_transform(Eigen::Matrix4d::Map(robot_state.O_T_EE.data()));
   initial_position_ = Eigen::Vector3d(initial_transform.translation());
   initial_orientation_ = Eigen::Quaterniond(initial_transform.linear());
