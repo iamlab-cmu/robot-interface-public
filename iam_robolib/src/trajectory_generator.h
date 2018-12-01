@@ -35,7 +35,7 @@ class TrajectoryGenerator {
   std::array<double, 7> joint_desired_{};
 
   const double acceleration_time_ = 5.0;
-  float run_time_ = 4.5;
+  float run_time_ = 20.5;
   float dt_ = 0.001;
   double time_ = 0.0;
 

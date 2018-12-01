@@ -24,7 +24,7 @@ void LinearTrajectoryGenerator::initialize_trajectory() {
 }
 
 void LinearTrajectoryGenerator::initialize_trajectory(franka::RobotState robot_state) {
-  pose_desired_ = robot_state.O_T_EE_c;
+  pose_desired_ = robot_state.O_T_EE;
 }
 
 void LinearTrajectoryGenerator::get_next_step() {
@@ -37,9 +37,15 @@ void LinearTrajectoryGenerator::get_next_step() {
   velocity_ = std::fmax(velocity_, 0.0);
   velocity_ = std::fmin(velocity_, vel_max_);
 
+  double period = std::sin(M_PI * time_ / 0.5);  
+  pose_desired_[12] += (velocity_ * dt_) * period * deltas_[12];
   for(int i = 13; i < 15; i++) {
     // pose_desired_[i] += (1 - std::cos(velocity_ * dt_)) * deltas_[i];
-    pose_desired_[i] += (velocity_ * dt_) * deltas_[i];
+    double factor = 1.0;
+    if (time_ > 3.0) {
+      factor = 0.2;
+    }
+    pose_desired_[i] += (velocity_ * dt_) * deltas_[i] * factor;
   }
 }
 

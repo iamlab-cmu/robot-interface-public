@@ -70,7 +70,7 @@ add_library(iam_robolib SHARED
 # add_library(IAM_RoboLib::IAM_RoboLib ALIAS iam_robolib)
 
 target_link_libraries(iam_robolib PRIVATE
-  # Eigen3::Eigen3
+  Eigen3::Eigen3
   Threads::Threads
   ${Boost_LIBRARIES}
   rt
