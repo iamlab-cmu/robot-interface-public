@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <chrono>
 #include <cmath>
 #include <functional>
@@ -75,10 +76,14 @@ class RunLoop {
    */
   void run_on_franka();
 
+  static std::atomic<bool> running_skills_;
+
  private:
+
   SharedMemoryInfo shared_memory_info_=SharedMemoryInfo();
 
   franka::Robot robot_;
+  std::thread print_thread_{};
 
   SkillInfoManager skill_manager_{};
   RunLoopLogger logger_;
@@ -218,5 +223,10 @@ class RunLoop {
   /**
    * Setup thread to print data from the real time control loop thread.
    */
-  std::thread setup_print_thread();
+  void setup_print_thread();
+
+  /**
+   * Setup default collision behavior for robot.
+   */
+  void setup_robot_default_behavior();
 };

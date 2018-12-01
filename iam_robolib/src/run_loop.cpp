@@ -28,6 +28,7 @@
 #include "FinalJointTerminationHandler.h"
 #include "ControlLoopData.h"
 
+std::atomic<bool> RunLoop::running_skills_{false};
 
 template<typename ... Args>
 std::string string_format(const std::string& format, Args ... args )
@@ -631,54 +632,28 @@ void RunLoop::run() {
   }
 }
 
-std::thread RunLoop::setup_print_thread() {
-  int print_rate = 30.0;
-  std::thread print_thread([&, print_rate]() {
+void RunLoop::setup_print_thread() {
+  int print_rate = 10.0;
+  print_thread_ = std::thread([&, print_rate]() {
       // Sleep to achieve the desired print rate.
-      std::this_thread::sleep_for(
-          std::chrono::milliseconds(static_cast<int>((1.0 / print_rate * 1000.0))));
-      std::cout << "WTF, will wait for " << static_cast<int>(1.0/print_rate * 1000.0) << "\n";
-      // Try to lock data to avoid read write collisions. 
-      if (control_loop_data_.mutex_.try_lock()) {
-        if (control_loop_data_.has_data_) {
-          control_loop_data_.has_data_ = false;
-          std::cout << "Count: " << control_loop_data_.counter_<< " time: " <<
-            control_loop_data_.time_ << std::endl;
+      while (running_skills_) {
+        std::this_thread::sleep_for(
+            std::chrono::milliseconds(static_cast<int>((1.0 / print_rate * 1000.0))));
+        std::cout << "WTF, will wait for " << static_cast<int>(1.0 / print_rate * 1000.0) << "\n";
+        // Try to lock data to avoid read write collisions.
+        if (control_loop_data_.mutex_.try_lock()) {
+          if (control_loop_data_.has_data_) {
+            control_loop_data_.has_data_ = false;
+            std::cout << "Count: " << control_loop_data_.counter_ << " time: " <<
+                      control_loop_data_.time_ << std::endl;
+          }
+          control_loop_data_.mutex_.unlock();
         }
-        control_loop_data_.mutex_.unlock();
       }
   });
-  return print_thread;
 }
 
-
-void RunLoop::run_on_franka() {
-
-  int print_rate = 30.0;
-  std::thread print_thread([&, print_rate]() {
-      // Sleep to achieve the desired print rate.
-      // std::this_thread::sleep_for(
-      //     std::chrono::milliseconds(static_cast<int>((1.0 / print_rate * 1000.0))));
-      std::cout << "WTF, will wait for " << static_cast<int>(1.0/print_rate * 1000.0) << "\n";
-      // Try to lock data to avoid read write collisions. 
-      if (control_loop_data_.mutex_.try_lock()) {
-        if (control_loop_data_.has_data_) {
-          control_loop_data_.has_data_ = false;
-          std::cout << "Count: " << control_loop_data_.counter_<< " time: " <<
-            control_loop_data_.time_ << std::endl;
-        }
-        control_loop_data_.mutex_.unlock();
-      }
-  });
-
-
-
-  // Wait for sometime to let the client add data to the buffer
-  std::this_thread::sleep_for(std::chrono::seconds(10));
-
-  std::chrono::time_point<std::chrono::high_resolution_clock> start;
-  auto milli = std::chrono::milliseconds(1);
-
+void RunLoop::setup_robot_default_behavior() {
   // Set additional parameters always before the control loop, NEVER in the control loop!
   // Set collision behavior.
   /*robot_.setCollisionBehavior(
@@ -686,7 +661,6 @@ void RunLoop::run_on_franka() {
       {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}},
       {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}},
       {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}});*/
-
   robot_.setCollisionBehavior(
       {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{120.0, 120.0, 118.0, 118.0, 116.0, 114.0, 112.0}},
       {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{120.0, 120.0, 118.0, 118.0, 116.0, 114.0, 112.0}},
@@ -695,7 +669,22 @@ void RunLoop::run_on_franka() {
 
   robot_.setJointImpedance({{3000, 3000, 3000, 2500, 2500, 2000, 2000}});
   robot_.setCartesianImpedance({{3000, 3000, 3000, 300, 300, 300}});
+}
+
+void RunLoop::run_on_franka() {
+
+  setup_print_thread();
+
+  // Wait for sometime to let the client add data to the buffer
+  std::this_thread::sleep_for(std::chrono::seconds(10));
+
+  std::chrono::time_point<std::chrono::high_resolution_clock> start;
+  auto milli = std::chrono::milliseconds(1);
+
+  setup_robot_default_behavior();
+
   try {
+    running_skills_ = true;
     while (1) {
       start = std::chrono::high_resolution_clock::now();
 
@@ -737,7 +726,7 @@ void RunLoop::run_on_franka() {
 
   }
 
-  if (print_thread.joinable()) {
-    print_thread.join();
+  if (print_thread_.joinable()) {
+    print_thread_.join();
   }
 }
