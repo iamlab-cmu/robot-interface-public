@@ -377,7 +377,7 @@ TrajectoryGenerator* RunLoop::get_trajectory_generator_for_skill(int memory_regi
     traj_generator->parse_parameters();
     return traj_generator;
   } else if (traj_gen_id == 3) {
-    LinearJointTrajectoryController *traj_generator = new LinearJointTrajectoryController(buffer);
+    LinearJointTrajectoryGenerator *traj_generator = new LinearJointTrajectoryGenerator(buffer);
     traj_generator->parse_parameters();
     return traj_generator;
   } else {
@@ -715,6 +715,7 @@ void RunLoop::run_on_franka() {
       auto finish = std::chrono::high_resolution_clock::now();
       // Wait for start + milli - finish
       auto elapsed = start + milli - finish;
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
   } catch (const franka::Exception& ex) {
 

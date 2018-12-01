@@ -136,8 +136,9 @@ try {
 
   franka::Model model = robot->loadModel();
 
+  std::array<double, 7> q_goal = {{0, -M_PI_4, 0, -3 * M_PI_4, 0, M_PI_2, M_PI_4}};
   std::function<franka::Torques(const franka::RobotState&, franka::Duration)> impedance_control_callback =
-            [=, &model](
+            [=, &model, &q_goal](
                 const franka::RobotState& state, franka::Duration /*period*/) -> franka::Torques {
       // Read current coriolis terms from model.
       std::array<double, 7> coriolis = model.coriolis(state);
@@ -149,6 +150,8 @@ try {
       for (size_t i = 0; i < 7; i++) {
         tau_d_calculated[i] =
             k_gains_[i] * (state.q_d[i] - state.q[i]) - d_gains_[i] * state.dq[i] + coriolis[i];
+        // tau_d_calculated[i] =
+        //     k_gains_[i] * (q_goal[i] - state.q[i]) - d_gains_[i] * state.dq[i] + coriolis[i];
       }
 
       // The following line is only necessary for printing the rate limited torque. As we activated
@@ -172,7 +175,7 @@ try {
 
   // robot->control(impedance_control_callback, cartesian_pose_callback);
   // robot->control(cartesian_pose_callback, franka::ControllerMode::kCartesianImpedance, true, 1000.0);
-  robot->control(joint_pose_callback);
+  robot->control(impedance_control_callback, joint_pose_callback);
 
 } catch (const franka::Exception& ex) {
     std::cerr << ex.what() << std::endl;

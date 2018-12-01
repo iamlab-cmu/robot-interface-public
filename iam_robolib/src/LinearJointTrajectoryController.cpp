@@ -26,12 +26,19 @@ void LinearJointTrajectoryGenerator::initialize_trajectory() {
 
 void LinearJointTrajectoryGenerator::initialize_trajectory(franka::RobotState robot_state) {
   joint_desired_ = robot_state.q;
+  joint_initial_ = robot_state.q;
 }
 
 void LinearJointTrajectoryGenerator::get_next_step() {
-  double delta_angle = M_PI / 8.0 * (1 - std::cos(M_PI / 2.5 * time_));
-  joint_desired_[3] += delta_angle;
-  joint_desired_[4] += delta_angle;
-  joint_desired_[6] += delta_angle;
+  // double delta_angle = M_PI / 8.0 * (1 - std::cos(M_PI / 0.625 * time_));
+  double delta_angle = (M_PI / 8.0) * (time_ / 4.0);
+  double max_delta = (M_PI / 8.0);
+  if (delta_angle > max_delta) {
+    delta_angle = max_delta;
+  }
+  //double delta_angle = 0;
+  joint_desired_[3] = joint_initial_[3] + delta_angle;
+  // joint_desired_[4] = joint_initial_[4] + delta_angle;
+  joint_desired_[6] = joint_initial_[6] + delta_angle;
 }
-
+  

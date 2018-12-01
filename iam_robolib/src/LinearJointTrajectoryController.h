@@ -20,5 +20,6 @@ class LinearJointTrajectoryGenerator : public TrajectoryGenerator {
 
  private:
   float deltas_[7]={};
+  std::array<double, 7>joint_initial_={};
 };
 
