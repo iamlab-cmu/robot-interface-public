@@ -19,7 +19,14 @@ void LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::parse_parameter
   {
     position_threshold_ = static_cast<double>(params_[2]);
     orientation_threshold_ = static_cast<double>(params_[3]);
-  } 
+  }
+  // buffer_time (1) + position_error_threshold (1) + orientation_error_threshold (1)
+  else if(num_params_ == 3) 
+  {
+    buffer_time_ = static_cast<double>(params_[2]);
+    position_threshold_ = static_cast<double>(params_[3]);
+    orientation_threshold_ = static_cast<double>(params_[4]);
+  }  
   // position_error_threshold (3) + orientation_error_threshold (3)
   else if(num_params_ == 6)
   {
@@ -29,6 +36,17 @@ void LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::parse_parameter
     orientation_thresholds_[0] = static_cast<double>(params_[5]);
     orientation_thresholds_[1] = static_cast<double>(params_[6]);
     orientation_thresholds_[2] = static_cast<double>(params_[7]);
+  }
+  // buffer_time (1) + position_error_threshold (3) + orientation_error_threshold (3)
+  else if(num_params_ == 7)
+  {
+    buffer_time_ = static_cast<double>(params_[2]);
+    position_thresholds_[0] = static_cast<double>(params_[3]);
+    position_thresholds_[1] = static_cast<double>(params_[4]);
+    position_thresholds_[2] = static_cast<double>(params_[5]);
+    orientation_thresholds_[0] = static_cast<double>(params_[6]);
+    orientation_thresholds_[1] = static_cast<double>(params_[7]);
+    orientation_thresholds_[2] = static_cast<double>(params_[8]);
   }
   else
   {
@@ -47,7 +65,7 @@ bool LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::should_terminat
   LinearTrajectoryGeneratorWithTimeAndGoal *linear_trajectory_generator_with_time_and_goal =
         static_cast<LinearTrajectoryGeneratorWithTimeAndGoal *>(trajectory_generator);
 
-  if(linear_trajectory_generator_with_time_and_goal->time_ > linear_trajectory_generator_with_time_and_goal->run_time_)
+  if(linear_trajectory_generator_with_time_and_goal->time_ > linear_trajectory_generator_with_time_and_goal->run_time_ + buffer_time_)
   {
     return true;
   }
@@ -92,7 +110,7 @@ bool LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::should_terminat
   LinearTrajectoryGeneratorWithTimeAndGoal *linear_trajectory_generator_with_time_and_goal =
         static_cast<LinearTrajectoryGeneratorWithTimeAndGoal *>(trajectory_generator);
 
-  if(linear_trajectory_generator_with_time_and_goal->time_ > linear_trajectory_generator_with_time_and_goal->run_time_)
+  if(linear_trajectory_generator_with_time_and_goal->time_ > linear_trajectory_generator_with_time_and_goal->run_time_ + buffer_time_)
   {
     return true;
   }

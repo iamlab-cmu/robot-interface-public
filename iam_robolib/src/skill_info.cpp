@@ -94,7 +94,7 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot, ControlLoopData *c
 
       feedback_controller_->get_next_step(robot_state, traj_generator_);
 
-      bool done = termination_handler_->should_terminate(traj_generator_);
+      bool done = termination_handler_->should_terminate(robot_state, traj_generator_);
 
       if(done)
       {
