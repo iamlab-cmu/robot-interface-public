@@ -18,7 +18,7 @@
 #include <franka/gripper.h>
 
 // TODO(Mohit): Fix this, CANNOT do private imports in public headers. FML.
-#include "../../src/skill_info.h"
+#include "../../src/BaseSkill.h"
 #include "../../src/skill_info_manager.h"
 #include "../../src/trajectory_generator.h"
 #include "../../src/FeedbackController.h"
@@ -178,18 +178,18 @@ class RunLoop {
    * @param new_skill
    * @return True if new skill should be started else false.
    */
-  bool should_start_new_skill(SkillInfo *old_skill, SkillInfo *new_skill);
+  bool should_start_new_skill(BaseSkill* old_skill, BaseSkill* new_skill);
 
   /**
    * Start executing new skill.
    * @param new_skill New skill to start.
    */
-  void start_new_skill(SkillInfo *new_skill);
+  void start_new_skill(BaseSkill* new_skill);
 
   /**
    *  Finish current executing skill.
    */
-  void finish_current_skill(SkillInfo *skill);
+  void finish_current_skill(BaseSkill* skill);
 
   /**
    * Update process info in the shared memory to reflect run-loop's

@@ -6,9 +6,9 @@ class TrajectoryGenerator;
 class FeedbackController;
 class TerminationHandler;
 
-class GripperOpenSkill : public SkillInfo {
+class GripperOpenSkill : public BaseSkill {
  public:
-  GripperOpenSkill(int skill_idx): SkillInfo(skill_idx) {};
+  GripperOpenSkill(int skill_idx): BaseSkill(skill_idx) {};
 
   void execute_skill();
 

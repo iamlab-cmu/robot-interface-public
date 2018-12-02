@@ -6,21 +6,21 @@
 
 #include <vector>
 
-#include "skill_info.h"
+class BaseSkill;
 
 class SkillInfoManager {
  public:
   SkillInfoManager();
 
-  SkillInfo *get_current_skill();
+  BaseSkill *get_current_skill();
 
   bool is_currently_executing_skill();
 
   bool is_waiting_for_new_skill();
 
-  void add_skill(SkillInfo *skill);
+  void add_skill(BaseSkill *skill);
 
  private:
-  std::vector<SkillInfo *> skill_list_{};
+  std::vector<BaseSkill *> skill_list_{};
 };
 

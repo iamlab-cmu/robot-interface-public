@@ -24,6 +24,7 @@
 #include "NoopFeedbackController.h"
 #include "torque_feedback_controller.h"
 
+#include "BaseSkill.h"
 #include "contact_termination_handler.h"
 #include "linear_trajectory_generator_with_time_and_goal_termination_handler.h"
 #include "NoopTerminationHandler.h"
@@ -31,6 +32,7 @@
 #include "FinalJointTerminationHandler.h"
 #include "ControlLoopData.h"
 #include "GripperOpenTrajectoryGenerator.h"
+#include "GripperOpenSkill.h"
 
 std::atomic<bool> RunLoop::running_skills_{false};
 
@@ -461,7 +463,7 @@ void RunLoop::stop() {
   // Stop the interface gracefully.
 }
 
-bool RunLoop::should_start_new_skill(SkillInfo *old_skill, SkillInfo *new_skill) {
+bool RunLoop::should_start_new_skill(BaseSkill* old_skill, BaseSkill* new_skill) {
   // No new skill to start.
   if (new_skill == nullptr) {
     return false;
@@ -478,7 +480,7 @@ bool RunLoop::should_start_new_skill(SkillInfo *old_skill, SkillInfo *new_skill)
   return false;
 }
 
-void RunLoop::start_new_skill(SkillInfo *new_skill) {
+void RunLoop::start_new_skill(BaseSkill* new_skill) {
   // Generate things that are required here.
   int memory_index = run_loop_info_->get_current_shared_memory_index();
   logger_.add_info_log(string_format("Create skill from memory index: %d\n", memory_index));
@@ -505,7 +507,7 @@ void RunLoop::start_new_skill(SkillInfo *new_skill) {
 }
 
 
-void RunLoop::finish_current_skill(SkillInfo *skill) {
+void RunLoop::finish_current_skill(BaseSkill* skill) {
   SkillStatus status = skill->get_current_skill_status();
 
   if (skill->should_terminate()) {
@@ -527,7 +529,7 @@ void RunLoop::finish_current_skill(SkillInfo *skill) {
 }
 
 void RunLoop::update_process_info() {
-  SkillInfo *skill = skill_manager_.get_current_skill();
+  BaseSkill* skill = skill_manager_.get_current_skill();
   int current_skill_id = -1;
   if (skill != nullptr) {
     current_skill_id = skill->get_skill_id();
@@ -578,11 +580,20 @@ void RunLoop::update_process_info() {
           std::cout << "Did get new skill";
           // Create new task Skill
           int new_skill_id = run_loop_info_->get_new_skill_id();
+          int new_skill_type = run_loop_info_->get_new_skill_type();
           logger_.add_info_log(string_format("Did find new skill with id %d\n", new_skill_id));
 
           // Add new skill
           run_loop_info_->set_current_skill_id(new_skill_id);
-          SkillInfo *new_skill = new SkillInfo(new_skill_id);
+          BaseSkill *new_skill;
+          if (new_skill_type == 0) {
+            new_skill = new SkillInfo(new_skill_id);
+          } else if (new_skill_type == 1) {
+            new_skill = new GripperOpenSkill(new_skill_id);
+          } else {
+            std::cout << "Incorrect skill type: " << new_skill_type << "\n";
+            assert(false);
+          }
           skill_manager_.add_skill(new_skill);
 
           // Update the shared memory region. This means that the actionlib service will now write
@@ -611,7 +622,7 @@ void RunLoop::run() {
     start = std::chrono::high_resolution_clock::now();
 
     // Execute the current skill (traj_generator, FBC are here)
-    SkillInfo *skill = skill_manager_.get_current_skill();
+    BaseSkill *skill = skill_manager_.get_current_skill();
 
     // NOTE: We keep on running the last skill even if it is finished!!
     if (skill != 0) {
@@ -633,7 +644,7 @@ void RunLoop::run() {
     update_process_info();
 
     // Start new skill, if possible
-    SkillInfo *new_skill = skill_manager_.get_current_skill();
+    BaseSkill *new_skill = skill_manager_.get_current_skill();
     if (should_start_new_skill(skill, new_skill)) {
       start_new_skill(new_skill);
     }
@@ -704,7 +715,7 @@ void RunLoop::run_on_franka() {
       start = std::chrono::high_resolution_clock::now();
 
       // Execute the current skill (traj_generator, FBC are here)
-      SkillInfo *skill = skill_manager_.get_current_skill();
+      BaseSkill* skill = skill_manager_.get_current_skill();
 
       // NOTE: We keep on running the last skill even if it is finished!!
       if (skill != 0) {
@@ -720,7 +731,7 @@ void RunLoop::run_on_franka() {
       update_process_info();
 
       // Start new skill, if possible
-      SkillInfo *new_skill = skill_manager_.get_current_skill();
+      BaseSkill* new_skill = skill_manager_.get_current_skill();
       if (should_start_new_skill(skill, new_skill)) {
         std::cout << "WIll start skill\n";
         start_new_skill(new_skill);
