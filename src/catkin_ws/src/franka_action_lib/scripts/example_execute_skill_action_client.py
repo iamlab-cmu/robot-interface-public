@@ -23,6 +23,7 @@ if __name__ == '__main__':
     termination_params = [3,3,3];
     timer_params = [1,2,3,4,5];
 
+    goal.skill_type = 0
     goal.sensor_topics = ["/franka_robot/camera/"]
     goal.sensor_value_sizes = [len(initial_sensor_values)]
     goal.initial_sensor_values = initial_sensor_values
@@ -42,13 +43,14 @@ if __name__ == '__main__':
     client.send_goal(goal, feedback_cb=feedback_callback)
     done = client.wait_for_result(rospy.Duration.from_sec(5.0))
 
-    while done != True:
+    while not rospy.is_shutdown() and done != True:
         done = client.wait_for_result(rospy.Duration.from_sec(5.0))
 
     traj_gen_params = [3,3,3,10,10,10];
     feedback_controller_params = [0.01];
     termination_params = [10,10,10];
 
+    goal.skill_type = 0
     goal.sensor_topics = ["/franka_robot/camera/"]
     goal.sensor_value_sizes = [len(initial_sensor_values)]
     goal.initial_sensor_values = initial_sensor_values
@@ -68,13 +70,14 @@ if __name__ == '__main__':
     client.send_goal(goal, feedback_cb=feedback_callback)
     done = client.wait_for_result(rospy.Duration.from_sec(5.0))
 
-    while done != True:
+    while not rospy.is_shutdown() and done != True:
         done = client.wait_for_result(rospy.Duration.from_sec(5.0))
 
     traj_gen_params = [10,10,10,50,50,50];
     feedback_controller_params = [0.001];
     termination_params = [50,50,50];
 
+    goal.skill_type = 0
     goal.sensor_topics = ["/franka_robot/camera/"]
     goal.sensor_value_sizes = [len(initial_sensor_values)]
     goal.initial_sensor_values = initial_sensor_values
@@ -94,5 +97,5 @@ if __name__ == '__main__':
     client.send_goal(goal, feedback_cb=feedback_callback)
     done = client.wait_for_result(rospy.Duration.from_sec(5.0))
 
-    while done != True:
+    while not rospy.is_shutdown() and done != True:
         done = client.wait_for_result(rospy.Duration.from_sec(5.0))

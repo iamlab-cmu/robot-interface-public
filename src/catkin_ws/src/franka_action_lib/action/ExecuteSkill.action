@@ -1,3 +1,5 @@
+int32 skill_type
+
 # Sensor topic to subscribe to
 string[] sensor_topics
 uint32[] sensor_value_sizes

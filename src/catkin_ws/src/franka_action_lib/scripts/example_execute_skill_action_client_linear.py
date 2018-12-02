@@ -26,6 +26,7 @@ if __name__ == '__main__':
 
     timer_params = [1,2,3,4,5];
 
+    goal.skill_type = 0
     goal.sensor_topics = ["/franka_robot/camera/"]
     goal.sensor_value_sizes = [len(initial_sensor_values)]
     goal.initial_sensor_values = initial_sensor_values
@@ -45,5 +46,5 @@ if __name__ == '__main__':
     client.send_goal(goal, feedback_cb=feedback_callback)
     done = client.wait_for_result(rospy.Duration.from_sec(5.0))
 
-    while done != True:
+    while not rospy.is_shutdown() and done != True:
         done = client.wait_for_result(rospy.Duration.from_sec(5.0))
