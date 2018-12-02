@@ -6,6 +6,7 @@
 
 #include <franka/duration.h>
 #include <franka/exception.h>
+#include <franka/gripper.h>
 #include <franka/model.h>
 #include <franka/rate_limiting.h>
 #include <franka/robot.h>
@@ -27,21 +28,25 @@ class SkillInfo {
 
     void set_skill_status(SkillStatus new_task_status);
 
-    void start_skill(TrajectoryGenerator *traj_generator,
-                     FeedbackController *feedback_controller,
-                     TerminationHandler *termination_handler);
-
     SkillStatus get_current_skill_status();
 
-    void execute_skill();
+    virtual void start_skill(TrajectoryGenerator *traj_generator,
+                             FeedbackController *feedback_controller,
+                             TerminationHandler *termination_handler);
 
-    void execute_skill_on_franka(franka::Robot *robot, ControlLoopData *control_loop_data);
 
-    void execute_skill_on_franka_temp(franka::Robot *robot, ControlLoopData *control_loop_data);
+    virtual void execute_skill();
+
+    virtual void execute_skill_on_franka(franka::Robot *robot, franka::Gripper *gripper,
+                                         ControlLoopData *control_loop_data);
+
+    virtual void execute_skill_on_franka_temp(franka::Robot *robot, franka::Gripper *gripper,
+                                              ControlLoopData *control_loop_data);
     
-    void execute_skill_on_franka_temp2(franka::Robot *robot, ControlLoopData *control_loop_data);
+    virtual void execute_skill_on_franka_temp2(franka::Robot *robot, franka::Gripper *gripper,
+                                               ControlLoopData *control_loop_data);
 
-    bool should_terminate();
+    virtual bool should_terminate();
 
     /**
      * Write result to the shared memory after skill is done.
@@ -55,7 +60,7 @@ class SkillInfo {
      */
     void write_feedback_to_shared_memory(float *feedback_buffer);
 
-  private:
+ protected:
     int skill_idx_;
     SkillStatus skill_status_;
 

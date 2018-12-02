@@ -70,7 +70,12 @@ add_library(iam_robolib SHARED
   src/FinalJointTerminationHandler.cpp
   src/FinalJointTerminationHandler.h
   src/LinearJointTrajectoryController.cpp
-  src/LinearJointTrajectoryController.h)
+  src/LinearJointTrajectoryController.h
+  src/GripperOpenSkill.cpp
+  src/GripperOpenSkill.h
+  src/GripperOpenTrajectoryGenerator.cpp
+  src/GripperOpenTrajectoryGenerator.h
+)
 
 # Add namespace
 # add_library(IAM_RoboLib::IAM_RoboLib ALIAS iam_robolib)

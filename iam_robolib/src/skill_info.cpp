@@ -53,7 +53,8 @@ void SkillInfo::execute_skill() {
   traj_generator_->get_next_step();
 }
 
-void SkillInfo::execute_skill_on_franka(franka::Robot* robot, ControlLoopData *control_loop_data) {
+void SkillInfo::execute_skill_on_franka(franka::Robot* robot, franka::Gripper* gripper,
+                                        ControlLoopData *control_loop_data) {
 
   try {
     double time = 0.0;
@@ -118,7 +119,8 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot, ControlLoopData *c
   }
 }
 
-void SkillInfo::execute_skill_on_franka_temp2(franka::Robot* robot, ControlLoopData *control_loop_data) {
+void SkillInfo::execute_skill_on_franka_temp2(franka::Robot* robot, franka::Gripper* gripper,
+                                              ControlLoopData *control_loop_data) {
   const double translational_stiffness{500.0};
   const double rotational_stiffness{35.0};
   Eigen::MatrixXd stiffness(6, 6), damping(6, 6);
@@ -229,7 +231,8 @@ void SkillInfo::execute_skill_on_franka_temp2(franka::Robot* robot, ControlLoopD
   }
 }
 
-void SkillInfo::execute_skill_on_franka_temp(franka::Robot* robot, ControlLoopData *control_loop_data) {
+void SkillInfo::execute_skill_on_franka_temp(franka::Robot* robot, franka::Gripper* gripper,
+                                             ControlLoopData *control_loop_data) {
   try {
     double time = 0.0;
     int log_counter = 0;

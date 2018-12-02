@@ -29,6 +29,7 @@
 #include "FinalPoseTerminationHandler.h"
 #include "FinalJointTerminationHandler.h"
 #include "ControlLoopData.h"
+#include "GripperOpenTrajectoryGenerator.h"
 
 std::atomic<bool> RunLoop::running_skills_{false};
 
@@ -371,29 +372,27 @@ TrajectoryGenerator* RunLoop::get_trajectory_generator_for_skill(int memory_regi
   }
   int traj_gen_id = static_cast<int>(buffer[0]);
 
+  TrajectoryGenerator *traj_generator = nullptr;
+
   if (traj_gen_id == 1) {
     // Create Counter based trajectory.
-    CounterTrajectoryGenerator *traj_generator = new CounterTrajectoryGenerator(buffer);
-    traj_generator->parse_parameters();
-    return traj_generator;
+    traj_generator = new CounterTrajectoryGenerator(buffer);
   } else if (traj_gen_id == 2) {
-    LinearTrajectoryGenerator *traj_generator = new LinearTrajectoryGenerator(buffer);
-    traj_generator->parse_parameters();
-    return traj_generator;
+    traj_generator = new LinearTrajectoryGenerator(buffer);
   } else if (traj_gen_id == 3) {
-    LinearJointTrajectoryGenerator *traj_generator = new LinearJointTrajectoryGenerator(buffer);
-    traj_generator->parse_parameters();
-    return traj_generator;
+    traj_generator = new LinearJointTrajectoryGenerator(buffer);
   } else if (traj_gen_id == 4) {
-    LinearTrajectoryGeneratorWithTimeAndGoal *traj_generator = new LinearTrajectoryGeneratorWithTimeAndGoal(buffer);
-    traj_generator->parse_parameters();
-    return traj_generator;
+    traj_generator = new LinearTrajectoryGeneratorWithTimeAndGoal(buffer);
+  } else if (traj_gen_id == 5){
+    traj_generator = new GripperOpenTrajectoryGenerator(buffer);
   } else {
     // Cannot create Trajectory generator for this skill. Throw error
     logger_.add_error_log(string_format(
         "Cannot create TrajectoryGenerator with class_id: %d\n", traj_gen_id));
     return nullptr;
   }
+  traj_generator->parse_parameters();
+  return traj_generator;
 }
 
 FeedbackController* RunLoop::get_feedback_controller_for_skill(int memory_region) {
@@ -403,21 +402,20 @@ FeedbackController* RunLoop::get_feedback_controller_for_skill(int memory_region
   }
   int feedback_controller_id = static_cast<int>(buffer[0]);
 
+  FeedbackController* feedback_controller = nullptr;
   if (feedback_controller_id == 1) {
     // Create Counter based trajectory.
-    NoopFeedbackController *feedback_contoller = new NoopFeedbackController(buffer);
-    feedback_contoller->parse_parameters();
-    return feedback_contoller;
+    feedback_controller = new NoopFeedbackController(buffer);
   } else if (feedback_controller_id == 2) {
     // Create Counter based trajectory.
-    TorqueFeedbackController *feedback_contoller = new TorqueFeedbackController(buffer);
-    feedback_contoller->parse_parameters();
-    return feedback_contoller;
+    feedback_controller = new TorqueFeedbackController(buffer);
   } else {
     logger_.add_error_log(string_format(
         "Cannot create FeedbackController with class_id: %d\n", feedback_controller_id));
     return nullptr;
   }
+  feedback_controller->parse_parameters();
+  return feedback_controller;
 }
 
 TerminationHandler* RunLoop::get_termination_handler_for_skill(int memory_region) {
