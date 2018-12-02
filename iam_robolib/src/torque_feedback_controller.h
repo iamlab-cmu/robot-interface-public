@@ -4,9 +4,10 @@
 
 #pragma once
 
+#include <Eigen/Dense>
 #include "FeedbackController.h"
 
-class NoopFeedbackController : public FeedbackController {
+class TorqueFeedbackController : public FeedbackController {
  public:
   using FeedbackController::FeedbackController;
 
@@ -20,5 +21,11 @@ class NoopFeedbackController : public FeedbackController {
 
   void get_next_step(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) override;
 
-  float delta_=0.0;
+ private:
+  franka::Model *model_;
+
+  double translational_stiffness_;
+  double rotational_stiffness_;
+  Eigen::MatrixXd stiffness_;
+  Eigen::MatrixXd damping_;
 };
