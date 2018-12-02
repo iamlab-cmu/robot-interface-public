@@ -1,19 +1,78 @@
+#include <array>
+#include <atomic>
 #include <mutex>
+#include <vector>
+#include <thread>
 
 #pragma once
 
 class ControlLoopData {
  public:
-  	ControlLoopData(std::mutex &m): mutex_(m) {};
+  static std::atomic<bool> use_buffer_0;
+  static std::mutex buffer_0_mutex_;
+  static std::mutex buffer_1_mutex_;
 
-  	std::mutex& mutex_;
-  	bool has_data_=false;
+  ControlLoopData(std::mutex &m): mutex_(m) {};
 
-  	double time_=0;
-  	int counter_=0;
+  std::mutex& mutex_;
+  bool has_data_=false;
 
-  	// Utils for printing
-  	const int print_rate_=10;
+  double time_=0;
+  int counter_=0;
 
-  private:
+  std::vector<std::array<double, 16>> log_pose_desired_0_{};
+  std::vector<std::array<double, 16>> log_robot_state_0_{};
+  std::vector<std::array<double, 7>> log_tau_j_0_{};
+  std::vector<std::array<double, 7>> log_dq_0_{]};
+  std::vector<double> log_control_time_0_{};
+
+  std::vector<std::array<double, 16>> log_pose_desired_1_{};
+  std::vector<std::array<double, 16>> log_robot_state_1_{};
+  std::vector<std::array<double, 7>> log_tau_j_1_{};
+  std::vector<std::array<double, 7>> log_dq_1_{};
+  std::vector<double> log_control_time_1_{};
+
+  //These act as global buffers
+  std::vector<std::array<double, 16>> log_pose_desired_g_{};
+  std::vector<std::array<double, 16>> log_robot_state_g_{};
+  std::vector<std::array<double, 7>> log_tau_j_g_={};
+  std::vector<std::array<double, 7>> log_dq_g_{};
+  std::vector<double> log_control_time_g_{};
+
+  // Utils for printing
+  const int print_rate_=10;
+
+  const int log_rate_=10;
+
+  std::thread file_logger_thread_;
+
+  /**
+   * Start logging to some global buffer or file.
+   */
+  void startFileLoggerThread();
+
+  /**
+   * Force write everything in current buffer to global buffer.
+   * Use this to make sure we do not lose any data when we crash.
+   */
+  void writeCurrentBufferData();
+
+  /**
+   * Print Data beginning from end.
+   * @param print_count
+   */
+  void printGlobalData(int print_count);
+
+  /**
+   * Print measured jerks from dq (joint velocities) data.
+   * @param data Joint velocities
+   * @param print_last  number of last values to print.
+   */
+  void printMeasuredJointJerks(std::vector<std::array<double, 7>> data, int print_last);
+
+ private:
+
+  void writeBufferData_0();
+
+  void writeBufferData_1();
  };

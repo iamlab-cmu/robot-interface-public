@@ -13,6 +13,7 @@
 
 #include <franka/exception.h>
 
+#include <iam_robolib/run_loop.h>
 #include "ControlLoopData.h"
 
 int SkillInfo::get_skill_id() {
@@ -68,194 +69,110 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot, ControlLoopData *c
   stiffness.bottomRightCorner(3, 3) << rotational_stiffness * Eigen::MatrixXd::Identity(3, 3);
   damping.setZero();
   damping.topLeftCorner(3, 3) << 2.0 * sqrt(translational_stiffness) *
-                                     Eigen::MatrixXd::Identity(3, 3);
+      Eigen::MatrixXd::Identity(3, 3);
   damping.bottomRightCorner(3, 3) << 2.0 * sqrt(rotational_stiffness) *
-                                         Eigen::MatrixXd::Identity(3, 3);
+      Eigen::MatrixXd::Identity(3, 3);
 
-try { 
-  double time = 0.0;
-  int log_counter = 0;
+  try {
+    double time = 0.0;
+    int log_counter = 0;
 
-  std::cout << "Will run the control loop\n";
+    std::cout << "Will run the control loop\n";
 
-  franka::Model model = robot->loadModel();
+    franka::Model model = robot->loadModel();
 
-  // define callback for the torque control loop
-  std::function<franka::Torques(const franka::RobotState&, franka::Duration)>
-      impedance_control_callback = [&, &time, &log_counter, &log_pose_desired, &log_robot_state, &log_control_time, &log_tau_j, &log_dq]
-                                   (const franka::RobotState& robot_state,
-                                       franka::Duration period/*duration*/) -> franka::Torques {
-    
-    if (time == 0.0) {
-      traj_generator_->initialize_trajectory(robot_state);
-    }
+    // define callback for the torque control loop
+    std::function<franka::Torques(const franka::RobotState&, franka::Duration)>
+        impedance_control_callback = [&, &time, &log_counter, &log_pose_desired, &log_robot_state, &log_control_time, &log_tau_j, &log_dq]
+        (const franka::RobotState& robot_state,
+         franka::Duration period/*duration*/) -> franka::Torques {
 
-    if (control_loop_data->mutex_.try_lock()) {
-      control_loop_data->counter_ += 1;
-      control_loop_data->time_ =  period.toSec();
-      control_loop_data->has_data_ = true;
-      control_loop_data->mutex_.unlock();
-    }
+      if (time == 0.0) {
+        traj_generator_->initialize_trajectory(robot_state);
+      }
 
-    traj_generator_->dt_ = period.toSec();
-    traj_generator_->time_ += period.toSec();
-    time += period.toSec();
-    log_counter += 1;
+      if (control_loop_data->mutex_.try_lock()) {
+        control_loop_data->counter_ += 1;
+        control_loop_data->time_ =  period.toSec();
+        control_loop_data->has_data_ = true;
+        control_loop_data->mutex_.unlock();
+      }
 
-    traj_generator_->get_next_step();
+      traj_generator_->dt_ = period.toSec();
+      traj_generator_->time_ += period.toSec();
+      time += period.toSec();
+      log_counter += 1;
 
-    bool done = termination_handler_->should_terminate(traj_generator_);
-    
-    if (log_counter % 1 == 0) {
-      log_pose_desired.push_back(traj_generator_->pose_desired_);
-      log_robot_state.push_back(robot_state.O_T_EE_c);
-      log_tau_j.push_back(robot_state.tau_J);
-      log_dq.push_back(robot_state.dq);
-      log_control_time.push_back(time);
-    }
+      traj_generator_->get_next_step();
 
-    Eigen::Affine3d initial_transform(Eigen::Matrix4d::Map(traj_generator_->pose_desired_.data()));
-    Eigen::Vector3d position_d(initial_transform.translation());
-    Eigen::Quaterniond orientation_d(initial_transform.linear());
+      bool done = termination_handler_->should_terminate(traj_generator_);
 
-    // get state variables
-    std::array<double, 7> coriolis_array = model.coriolis(robot_state);
-    std::array<double, 42> jacobian_array =
-        model.zeroJacobian(franka::Frame::kEndEffector, robot_state);
+      if (log_counter % 1 == 0) {
+        log_pose_desired.push_back(traj_generator_->pose_desired_);
+        log_robot_state.push_back(robot_state.O_T_EE_c);
+        log_tau_j.push_back(robot_state.tau_J);
+        log_dq.push_back(robot_state.dq);
+        log_control_time.push_back(time);
+      }
 
-    // convert to Eigen
-    Eigen::Map<const Eigen::Matrix<double, 7, 1> > coriolis(coriolis_array.data());
-    Eigen::Map<const Eigen::Matrix<double, 6, 7> > jacobian(jacobian_array.data());
-    Eigen::Map<const Eigen::Matrix<double, 7, 1> > q(robot_state.q.data());
-    Eigen::Map<const Eigen::Matrix<double, 7, 1> > dq(robot_state.dq.data());
-    Eigen::Affine3d transform(Eigen::Matrix4d::Map(robot_state.O_T_EE.data()));
-    Eigen::Vector3d position(transform.translation());
-    Eigen::Quaterniond orientation(transform.linear());
+      Eigen::Affine3d initial_transform(Eigen::Matrix4d::Map(traj_generator_->pose_desired_.data()));
+      Eigen::Vector3d position_d(initial_transform.translation());
+      Eigen::Quaterniond orientation_d(initial_transform.linear());
 
-    // compute error to desired equilibrium pose
-    // position error
-    Eigen::Matrix<double, 6, 1> error;
-    error.head(3) << position - position_d;
+      // get state variables
+      std::array<double, 7> coriolis_array = model.coriolis(robot_state);
+      std::array<double, 42> jacobian_array =
+          model.zeroJacobian(franka::Frame::kEndEffector, robot_state);
 
-    // orientation error
-    // "difference" quaternion
-    if (orientation_d.coeffs().dot(orientation.coeffs()) < 0.0) {
-      orientation.coeffs() << -orientation.coeffs();
-    }
-    Eigen::Quaterniond error_quaternion(orientation * orientation_d.inverse());
-    // convert to axis angle
-    Eigen::AngleAxisd error_quaternion_angle_axis(error_quaternion);
-    // compute "orientation error"
-    error.tail(3) << error_quaternion_angle_axis.axis() * error_quaternion_angle_axis.angle();
+      // convert to Eigen
+      Eigen::Map<const Eigen::Matrix<double, 7, 1> > coriolis(coriolis_array.data());
+      Eigen::Map<const Eigen::Matrix<double, 6, 7> > jacobian(jacobian_array.data());
+      Eigen::Map<const Eigen::Matrix<double, 7, 1> > q(robot_state.q.data());
+      Eigen::Map<const Eigen::Matrix<double, 7, 1> > dq(robot_state.dq.data());
+      Eigen::Affine3d transform(Eigen::Matrix4d::Map(robot_state.O_T_EE.data()));
+      Eigen::Vector3d position(transform.translation());
+      Eigen::Quaterniond orientation(transform.linear());
 
-    // compute control
-    Eigen::VectorXd tau_task(7), tau_d(7);
+      // compute error to desired equilibrium pose
+      // position error
+      Eigen::Matrix<double, 6, 1> error;
+      error.head(3) << position - position_d;
 
-    // Spring damper system with damping ratio=1
-    tau_task << jacobian.transpose() * (-stiffness * error - damping * (jacobian * dq));
-    tau_d << tau_task + coriolis;
+      // orientation error
+      // "difference" quaternion
+      if (orientation_d.coeffs().dot(orientation.coeffs()) < 0.0) {
+        orientation.coeffs() << -orientation.coeffs();
+      }
+      Eigen::Quaterniond error_quaternion(orientation * orientation_d.inverse());
+      // convert to axis angle
+      Eigen::AngleAxisd error_quaternion_angle_axis(error_quaternion);
+      // compute "orientation error"
+      error.tail(3) << error_quaternion_angle_axis.axis() * error_quaternion_angle_axis.angle();
 
-    std::array<double, 7> tau_d_array{};
-    Eigen::VectorXd::Map(&tau_d_array[0], 7) = tau_d;
-    return tau_d_array;
-  };
+      // compute control
+      Eigen::VectorXd tau_task(7), tau_d(7);
 
-  robot->control(impedance_control_callback);
+      // Spring damper system with damping ratio=1
+      tau_task << jacobian.transpose() * (-stiffness * error - damping * (jacobian * dq));
+      tau_d << tau_task + coriolis;
 
-} catch (const franka::Exception& ex) {
+      std::array<double, 7> tau_d_array{};
+      Eigen::VectorXd::Map(&tau_d_array[0], 7) = tau_d;
+      return tau_d_array;
+    };
+
+    robot->control(impedance_control_callback);
+
+  } catch (const franka::Exception& ex) {
+    RunLoop::running_skills_ = false;
     std::cerr << ex.what() << std::endl;
-    
-    std::cout << "===== Robots state ======\n";
-    int print_last = 50;
-    int print_counter = 1;
-    for (auto it = log_robot_state.rbegin(); it != log_robot_state.rend(); it++, print_counter++) {
-      std::array<double, 16> temp = *it;
-      std::cout << "Time: " << log_control_time[log_robot_state.size() - print_counter] << ",   ";
-      for (size_t j = 0; j < temp.size(); j++) {
-        std::cout << temp[j] << " ";  
-      }
-      std::cout << "\n" << std::endl;
-      print_last = print_last - 1;
-      if (print_last < 0) {
-        break;
-      }
-    }
+    // Make sure we don't lose data.
+    control_loop_data->writeCurrentBufferData();
 
-    std::cout << "===== Desired Pose ======\n";
-
-    print_last = 50;
-    print_counter = 1;
-    for (auto it = log_pose_desired.rbegin(); it != log_pose_desired.rend(); it++, print_counter++) {
-      std::cout << "Time: " << log_control_time[log_robot_state.size() - print_counter] << ",   ";
-      std::array<double, 16> temp = *it;
-
-      for (size_t j = 0; j < temp.size(); j++) {
-        std::cout << temp[j] << " ";  
-      }
-      std::cout << "\n" << std::endl;
-      print_last = print_last - 1;
-      if (print_last < 0) {
-        break;
-      }
-    }
-
-    std::cout << "===== Measured link-side joint torque sensor signals ======\n";
-
-    print_last = 50;
-    print_counter = 1;
-    for (auto it = log_tau_j.rbegin(); it != log_tau_j.rend(); it++, print_counter++) {
-      std::cout << "Time: " << log_control_time[log_robot_state.size() - print_counter] << ",   ";
-      std::array<double, 7> temp = *it;
-
-      for (size_t j = 0; j < temp.size(); j++) {
-        std::cout << temp[j] << " ";  
-      }
-      std::cout << "\n" << std::endl;
-      print_last = print_last - 1;
-      if (print_last < 0) {
-        break;
-      }
-    }
-
-    std::cout << "===== Measured joint velocity ======\n";
-
-    print_last = 50;
-    print_counter = 1;
-    for (auto it = log_dq.rbegin(); it != log_dq.rend(); it++, print_counter++) {
-      std::cout << "Time: " << log_control_time[log_robot_state.size() - print_counter] << ",   ";
-      std::array<double, 7> temp = *it;
-
-      for (size_t j = 0; j < temp.size(); j++) {
-        std::cout << temp[j] << " ";  
-      }
-      std::cout << "\n" << std::endl;
-      print_last = print_last - 1;
-      if (print_last < 0) {
-        break;
-      }
-    }
-
-    std::cout << "===== Measured joint jerks ======\n";
-
-    print_last = 50;
-    print_counter = 1;
-    for (auto it = log_dq.rbegin(); it != log_dq.rend(); it++, print_counter++) {
-      std::cout << "Time: " << log_control_time[log_robot_state.size() - print_counter] << ",   ";
-      std::array<double, 7> temp = *it;
-      std::array<double, 7> temp2 = *(it+1);
-      std::array<double, 7> temp3 = *(it+2);
-
-      for (size_t j = 0; j < temp.size(); j++) {
-        std::cout << (((temp3[j] - temp2[j]) * 1000) - ((temp2[j] - temp[j]) * 1000)) * 1000  << " ";  
-      }
-      std::cout << "\n" << std::endl;
-      print_last = print_last - 1;
-      if (print_last < 0) {
-        break;
-      }
-    }
-
-}
+    // print last 50 values
+    control_loop_data->printGlobalData(50);
+    control_loop_data->file_logger_thread_.join();
+  }
 }
 
 void SkillInfo::execute_skill_on_franka_temp(franka::Robot* robot, ControlLoopData *control_loop_data) {
@@ -265,222 +182,138 @@ void SkillInfo::execute_skill_on_franka_temp(franka::Robot* robot, ControlLoopDa
   std::vector<std::array<double, 7>> log_tau_j;
   std::vector<std::array<double, 7>> log_dq;
   std::vector<double> log_control_time;
-try { 
-  double time = 0.0;
-  int log_counter = 0;
+  try {
+    double time = 0.0;
+    int log_counter = 0;
 
 
-  std::cout << "Will run the control loop\n";
-  std::function<franka::CartesianPose(const franka::RobotState&, franka::Duration)> cartesian_pose_callback =
-                                  [=, &time, &log_counter, &log_pose_desired, &log_robot_state, &log_control_time, &log_tau_j, &log_dq](const franka::RobotState&
-                                  robot_state,
-                                             franka::Duration period) -> franka::CartesianPose {
-    if (time == 0.0) {
-      traj_generator_->initialize_trajectory(robot_state);
-    }
+    std::cout << "Will run the control loop\n";
+    std::function<franka::CartesianPose(const franka::RobotState&, franka::Duration)> cartesian_pose_callback =
+        [=, &time, &log_counter, &log_pose_desired, &log_robot_state, &log_control_time, &log_tau_j, &log_dq](const franka::RobotState&
+        robot_state,
+                                                                                                              franka::Duration period) -> franka::CartesianPose {
+          if (time == 0.0) {
+            traj_generator_->initialize_trajectory(robot_state);
+          }
 
-    if (control_loop_data->mutex_.try_lock()) {
-      control_loop_data->counter_ += 1;
-      control_loop_data->time_ =  period.toSec();
-      control_loop_data->has_data_ = true;
-      control_loop_data->mutex_.unlock();
-    }
+          if (control_loop_data->mutex_.try_lock()) {
+            control_loop_data->counter_ += 1;
+            control_loop_data->time_ =  period.toSec();
+            control_loop_data->has_data_ = true;
+            control_loop_data->mutex_.unlock();
+          }
 
-    traj_generator_->dt_ = period.toSec();
-    traj_generator_->time_ += period.toSec();
-    time += period.toSec();
-    log_counter += 1;
+          traj_generator_->dt_ = period.toSec();
+          traj_generator_->time_ += period.toSec();
+          time += period.toSec();
+          log_counter += 1;
 
-    traj_generator_->get_next_step();
+          traj_generator_->get_next_step();
 
-    bool done = termination_handler_->should_terminate(traj_generator_);
+          bool done = termination_handler_->should_terminate(traj_generator_);
 
-    franka::CartesianPose pose_desired(traj_generator_->pose_desired_);
-    if (log_counter % 1 == 0) {
-      log_pose_desired.push_back(traj_generator_->pose_desired_);
-      log_robot_state.push_back(robot_state.O_T_EE_c);
-      log_tau_j.push_back(robot_state.tau_J);
-      log_dq.push_back(robot_state.dq);
-      log_control_time.push_back(time);
-    }
+          franka::CartesianPose pose_desired(traj_generator_->pose_desired_);
+          if (log_counter % 1 == 0) {
+            log_pose_desired.push_back(traj_generator_->pose_desired_);
+            log_robot_state.push_back(robot_state.O_T_EE_c);
+            log_tau_j.push_back(robot_state.tau_J);
+            log_dq.push_back(robot_state.dq);
+            log_control_time.push_back(time);
+          }
 
-    if(done or time >= traj_generator_->run_time_ + traj_generator_->acceleration_time_)
-    {
-      return franka::MotionFinished(pose_desired);
-    }
+          if(done or time >= traj_generator_->run_time_ + traj_generator_->acceleration_time_)
+          {
+            return franka::MotionFinished(pose_desired);
+          }
 
-    return pose_desired;
-  };
+          return pose_desired;
+        };
 
-  std::function<franka::JointPositions(const franka::RobotState&, franka::Duration)>
-    joint_pose_callback = [=, &time, &log_counter, &log_pose_desired, &log_robot_state, 
-                           &log_control_time, &log_tau_j, &log_dq](const franka::RobotState& robot_state,
-                                     franka::Duration period) -> franka::JointPositions {
-    if (time == 0.0) {
-      traj_generator_->initialize_trajectory(robot_state);
-    }
-    time += period.toSec();
-    traj_generator_->time_ = time;
-    traj_generator_->dt_ = period.toSec();
-    traj_generator_->get_next_step();
+    std::function<franka::JointPositions(const franka::RobotState&, franka::Duration)>
+        joint_pose_callback = [=, &time, &log_counter, &log_pose_desired, &log_robot_state,
+        &log_control_time, &log_tau_j, &log_dq](const franka::RobotState& robot_state,
+                                                franka::Duration period) -> franka::JointPositions {
+      if (time == 0.0) {
+        traj_generator_->initialize_trajectory(robot_state);
+      }
+      time += period.toSec();
+      traj_generator_->time_ = time;
+      traj_generator_->dt_ = period.toSec();
+      traj_generator_->get_next_step();
 
-    bool done = termination_handler_->should_terminate(traj_generator_);
-    franka::JointPositions joint_desired(traj_generator_->joint_desired_);
+      bool done = termination_handler_->should_terminate(traj_generator_);
+      franka::JointPositions joint_desired(traj_generator_->joint_desired_);
 
-    log_counter += 1;
-    if (log_counter % 1 == 0) {
-      log_pose_desired.push_back(traj_generator_->pose_desired_);
-      log_robot_state.push_back(robot_state.O_T_EE_c);
-      log_tau_j.push_back(robot_state.tau_J);
-      log_dq.push_back(robot_state.dq);
-      log_control_time.push_back(time);
-    }
-
-    if(done or time >= traj_generator_->run_time_) {
-      return franka::MotionFinished(joint_desired);
-    }
-    return joint_desired;
-  };
-
-  franka::Model model = robot->loadModel();
-
-  std::array<double, 7> q_goal = {{0, -M_PI_4, 0, -3 * M_PI_4, 0, M_PI_2, M_PI_4}};
-  std::function<franka::Torques(const franka::RobotState&, franka::Duration)> impedance_control_callback =
-            [=, &model, &q_goal](
-                const franka::RobotState& state, franka::Duration /*period*/) -> franka::Torques {
-      // Read current coriolis terms from model.
-      std::array<double, 7> coriolis = model.coriolis(state);
-
-      // Compute torque command from joint impedance control law.
-      // Note: The answer to our Cartesian pose inverse kinematics is always in state.q_d with one
-      // time step delay.
-      std::array<double, 7> tau_d_calculated;
-      for (size_t i = 0; i < 7; i++) {
-        tau_d_calculated[i] =
-            k_gains_[i] * (state.q_d[i] - state.q[i]) - d_gains_[i] * state.dq[i] + coriolis[i];
-        // tau_d_calculated[i] =
-        //     k_gains_[i] * (q_goal[i] - state.q[i]) - d_gains_[i] * state.dq[i] + coriolis[i];
+      log_counter += 1;
+      if (log_counter % 1 == 0) {
+        log_pose_desired.push_back(traj_generator_->pose_desired_);
+        log_robot_state.push_back(robot_state.O_T_EE_c);
+        log_tau_j.push_back(robot_state.tau_J);
+        log_dq.push_back(robot_state.dq);
+        log_control_time.push_back(time);
       }
 
-      // The following line is only necessary for printing the rate limited torque. As we activated
-      // rate limiting for the control loop (activated by default), the torque would anyway be
-      // adjusted!
-      std::array<double, 7> tau_d_rate_limited =
-          franka::limitRate(franka::kMaxTorqueRate, tau_d_calculated, state.tau_J_d);
-
-      // Send torque command.
-      return tau_d_rate_limited;
+      if(done or time >= traj_generator_->run_time_) {
+        return franka::MotionFinished(joint_desired);
+      }
+      return joint_desired;
     };
 
+    franka::Model model = robot->loadModel();
 
-  /*int memory_index = run_loop_info_->get_current_shared_memory_index();
-  SharedBuffer buffer = execution_feedback_buffer_0_;
-  if (memory_index == 1) {
-    buffer = execution_feedback_buffer_1_;
-  }
-  skill->write_feedback_to_shared_memory(buffer);
+    std::array<double, 7> q_goal = {{0, -M_PI_4, 0, -3 * M_PI_4, 0, M_PI_2, M_PI_4}};
+    std::function<franka::Torques(const franka::RobotState&, franka::Duration)> impedance_control_callback =
+        [=, &model, &q_goal](
+            const franka::RobotState& state, franka::Duration /*period*/) -> franka::Torques {
+          // Read current coriolis terms from model.
+          std::array<double, 7> coriolis = model.coriolis(state);
 
-  robot.control()*/
+          // Compute torque command from joint impedance control law.
+          // Note: The answer to our Cartesian pose inverse kinematics is always in state.q_d with one
+          // time step delay.
+          std::array<double, 7> tau_d_calculated;
+          for (size_t i = 0; i < 7; i++) {
+            tau_d_calculated[i] =
+                k_gains_[i] * (state.q_d[i] - state.q[i]) - d_gains_[i] * state.dq[i] + coriolis[i];
+            // tau_d_calculated[i] =
+            //     k_gains_[i] * (q_goal[i] - state.q[i]) - d_gains_[i] * state.dq[i] + coriolis[i];
+          }
 
-  // robot->control(impedance_control_callback, cartesian_pose_callback);
-  // robot->control(cartesian_pose_callback, franka::ControllerMode::kCartesianImpedance, true, 1000.0);
-  // robot->control(impedance_control_callback, joint_pose_callback);
-  robot->control(impedance_control_callback);
+          // The following line is only necessary for printing the rate limited torque. As we activated
+          // rate limiting for the control loop (activated by default), the torque would anyway be
+          // adjusted!
+          std::array<double, 7> tau_d_rate_limited =
+              franka::limitRate(franka::kMaxTorqueRate, tau_d_calculated, state.tau_J_d);
 
-} catch (const franka::Exception& ex) {
+          // Send torque command.
+          return tau_d_rate_limited;
+        };
+
+
+    /*int memory_index = run_loop_info_->get_current_shared_memory_index();
+    SharedBuffer buffer = execution_feedback_buffer_0_;
+    if (memory_index == 1) {
+      buffer = execution_feedback_buffer_1_;
+    }
+    skill->write_feedback_to_shared_memory(buffer);
+
+    robot.control()*/
+
+    // robot->control(impedance_control_callback, cartesian_pose_callback);
+    // robot->control(cartesian_pose_callback, franka::ControllerMode::kCartesianImpedance, true, 1000.0);
+    // robot->control(impedance_control_callback, joint_pose_callback);
+    robot->control(impedance_control_callback);
+
+  } catch (const franka::Exception& ex) {
+    RunLoop::running_skills_ = false;
     std::cerr << ex.what() << std::endl;
-    
-    std::cout << "===== Robots state ======\n";
-    int print_last = 50;
-    int print_counter = 1;
-    for (auto it = log_robot_state.rbegin(); it != log_robot_state.rend(); it++, print_counter++) {
-      std::array<double, 16> temp = *it;
-      std::cout << "Time: " << log_control_time[log_robot_state.size() - print_counter] << ",   ";
-      for (size_t j = 0; j < temp.size(); j++) {
-        std::cout << temp[j] << " ";  
-      }
-      std::cout << "\n" << std::endl;
-      print_last = print_last - 1;
-      if (print_last < 0) {
-        break;
-      }
-    }
+    // Make sure we don't lose data.
+    control_loop_data->writeCurrentBufferData();
 
-    std::cout << "===== Desired Pose ======\n";
-
-    print_last = 50;
-    print_counter = 1;
-    for (auto it = log_pose_desired.rbegin(); it != log_pose_desired.rend(); it++, print_counter++) {
-      std::cout << "Time: " << log_control_time[log_robot_state.size() - print_counter] << ",   ";
-      std::array<double, 16> temp = *it;
-
-      for (size_t j = 0; j < temp.size(); j++) {
-        std::cout << temp[j] << " ";  
-      }
-      std::cout << "\n" << std::endl;
-      print_last = print_last - 1;
-      if (print_last < 0) {
-        break;
-      }
-    }
-
-    std::cout << "===== Measured link-side joint torque sensor signals ======\n";
-
-    print_last = 50;
-    print_counter = 1;
-    for (auto it = log_tau_j.rbegin(); it != log_tau_j.rend(); it++, print_counter++) {
-      std::cout << "Time: " << log_control_time[log_robot_state.size() - print_counter] << ",   ";
-      std::array<double, 7> temp = *it;
-
-      for (size_t j = 0; j < temp.size(); j++) {
-        std::cout << temp[j] << " ";  
-      }
-      std::cout << "\n" << std::endl;
-      print_last = print_last - 1;
-      if (print_last < 0) {
-        break;
-      }
-    }
-
-    std::cout << "===== Measured joint velocity ======\n";
-
-    print_last = 50;
-    print_counter = 1;
-    for (auto it = log_dq.rbegin(); it != log_dq.rend(); it++, print_counter++) {
-      std::cout << "Time: " << log_control_time[log_robot_state.size() - print_counter] << ",   ";
-      std::array<double, 7> temp = *it;
-
-      for (size_t j = 0; j < temp.size(); j++) {
-        std::cout << temp[j] << " ";  
-      }
-      std::cout << "\n" << std::endl;
-      print_last = print_last - 1;
-      if (print_last < 0) {
-        break;
-      }
-    }
-
-    std::cout << "===== Measured joint jerks ======\n";
-
-    print_last = 50;
-    print_counter = 1;
-    for (auto it = log_dq.rbegin(); it != log_dq.rend(); it++, print_counter++) {
-      std::cout << "Time: " << log_control_time[log_robot_state.size() - print_counter] << ",   ";
-      std::array<double, 7> temp = *it;
-      std::array<double, 7> temp2 = *(it+1);
-      std::array<double, 7> temp3 = *(it+2);
-
-      for (size_t j = 0; j < temp.size(); j++) {
-        std::cout << (((temp3[j] - temp2[j]) * 1000) - ((temp2[j] - temp[j]) * 1000)) * 1000  << " ";  
-      }
-      std::cout << "\n" << std::endl;
-      print_last = print_last - 1;
-      if (print_last < 0) {
-        break;
-      }
-    }
-
-}
+    // print last 50 values
+    control_loop_data->printGlobalData(50);
+    control_loop_data->file_logger_thread_.join();
+  }
 }
 
 bool SkillInfo::should_terminate() {

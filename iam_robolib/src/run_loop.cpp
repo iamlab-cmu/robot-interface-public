@@ -690,6 +690,7 @@ void RunLoop::run_on_franka() {
 
   try {
     running_skills_ = true;
+    control_loop_data_.startFileLoggerThread();
     while (1) {
       start = std::chrono::high_resolution_clock::now();
 
@@ -733,5 +734,8 @@ void RunLoop::run_on_franka() {
 
   if (print_thread_.joinable()) {
     print_thread_.join();
+  }
+  if (control_loop_data_.file_logger_thread_.joinable()) {
+    control_loop_data_.file_logger_thread_.join();
   }
 }
