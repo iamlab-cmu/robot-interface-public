@@ -11,6 +11,10 @@ class RunLoopProcessInfo {
 
   bool get_new_skill_available();
 
+  void set_new_skill_type(int type);
+
+  int get_new_skill_type();
+
   void set_is_running_skill(bool is_running_skill);
 
   bool get_is_running_skill();
@@ -108,6 +112,7 @@ class RunLoopProcessInfo {
 
  private:
   bool new_skill_available_{false};
+  int new_skill_type_{0};
   bool is_running_skill_{false};
   bool skill_preempted_{false};
 

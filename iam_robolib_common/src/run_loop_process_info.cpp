@@ -12,6 +12,14 @@ bool RunLoopProcessInfo::get_new_skill_available() {
   return new_skill_available_;
 }
 
+void RunLoopProcessInfo::set_new_skill_type(int type) {
+  new_skill_type_ = type;
+}
+
+int RunLoopProcessInfo::get_new_skill_type() {
+  return new_skill_type_;
+}
+
 void RunLoopProcessInfo::set_is_running_skill(bool is_running_skill) {
   is_running_skill_ = is_running_skill;
 }
