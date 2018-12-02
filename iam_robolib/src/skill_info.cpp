@@ -54,13 +54,6 @@ void SkillInfo::execute_skill() {
 }
 
 void SkillInfo::execute_skill_on_franka(franka::Robot* robot, ControlLoopData *control_loop_data) {
-
-  std::vector<std::array<double, 16>> log_pose_desired{};
-  std::vector<std::array<double, 16>> log_robot_state{};
-  std::vector<std::array<double, 7>> log_tau_j;
-  std::vector<std::array<double, 7>> log_dq;
-  std::vector<double> log_control_time;
-
   const double translational_stiffness{500.0};
   const double rotational_stiffness{35.0};
   Eigen::MatrixXd stiffness(6, 6), damping(6, 6);
@@ -83,9 +76,8 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot, ControlLoopData *c
 
     // define callback for the torque control loop
     std::function<franka::Torques(const franka::RobotState&, franka::Duration)>
-        impedance_control_callback = [&, &time, &log_counter, &log_pose_desired, &log_robot_state, &log_control_time, &log_tau_j, &log_dq]
-        (const franka::RobotState& robot_state,
-         franka::Duration period/*duration*/) -> franka::Torques {
+        impedance_control_callback = [&, &time](const franka::RobotState& robot_state,
+                                                franka::Duration period) -> franka::Torques {
 
       if (time == 0.0) {
         traj_generator_->initialize_trajectory(robot_state);
@@ -108,11 +100,8 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot, ControlLoopData *c
       bool done = termination_handler_->should_terminate(traj_generator_);
 
       if (log_counter % 1 == 0) {
-        log_pose_desired.push_back(traj_generator_->pose_desired_);
-        log_robot_state.push_back(robot_state.O_T_EE_c);
-        log_tau_j.push_back(robot_state.tau_J);
-        log_dq.push_back(robot_state.dq);
-        log_control_time.push_back(time);
+        control_loop_data->log_pose_desired(traj_generator_->pose_desired_);
+        control_loop_data->log_robot_state(robot_state, time);
       }
 
       Eigen::Affine3d initial_transform(Eigen::Matrix4d::Map(traj_generator_->pose_desired_.data()));
@@ -176,12 +165,6 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot, ControlLoopData *c
 }
 
 void SkillInfo::execute_skill_on_franka_temp(franka::Robot* robot, ControlLoopData *control_loop_data) {
-
-  std::vector<std::array<double, 16>> log_pose_desired{};
-  std::vector<std::array<double, 16>> log_robot_state{};
-  std::vector<std::array<double, 7>> log_tau_j;
-  std::vector<std::array<double, 7>> log_dq;
-  std::vector<double> log_control_time;
   try {
     double time = 0.0;
     int log_counter = 0;
@@ -189,9 +172,8 @@ void SkillInfo::execute_skill_on_franka_temp(franka::Robot* robot, ControlLoopDa
 
     std::cout << "Will run the control loop\n";
     std::function<franka::CartesianPose(const franka::RobotState&, franka::Duration)> cartesian_pose_callback =
-        [=, &time, &log_counter, &log_pose_desired, &log_robot_state, &log_control_time, &log_tau_j, &log_dq](const franka::RobotState&
-        robot_state,
-                                                                                                              franka::Duration period) -> franka::CartesianPose {
+        [=, &time, &log_counter](const franka::RobotState& robot_state,
+                                 franka::Duration period) -> franka::CartesianPose {
           if (time == 0.0) {
             traj_generator_->initialize_trajectory(robot_state);
           }
@@ -214,11 +196,8 @@ void SkillInfo::execute_skill_on_franka_temp(franka::Robot* robot, ControlLoopDa
 
           franka::CartesianPose pose_desired(traj_generator_->pose_desired_);
           if (log_counter % 1 == 0) {
-            log_pose_desired.push_back(traj_generator_->pose_desired_);
-            log_robot_state.push_back(robot_state.O_T_EE_c);
-            log_tau_j.push_back(robot_state.tau_J);
-            log_dq.push_back(robot_state.dq);
-            log_control_time.push_back(time);
+            control_loop_data->log_pose_desired(traj_generator_->pose_desired_);
+            control_loop_data->log_robot_state(robot_state, time);
           }
 
           if(done or time >= traj_generator_->run_time_ + traj_generator_->acceleration_time_)
@@ -230,9 +209,9 @@ void SkillInfo::execute_skill_on_franka_temp(franka::Robot* robot, ControlLoopDa
         };
 
     std::function<franka::JointPositions(const franka::RobotState&, franka::Duration)>
-        joint_pose_callback = [=, &time, &log_counter, &log_pose_desired, &log_robot_state,
-        &log_control_time, &log_tau_j, &log_dq](const franka::RobotState& robot_state,
-                                                franka::Duration period) -> franka::JointPositions {
+        joint_pose_callback = [=, &time, &log_counter](
+            const franka::RobotState& robot_state,
+            franka::Duration period) -> franka::JointPositions {
       if (time == 0.0) {
         traj_generator_->initialize_trajectory(robot_state);
       }
@@ -246,11 +225,8 @@ void SkillInfo::execute_skill_on_franka_temp(franka::Robot* robot, ControlLoopDa
 
       log_counter += 1;
       if (log_counter % 1 == 0) {
-        log_pose_desired.push_back(traj_generator_->pose_desired_);
-        log_robot_state.push_back(robot_state.O_T_EE_c);
-        log_tau_j.push_back(robot_state.tau_J);
-        log_dq.push_back(robot_state.dq);
-        log_control_time.push_back(time);
+        control_loop_data->log_pose_desired(traj_generator_->pose_desired_);
+        control_loop_data->log_robot_state(robot_state, time);
       }
 
       if(done or time >= traj_generator_->run_time_) {

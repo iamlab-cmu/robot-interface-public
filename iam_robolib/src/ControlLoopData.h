@@ -1,10 +1,12 @@
+#pragma once
+
 #include <array>
 #include <atomic>
 #include <mutex>
 #include <vector>
 #include <thread>
 
-#pragma once
+#include <franka/robot.h>
 
 class ControlLoopData {
  public:
@@ -23,7 +25,7 @@ class ControlLoopData {
   std::vector<std::array<double, 16>> log_pose_desired_0_{};
   std::vector<std::array<double, 16>> log_robot_state_0_{};
   std::vector<std::array<double, 7>> log_tau_j_0_{};
-  std::vector<std::array<double, 7>> log_dq_0_{]};
+  std::vector<std::array<double, 7>> log_dq_0_{};
   std::vector<double> log_control_time_0_{};
 
   std::vector<std::array<double, 16>> log_pose_desired_1_{};
@@ -69,6 +71,12 @@ class ControlLoopData {
    * @param print_last  number of last values to print.
    */
   void printMeasuredJointJerks(std::vector<std::array<double, 7>> data, int print_last);
+
+  /*
+   * Helper methods for logging.
+   */
+  void log_pose_desired(std::array<double, 16> pose_desired_);
+  void log_robot_state(franka::RobotState robot_state, double time);
 
  private:
 
