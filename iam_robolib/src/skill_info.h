@@ -30,7 +30,8 @@ class SkillInfo {
 
     SkillStatus get_current_skill_status();
 
-    virtual void start_skill(TrajectoryGenerator *traj_generator,
+    virtual void start_skill(franka::Robot* robot,
+                             TrajectoryGenerator *traj_generator,
                              FeedbackController *feedback_controller,
                              TerminationHandler *termination_handler);
 

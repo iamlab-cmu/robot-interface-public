@@ -26,6 +26,10 @@ void FinalPoseTerminationHandler::initialize_handler() {
   // pass
 }
 
+void FinalPoseTerminationHandler::initialize_handler(franka::Robot *robot) {
+  // pass
+}
+
 bool FinalPoseTerminationHandler::should_terminate(TrajectoryGenerator *trajectory_generator) {
   LinearTrajectoryGenerator *linear_traj_generator =
         static_cast<LinearTrajectoryGenerator *>(trajectory_generator);

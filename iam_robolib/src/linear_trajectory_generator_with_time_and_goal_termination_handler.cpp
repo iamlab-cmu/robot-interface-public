@@ -58,6 +58,10 @@ void LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::initialize_hand
   // pass
 }
 
+void LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::initialize_handler(franka::Robot *robot) {
+  // pass
+}
+
 // WARNING since this function does not have robot state, it is using the desired position and orientation from the 
 // trajectory generator to check for termination. If you would like to use the actual position and orientation from the
 // robot state to check for termination, use the should_terminate function with robot state below.

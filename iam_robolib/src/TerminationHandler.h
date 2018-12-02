@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <franka/robot_state.h>
+#include <franka/robot.h>
 #include "trajectory_generator.h"
 
 class TerminationHandler {
@@ -20,6 +20,11 @@ class TerminationHandler {
    * Initialize termination handler after parameter parsing.
    */
   virtual void initialize_handler() = 0;
+
+  /**
+   * Initialize termination handler after parameter parsing.
+   */
+  virtual void initialize_handler(franka::Robot *robot) = 0;
 
   /**
    * Should we terminate the current skill.

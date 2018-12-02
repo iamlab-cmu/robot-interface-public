@@ -21,6 +21,11 @@ class NoopTerminationHandler : public TerminationHandler {
   void initialize_handler() override;
 
   /**
+   * Initialize termination handler after parameter parsing.
+   */
+  void initialize_handler(franka::Robot *robot) override;
+
+  /**
    * Should we terminate the current skill.
    */
   bool should_terminate(TrajectoryGenerator *traj_generator) override;

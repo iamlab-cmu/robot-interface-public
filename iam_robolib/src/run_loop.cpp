@@ -24,6 +24,7 @@
 #include "NoopFeedbackController.h"
 #include "torque_feedback_controller.h"
 
+#include "contact_termination_handler.h"
 #include "linear_trajectory_generator_with_time_and_goal_termination_handler.h"
 #include "NoopTerminationHandler.h"
 #include "FinalPoseTerminationHandler.h"
@@ -442,6 +443,10 @@ TerminationHandler* RunLoop::get_termination_handler_for_skill(int memory_region
     LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler *termination_handler = new LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler(buffer);
     termination_handler->parse_parameters();
     return termination_handler;
+  } else if (termination_handler_id == 5) {
+    ContactTerminationHandler *termination_handler = new ContactTerminationHandler(buffer);
+    termination_handler->parse_parameters();
+    return termination_handler;
   } else {
       // Cannot create Trajectory generator for this skill. Throw error
       logger_.add_error_log(string_format(
@@ -487,7 +492,7 @@ void RunLoop::start_new_skill(SkillInfo *new_skill) {
       get_termination_handler_for_skill(memory_index);
   std::cout << "Did get termination_handler\n";
   // Start skill, does any pre-processing if required.
-  new_skill->start_skill(traj_generator, feedback_controller, termination_handler);
+  new_skill->start_skill(&robot_, traj_generator, feedback_controller, termination_handler);
 
   /**
    * HACK - Used for counter based testing only.

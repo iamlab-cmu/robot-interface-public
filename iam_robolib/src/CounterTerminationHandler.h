@@ -14,6 +14,8 @@ class CounterTerminationHandler : public TerminationHandler {
 
   void initialize_handler() override;
 
+  void initialize_handler(franka::Robot *robot) override;
+
   bool should_terminate(TrajectoryGenerator *traj_generator) override;
 
   bool should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) override;

@@ -31,6 +31,8 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../libfranka")
 add_library(iam_robolib SHARED
   src/run_loop.cpp
   src/duration.cpp
+  src/contact_termination_handler.cpp
+  src/contact_termination_handler.h
   src/skill_info.cpp
   src/skill_info.h
   src/skill_info_manager.cpp

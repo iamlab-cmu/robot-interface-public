@@ -12,6 +12,10 @@ void CounterTerminationHandler::initialize_handler() {
 
 }
 
+void CounterTerminationHandler::initialize_handler(franka::Robot *robot) {
+
+}
+
 bool CounterTerminationHandler::should_terminate(TrajectoryGenerator *traj_generator) {
 
 }

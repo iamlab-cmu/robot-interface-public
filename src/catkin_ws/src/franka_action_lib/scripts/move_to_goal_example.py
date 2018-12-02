@@ -46,5 +46,5 @@ if __name__ == '__main__':
     client.send_goal(goal, feedback_cb=feedback_callback)
     done = client.wait_for_result(rospy.Duration.from_sec(5.0))
 
-    while done != True:
+    while not rospy.is_shutdown() and done != True:
         done = client.wait_for_result(rospy.Duration.from_sec(5.0))

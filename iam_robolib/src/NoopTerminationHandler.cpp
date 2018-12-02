@@ -22,6 +22,10 @@ void NoopTerminationHandler::initialize_handler() {
   // pass
 }
 
+void NoopTerminationHandler::initialize_handler(franka::Robot *robot) {
+  // pass
+}
+
 bool NoopTerminationHandler::should_terminate(TrajectoryGenerator *trajectory_generator) {
   CounterTrajectoryGenerator *counter_traj_generator = static_cast<CounterTrajectoryGenerator
       *>(trajectory_generator);
