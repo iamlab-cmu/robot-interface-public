@@ -43,13 +43,13 @@ void ControlLoopData::printMeasuredJointJerks(std::vector<std::array<double, 7>>
 
 void ControlLoopData::writeBufferData_0() {
     std::lock_guard<std::mutex> lock(buffer_0_mutex_);
-    std::cout << "Will save buffer 0\n";
+    // std::cout << "Will save buffer 0\n";
 
     log_pose_desired_g_.insert(
         log_pose_desired_g_.end(), log_pose_desired_0_.begin(), log_pose_desired_0_.end());
     log_robot_state_g_.insert(
         log_robot_state_g_.end(), log_robot_state_0_.begin(), log_robot_state_0_.end());
-    log_tau_j_g_.insert(log_tau_j_0_.end(), log_tau_j_0_.begin(), log_tau_j_0_.end());
+    log_tau_j_g_.insert(log_tau_j_g_.end(), log_tau_j_0_.begin(), log_tau_j_0_.end());
     log_dq_g_.insert(log_dq_g_.end(), log_dq_0_.begin(), log_dq_0_.end());
     log_control_time_g_.insert(
         log_control_time_g_.end(), log_control_time_0_.begin(), log_control_time_0_.end());
@@ -61,18 +61,18 @@ void ControlLoopData::writeBufferData_0() {
     log_dq_0_.clear();
     log_control_time_0_.clear();
 
-    std::cout << "Did save buffer 0\n";
+    // std::cout << "Did save buffer 0\n";
 };
 
 void ControlLoopData::writeBufferData_1() {
     std::lock_guard<std::mutex> lock(buffer_1_mutex_);
-    std::cout << "Will save buffer 1\n";
+    // std::cout << "Will save buffer 1\n";
 
     log_pose_desired_g_.insert(
         log_pose_desired_g_.end(), log_pose_desired_1_.begin(), log_pose_desired_1_.end());
     log_robot_state_g_.insert(
         log_robot_state_g_.end(), log_robot_state_1_.begin(), log_robot_state_1_.end());
-    log_tau_j_g_.insert(log_tau_j_0_.end(), log_tau_j_1_.begin(), log_tau_j_1_.end());
+    log_tau_j_g_.insert(log_tau_j_g_.end(), log_tau_j_1_.begin(), log_tau_j_1_.end());
     log_dq_g_.insert(log_dq_g_.end(), log_dq_1_.begin(), log_dq_1_.end());
     log_control_time_g_.insert(
         log_control_time_g_.end(), log_control_time_1_.begin(), log_control_time_1_.end());
@@ -83,7 +83,7 @@ void ControlLoopData::writeBufferData_1() {
     log_dq_1_.clear();
     log_control_time_1_.clear();
 
-    std::cout << "Did save buffer 1\n";
+    // std::cout << "Did save buffer 1\n";
 };
 
 void ControlLoopData::startFileLoggerThread() {

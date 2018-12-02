@@ -96,10 +96,10 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot, ControlLoopData *c
 
       bool done = termination_handler_->should_terminate(robot_state, traj_generator_);
 
-      if(done)
-      {
+      if(done) {
         return franka::MotionFinished(franka::Torques(feedback_controller_->tau_d_array_));
       }
+
 
       return feedback_controller_->tau_d_array_;
     };
