@@ -710,7 +710,7 @@ void RunLoop::run_on_franka() {
       if (skill != 0) {
         // Execute skill.
         std::cout << "Will execute skill";
-        skill->execute_skill_on_franka(&robot_, &control_loop_data_);
+        skill->execute_skill_on_franka(&robot_, &gripper_, &control_loop_data_);
 
         // Finish skill if possible.
         finish_current_skill(skill);

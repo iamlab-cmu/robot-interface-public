@@ -21,7 +21,7 @@ void GoalLinearTrajectoryGenerator::initialize_trajectory() {
 
 }
 
-void GoalLinearTrajectoryGenerator::initialize_trajectory(franka::RobotState robot_state) {
+void GoalLinearTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
   pose_desired_ = robot_state.O_T_EE_c;
 }
 
