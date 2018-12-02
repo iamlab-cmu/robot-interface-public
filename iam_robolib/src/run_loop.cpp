@@ -22,6 +22,7 @@
 #include "linear_trajectory_generator_with_time_and_goal.h"
 #include "LinearJointTrajectoryController.h"
 #include "NoopFeedbackController.h"
+#include "torque_feedback_controller.h"
 
 #include "linear_trajectory_generator_with_time_and_goal_termination_handler.h"
 #include "NoopTerminationHandler.h"
@@ -405,6 +406,11 @@ FeedbackController* RunLoop::get_feedback_controller_for_skill(int memory_region
   if (feedback_controller_id == 1) {
     // Create Counter based trajectory.
     NoopFeedbackController *feedback_contoller = new NoopFeedbackController(buffer);
+    feedback_contoller->parse_parameters();
+    return feedback_contoller;
+  } else if (feedback_controller_id == 2) {
+    // Create Counter based trajectory.
+    TorqueFeedbackController *feedback_contoller = new TorqueFeedbackController(buffer);
     feedback_contoller->parse_parameters();
     return feedback_contoller;
   } else {

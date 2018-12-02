@@ -82,7 +82,7 @@ void LinearTrajectoryGeneratorWithTimeAndGoal::initialize_trajectory(const frank
 }
 
 void LinearTrajectoryGeneratorWithTimeAndGoal::get_next_step() {
-  t_ = time_ / run_time_;
+  t_ = std::min(std::max(time_ / run_time_, 0.0), 1.0);
 
   desired_position_ = initial_position_ + (goal_position_ - initial_position_) * t_;
   desired_orientation_ = initial_orientation_.slerp(t_, goal_orientation_);
