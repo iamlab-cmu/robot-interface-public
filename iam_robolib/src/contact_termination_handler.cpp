@@ -45,7 +45,7 @@ void ContactTerminationHandler::parse_parameters() {
   } 
   // No collision behavior parameters were provided, so just using default parameters
   // Checking for collisions in only the directions or rotations that are nonzero.
-  if(num_params == 6) 
+  else if(num_params == 6) 
   {
     for(int i = 0; i < 6; i++)
     {
@@ -269,7 +269,7 @@ void ContactTerminationHandler::parse_parameters() {
   } 
   else
   {
-    std::cout << "Invalid number of params provided: " << num_params << std::endl;
+    std::cout << "Contact Termination Handler: Invalid number of params provided: " << num_params << std::endl;
   }
 }
 
@@ -293,17 +293,14 @@ bool ContactTerminationHandler::should_terminate(TrajectoryGenerator *trajectory
 }
 
 bool ContactTerminationHandler::should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *trajectory_generator) {
-  if(trajectory_generator->time_ > trajectory_generator->run_time_ + buffer_time_)
-  {
+  if(trajectory_generator->time_ > trajectory_generator->run_time_ + buffer_time_) {
     return true;
   }
 
   std::array<double, 6> cartesian_contact = robot_state.cartesian_contact;
 
-  for(int i = 0; i < 6; i++)
-  {
-    if(cartesian_contacts_to_use_[i] != 0 && cartesian_contact[i] != 0)
-    {
+  for(int i = 0; i < 6; i++) {
+    if(cartesian_contacts_to_use_[i] != 0 && cartesian_contact[i] != 0) {
       return true;
     }
   }

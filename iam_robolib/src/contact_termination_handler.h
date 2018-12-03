@@ -38,7 +38,7 @@ class ContactTerminationHandler : public TerminationHandler {
  private:
   double buffer_time_ = 0.0;
 
-  std::array<double, 6> cartesian_contacts_to_use_{{1.0}};
+  std::array<double, 6> cartesian_contacts_to_use_{{1.0, 1.0, 1.0, 1.0, 1.0, 1.0}};
 
   std::array<double, 7> lower_torque_thresholds_acceleration_{};
   std::array<double, 7> upper_torque_thresholds_acceleration_{};

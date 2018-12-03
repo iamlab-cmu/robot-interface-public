@@ -23,7 +23,7 @@ if __name__ == '__main__':
     # traj_gen_params = [5.0, 0.997146,0.0727788,0.0196026,0,0.0721817,-0.996942,0.0296162,0,0.0216985,-0.0281173,-0.999369,0,0.526579,0.0600579,0.252545,1]
     traj_gen_params = [5.0, 0.99562,0.0868484,0.0343491,0,0.0867175,-0.996209,0.00528489,0,0.0346785,-0.00228312,-0.999396,0,0.52984,0.0645623,0.271222,1]
     feedback_controller_params = [600, 50];
-    termination_params = [1.0, 0.0001, 0.0001];
+    termination_params = [1.0];
     
     timer_params = [1,2,3,4,5];
 
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     goal.feedback_controller_type = 2
     goal.num_feedback_controller_params = len(feedback_controller_params)
     goal.feedback_controller_params = feedback_controller_params
-    goal.termination_type = 4
+    goal.termination_type = 5
     goal.num_termination_params = len(termination_params)
     goal.termination_params = termination_params
     goal.timer_type = 4
