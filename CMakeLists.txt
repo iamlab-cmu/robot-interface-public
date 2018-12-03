@@ -17,6 +17,7 @@ find_package(Eigen3 REQUIRED)
 add_subdirectory(iam_robolib)
 add_subdirectory(iam_robolib_common)
 add_subdirectory(libfranka)
+add_subdirectory(src/catkin_ws/src/franka_action_lib)
 
 add_executable(test_iam_robolib test_robolib.cpp)
 
