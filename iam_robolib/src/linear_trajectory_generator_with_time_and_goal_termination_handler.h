@@ -35,8 +35,8 @@ class LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler : public Termin
  private:
   int num_params_;
   double buffer_time_ = 0.0;
-  double position_threshold_;
-  double orientation_threshold_;
+  double position_threshold_ = 0.001;
+  double orientation_threshold_ = 0.001;
   Eigen::Vector3d position_thresholds_;
   Eigen::Vector3d orientation_thresholds_;
 };

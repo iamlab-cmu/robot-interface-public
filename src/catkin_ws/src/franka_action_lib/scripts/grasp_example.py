@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
     skill = GripperWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-    skill.add_trajectory_params([0.05, 0.025, 2100])  # Gripper Width, Gripper Speed, Wait Time
+    skill.add_trajectory_params([0.05, 0.025, 10, 2100]) # Gripper Width, Gripper Speed, Grasping Force, Wait Time
     goal = skill.create_goal()
     print(goal)
     client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))

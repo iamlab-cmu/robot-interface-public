@@ -88,14 +88,44 @@ class BaseSkill(object):
     def feedback_callback(self, feedback):
         print(feedback)
 
-class OpenGripperWithDefaultSensorSkill(BaseSkill):
+class GripperWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
-                skill_type,
+                skill_type=1,
                 trajectory_generator_type=5,
                 feedback_controller_type=1,
                 termination_type=1,
                 timer_type=1):
-        super(OpenGripperWithDefaultSensorSkill, self).__init__(
+        super(GripperWithDefaultSensorSkill, self).__init__(
+              skill_type,
+              ['/franka_robot/camera'],
+              trajectory_generator_type,
+              feedback_controller_type,
+              termination_type,
+              timer_type)
+
+class ArmMoveToGoalWithDefaultSensorSkill(BaseSkill):
+    def __init__(self, 
+                skill_type=0,
+                trajectory_generator_type=4,
+                feedback_controller_type=2,
+                termination_type=4,
+                timer_type=1):
+        super(ArmMoveToGoalWithDefaultSensorSkill, self).__init__(
+              skill_type,
+              ['/franka_robot/camera'],
+              trajectory_generator_type,
+              feedback_controller_type,
+              termination_type,
+              timer_type)
+
+class ArmMoveToGoalContactWithDefaultSensorSkill(BaseSkill):
+    def __init__(self, 
+                skill_type=0,
+                trajectory_generator_type=4,
+                feedback_controller_type=2,
+                termination_type=5,
+                timer_type=1):
+        super(ArmMoveToGoalWithDefaultSensorSkill, self).__init__(
               skill_type,
               ['/franka_robot/camera'],
               trajectory_generator_type,

@@ -24,8 +24,8 @@ class TorqueFeedbackController : public FeedbackController {
  private:
   franka::Model *model_;
 
-  double translational_stiffness_;
-  double rotational_stiffness_;
+  double translational_stiffness_ = 600;
+  double rotational_stiffness_ = 50;
   Eigen::MatrixXd stiffness_;
   Eigen::MatrixXd damping_;
 };

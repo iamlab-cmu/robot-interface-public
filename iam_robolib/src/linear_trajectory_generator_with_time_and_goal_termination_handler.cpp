@@ -14,6 +14,16 @@ void LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::parse_parameter
 
   num_params_ = static_cast<int>(params_[1]);
 
+  
+  if(num_params_ == 0)
+  {
+    std::cout << "No parameters given, using default buffer time and error thresholds." << std::endl;
+  }
+  // buffer_time(1) 
+  if(num_params_ == 1)
+  {
+    buffer_time_ = static_cast<double>(params_[2]);
+  }
   // position_error_threshold (1) + orientation_error_threshold (1)
   if(num_params_ == 2) 
   {
