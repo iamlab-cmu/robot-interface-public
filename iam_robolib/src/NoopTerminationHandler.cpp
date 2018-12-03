@@ -4,12 +4,6 @@
 
 #include "NoopTerminationHandler.h"
 
-#include <cmath>
-#include <iostream>
-
-#include "trajectory_generator.h"
-#include "counter_trajectory_generator.h"
-
 void NoopTerminationHandler::parse_parameters() {
   // pass
 }

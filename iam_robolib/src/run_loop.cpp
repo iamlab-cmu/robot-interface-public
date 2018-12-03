@@ -28,6 +28,7 @@
 #include "contact_termination_handler.h"
 #include "linear_trajectory_generator_with_time_and_goal_termination_handler.h"
 #include "NoopTerminationHandler.h"
+#include "time_termination_handler.h"
 #include "FinalPoseTerminationHandler.h"
 #include "FinalJointTerminationHandler.h"
 #include "ControlLoopData.h"
@@ -447,6 +448,10 @@ TerminationHandler* RunLoop::get_termination_handler_for_skill(int memory_region
     return termination_handler;
   } else if (termination_handler_id == 5) {
     ContactTerminationHandler *termination_handler = new ContactTerminationHandler(buffer);
+    termination_handler->parse_parameters();
+    return termination_handler;
+  } else if (termination_handler_id == 6) {
+    TimeTerminationHandler *termination_handler = new TimeTerminationHandler(buffer);
     termination_handler->parse_parameters();
     return termination_handler;
   } else {

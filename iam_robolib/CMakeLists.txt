@@ -59,6 +59,8 @@ add_library(iam_robolib SHARED
   src/TerminationHandler.h
   src/CounterTerminationHandler.cpp
   src/CounterTerminationHandler.h
+  src/time_termination_handler.cpp
+  src/time_termination_handler.h
   src/SensorData.cpp
   src/SensorData.h
   src/NoopTerminationHandler.cpp

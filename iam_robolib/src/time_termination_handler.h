@@ -6,7 +6,7 @@
 
 #include "TerminationHandler.h"
 
-class NoopTerminationHandler : public TerminationHandler {
+class TimeTerminationHandler : public TerminationHandler {
  public:
   using TerminationHandler::TerminationHandler;
 
@@ -35,4 +35,6 @@ class NoopTerminationHandler : public TerminationHandler {
    */
   bool should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) override;
 
+ private:
+  double buffer_time_;
 };

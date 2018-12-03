@@ -124,9 +124,20 @@ bool LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::should_terminat
   LinearTrajectoryGeneratorWithTimeAndGoal *linear_trajectory_generator_with_time_and_goal =
         static_cast<LinearTrajectoryGeneratorWithTimeAndGoal *>(trajectory_generator);
 
+  // Terminate if the skill time_ has exceeded the provided run_time_ + buffer_time_ 
   if(linear_trajectory_generator_with_time_and_goal->time_ > linear_trajectory_generator_with_time_and_goal->run_time_ + buffer_time_)
   {
     return true;
+  }
+
+
+  // Terminate immediately if collision is detected
+  std::array<double, 6> cartesian_collision = robot_state.cartesian_collision;
+
+  for(int i = 0; i < 6; i++) {
+    if(cartesian_collision[i] != 0) {
+      return true;
+    }
   }
 
   Eigen::Affine3d current_transform(Eigen::Matrix4d::Map(robot_state.O_T_EE.data()));

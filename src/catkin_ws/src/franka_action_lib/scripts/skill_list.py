@@ -132,3 +132,18 @@ class ArmMoveToGoalContactWithDefaultSensorSkill(BaseSkill):
               feedback_controller_type,
               termination_type,
               timer_type)
+
+class NoOpSkill(BaseSkill):
+    def __init__(self, 
+                skill_type=0,
+                trajectory_generator_type=1,
+                feedback_controller_type=1,
+                termination_type=1,
+                timer_type=1):
+        super(ArmMoveToGoalWithDefaultSensorSkill, self).__init__(
+              skill_type,
+              ['/franka_robot/camera'],
+              trajectory_generator_type,
+              feedback_controller_type,
+              termination_type,
+              timer_type)
