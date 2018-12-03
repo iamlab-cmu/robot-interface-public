@@ -24,13 +24,13 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
 set(iam_robolib_common_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/../../../../iam_robolib_common/include")
-#set(iam_robolib_common_lib "${CMAKE_CURRENT_SOURCE_DIR}/../../../../build/iam_robolib_common/")
+set(iam_robolib_common_lib "${CMAKE_CURRENT_SOURCE_DIR}/../../../../build/iam_robolib_common/")
 
 find_package(Boost COMPONENTS REQUIRED filesystem system thread)
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${iam_robolib_common_INCLUDE_DIRS})
 
-#LINK_DIRECTORIES(${iam_robolib_common_lib})
+LINK_DIRECTORIES(${iam_robolib_common_lib})
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed

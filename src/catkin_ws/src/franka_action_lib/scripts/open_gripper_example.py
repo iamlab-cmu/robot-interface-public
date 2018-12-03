@@ -21,9 +21,10 @@ if __name__ == '__main__':
     skill = OpenGripperWithDefaultSensorSkill(1)
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
     skill.add_trajectory_params([0.05, 0.025, 2100])
-    goal = client.create_goal()
+    goal = skill.create_goal()
+    print(goal)
     client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
-
+    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
 
     while not rospy.is_shutdown() and done != True:
         done = client.wait_for_result(rospy.Duration.from_sec(5.0))

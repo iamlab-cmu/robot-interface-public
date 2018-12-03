@@ -16,7 +16,6 @@ class BaseSkill(object):
                  feedback_controller_type,
                  termination_type,
                  timer_type):
-        super(BaseSkill, self).__init__()
         self._skill_type = skill_type
         self._sensor_topics = sensor_topics
         self._trajectory_generator_type = trajectory_generator_type
@@ -69,34 +68,36 @@ class BaseSkill(object):
         goal = ExecuteSkillGoal()
         goal.skill_type = self._skill_type
         goal.sensor_topics = self._sensor_topics
-        goal._initial_sensor_values = self._initial_sensor_values
+        goal.initial_sensor_values = self._initial_sensor_values
+        goal.sensor_value_sizes = self._sensor_value_sizes
         goal.traj_gen_type = self._trajectory_generator_type
         goal.traj_gen_params = self._trajectory_generator_params
         goal.num_traj_gen_params = self._num_trajectory_generator_params
         goal.feedback_controller_type = self._feedback_controller_type
         goal.feedback_controller_params = self._feedback_controller_params
         goal.num_feedback_controller_params = \
-                self._feedback_controller_params
+                self._num_feedback_controller_params
         goal.termination_type = self._termination_type
         goal.termination_params = self._termination_params
         goal.num_termination_params = self._num_termination_params
         goal.timer_type = self._timer_type
         goal.timer_params = self._timer_params
         goal.num_timer_params = self._num_timer_params
+        return goal
 
     def feedback_callback(self, feedback):
         print(feedback)
 
 class OpenGripperWithDefaultSensorSkill(BaseSkill):
-    def __init_(self, 
+    def __init__(self, 
                 skill_type,
                 trajectory_generator_type=5,
                 feedback_controller_type=1,
                 termination_type=1,
                 timer_type=1):
-        super(OpenGripperSkill, self).__init_(
+        super(OpenGripperWithDefaultSensorSkill, self).__init__(
               skill_type,
-              sensor_topics=['/franka_robot/camera'],
+              ['/franka_robot/camera'],
               trajectory_generator_type,
               feedback_controller_type,
               termination_type,
