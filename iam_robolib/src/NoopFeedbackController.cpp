@@ -7,7 +7,7 @@
 #include <iostream>
 
 void NoopFeedbackController::parse_parameters() {
-  delta_ = params_[2];
+  // pass
 }
 
 void NoopFeedbackController::initialize_controller() {
