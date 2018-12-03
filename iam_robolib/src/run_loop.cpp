@@ -20,6 +20,7 @@
 #include "goal_linear_trajectory_generator.h"
 #include "linear_trajectory_generator.h"
 #include "linear_trajectory_generator_with_time_and_goal.h"
+#include "stay_in_initial_position_trajectory_generator.h"
 #include "LinearJointTrajectoryController.h"
 #include "NoopFeedbackController.h"
 #include "torque_feedback_controller.h"
@@ -389,6 +390,8 @@ TrajectoryGenerator* RunLoop::get_trajectory_generator_for_skill(int memory_regi
     traj_generator = new LinearTrajectoryGeneratorWithTimeAndGoal(buffer);
   } else if (traj_gen_id == 5){
     traj_generator = new GripperOpenTrajectoryGenerator(buffer);
+  } else if (traj_gen_id == 6){
+    traj_generator = new StayInInitialPositionTrajectoryGenerator(buffer);
   } else {
     // Cannot create Trajectory generator for this skill. Throw error
     logger_.add_error_log(string_format(

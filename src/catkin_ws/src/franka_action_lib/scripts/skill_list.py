@@ -147,3 +147,18 @@ class NoOpSkill(BaseSkill):
               feedback_controller_type,
               termination_type,
               timer_type)
+
+class StayInPositionWithDefaultSensorSkill(BaseSkill):
+    def __init__(self, 
+                skill_type=0,
+                trajectory_generator_type=6,
+                feedback_controller_type=2,
+                termination_type=6,
+                timer_type=1):
+        super(ArmMoveToGoalWithDefaultSensorSkill, self).__init__(
+              skill_type,
+              ['/franka_robot/camera'],
+              trajectory_generator_type,
+              feedback_controller_type,
+              termination_type,
+              timer_type)

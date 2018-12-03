@@ -8,7 +8,7 @@ import actionlib
 from franka_action_lib.msg import ExecuteSkillAction, ExecuteSkillGoal
 
 from skill_list import BaseSkill
-from skill_list import NoOpSkill
+from skill_list import StayInPositionWithDefaultSensorSkill
 
 def feedback_callback(feedback):
     print(feedback)
@@ -18,7 +18,8 @@ if __name__ == '__main__':
     client = actionlib.SimpleActionClient('/execute_skill_action_server_node/execute_skill', ExecuteSkillAction)
     client.wait_for_server()
 
-    skill = NoOpSkill()
+    skill = StayInPositionWithDefaultSensorSkill()
+    skill.add_trajectory_params([5.0])  # Run Time 
     goal = skill.create_goal()
 
     print(goal)

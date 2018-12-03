@@ -61,6 +61,8 @@ add_library(iam_robolib SHARED
   src/CounterTerminationHandler.h
   src/time_termination_handler.cpp
   src/time_termination_handler.h
+  src/stay_in_initial_position_trajectory_generator.cpp
+  src/stay_in_initial_position_trajectory_generator.h
   src/SensorData.cpp
   src/SensorData.h
   src/NoopTerminationHandler.cpp

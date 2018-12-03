@@ -8,7 +8,7 @@ import actionlib
 from franka_action_lib.msg import ExecuteSkillAction, ExecuteSkillGoal
 
 from skill_list import BaseSkill
-from skill_list import ArmMoveToGoalWithDefaultSensorSkill
+from skill_list import ArmMoveToGoalWithDefaultSensorSkill, GripperWithDefaultSensorSkill, ArmMoveToGoalContactWithDefaultSensorSkill
 
 def feedback_callback(feedback):
     print(feedback)
@@ -18,6 +18,7 @@ if __name__ == '__main__':
     client = actionlib.SimpleActionClient('/execute_skill_action_server_node/execute_skill', ExecuteSkillAction)
     client.wait_for_server()
 
+    # Move to Picking Position
     skill = ArmMoveToGoalWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
     skill.add_trajectory_params([5.0, 0.99562,0.0868484,0.0343491,0,0.0867175,-0.996209,0.00528489,0,0.0346785,-0.00228312,-0.999396,0,0.52984,0.0645623,0.271222,1])  # Run Time (1) and Desired End Effector Pose(16)
@@ -30,3 +31,76 @@ if __name__ == '__main__':
 
     while not rospy.is_shutdown() and done != True:
         done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    # Close the gripper and grasp
+    skill = GripperWithDefaultSensorSkill()
+    skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
+    skill.add_trajectory_params([0.05, 0.025, 10, 2100]) # Gripper Width, Gripper Speed, Grasping Force, Wait Time
+    goal = skill.create_goal()
+    print(goal)
+    client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
+    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    while not rospy.is_shutdown() and done != True:
+        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    # Move to intermediate position
+    skill = ArmMoveToGoalWithDefaultSensorSkill()
+    skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
+    skill.add_trajectory_params([5.0, 0.99562,0.0868484,0.0343491,0,0.0867175,-0.996209,0.00528489,0,0.0346785,-0.00228312,-0.999396,0,0.52984,0.0645623,0.271222,1])  # Run Time (1) and Desired End Effector Pose(16)
+    skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
+    skill.add_termination_params([1.0]) # buffer time
+    goal = skill.create_goal()
+    print(goal)
+    client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
+    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    # Move to contact goal position
+    skill = ArmMoveToGoalContactWithDefaultSensorSkill()
+    skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
+    skill.add_trajectory_params([5.0, 0.99562,0.0868484,0.0343491,0,0.0867175,-0.996209,0.00528489,0,0.0346785,-0.00228312,-0.999396,0,0.52984,0.0645623,0.271222,1])  # Run Time (1) and Desired End Effector Pose(16)
+    skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
+    skill.add_termination_params([1.0]) # buffer time
+    goal = skill.create_goal()
+    print(goal)
+    client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
+    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    while not rospy.is_shutdown() and done != True:
+        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    # Stay in the position for a certain amount of time
+    skill = StayInPositionWithDefaultSensorSkill()
+    skill.add_trajectory_params([5.0])  # Run Time 
+    goal = skill.create_goal()
+
+    print(goal)
+    
+    client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
+    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    while not rospy.is_shutdown() and done != True:
+        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    # Open the gripper
+    skill = GripperWithDefaultSensorSkill()
+    skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
+    skill.add_trajectory_params([0.05, 0.025, 2100])  # Gripper Width, Gripper Speed, Wait Time
+    goal = skill.create_goal()
+    print(goal)
+    client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
+    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    while not rospy.is_shutdown() and done != True:
+        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    # Move to original position
+    skill = ArmMoveToGoalWithDefaultSensorSkill()
+    skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
+    skill.add_trajectory_params([5.0, 0.99562,0.0868484,0.0343491,0,0.0867175,-0.996209,0.00528489,0,0.0346785,-0.00228312,-0.999396,0,0.52984,0.0645623,0.271222,1])  # Run Time (1) and Desired End Effector Pose(16)
+    skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
+    skill.add_termination_params([1.0]) # buffer time
+    goal = skill.create_goal()
+    print(goal)
+    client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
+    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
