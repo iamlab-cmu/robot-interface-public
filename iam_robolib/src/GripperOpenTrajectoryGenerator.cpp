@@ -15,7 +15,7 @@ void GripperOpenTrajectoryGenerator::parse_parameters() {
 
   open_width_ = static_cast<double >(params_[2]);
   open_speed_ = static_cast<double >(params_[3]);
-  wait_time_in_milliseconds_ = static_cast<double> (params_[5]);
+  wait_time_in_milliseconds_ = static_cast<double>(params_[4]);
 }
 
 void GripperOpenTrajectoryGenerator::initialize_trajectory() {
