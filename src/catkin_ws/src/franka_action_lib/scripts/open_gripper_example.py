@@ -18,7 +18,7 @@ if __name__ == '__main__':
     goal = ExecuteSkillGoal()
     # Fill in the goal here
     initial_sensor_values = [1,3,5,7,9]
-    traj_gen_params = [0.5,0.1,2000]
+    traj_gen_params = [0.05,0.025,2100]
     feedback_controller_params = [];
     termination_params = [];
     

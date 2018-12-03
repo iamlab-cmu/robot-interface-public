@@ -21,14 +21,41 @@ class GripperOpenTrajectoryGenerator : public TrajectoryGenerator {
 
   void get_next_step() override;
 
-  double getOpenWidth();
-  double getOpenSpeed();
+  /**
+   * Get width to open the gripper to.
+   * @return width speed.
+   */
+  double getWidth();
+
+  /**
+   * Get speed to open the gripper.
+   * @return gripper speed.
+   */
+  double getSpeed();
+
+  /**
+   * Get Force to grasp an object.
+   * @return
+   */
+  double getForce();
+
+  /**
+   * Get time to wait for the skill.
+   * @return
+   */
   double getWaitTimeInMilliseconds();
 
- private:
-  double open_width_=1.0;
-  double open_speed_=0.0;
-  double wait_time_in_milliseconds_=3000.0;
+  /**
+   * Check if the skill requires to grasp the object.
+   * @return True if the skill requires to grasp the object, returns false if it does not.
+   */
+  bool isGraspSkill();
 
+ private:
+  double width_=1.0;
+  double speed_=0.0;
+  double force_=0.0;
+  double wait_time_in_milliseconds_=3000.0;
+  bool is_grasp_skill_{false};
 };
 
