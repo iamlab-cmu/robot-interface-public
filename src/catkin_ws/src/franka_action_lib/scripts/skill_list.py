@@ -125,7 +125,7 @@ class ArmMoveToGoalContactWithDefaultSensorSkill(BaseSkill):
                 feedback_controller_type=2,
                 termination_type=5,
                 timer_type=1):
-        super(ArmMoveToGoalWithDefaultSensorSkill, self).__init__(
+        super(ArmMoveToGoalContactWithDefaultSensorSkill, self).__init__(
               skill_type,
               ['/franka_robot/camera'],
               trajectory_generator_type,
@@ -140,7 +140,7 @@ class NoOpSkill(BaseSkill):
                 feedback_controller_type=1,
                 termination_type=1,
                 timer_type=1):
-        super(ArmMoveToGoalWithDefaultSensorSkill, self).__init__(
+        super(NoOpSkill, self).__init__(
               skill_type,
               ['/franka_robot/camera'],
               trajectory_generator_type,
@@ -155,7 +155,7 @@ class StayInPositionWithDefaultSensorSkill(BaseSkill):
                 feedback_controller_type=2,
                 termination_type=6,
                 timer_type=1):
-        super(ArmMoveToGoalWithDefaultSensorSkill, self).__init__(
+        super(StayInPositionWithDefaultSensorSkill, self).__init__(
               skill_type,
               ['/franka_robot/camera'],
               trajectory_generator_type,

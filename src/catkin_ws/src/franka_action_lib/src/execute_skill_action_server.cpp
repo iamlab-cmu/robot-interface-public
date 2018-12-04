@@ -31,6 +31,9 @@ namespace franka_action_lib
       skill_id = shared_memory_handler_.loadSkillParametersIntoSharedMemory(goal);
     }
 
+    ROS_INFO("=======");
+    ROS_INFO("New Skill id = %d", skill_id);
+
     // Loop until skill is complete from shared memory or is preempted
     int done_skill_id = shared_memory_handler_.getDoneSkillIdInSharedMemory();
     while(done_skill_id < skill_id)
@@ -58,7 +61,10 @@ namespace franka_action_lib
       r.sleep();
 
       done_skill_id = shared_memory_handler_.getDoneSkillIdInSharedMemory();
+
+      ROS_INFO("done skill id = %d", done_skill_id);
     }
+    ROS_INFO("=== while over ====");
 
     if(done_skill_id == skill_id || done_skill_id == skill_id + 1)
     {

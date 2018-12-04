@@ -25,14 +25,20 @@ void GripperOpenSkill::execute_skill_on_franka(franka::Robot *robot, franka::Gri
 
   double open_speed = gripper_traj_generator->getSpeed();
   if (gripper_traj_generator->isGraspSkill()) {
-    return_status_ = gripper->grasp(open_width, open_speed, gripper_traj_generator->getForce());
+    // TOOD(Mohit): Maybe stop the gripper before trying to grip again?
+    franka::GripperState gripper_state = gripper->readOnce();
+    if (!gripper_state.is_grasped) {
+      return_status_ = gripper->grasp(open_width, open_speed, gripper_traj_generator->getForce());
+    }
   } else {
     return_status_ = gripper->move(open_width, open_speed);
   }
 
+  double wait_time = gripper_traj_generator->getWaitTimeInMilliseconds();
+  std::cout << "Gripper wait time: " << wait_time << "\n";
   // Block on this thread to allow gripper to execute skill.
   std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(
-      gripper_traj_generator->getWaitTimeInMilliseconds()));
+      wait_time));
 }
 
 void GripperOpenSkill::execute_skill_on_franka_temp(franka::Robot *robot, franka::Gripper* gripper,
