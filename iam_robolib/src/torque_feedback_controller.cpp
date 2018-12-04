@@ -62,7 +62,8 @@ void TorqueFeedbackController::get_next_step() {
   // pass
 }
 
-void TorqueFeedbackController::get_next_step(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) {
+void TorqueFeedbackController::get_next_step(const franka::RobotState &robot_state,
+                                             TrajectoryGenerator *traj_generator) {
   std::array<double, 7> coriolis_array = model_->coriolis(robot_state);
   std::array<double, 42> jacobian_array = model_->zeroJacobian(franka::Frame::kEndEffector, robot_state);
 

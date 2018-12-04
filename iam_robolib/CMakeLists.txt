@@ -89,6 +89,9 @@ add_library(iam_robolib SHARED
   #src/JsonFileLogger.h
   src/FileStreamLogger.cpp
   src/FileStreamLogger.h)
+  src/DMPTrajectoryGenerator.cpp
+  src/DMPTrajectoryGenerator.h
+)
 
 # Add namespace
 # add_library(IAM_RoboLib::IAM_RoboLib ALIAS iam_robolib)

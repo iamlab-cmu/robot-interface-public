@@ -93,6 +93,72 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot, franka::Gripper* g
   }
 }
 
+void SkillInfo::execute_skill_on_franka_joint_base(franka::Robot* robot, franka::Gripper* gripper,
+                                               ControlLoopData *control_loop_data) {
+
+  try {
+    double time = 0.0;
+    int log_counter = 0;
+
+    std::cout << "Will run the control loop\n";
+
+    franka::Model model = robot->loadModel();
+
+    // define callback for the torque control loop
+    std::function<franka::Torques(const franka::RobotState&, franka::Duration)>
+        impedance_control_callback = [&, &time](const franka::RobotState& robot_state,
+                                                franka::Duration period) -> franka::Torques {
+
+      if (time == 0.0) {
+        traj_generator_->initialize_trajectory(robot_state);
+        feedback_controller_->initialize_controller(&model);
+      }
+
+      if (control_loop_data->mutex_.try_lock()) {
+        control_loop_data->counter_ += 1;
+        control_loop_data->time_ =  period.toSec();
+        control_loop_data->has_data_ = true;
+        control_loop_data->mutex_.unlock();
+      }
+
+      traj_generator_->dt_ = period.toSec();
+      traj_generator_->time_ += period.toSec();
+      time += period.toSec();
+      log_counter += 1;
+
+      traj_generator_->get_next_step();
+
+      if (log_counter % 1 == 0) {
+        control_loop_data->log_pose_desired(traj_generator_->pose_desired_);
+        control_loop_data->log_robot_state(robot_state, time);
+      }
+
+      feedback_controller_->get_next_step(robot_state, traj_generator_);
+
+      bool done = termination_handler_->should_terminate(robot_state, traj_generator_);
+
+      if(done) {
+        return franka::MotionFinished(franka::Torques(feedback_controller_->tau_d_array_));
+      }
+
+
+      return feedback_controller_->tau_d_array_;
+    };
+
+    robot->control(impedance_control_callback);
+
+  } catch (const franka::Exception& ex) {
+    RunLoop::running_skills_ = false;
+    std::cerr << ex.what() << std::endl;
+    // Make sure we don't lose data.
+    control_loop_data->writeCurrentBufferData();
+
+    // print last 50 values
+    control_loop_data->printGlobalData(50);
+    control_loop_data->file_logger_thread_.join();
+  }
+}
+
 void SkillInfo::execute_skill_on_franka_temp2(franka::Robot* robot, franka::Gripper* gripper,
                                               ControlLoopData *control_loop_data) {
   const double translational_stiffness{500.0};

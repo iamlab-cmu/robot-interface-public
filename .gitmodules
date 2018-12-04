@@ -1,3 +1,6 @@
 [submodule "libfranka"]
 	path = libfranka
 	url = git@github.com:frankaemika/libfranka.git
+[submodule "json"]
+	path = json
+	url = git@github.com:nlohmann/json.git
