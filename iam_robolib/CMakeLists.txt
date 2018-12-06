@@ -21,7 +21,7 @@ find_package(Boost COMPONENTS REQUIRED filesystem system thread)
 
 include_directories(${Boost_INCLUDE_DIRS})
 
-find_package(nlohmann_json 3.4.0 REQUIRED)
+# find_package(nlohmann_json 3.4.0 REQUIRED)
 
 # find_library(iam_robolib_common PATHS ../)
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../iam_robolib_common")
@@ -85,8 +85,8 @@ add_library(iam_robolib SHARED
   src/GripperOpenTrajectoryGenerator.h
   src/BaseSkill.cpp
   src/BaseSkill.h
-  src/JsonFileLogger.cpp
-  src/JsonFileLogger.h
+  #src/JsonFileLogger.cpp
+  #src/JsonFileLogger.h
   src/FileStreamLogger.cpp
   src/FileStreamLogger.h)
 
@@ -100,7 +100,7 @@ target_link_libraries(iam_robolib PRIVATE
   rt
   iam_robolib_common
   Franka::Franka
-  nlohmann_json::nlohmann_json
+  # nlohmann_json::nlohmann_json
 )
 
 
