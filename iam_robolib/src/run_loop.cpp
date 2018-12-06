@@ -27,6 +27,8 @@
 
 #include "BaseSkill.h"
 #include "ControlLoopData.h"
+#include "CustomGainTorqueController.h"
+#include "DMPTrajectoryGenerator.h"
 #include "FileStreamLogger.h"
 #include "FinalJointTerminationHandler.h"
 #include "FinalPoseTerminationHandler.h"
@@ -36,6 +38,7 @@
 #include "contact_termination_handler.h"
 #include "linear_trajectory_generator_with_time_and_goal_termination_handler.h"
 #include "time_termination_handler.h"
+#include "JointPoseSkill.h"
 
 std::atomic<bool> RunLoop::running_skills_{false};
 
@@ -390,8 +393,10 @@ TrajectoryGenerator* RunLoop::get_trajectory_generator_for_skill(int memory_regi
     traj_generator = new LinearTrajectoryGeneratorWithTimeAndGoal(buffer);
   } else if (traj_gen_id == 5){
     traj_generator = new GripperOpenTrajectoryGenerator(buffer);
-  } else if (traj_gen_id == 6){
+  } else if (traj_gen_id == 6) {
     traj_generator = new StayInInitialPositionTrajectoryGenerator(buffer);
+  } else if (traj_gen_id == 7) {
+    traj_generator = new DMPTrajectoryGenerator(buffer);
   } else {
     // Cannot create Trajectory generator for this skill. Throw error
     logger_.add_error_log(string_format(
@@ -416,6 +421,8 @@ FeedbackController* RunLoop::get_feedback_controller_for_skill(int memory_region
   } else if (feedback_controller_id == 2) {
     // Create Counter based trajectory.
     feedback_controller = new TorqueFeedbackController(buffer);
+  } else if (feedback_controller_id == 3) {
+    feedback_controller = new CustomGainTorqueController(buffer);
   } else {
     logger_.add_error_log(string_format(
         "Cannot create FeedbackController with class_id: %d\n", feedback_controller_id));
@@ -598,6 +605,8 @@ void RunLoop::update_process_info() {
             new_skill = new SkillInfo(new_skill_id);
           } else if (new_skill_type == 1) {
             new_skill = new GripperOpenSkill(new_skill_id);
+          } else if (new_skill_type == 2) {
+            new_skill = new JointPoseSkill(new_skill_id);
           } else {
             std::cout << "Incorrect skill type: " << new_skill_type << "\n";
             assert(false);
