@@ -88,7 +88,7 @@ add_library(iam_robolib SHARED
   #src/JsonFileLogger.cpp
   #src/JsonFileLogger.h
   src/FileStreamLogger.cpp
-  src/FileStreamLogger.h)
+  src/FileStreamLogger.h
   src/DMPTrajectoryGenerator.cpp
   src/DMPTrajectoryGenerator.h
 )
