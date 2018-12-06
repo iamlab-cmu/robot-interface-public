@@ -11,9 +11,8 @@ bool FileStreamLogger::writeData(std::vector<double> control_time,
                std::vector<std::array<double, 16>>& robot_state,
                std::vector<std::array<double, 7>>& tau_j,
                std::vector<std::array<double, 7>>& dq) {
-    return true;
     if (!open_file_stream_.is_open()) {
-        open_file_stream_ = std::ofstream("./data/traj_data.txt", std::ofstream::out | std::ofstream::app);
+        open_file_stream_ = std::ofstream("./traj_data.txt", std::ofstream::out | std::ofstream::app);
     }
 
     bool all_sizes_equal = true;

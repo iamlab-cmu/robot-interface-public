@@ -6,7 +6,7 @@
 
 class FileStreamLogger {
  public:
-   FileStreamLogger(): open_file_stream_("./data/traj_data.txt", std::ofstream::out | std::ofstream::app) {};
+   FileStreamLogger(): open_file_stream_("./traj_data.txt", std::ofstream::out | std::ofstream::app) {};
 
    bool writeData(std::vector<double> control_time,
                   std::vector<std::array<double, 16>>& pose_desired,

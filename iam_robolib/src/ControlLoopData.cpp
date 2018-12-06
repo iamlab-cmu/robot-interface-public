@@ -58,9 +58,9 @@ void ControlLoopData::writeBufferData_0() {
                                               log_tau_j_0_,
                                               log_dq_0_);
         if (result) {
-            std::cout << "Success: Did write data to buffer." << std::endl;
+            std::cout << "Success: Did write data from buffer 0." << std::endl;
         } else {
-            std::cout << "Fail: Did not write data to buffer." << std::endl;
+            std::cout << "Fail: Did not write data from buffer 0." << std::endl;
         }
     }
 
@@ -85,9 +85,9 @@ void ControlLoopData::writeBufferData_1() {
                                               log_tau_j_1_,
                                               log_dq_1_);
         if (result) {
-            std::cout << "Success: Did write data to buffer." << std::endl;
+            std::cout << "Success: Did write data from buffer 1." << std::endl;
         } else {
-            std::cout << "Fail: Did not write data to buffer." << std::endl;
+            std::cout << "Fail: Did not write data from buffer 1." << std::endl;
         }
     }
 
