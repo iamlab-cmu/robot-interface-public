@@ -33,7 +33,7 @@ if __name__ == '__main__':
     # Move to Picking Position
     skill = ArmMoveToGoalWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-    skill.add_trajectory_params([3.0, -0.00146913,0.999948,-0.00909845,0,0.999977,0.00142362,-0.00500628,0,-0.00499316,-0.00910576,-0.999946,0,0.652849,0.0717463,0.0283853,1])  # Run Time (1) and Desired End Effector Pose(16)
+    skill.add_trajectory_params([3.0, -0.00146913,0.999948,-0.00909845,0,0.999977,0.00142362,-0.00500628,0,-0.00499316,-0.00910576,-0.999946,0,0.652849,0.0717463,0.0183853,1])  # Run Time (1) and Desired End Effector Pose(16)
     skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
     skill.add_termination_params([1.0]) # buffer time
     goal = skill.create_goal()
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     # Close the gripper and grasp
     skill = GripperWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-    skill.add_trajectory_params([0.035, 0.025, 10, 1100]) # Gripper Width, Gripper Speed, Grasping Force, Wait Time
+    skill.add_trajectory_params([0.075, 0.025, 5, 1100]) # Gripper Width, Gripper Speed, Grasping Force, Wait Time
     goal = skill.create_goal()
     print(goal)
     client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
@@ -58,6 +58,7 @@ if __name__ == '__main__':
 
     while not rospy.is_shutdown() and done != True:
         done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
 
     print ('===== ')
     print("Moving to intermediate position.")

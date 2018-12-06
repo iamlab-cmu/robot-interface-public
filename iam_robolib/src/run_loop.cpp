@@ -26,15 +26,16 @@
 #include "torque_feedback_controller.h"
 
 #include "BaseSkill.h"
+#include "ControlLoopData.h"
+#include "FileStreamLogger.h"
+#include "FinalJointTerminationHandler.h"
+#include "FinalPoseTerminationHandler.h"
+#include "GripperOpenSkill.h"
+#include "GripperOpenTrajectoryGenerator.h"
+#include "NoopTerminationHandler.h"
 #include "contact_termination_handler.h"
 #include "linear_trajectory_generator_with_time_and_goal_termination_handler.h"
-#include "NoopTerminationHandler.h"
 #include "time_termination_handler.h"
-#include "FinalPoseTerminationHandler.h"
-#include "FinalJointTerminationHandler.h"
-#include "ControlLoopData.h"
-#include "GripperOpenTrajectoryGenerator.h"
-#include "GripperOpenSkill.h"
 
 std::atomic<bool> RunLoop::running_skills_{false};
 
@@ -75,8 +76,7 @@ void RunLoop::start() {
   std::cout << "start run loop.\n";
 
   // Create managed shared memory (segments) here.
-  boost::interprocess::shared_memory_object::remove(shared_memory_info_
-  .getSharedMemoryNameForObjects().c_str());
+  boost::interprocess::shared_memory_object::remove(shared_memory_info_.getSharedMemoryNameForObjects().c_str());
   managed_shared_memory_ = boost::interprocess::managed_shared_memory(
           boost::interprocess::create_only,
           shared_memory_info_.getSharedMemoryNameForObjects().c_str(),
@@ -705,6 +705,7 @@ void RunLoop::setup_robot_default_behavior() {
 }
 
 void RunLoop::run_on_franka() {
+  init();
 
   setup_print_thread();
 
@@ -718,6 +719,8 @@ void RunLoop::run_on_franka() {
 
   try {
     running_skills_ = true;
+    FileStreamLogger* logger = new FileStreamLogger();
+    control_loop_data_.setFileStreamLogger(logger);
     control_loop_data_.startFileLoggerThread();
     while (1) {
       start = std::chrono::high_resolution_clock::now();

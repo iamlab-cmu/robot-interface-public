@@ -28,7 +28,8 @@ void GripperOpenSkill::execute_skill_on_franka(franka::Robot *robot, franka::Gri
     // TOOD(Mohit): Maybe stop the gripper before trying to grip again?
     franka::GripperState gripper_state = gripper->readOnce();
     if (!gripper_state.is_grasped) {
-      return_status_ = gripper->grasp(open_width, open_speed, gripper_traj_generator->getForce());
+      return_status_ = gripper->grasp(open_width, open_speed, gripper_traj_generator->getForce(),
+			              0.1, 0.1);
     }
   } else {
     return_status_ = gripper->move(open_width, open_speed);

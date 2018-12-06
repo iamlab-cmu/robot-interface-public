@@ -4,6 +4,8 @@
 
 #include <iam_robolib/run_loop.h>
 
+#include "FileStreamLogger.h"
+
 std::atomic<bool> ControlLoopData::use_buffer_0{true};
 std::mutex ControlLoopData::buffer_0_mutex_;
 std::mutex ControlLoopData::buffer_1_mutex_;
@@ -41,18 +43,26 @@ void ControlLoopData::printMeasuredJointJerks(std::vector<std::array<double, 7>>
   }
 }
 
+void ControlLoopData::setFileStreamLogger(FileStreamLogger *logger) {
+    file_logger_ = logger;
+}
+
 void ControlLoopData::writeBufferData_0() {
     std::lock_guard<std::mutex> lock(buffer_0_mutex_);
     // std::cout << "Will save buffer 0\n";
 
-    log_pose_desired_g_.insert(
-        log_pose_desired_g_.end(), log_pose_desired_0_.begin(), log_pose_desired_0_.end());
-    log_robot_state_g_.insert(
-        log_robot_state_g_.end(), log_robot_state_0_.begin(), log_robot_state_0_.end());
-    log_tau_j_g_.insert(log_tau_j_g_.end(), log_tau_j_0_.begin(), log_tau_j_0_.end());
-    log_dq_g_.insert(log_dq_g_.end(), log_dq_0_.begin(), log_dq_0_.end());
-    log_control_time_g_.insert(
-        log_control_time_g_.end(), log_control_time_0_.begin(), log_control_time_0_.end());
+    if (file_logger_ != nullptr) {
+        bool result = file_logger_->writeData(log_control_time_0_,
+                                              log_pose_desired_0_,
+                                              log_robot_state_0_,
+                                              log_tau_j_0_,
+                                              log_dq_0_);
+        if (result) {
+            std::cout << "Success: Did write data to buffer." << std::endl;
+        } else {
+            std::cout << "Fail: Did not write data to buffer." << std::endl;
+        }
+    }
 
     // For now just clear them
     log_pose_desired_0_.clear();
@@ -68,14 +78,18 @@ void ControlLoopData::writeBufferData_1() {
     std::lock_guard<std::mutex> lock(buffer_1_mutex_);
     // std::cout << "Will save buffer 1\n";
 
-    log_pose_desired_g_.insert(
-        log_pose_desired_g_.end(), log_pose_desired_1_.begin(), log_pose_desired_1_.end());
-    log_robot_state_g_.insert(
-        log_robot_state_g_.end(), log_robot_state_1_.begin(), log_robot_state_1_.end());
-    log_tau_j_g_.insert(log_tau_j_g_.end(), log_tau_j_1_.begin(), log_tau_j_1_.end());
-    log_dq_g_.insert(log_dq_g_.end(), log_dq_1_.begin(), log_dq_1_.end());
-    log_control_time_g_.insert(
-        log_control_time_g_.end(), log_control_time_1_.begin(), log_control_time_1_.end());
+    if (file_logger_ != nullptr) {
+        bool result = file_logger_->writeData(log_control_time_1_,
+                                              log_pose_desired_1_,
+                                              log_robot_state_1_,
+                                              log_tau_j_1_,
+                                              log_dq_1_);
+        if (result) {
+            std::cout << "Success: Did write data to buffer." << std::endl;
+        } else {
+            std::cout << "Fail: Did not write data to buffer." << std::endl;
+        }
+    }
 
     log_pose_desired_1_.clear();
     log_robot_state_1_.clear();

@@ -8,6 +8,8 @@
 
 #include <franka/robot.h>
 
+class FileStreamLogger;
+
 class ControlLoopData {
  public:
   static std::atomic<bool> use_buffer_0;
@@ -49,6 +51,12 @@ class ControlLoopData {
   std::thread file_logger_thread_;
 
   /**
+   * Set filestream logger to save data.
+   * @param logger
+   */
+  void setFileStreamLogger(FileStreamLogger *logger);
+
+  /**
    * Start logging to some global buffer or file.
    */
   void startFileLoggerThread();
@@ -79,6 +87,7 @@ class ControlLoopData {
   void log_robot_state(franka::RobotState robot_state, double time);
 
  private:
+  FileStreamLogger *file_logger_ = nullptr;
 
   void writeBufferData_0();
 
