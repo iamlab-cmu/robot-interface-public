@@ -22,7 +22,7 @@ class TorqueFeedbackController : public FeedbackController {
   void get_next_step(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) override;
 
  private:
-  franka::Model *model_;
+  const franka::Model *model_;
 
   double translational_stiffness_ = 600;
   double rotational_stiffness_ = 50;

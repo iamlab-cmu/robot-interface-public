@@ -94,7 +94,7 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot, franka::Gripper* g
 }
 
 void SkillInfo::execute_skill_on_franka_joint_base(franka::Robot* robot, franka::Gripper* gripper,
-                                               ControlLoopData *control_loop_data) {
+                                                   ControlLoopData *control_loop_data) {
 
   try {
     double time = 0.0;

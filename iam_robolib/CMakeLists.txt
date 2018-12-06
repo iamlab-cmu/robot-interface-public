@@ -91,6 +91,12 @@ add_library(iam_robolib SHARED
   src/FileStreamLogger.h
   src/DMPTrajectoryGenerator.cpp
   src/DMPTrajectoryGenerator.h
+  src/JointPoseSkill.cpp
+  src/JointPoseSkill.h
+  src/JointPoseWithTorqueControlSkill.cpp
+  src/JointPoseWithTorqueControlSkill.h
+  src/CustomGainTorqueController.cpp
+  src/CustomGainTorqueController.h
 )
 
 # Add namespace

@@ -89,6 +89,7 @@ void DMPTrajectoryGenerator::get_next_step() {
   // Update canonical system.
   x_ -= (x_ * tau_) * dt_;
 
-  tau_d_array_ = dy_;
+  // Finally set the joints we want.
+  joint_desired_ = dy_;
 }
 

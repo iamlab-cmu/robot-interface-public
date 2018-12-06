@@ -28,11 +28,14 @@ class SkillInfo : public BaseSkill {
     virtual void execute_skill_on_franka(franka::Robot *robot, franka::Gripper *gripper,
                                          ControlLoopData *control_loop_data) override;
 
-    virtual void execute_skill_on_franka_temp(franka::Robot *robot, franka::Gripper *gripper,
-                                              ControlLoopData *control_loop_data) override;
-    
-    virtual void execute_skill_on_franka_temp2(franka::Robot *robot, franka::Gripper *gripper,
-                                               ControlLoopData *control_loop_data) override;
+    void execute_skill_on_franka_temp(franka::Robot *robot, franka::Gripper *gripper,
+        ControlLoopData *control_loop_data);
+
+    void execute_skill_on_franka_temp2(franka::Robot *robot, franka::Gripper *gripper,
+        ControlLoopData *control_loop_data);
+
+    void execute_skill_on_franka_joint_base(franka::Robot* robot, franka::Gripper* gripper,
+        ControlLoopData *control_loop_data);
 
     virtual bool should_terminate();
 

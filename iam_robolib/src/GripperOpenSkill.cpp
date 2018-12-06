@@ -42,18 +42,6 @@ void GripperOpenSkill::execute_skill_on_franka(franka::Robot *robot, franka::Gri
       wait_time));
 }
 
-void GripperOpenSkill::execute_skill_on_franka_temp(franka::Robot *robot, franka::Gripper* gripper,
-                                                    ControlLoopData *control_loop_data) {
-  // Not implemented
-  assert(false);
-}
-
-void GripperOpenSkill::execute_skill_on_franka_temp2(franka::Robot *robot, franka::Gripper* gripper,
-                                                     ControlLoopData *control_loop_data) {
-  // Not implemented
-  assert(false);
-}
-
 bool GripperOpenSkill::should_terminate() {
   // Wait for some time before terminating this skill.
   return true;

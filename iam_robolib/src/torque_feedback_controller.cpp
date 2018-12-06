@@ -12,18 +12,14 @@ void TorqueFeedbackController::parse_parameters() {
   int num_params = static_cast<int>(params_[1]);
 
   // No parameters given, using default translational stiffness and rotational stiffness
-  if(num_params == 0)
-  { 
+  if(num_params == 0) {
     std::cout << "No parameters given, using default translational and rotational stiffness." << std::endl;
   }
   // translational_stiffness(1) and rotational_stiffness(1) were given
-  if(num_params == 2) 
-  {
+  if(num_params == 2) {
     translational_stiffness_ = static_cast<double>(params_[2]);
     rotational_stiffness_ = static_cast<double>(params_[3]);
-  } 
-  else
-  {
+  } else {
     std::cout << "Invalid number of params provided: " << num_params << std::endl;
   }
 }

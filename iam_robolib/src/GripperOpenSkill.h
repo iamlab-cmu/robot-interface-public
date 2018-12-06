@@ -14,10 +14,6 @@ class GripperOpenSkill : public BaseSkill {
 
   void execute_skill_on_franka(franka::Robot* robot, franka::Gripper* gripper, ControlLoopData *control_loop_data);
 
-  void execute_skill_on_franka_temp(franka::Robot* robot, franka::Gripper* gripper, ControlLoopData *control_loop_data);
-
-  void execute_skill_on_franka_temp2(franka::Robot* robot, franka::Gripper* gripper, ControlLoopData *control_loop_data);
-
   bool should_terminate();
 
  private:
