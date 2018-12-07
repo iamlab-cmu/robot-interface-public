@@ -678,7 +678,7 @@ void RunLoop::run() {
 }
 
 void RunLoop::setup_print_thread() {
-  int print_rate = 10.0;
+  int print_rate = 10;
   print_thread_ = std::thread([&, print_rate]() {
       // Sleep to achieve the desired print rate.
       while (running_skills_) {
@@ -727,7 +727,7 @@ void RunLoop::run_on_franka() {
   std::chrono::time_point<std::chrono::high_resolution_clock> start;
   auto milli = std::chrono::milliseconds(1);
 
-  setup_robot_default_behavior();
+  // setup_robot_default_behavior();
 
   try {
     running_skills_ = true;

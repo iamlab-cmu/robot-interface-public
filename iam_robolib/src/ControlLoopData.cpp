@@ -56,6 +56,8 @@ void ControlLoopData::writeBufferData_0() {
                                               log_pose_desired_0_,
                                               log_robot_state_0_,
                                               log_tau_j_0_,
+                                              log_d_tau_j_0_,
+                                              log_q_0_,
                                               log_dq_0_);
         if (result) {
             std::cout << "Success: Did write data from buffer 0." << std::endl;
@@ -83,6 +85,8 @@ void ControlLoopData::writeBufferData_1() {
                                               log_pose_desired_1_,
                                               log_robot_state_1_,
                                               log_tau_j_1_,
+                                              log_d_tau_j_1_,
+                                              log_q_1_,
                                               log_dq_1_);
         if (result) {
             std::cout << "Success: Did write data from buffer 1." << std::endl;
@@ -168,16 +172,20 @@ void ControlLoopData::log_pose_desired(std::array<double, 16> pose_desired) {
 void ControlLoopData::log_robot_state(franka::RobotState robot_state, double time) {
   if (use_buffer_0) {
     if (buffer_0_mutex_.try_lock()) {
-      log_robot_state_0_.push_back(robot_state.O_T_EE_c);
+      log_robot_state_0_.push_back(robot_state.O_T_EE);
       log_tau_j_0_.push_back(robot_state.tau_J);
+      log_d_tau_j_0_.push_back(robot_state.dtau_J);
+      log_q_0_.push_back(robot_state.q);
       log_dq_0_.push_back(robot_state.dq);
       log_control_time_0_.push_back(time);
       buffer_0_mutex_.unlock();
     }
   } else {
     if (buffer_1_mutex_.try_lock()) {
-      log_robot_state_1_.push_back(robot_state.O_T_EE_c);
+      log_robot_state_1_.push_back(robot_state.O_T_EE);
       log_tau_j_1_.push_back(robot_state.tau_J);
+      log_d_tau_j_1_.push_back(robot_state.dtau_J);
+      log_q_1_.push_back(robot_state.q);
       log_dq_1_.push_back(robot_state.dq);
       log_control_time_1_.push_back(time);
       buffer_1_mutex_.unlock();

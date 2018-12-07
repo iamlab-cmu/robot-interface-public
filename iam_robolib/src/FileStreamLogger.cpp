@@ -10,6 +10,8 @@ bool FileStreamLogger::writeData(std::vector<double> control_time,
                std::vector<std::array<double, 16>>& pose_desired,
                std::vector<std::array<double, 16>>& robot_state,
                std::vector<std::array<double, 7>>& tau_j,
+               std::vector<std::array<double, 7>>& d_tau_j,
+               std::vector<std::array<double, 7>>& q,
                std::vector<std::array<double, 7>>& dq) {
     if (!open_file_stream_.is_open()) {
         open_file_stream_ = std::ofstream("./traj_data.txt", std::ofstream::out | std::ofstream::app);
@@ -26,9 +28,15 @@ bool FileStreamLogger::writeData(std::vector<double> control_time,
     } else if (control_time_size != tau_j.size()) {
         all_sizes_equal = false;
         std::cout << "Control time and tau_j size do not match\n";
+    } else if (control_time_size != d_tau_j.size()) {
+        all_sizes_equal = false;
+        std::cout << "Control time and d_tau_j size do not match\n";
+    } else if (control_time_size != q.size()) {
+        all_sizes_equal = false;
+        std::cout << "Control time and q size do not match\n";
     } else if (control_time_size != dq.size()) {
         all_sizes_equal = false;
-        std::cout << "Control time and dq_ size do not match\n";
+        std::cout << "Control time and dq size do not match\n";
     }
 
     if (!all_sizes_equal) {
@@ -47,10 +55,22 @@ bool FileStreamLogger::writeData(std::vector<double> control_time,
         for (const auto &e : pose) {
             open_file_stream_ << e << ",";
         }
+        //  Log tau_j and d_tau_j
         std::array<double, 7> &state = tau_j[i];
         for (const auto &e : state) {
             open_file_stream_ << e << ",";
         }
+        state = d_tau_j[i];
+        for (const auto &e : state) {
+            open_file_stream_ << e << ",";
+        }
+
+        // Log q and dq
+        state = q[i];
+        for (const auto &e : state) {
+            open_file_stream_ << e << ",";
+        }
+
         state = dq[i];
         for (const auto &e : state) {
             open_file_stream_ << e << ",";

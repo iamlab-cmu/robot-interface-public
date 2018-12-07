@@ -12,6 +12,8 @@ class FileStreamLogger {
                   std::vector<std::array<double, 16>>& pose_desired,
                   std::vector<std::array<double, 16>>& robot_state,
                   std::vector<std::array<double, 7>>& tau_j,
+                  std::vector<std::array<double, 7>>& d_tau_j,
+                  std::vector<std::array<double, 7>>& q,
                   std::vector<std::array<double, 7>>& dq);
 
  private:
