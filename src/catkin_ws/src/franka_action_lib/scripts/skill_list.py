@@ -103,6 +103,37 @@ class GripperWithDefaultSensorSkill(BaseSkill):
               termination_type,
               timer_type)
 
+class JointPoseWithDefaultSensorSkill(BaseSkill):
+    def __init__(self, 
+                skill_type=2,
+                trajectory_generator_type=7,
+                feedback_controller_type=1,
+                termination_type=6,
+                timer_type=1):
+        super(JointPoseWithDefaultSensorSkill, self).__init__(
+              skill_type,
+              ['/franka_robot/camera'],
+              trajectory_generator_type,
+              feedback_controller_type,
+              termination_type,
+              timer_type)
+
+class JointPoseWithTorqueControlWithDefaultSensorSkill(BaseSkill):
+    def __init__(self, 
+                skill_type=2,
+                trajectory_generator_type=7,
+                feedback_controller_type=3,
+                termination_type=6,
+                timer_type=1):
+        super(JointPoseWithTorqueControlWithDefaultSensorSkill, self).__init__(
+              skill_type,
+              ['/franka_robot/camera'],
+              trajectory_generator_type,
+              feedback_controller_type,
+              termination_type,
+              timer_type)
+
+
 class ArmMoveToGoalWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
                 skill_type=0,
@@ -139,6 +170,21 @@ class NoOpSkill(BaseSkill):
                 trajectory_generator_type=1,
                 feedback_controller_type=1,
                 termination_type=1,
+                timer_type=1):
+        super(NoOpSkill, self).__init__(
+              skill_type,
+              ['/franka_robot/camera'],
+              trajectory_generator_type,
+              feedback_controller_type,
+              termination_type,
+              timer_type)
+
+class SaveTrajectorySkill(BaseSkill):
+    def __init__(self, 
+                skill_type=3,
+                trajectory_generator_type=6,
+                feedback_controller_type=1,
+                termination_type=6,
                 timer_type=1):
         super(NoOpSkill, self).__init__(
               skill_type,

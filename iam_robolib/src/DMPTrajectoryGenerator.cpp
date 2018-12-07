@@ -11,8 +11,8 @@
 void DMPTrajectoryGenerator::parse_parameters() {
   int num_params = static_cast<int>(params_[1]);
 
-  // Time + Full Cartesian Pose (std::array<double,16>) was given
-  if(num_params == 1411) {
+  // Tau (1) + num_basis = 7 (1) + num_sensor_values = 10 (1) + initial_y0(7) + weights (7 joints * 20 basis functions * 10 sensor inputs)
+  if(num_params == 1410) {
     tau_ = params_[2];
     num_basis_ = static_cast<int>(params_[3]);
     num_sensor_values_ = static_cast<int>(params_[4]);

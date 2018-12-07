@@ -54,7 +54,7 @@ void JointPoseSkill::execute_skill_on_franka(franka::Robot* robot,
         control_loop_data->log_robot_state(robot_state, time);
       }
 
-      if(done or time >= traj_generator_->run_time_) {
+      if(done) {
         return franka::MotionFinished(joint_desired);
       }
       return joint_desired;
