@@ -69,3 +69,6 @@ Release
 test_iam_robolib
 iam_robolib/build
 iam_robolib_common/build
+
+# Ipython notebook ignore
+notebooks/.ipynb_checkpoints
