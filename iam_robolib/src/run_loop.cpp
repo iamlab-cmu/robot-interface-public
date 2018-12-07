@@ -39,6 +39,7 @@
 #include "linear_trajectory_generator_with_time_and_goal_termination_handler.h"
 #include "time_termination_handler.h"
 #include "JointPoseSkill.h"
+#include "SaveTrajectorySkill.h"
 
 std::atomic<bool> RunLoop::running_skills_{false};
 
@@ -607,9 +608,11 @@ void RunLoop::update_process_info() {
             new_skill = new GripperOpenSkill(new_skill_id);
           } else if (new_skill_type == 2) {
             new_skill = new JointPoseSkill(new_skill_id);
+          } else if (new_skill_type == 3) {
+            new_skill = new SaveTrajectorySkill(new_skill_id);
           } else {
-            std::cout << "Incorrect skill type: " << new_skill_type << "\n";
-            assert(false);
+              std::cout << "Incorrect skill type: " << new_skill_type << "\n";
+              assert(false);
           }
           skill_manager_.add_skill(new_skill);
 

@@ -97,7 +97,8 @@ add_library(iam_robolib SHARED
   src/JointPoseWithTorqueControlSkill.h
   src/CustomGainTorqueController.cpp
   src/CustomGainTorqueController.h
-)
+  src/SaveTrajectorySkill.cpp
+  src/SaveTrajectorySkill.h)
 
 # Add namespace
 # add_library(IAM_RoboLib::IAM_RoboLib ALIAS iam_robolib)
