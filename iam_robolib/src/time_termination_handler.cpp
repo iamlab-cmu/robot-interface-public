@@ -10,17 +10,11 @@ void TimeTerminationHandler::parse_parameters() {
   
   int num_params = static_cast<int>(params_[1]);
 
-  if(num_params == 0)
-  {
+  if(num_params == 0) {
     std::cout << "No parameters given, using default buffer time." << std::endl;
-  }
-  // buffer_time(1) 
-  if(num_params == 1)
-  {
+  } else if(num_params == 1) {
     buffer_time_ = static_cast<double>(params_[2]);
-  }
-  else
-  {
+  } else {
   	std::cout << "TimeTerminationHandler Error: invalid number of params provided: " << num_params << std::endl;
   }
 }
@@ -34,13 +28,16 @@ void TimeTerminationHandler::initialize_handler(franka::Robot *robot) {
 }
 
 bool TimeTerminationHandler::should_terminate(TrajectoryGenerator *trajectory_generator) {
-  // pass
+  // Terminate if the skill time_ has exceeded the provided run_time_ + buffer_time_
+  if(trajectory_generator->time_ > trajectory_generator->run_time_ + buffer_time_) {
+    return true;
+  }
+  return false;
 }
 
 bool TimeTerminationHandler::should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *trajectory_generator) {
   // Terminate if the skill time_ has exceeded the provided run_time_ + buffer_time_ 
-  if(trajectory_generator->time_ > trajectory_generator->run_time_ + buffer_time_)
-  {
+  if(trajectory_generator->time_ > trajectory_generator->run_time_ + buffer_time_) {
     return true;
   }
   return false;

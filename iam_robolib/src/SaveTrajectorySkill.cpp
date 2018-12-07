@@ -17,30 +17,30 @@ void SaveTrajectorySkill::execute_skill() {
 
 void SaveTrajectorySkill::execute_skill_on_franka(franka::Robot *robot, franka::Gripper* gripper,
                                                ControlLoopData *control_loop_data) {
+  if (!running_skill_) {
+    std::cout << "Will execute SaveTrajectory skill\n" << std::endl;
 
-  int print_rate = 30.0;
-  double time;
-  franka::Duration start_time;
+    running_skill_ = true;
+    save_traj_thread_ = std::thread([=]() {
+      franka::RobotState robot_state = robot->readOnce();
+      franka::Duration start_time(robot_state.time), curr_time(robot_state.time);
+      int print_rate  = 30;
 
-  running_skill_ = true;
-  save_traj_thread_ = std::thread([=, &print_rate, &time, &start_time]() {
-    // Sleep to achieve the desired print rate.
-    franka::RobotState robot_state = robot->readOnce();
-    while (running_skill_) {
-      if (time == 0.0) {
-        start_time = robot_state.time;
+      while (running_skill_) {
+        robot_state = robot->readOnce();
+        curr_time = robot_state.time;
+        double time = curr_time.toSec() - start_time.toSec();
+
+        control_loop_data->log_pose_desired(traj_generator_->pose_desired_);
+        control_loop_data->log_robot_state(robot_state, time);
+
+        traj_generator_->time_ = time;
+
+        std::this_thread::sleep_for(
+            std::chrono::milliseconds(static_cast<int>((1.0 / print_rate * 1000.0))));
       }
-
-      control_loop_data->log_pose_desired(traj_generator_->pose_desired_);
-      control_loop_data->log_robot_state(robot_state, time);
-
-      time = (robot_state.time - start_time).toSec();
-
-      std::this_thread::sleep_for(
-          std::chrono::milliseconds(static_cast<int>((1.0 / print_rate * 1000.0))));
-      std::cout << "will wait for " << static_cast<int>(1.0 / print_rate * 1000.0) << "\n";
-    }
-  });
+    });
+  }
 }
 
 bool SaveTrajectorySkill::should_terminate() {

@@ -186,7 +186,7 @@ class SaveTrajectorySkill(BaseSkill):
                 feedback_controller_type=1,
                 termination_type=6,
                 timer_type=1):
-        super(NoOpSkill, self).__init__(
+        super(SaveTrajectorySkill, self).__init__(
               skill_type,
               ['/franka_robot/camera'],
               trajectory_generator_type,

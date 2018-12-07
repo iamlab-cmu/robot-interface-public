@@ -23,10 +23,10 @@ class SkillInfo : public BaseSkill {
     SkillInfo(int skill_idx): BaseSkill(skill_idx) {};
 
 
-    virtual void execute_skill() override;
+    void execute_skill() override;
 
-    virtual void execute_skill_on_franka(franka::Robot *robot, franka::Gripper *gripper,
-                                         ControlLoopData *control_loop_data) override;
+    void execute_skill_on_franka(franka::Robot *robot, franka::Gripper *gripper,
+                                 ControlLoopData *control_loop_data) override;
 
     void execute_skill_on_franka_temp(franka::Robot *robot, franka::Gripper *gripper,
         ControlLoopData *control_loop_data);
@@ -37,19 +37,19 @@ class SkillInfo : public BaseSkill {
     void execute_skill_on_franka_joint_base(franka::Robot* robot, franka::Gripper* gripper,
         ControlLoopData *control_loop_data);
 
-    virtual bool should_terminate();
+    bool should_terminate() override;
 
     /**
      * Write result to the shared memory after skill is done.
      * @param result_buffer
      */
-    void write_result_to_shared_memory(float *result_buffer);
+    void write_result_to_shared_memory(float *result_buffer) override;
 
     /**
      * Write feedback result to the shared memory as feedback for a skill.
      * @param feedback_buffer
      */
-    void write_feedback_to_shared_memory(float *feedback_buffer);
+    void write_feedback_to_shared_memory(float *feedback_buffer) override;
 
  protected:
     const std::array<double, 7> k_gains_ = {{600.0, 600.0, 600.0, 600.0, 250.0, 150.0, 50.0}};
