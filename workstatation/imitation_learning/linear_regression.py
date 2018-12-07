@@ -6,6 +6,7 @@ import os
 import pdb
 
 from utils.data_utils import recursively_get_dict_from_group
+from utils.trajectory_utils import truncate_expert_data
 
 def load_data(h5_path):
     assert os.path.exists(h5_path) and os.path.isfile(h5_path), \
@@ -74,6 +75,8 @@ class DMPTrajectory(object):
     
 def main(args):
     expert_data = load_data(args.h5_path)
+    truncated_expert_data = truncate_expert_data(expert_data)
+
     dmp_traj = DMPTrajectory()
     for k in sorted(expert_data.keys()):
         dmp_traj.convert_data_to_dmp_train_format(expert_data[k])
