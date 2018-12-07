@@ -69,6 +69,7 @@ void DMPTrajectoryGenerator::get_next_step() {
     factor[k] = (factor[k] * x_) / (den * basis_mean_[k]);
   }
   t = fmin(-log(x_)/tau_, 1);
+  // TODO(Mohit): Shouldn't the below index be 0?
   factor[num_basis_ - 1] = pow(t, 3) * (6*pow(t, 2) - 15 * t + 10);
 
   for (i=0; i < num_dims_; i++) {
