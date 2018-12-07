@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
     skill = SaveTrajectorySkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-    skill.add_trajectory_params([3.0])  # Run Time
+    skill.add_trajectory_params([6.0])  # Run Time
     goal = skill.create_goal()
 
     print(goal)

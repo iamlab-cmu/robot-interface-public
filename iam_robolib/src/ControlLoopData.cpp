@@ -70,6 +70,8 @@ void ControlLoopData::writeBufferData_0() {
     log_pose_desired_0_.clear();
     log_robot_state_0_.clear();
     log_tau_j_0_.clear();
+    log_d_tau_j_0_.clear();
+    log_q_0_.clear();
     log_dq_0_.clear();
     log_control_time_0_.clear();
 
@@ -98,6 +100,8 @@ void ControlLoopData::writeBufferData_1() {
     log_pose_desired_1_.clear();
     log_robot_state_1_.clear();
     log_tau_j_1_.clear();
+    log_d_tau_j_1_.clear();
+    log_q_1_.clear();
     log_dq_1_.clear();
     log_control_time_1_.clear();
 
