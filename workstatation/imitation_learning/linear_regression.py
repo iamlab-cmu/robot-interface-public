@@ -35,12 +35,14 @@ class DMPTrajectory(object):
         self.std += [self.std[-1]]
         self.std = np.array(self.std)
         # Get mu and h for all parameters separately
-        self.mu_all = np.zeros((num_dims, num_sensors, num_basis+1))
-        self.h_all = np.zeros((num_dims, num_sensors, num_basis+1))
+        self.mu_all = np.zeros((num_dims, num_sensors, num_basis))
+        self.h_all = np.zeros((num_dims, num_sensors, num_basis))
         for i in range(num_dims):
             for j in range(num_sensors):
                 self.mu_all[i, j] = self.mean
                 self.h_all[i, j] = self.std
+
+        self.phi_j = np.ones((self.num_sensors))
 
         print("Mean: {}".format(np.array_str(self.mean, precision=2,
             suppress_small=True, max_line_width=100)))
@@ -118,17 +120,47 @@ class DMPTrajectory(object):
         return {'X': X, 'y': y[:, None]}
 
     def run_dmp_with_weights(self, weights, y0, dt, traj_time=100):
-        dt * np.ones(traj_time)
+        '''Run DMP with given weights.
+        
+        weights: array of weights. size: (N*M*K, 1) i.e. 
+            (num_dims*num_sensors*num_basis, 1)
+        y0: Start location for dmps. Array of size (N,)
+        dt: Time step to use. Float.
+        traj_time: Time length to sample trajectories. Integer
+        '''
         x = 1.0
-        y, dy  = y0, np.zeros((traj_time, y0.shape[0]))
-        for i in range(traj_time):
+        y  = np.zeros((traj_time, self.num_dims))
+        dy = np.zeros((traj_time, self.num_dims))
+        y[0] = y0
+        # This reshape happens along the vector i.e. the first (M*K) values 
+        # belong to dimension 0 (i.e. N = 0). Following (M*K) values belong to
+        # dimension 1 (i.e. N = 1), and so forth.
+        # NOTE: We add 1 for the weights of the jerk basis function
+        w_ijk = weights.reshape(
+                (self.num_dims, self.num_sensors, 1+self.num_basis))
+        for i in range(traj_time - 1):
             # psi_ijk is of shape (N, M, K)
             psi_ijk = np.exp(-self.h_all * (x-self.mu_all)**2)
-            psi_ij_sum = np.sum(psi_k, axis=2, keepdims=True)
-            f = (psi_ijk * weights * x) / (psi_ij_sum + 1e-8)
-            ddy = self.alpha*(self.beta*(y0 - y) - self.tau*dy) + 
-                np.dot(self.phi_j, f)
+            psi_ij_sum = np.sum(psi_ijk, axis=2, keepdims=True)
+            f = (psi_ijk * w_ijk[:, :, 1:] * x) / (psi_ij_sum + 1e-6)
+            f_min_jerk = min(-np.log(x)/self.tau, 1)
+            f_min_jerk = (f_min_jerk**3)*(6*(f_min_jerk**2) - 15*f_min_jerk+ 10)
+            psi_ij_jerk = w_ijk[:, :, 0:1] * f_min_jerk
+            
+            # calculate all_f -- shape (N, M, K)
+            all_f_ijk = np.concatenate([psi_ij_jerk, f], axis=2)
+            # calcualte f(x; w_j) -- shape (N, M)
+            all_f_ij = self.alpha * self.beta * np.sum(all_f_ijk, axis=2)
+            # Calculate sum_j(phi_j * f(x; w_j) -- shape (N,)
+            all_f_i = np.dot(all_f_ij, self.phi_j)
+
+            ddy = self.alpha*(self.beta*(y0 - y[i]) - self.tau*dy[i]) + all_f_i
             ddy = ddy / (self.tau ** 2)
+            dy[i+1] = dy[i] + ddy * dt
+            y[i+1] = y[i] + dy[i+1] * dt
+
+            x -= (-self.tau * x) * dt
+        return y, dy
 
 
     def train(self, X_train, y_train, X_test, y_test, use_ridge=False):
@@ -141,10 +173,9 @@ class DMPTrajectory(object):
             train_score = clf.score(X_train, y_train)
             test_score = clf.score(X_test, y_test)
         y_pred = clf.predict(X_train)
-        pdb.set_trace()
         print("Score (max 1.0) Train: {:.3f}, Test{:.3f}".format(
             train_score, test_score))
-        return clf.get_params()
+        return clf
 
     
 def main(args):
@@ -168,7 +199,12 @@ def main(args):
     X_train, y_train = X[:train_size], y[:train_size]
     X_test, y_test = X[train_size:], y[train_size:]
 
-    dmp_params = dmp_traj.train(X_train, y_train, X_test, y_test, use_ridge=True)
+    clf = dmp_traj.train(X_train, y_train, X_test, y_test, use_ridge=True)
+
+    y, dy = dmp_traj.run_dmp_with_weights(clf.coef_.copy().squeeze(),
+                                          np.zeros((dmp_traj.num_dims)),
+                                          0.05,
+                                          traj_time=100)
     pdb.set_trace()
 
 if __name__ == '__main__':
