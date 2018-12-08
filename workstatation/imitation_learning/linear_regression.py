@@ -5,6 +5,8 @@ import h5py
 import os
 import pdb
 
+from sklearn.linear_model import RidgeCV
+
 from utils.data_utils import recursively_get_dict_from_group
 from utils.trajectory_utils import truncate_expert_data
 
@@ -16,12 +18,15 @@ def load_data(h5_path):
     return data
 
 class DMPTrajectory(object):
-    def __init__(self):
+    def __init__(self, num_dims, num_basis, num_sensors):
         self.tau = 1.05
         self.alpha = 25.0
         self.beta = self.alpha / 4.0
 
-        self.num_basis = 10
+        self.num_dims = num_dims
+        self.num_basis = num_basis
+        self.num_sensors = num_sensors
+
         self.mean = np.array([np.exp(-i * (0.5 / (self.num_basis - 1))) 
                 for i in range(self.num_basis)])
         self.std = [0.5 / (0.65 * (self.mean[i+1]-self.mean[i])**2) 
@@ -55,32 +60,60 @@ class DMPTrajectory(object):
         # Get the x values
         x_arr = self.get_x_values(dt)
         # Repeat the last x to get equal length array.
-        x_arr = np.hstack([x_arr, x_arr[-1:]])
+        x_arr = np.hstack([x_arr, x_arr[-1:]])[:, None]
 
-        pdb.set_trace()
-        factor_arr = np.exp(-self.std * (x_arr - self.mean)**2) 
-        factor_sum = np.sum(factor_arr)
-        factor_arr = (factor_arr * x) / (factor_sum * self.mean)
+        x_arr_rep = np.repeat(x_arr,  self.num_basis, axis=1)
 
-        # Add min jerk trajcetory to factor array
-        min_jerk_t = min(-np.log(x), np.ones(x.shape))
-        factor_min_jerk = (min_jerk_t**3) \
-                * (6*(min_jerk_t**2) - 15 * min_jerk_t + 10)
+        psi_k = np.exp(-self.std * (x_arr_rep - self.mean)**2)
+        psi_k_sum = np.sum(psi_k[:, 0])
+        feat = (psi_k * x_arr) / (psi_k_sum * self.mean)
+
+        # Add min jerk trajectory to factor array
+        min_jerk_t = np.minimum(-np.log(x_arr), np.ones(x_arr.shape))
+        feat_min_jerk = (min_jerk_t**3)*(6*(min_jerk_t**2) - 15*min_jerk_t + 10)
+
+        feat = np.hstack([feat_min_jerk, feat])
+
+        # TODO(Mohit): Premultiply here with phi_j's if they are not 1.
+        psi_jk = np.tile(feat, (1, self.num_sensors))
+        psi_ijk = np.tile(psi_jk, (1, self.num_dims))
 
         y = force_val/(self.alpha * self.beta)
-        # Get features (factor_arr and factor_min_jerk)
+        X = psi_ijk.copy()
+        assert X.shape[0] == y.shape[0], "X, y shape do not match"
 
-        
+        # X^T\beta = y (where we have to find \beta)
+        return {'X': X, 'y': y}
+
+    def train(self, X_train, y_train, X_test, y_test):
+        clf = RidgeCV(alphas=[1e-3, 1e-2, 1e-1, 1]).fit(X_train, y_train)
+        train_score = clf.score(X_train, y_train)
+        test_score = clf.score(X_test, y_test)
+        print("Score (max 1.0) Train: {:.3f}, Test{:.3f}".format(
+            train_score, test_score))
+        return clf.get_params()
 
     
 def main(args):
     expert_data = load_data(args.h5_path)
     truncated_expert_data = truncate_expert_data(expert_data)
-
-    dmp_traj = DMPTrajectory()
+    num_dims, num_basis, num_sensors = 7, 9, 20
+    dmp_traj = DMPTrajectory(num_dims, num_basis, num_sensors)
+    X, y = [], []
     for k in sorted(expert_data.keys()):
-        dmp_traj.convert_data_to_dmp_train_format(expert_data[k])
+        X_traj, y_traj = dmp_traj.convert_data_to_dmp_train_format(
+                expert_data[k])
+        X.append(X_traj)
+        y.append(y_traj)
 
+    # Get train and test data?
+    X, y = np.array(X), np.array(y)
+    train_size = int(X.shape[0] * 0.8)
+    X_train, y_train = X[:train_size], y[:train_size]
+    X_test, y_test, X[train_size:], y[train_size:]
+
+    dmp_params = dmp_traj.train(X_train, y_train, X_test, y_test)
+    pdb.set_trace()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
