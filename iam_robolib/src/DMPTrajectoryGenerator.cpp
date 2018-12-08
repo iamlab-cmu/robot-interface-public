@@ -61,7 +61,7 @@ void DMPTrajectoryGenerator::get_next_step() {
   // Calculate feature values.
   den = 0.;
   for (k = 0; k < num_basis_ - 1; k++) {
-    factor[k] = exp(-basis_std_[k] * pow((x_ -basis_mean_[k]), 2));
+    factor[k] = exp(-basis_std_[k] * pow((x_ - basis_mean_[k]), 2));
     den += factor[k];
   }
 

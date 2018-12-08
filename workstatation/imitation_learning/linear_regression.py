@@ -31,9 +31,29 @@ class DMPTrajectory(object):
                 for i in range(self.num_basis)])
         self.std = [0.5 / (0.65 * (self.mean[i+1]-self.mean[i])**2) 
                 for i in range(self.num_basis - 1)]
-        self.std += [self.std[1]]
+        self.std += [self.std[-1]]
         self.std = np.array(self.std)
+        print("Mean: {}".format(np.array_str(self.mean, precision=2,
+            suppress_small=True, max_line_width=100)))
+        print("Std: {}".format(np.array_str(self.std, precision=2,
+            suppress_small=True, max_line_width=100)))
+        self.print_stuff()
 
+
+    def print_stuff(self):
+        NUM_DIM,  NUM_BASIS = self.num_dims, self.num_basis
+        self.c = np.zeros([NUM_DIM, NUM_BASIS])
+        self.h = np.zeros([NUM_DIM, NUM_BASIS])
+        for i in range(NUM_DIM):
+            for j in range(1,NUM_BASIS+1):
+                self.c[i,j-1] = np.exp(-(j - 1) * 0.5/(NUM_BASIS - 1))
+            for j in range(1,NUM_BASIS):
+                self.h[i,j-1] = 0.5 / (0.65 * (self.c[i,j] - self.c[i,j-1])**2)
+            self.h[i,NUM_BASIS-1] = self.h[i,NUM_BASIS-2]
+        print("Mean: {}".format(np.array_str(self.c[0], precision=2,
+            suppress_small=True, max_line_width=100)))
+        print("Std: {}".format(np.array_str(self.h[0], precision=2,
+            suppress_small=True, max_line_width=100)))
 
     def get_x_values(self, dt, x_start=1.0):
         x_list = [x_start]
@@ -65,14 +85,17 @@ class DMPTrajectory(object):
         x_arr_rep = np.repeat(x_arr,  self.num_basis, axis=1)
 
         psi_k = np.exp(-self.std * (x_arr_rep - self.mean)**2)
-        psi_k_sum = np.sum(psi_k[:, 0])
-        feat = (psi_k * x_arr) / (psi_k_sum * self.mean)
+        psi_k_sum = np.sum(psi_k, axis=1, keepdims=True)
+        # feat = (psi_k * x_arr) / (psi_k_sum * self.mean)
+        feat = (psi_k * x_arr) / (psi_k_sum + 1e-6)
 
         # Add min jerk trajectory to factor array
-        min_jerk_t = np.minimum(-np.log(x_arr), np.ones(x_arr.shape))
+        min_jerk_t = np.minimum(-np.log(x_arr)/self.tau, np.ones(x_arr.shape))
         feat_min_jerk = (min_jerk_t**3)*(6*(min_jerk_t**2) - 15*min_jerk_t + 10)
 
+        # feat is shaped (T, num_basis+1)
         feat = np.hstack([feat_min_jerk, feat])
+
 
         # TODO(Mohit): Premultiply here with phi_j's if they are not 1.
         psi_jk = np.tile(feat, (1, self.num_sensors))
@@ -97,7 +120,7 @@ class DMPTrajectory(object):
 def main(args):
     expert_data = load_data(args.h5_path)
     truncated_expert_data = truncate_expert_data(expert_data)
-    num_dims, num_basis, num_sensors = 7, 9, 20
+    num_dims, num_basis, num_sensors = 7, 19, 10
     dmp_traj = DMPTrajectory(num_dims, num_basis, num_sensors)
     X, y = [], []
     for k in sorted(expert_data.keys()):
