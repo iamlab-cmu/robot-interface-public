@@ -76,14 +76,14 @@ class DMPTrajectory(object):
 
         # TODO(Mohit): Premultiply here with phi_j's if they are not 1.
         psi_jk = np.tile(feat, (1, self.num_sensors))
-        psi_ijk = np.tile(psi_jk, (1, self.num_dims))
+        psi_ijk = np.tile(psi_jk, (self.num_dims, self.num_dims))
 
-        y = force_val/(self.alpha * self.beta)
         X = psi_ijk.copy()
+        y = (force_val.copy().flatten('F'))/(self.alpha * self.beta)
         assert X.shape[0] == y.shape[0], "X, y shape do not match"
 
         # X^T\beta = y (where we have to find \beta)
-        return {'X': X, 'y': y}
+        return {'X': X, 'y': y[:, None]}
 
     def train(self, X_train, y_train, X_test, y_test):
         clf = RidgeCV(alphas=[1e-3, 1e-2, 1e-1, 1]).fit(X_train, y_train)
