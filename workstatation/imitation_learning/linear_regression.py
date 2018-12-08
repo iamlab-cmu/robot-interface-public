@@ -121,7 +121,8 @@ class DMPTrajectory(object):
         assert X.shape[0] == y.shape[0], "X, y n_samples do not match"
         assert X.shape[1] == y.shape[1], "X, y n_dims do not match"
 
-        return X, y
+        # X^T\beta = y (where we have to find \beta)
+        return {'X': X, 'y': y}
         
 
     def convert_data_to_dmp_train_format(self, data_dict):
@@ -224,15 +225,13 @@ class DMPTrajectory(object):
             train_score = clf.score(X_train, y_train)
             test_score = clf.score(X_test, y_test)
         y_pred = clf.predict(X_train)
-        print("Score (max 1.0) Train: {:.3f}, Test{:.3f}".format(
+        print("Score (max 1.0) Train: {:.3f}, Test: {:.3f}".format(
             train_score, test_score))
         return clf
 
-def train1(args):
+def train1(args, dmp_traj):
     expert_data = load_data(args.h5_path)
     truncated_expert_data = truncate_expert_data(expert_data)
-    num_dims, num_basis, num_sensors = 7, 19, 10
-    dmp_traj = DMPTrajectory(num_dims, num_basis, num_sensors)
     X, y = [], []
     for k in sorted(expert_data.keys()):
         data = dmp_traj.convert_data_to_dmp_train_format(
@@ -249,17 +248,18 @@ def train1(args):
     X_train, y_train = X[:train_size], y[:train_size]
     X_test, y_test = X[train_size:], y[train_size:]
 
-    clf = dmp_traj.train(X_train, y_train, X_test, y_test, use_ridge=True)
-    weights = np.reshape(clf.coef_.copy().squeeze(),
-                         (num_dims, num_sensors, 1+num_basis))
+    clf = dmp_traj.train(X_train, y_train, X_test, y_test,
+                         use_ridge=True,
+                         fit_intercept=False)
+    weights = np.reshape(
+            clf.coef_.copy().squeeze(),
+            (dmp_traj.num_dims, dmp_traj.num_sensors, dmp_traj.num_basis+1))
 
     return weights
 
-def train2(args):
+def train2(args, dmp_traj):
     expert_data = load_data(args.h5_path)
     truncated_expert_data = truncate_expert_data(expert_data)
-    num_dims, num_basis, num_sensors = 7, 19, 10
-    dmp_traj = DMPTrajectory(num_dims, num_basis, num_sensors)
     X, y = [], []
     for k in sorted(expert_data.keys()):
         data = dmp_traj.convert_data_to_dmp_train_better(
@@ -271,7 +271,7 @@ def train2(args):
         y.append(data['y'])
 
     # Get train and test data?
-    X, y = np.concatenate(X, axis=-1), np.concatenate(y, axis=-1)
+    X, y = np.concatenate(X, axis=0), np.concatenate(y, axis=0)
     train_size = int(X.shape[0] * 0.8)
     print("Train size: {} Test size: {}".format(train_size, 
                                                 X.shape[0]-train_size))
@@ -280,24 +280,28 @@ def train2(args):
 
     # Train a classifier separately for each dimension.
     weights = []
-    for i in range(self.num_dims):
+    for i in range(dmp_traj.num_dims):
         clf = dmp_traj.train(X_train[:, i, :],
-                             y_train[:, i, :],
-                             X_test[:, i, :],
-                             y_test[:, i, :], 
+                             y_train[:, i],
+                             X_test[:, i],
+                             y_test[:, i], 
                              use_ridge=True,
-                             use_intercept=False)
+                             fit_intercept=False)
         weights.append(clf.coef_.copy().squeeze())
         print("Got weights for dim: {}, min: {:.3f}, max: {:.3f}, avg: {:.3f}".
-                format(weights[-1].min(), weights[-1].max(), weights[-1].mean()))
+                format(i, weights[-1].min(),
+                       weights[-1].max(), weights[-1].mean()))
     
-    weights_ijk = np.array([np.reshape(W, (num_sensors, 1+num_basis))
-            for W in weights])
+    weights_ijk = np.array([
+        np.reshape(W, (dmp_traj.num_sensors, 1+dmp_traj.num_basis))
+        for W in weights])
     return weights_ijk
 
 def main(args):
-    # weights = train1(args)
-    weights = train2(args)
+    num_dims, num_basis, num_sensors = 7, 19, 10
+    dmp_traj = DMPTrajectory(num_dims, num_basis, num_sensors)
+    # weights = train1(args, dmp_traj)
+    weights = train2(args, dmp_traj)
     y, dy = dmp_traj.run_dmp_with_weights(weights,
                                           np.zeros((dmp_traj.num_dims)),
                                           0.05,
