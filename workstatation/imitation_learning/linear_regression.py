@@ -75,6 +75,55 @@ class DMPTrajectory(object):
             x_list.append(x)
         return np.array(x_list)
 
+    def convert_data_to_dmp_train_better(self, data_dict):
+        time = data_dict['time']
+        dt = time[1:] - time[:-1]
+        assert np.min(dt) > 0.0 and np.max(dt) < 1.0, "Recorded time is far off"
+        q = data_dict['q']
+        dq = data_dict['dq']
+        ddq = (dq[1:, :] - dq[:-1, :]) / dt
+        # Repeat the last x to get equal length array.
+        ddq = np.vstack([ddq, ddq[-1:, :]])
+        print("ddq: max: {:.3f}, min: {:.3f}, mean: {:.3f}".format(
+            ddq.min(), ddq.max(), np.mean(ddq)))
+
+        y0 = q[0]
+        force_val = (self.tau**2)*ddq - self.alpha*(self.beta*(y0-q) - self.tau*dq)
+
+        # Get the x values
+        x_arr = self.get_x_values(dt)
+        # Repeat the last x to get equal length array. Shape (T)
+        x_arr = np.hstack([x_arr, x_arr[-1:]])
+        # x_arr will be of shape (T, N, M, K)
+        for _, axis_size in enumerate(
+                [self.num_dims, self.num_sensors, self.num_basis]):
+            x_arr = np.repeat(x_arr[..., None], axis_size, axis=-1)
+        assert x_arr.shape == \
+                (time.shape[0], self.num_dims, self.num_sensors, self.num_basis)
+        psi_tijk = np.exp(-self.h_all * (x_arr - self.mu_all)**2)
+        psi_tij_sum = np.sum(psi_tijk, axis=-1, keepdims=True)
+        feat_tijk = (psi_tijk * x_arr) / (psi_tij_sum + 1e-6)
+
+        # Get the minimum jerk features
+        min_jerk_t = np.minimum(-np.log(x_arr[:,:,:,0:1])/self.tau,
+                                        np.ones(x_arr[:,:,:,0:1].shape))
+        feat_min_jerk_tij = (min_jerk_t**3)*(6*(min_jerk_t**2)-15*min_jerk_t+10)
+        
+        # Concatenate the basis function features and min jerk fetures
+        feat_tijk = self.alpha*self.beta*np.concatenate(
+                [feat_min_jerk_tij, feat_tijk], axis=-1)
+
+        # This reshape happens according to "C" order, i.e., last axis change
+        # first, this means that 1400 parameters are laid according to each
+        # dim.
+        X = feat_tijk.copy().reshape(time.shape[0], self.num_dims, -1)
+        y = force_val.copy()
+        assert X.shape[0] == y.shape[0], "X, y n_samples do not match"
+        assert X.shape[1] == y.shape[1], "X, y n_dims do not match"
+
+        return X, y
+        
+
     def convert_data_to_dmp_train_format(self, data_dict):
         time = data_dict['time']
         dt = time[1:] - time[:-1]
@@ -136,6 +185,7 @@ class DMPTrajectory(object):
         # belong to dimension 0 (i.e. N = 0). Following (M*K) values belong to
         # dimension 1 (i.e. N = 1), and so forth.
         # NOTE: We add 1 for the weights of the jerk basis function
+        w_ijk = weights
         w_ijk = weights.reshape(
                 (self.num_dims, self.num_sensors, 1+self.num_basis))
         for i in range(traj_time - 1):
@@ -161,13 +211,16 @@ class DMPTrajectory(object):
         return y, dy
 
 
-    def train(self, X_train, y_train, X_test, y_test, use_ridge=False):
+    def train(self, X_train, y_train, X_test, y_test, use_ridge=False,
+              fit_intercept=True):
         if use_ridge:
-            clf = Ridge(alpha=1.0).fit(X_train, y_train)
+            clf = Ridge(alpha=1.0,
+                        fit_intercept=fit_intercept).fit(X_train, y_train)
             train_score = clf.score(X_train, y_train)
             test_score = clf.score(X_test, y_test)
         else:
-            clf = RidgeCV(alphas=[1e-3, 1e-2, 1e-1, 1]).fit(X_train, y_train)
+            clf = RidgeCV(alphas=[1e-3, 1e-2, 1e-1, 1],
+                          fit_intercept=fit_intercept).fit(X_train, y_train)
             train_score = clf.score(X_train, y_train)
             test_score = clf.score(X_test, y_test)
         y_pred = clf.predict(X_train)
@@ -175,8 +228,7 @@ class DMPTrajectory(object):
             train_score, test_score))
         return clf
 
-    
-def main(args):
+def train1(args):
     expert_data = load_data(args.h5_path)
     truncated_expert_data = truncate_expert_data(expert_data)
     num_dims, num_basis, num_sensors = 7, 19, 10
@@ -198,8 +250,55 @@ def main(args):
     X_test, y_test = X[train_size:], y[train_size:]
 
     clf = dmp_traj.train(X_train, y_train, X_test, y_test, use_ridge=True)
+    weights = np.reshape(clf.coef_.copy().squeeze(),
+                         (num_dims, num_sensors, 1+num_basis))
 
-    y, dy = dmp_traj.run_dmp_with_weights(clf.coef_.copy().squeeze(),
+    return weights
+
+def train2(args):
+    expert_data = load_data(args.h5_path)
+    truncated_expert_data = truncate_expert_data(expert_data)
+    num_dims, num_basis, num_sensors = 7, 19, 10
+    dmp_traj = DMPTrajectory(num_dims, num_basis, num_sensors)
+    X, y = [], []
+    for k in sorted(expert_data.keys()):
+        data = dmp_traj.convert_data_to_dmp_train_better(
+                truncated_expert_data[k])
+        assert type(data['X']) is np.ndarray \
+            and type(data['y']) is np.ndarray, "Incorrect data type returned"
+            
+        X.append(data['X'])
+        y.append(data['y'])
+
+    # Get train and test data?
+    X, y = np.concatenate(X, axis=-1), np.concatenate(y, axis=-1)
+    train_size = int(X.shape[0] * 0.8)
+    print("Train size: {} Test size: {}".format(train_size, 
+                                                X.shape[0]-train_size))
+    X_train, y_train = X[:train_size], y[:train_size]
+    X_test, y_test = X[train_size:], y[train_size:]
+
+    # Train a classifier separately for each dimension.
+    weights = []
+    for i in range(self.num_dims):
+        clf = dmp_traj.train(X_train[:, i, :],
+                             y_train[:, i, :],
+                             X_test[:, i, :],
+                             y_test[:, i, :], 
+                             use_ridge=True,
+                             use_intercept=False)
+        weights.append(clf.coef_.copy().squeeze())
+        print("Got weights for dim: {}, min: {:.3f}, max: {:.3f}, avg: {:.3f}".
+                format(weights[-1].min(), weights[-1].max(), weights[-1].mean()))
+    
+    weights_ijk = np.array([np.reshape(W, (num_sensors, 1+num_basis))
+            for W in weights])
+    return weights_ijk
+
+def main(args):
+    # weights = train1(args)
+    weights = train2(args)
+    y, dy = dmp_traj.run_dmp_with_weights(weights,
                                           np.zeros((dmp_traj.num_dims)),
                                           0.05,
                                           traj_time=100)
