@@ -101,7 +101,8 @@ def main(args):
     dmp_traj = DMPTrajectory(num_dims, num_basis, num_sensors)
     X, y = [], []
     for k in sorted(expert_data.keys()):
-        data = dmp_traj.convert_data_to_dmp_train_format(expert_data[k])
+        data = dmp_traj.convert_data_to_dmp_train_format(
+                truncated_expert_data[k])
         assert type(data['X']) is np.ndarray \
             and type(data['y']) is np.ndarray, "Incorrect data type returned"
             
