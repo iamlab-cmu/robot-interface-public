@@ -142,15 +142,13 @@ class DMPTrajectory(object):
             # psi_ijk is of shape (N, M, K)
             psi_ijk = np.exp(-self.h_all * (x-self.mu_all)**2)
             psi_ij_sum = np.sum(psi_ijk, axis=2, keepdims=True)
-            f = (psi_ijk * w_ijk[:, :, 1:] * x) / (psi_ij_sum + 1e-6)
+            f = (psi_ijk * w_ijk[:, :, 1:] * x).sum(axis=2, keepdims=True) / (psi_ij_sum + 1e-6)
             f_min_jerk = min(-np.log(x)/self.tau, 1)
             f_min_jerk = (f_min_jerk**3)*(6*(f_min_jerk**2) - 15*f_min_jerk+ 10)
             psi_ij_jerk = w_ijk[:, :, 0:1] * f_min_jerk
             
-            # calculate all_f -- shape (N, M, K)
-            all_f_ijk = np.concatenate([psi_ij_jerk, f], axis=2)
             # calcualte f(x; w_j) -- shape (N, M)
-            all_f_ij = self.alpha * self.beta * np.sum(all_f_ijk, axis=2)
+            all_f_ij = self.alpha * self.beta * (f + psi_ij_jerk).squeeze()
             # Calculate sum_j(phi_j * f(x; w_j) -- shape (N,)
             all_f_i = np.dot(all_f_ij, self.phi_j)
 
