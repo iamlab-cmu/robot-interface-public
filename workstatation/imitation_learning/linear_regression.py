@@ -229,6 +229,11 @@ class DMPTrajectory(object):
             train_score, test_score))
         return clf
 
+def shuffle_data(X, y):
+    perm = np.random.permutation(np.arange(X.shape[0]))
+    X, y = X[perm], y[perm]
+    return X, y
+
 def train1(args, dmp_traj):
     expert_data = load_data(args.h5_path)
     truncated_expert_data = truncate_expert_data(expert_data)
@@ -272,9 +277,10 @@ def train2(args, dmp_traj):
 
     # Get train and test data?
     X, y = np.concatenate(X, axis=0), np.concatenate(y, axis=0)
-    train_size = int(X.shape[0] * 0.8)
+    train_size = int(X.shape[0] * 0.9)
     print("Train size: {} Test size: {}".format(train_size, 
                                                 X.shape[0]-train_size))
+    X, y = shuffle_data(X, y)
     X_train, y_train = X[:train_size], y[:train_size]
     X_test, y_test = X[train_size:], y[train_size:]
 
@@ -314,4 +320,6 @@ if __name__ == '__main__':
     parser.add_argument('--h5_path', type=str, required=True,
                         help='Path to h5 file.')
     args = parser.parse_args()
+    import time
+    np.random.seed(int(time.time()))
     main(args)
