@@ -101,16 +101,18 @@ def main(args):
     dmp_traj = DMPTrajectory(num_dims, num_basis, num_sensors)
     X, y = [], []
     for k in sorted(expert_data.keys()):
-        X_traj, y_traj = dmp_traj.convert_data_to_dmp_train_format(
-                expert_data[k])
-        X.append(X_traj)
-        y.append(y_traj)
+        data = dmp_traj.convert_data_to_dmp_train_format(expert_data[k])
+        assert type(data['X']) is np.ndarray \
+            and type(data['y']) is np.ndarray, "Incorrect data type returned"
+            
+        X.append(data['X'])
+        y.append(data['y'])
 
     # Get train and test data?
-    X, y = np.array(X), np.array(y)
+    X, y = np.vstack(X), np.vstack(y)
     train_size = int(X.shape[0] * 0.8)
     X_train, y_train = X[:train_size], y[:train_size]
-    X_test, y_test, X[train_size:], y[train_size:]
+    X_test, y_test = X[train_size:], y[train_size:]
 
     dmp_params = dmp_traj.train(X_train, y_train, X_test, y_test)
     pdb.set_trace()
