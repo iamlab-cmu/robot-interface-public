@@ -6,6 +6,7 @@ import os
 import pdb
 
 from sklearn.linear_model import RidgeCV
+from sklearn.linear_model import Ridge
 
 from utils.data_utils import recursively_get_dict_from_group
 from utils.trajectory_utils import truncate_expert_data
@@ -33,6 +34,14 @@ class DMPTrajectory(object):
                 for i in range(self.num_basis - 1)]
         self.std += [self.std[-1]]
         self.std = np.array(self.std)
+        # Get mu and h for all parameters separately
+        self.mu_all = np.zeros((num_dims, num_sensors, num_basis+1))
+        self.h_all = np.zeros((num_dims, num_sensors, num_basis+1))
+        for i in range(num_dims):
+            for j in range(num_sensors):
+                self.mu_all[i, j] = self.mean
+                self.h_all[i, j] = self.std
+
         print("Mean: {}".format(np.array_str(self.mean, precision=2,
             suppress_small=True, max_line_width=100)))
         print("Std: {}".format(np.array_str(self.std, precision=2,
@@ -108,10 +117,31 @@ class DMPTrajectory(object):
         # X^T\beta = y (where we have to find \beta)
         return {'X': X, 'y': y[:, None]}
 
-    def train(self, X_train, y_train, X_test, y_test):
-        clf = RidgeCV(alphas=[1e-3, 1e-2, 1e-1, 1]).fit(X_train, y_train)
-        train_score = clf.score(X_train, y_train)
-        test_score = clf.score(X_test, y_test)
+    def run_dmp_with_weights(self, weights, y0, dt, traj_time=100):
+        dt * np.ones(traj_time)
+        x = 1.0
+        y, dy  = y0, np.zeros((traj_time, y0.shape[0]))
+        for i in range(traj_time):
+            # psi_ijk is of shape (N, M, K)
+            psi_ijk = np.exp(-self.h_all * (x-self.mu_all)**2)
+            psi_ij_sum = np.sum(psi_k, axis=2, keepdims=True)
+            f = (psi_ijk * weights * x) / (psi_ij_sum + 1e-8)
+            ddy = self.alpha*(self.beta*(y0 - y) - self.tau*dy) + 
+                np.dot(self.phi_j, f)
+            ddy = ddy / (self.tau ** 2)
+
+
+    def train(self, X_train, y_train, X_test, y_test, use_ridge=False):
+        if use_ridge:
+            clf = Ridge(alpha=1.0).fit(X_train, y_train)
+            train_score = clf.score(X_train, y_train)
+            test_score = clf.score(X_test, y_test)
+        else:
+            clf = RidgeCV(alphas=[1e-3, 1e-2, 1e-1, 1]).fit(X_train, y_train)
+            train_score = clf.score(X_train, y_train)
+            test_score = clf.score(X_test, y_test)
+        y_pred = clf.predict(X_train)
+        pdb.set_trace()
         print("Score (max 1.0) Train: {:.3f}, Test{:.3f}".format(
             train_score, test_score))
         return clf.get_params()
@@ -138,7 +168,7 @@ def main(args):
     X_train, y_train = X[:train_size], y[:train_size]
     X_test, y_test = X[train_size:], y[train_size:]
 
-    dmp_params = dmp_traj.train(X_train, y_train, X_test, y_test)
+    dmp_params = dmp_traj.train(X_train, y_train, X_test, y_test, use_ridge=True)
     pdb.set_trace()
 
 if __name__ == '__main__':
