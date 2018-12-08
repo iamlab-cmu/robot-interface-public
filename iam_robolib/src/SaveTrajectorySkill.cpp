@@ -24,7 +24,7 @@ void SaveTrajectorySkill::execute_skill_on_franka(franka::Robot *robot, franka::
     save_traj_thread_ = std::thread([=]() {
       franka::RobotState robot_state = robot->readOnce();
       franka::Duration start_time(robot_state.time), curr_time(robot_state.time);
-      int print_rate  = 30;
+      int print_rate  = 500;
 
       while (running_skill_) {
         robot_state = robot->readOnce();
