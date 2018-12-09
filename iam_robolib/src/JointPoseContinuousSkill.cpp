@@ -44,19 +44,24 @@ void JointPoseContinuousSkill::execute_skill_on_franka(
       traj_generator_->dt_ = period.toSec();
       traj_generator_->get_next_step();
 
-      bool done = termination_handler_->should_terminate(traj_generator_);
-      franka::JointPositions joint_desired(traj_generator_->joint_desired_);
-
       log_counter += 1;
       if (log_counter % 1 == 0) {
         control_loop_data->log_pose_desired(traj_generator_->pose_desired_);
         control_loop_data->log_robot_state(robot_state, time);
       }
 
+      bool done = termination_handler_->should_terminate(traj_generator_);
+      franka::JointPositions joint_desired(traj_generator_->joint_desired_);
+
       if(done) {
-        // In the usual case we would have finished the control loop here
-        // But not in this case. We restart the next skill now
-        return franka::MotionFinished(joint_desired);
+        bool meta_skill_done = termination_handler_->should_terminate_meta_skill();
+        if (meta_skill_done) {
+          // In the usual case we would have finished the control loop here
+          // But not in this case. We restart the next skill now
+          return franka::MotionFinished(joint_desired);
+        } else {
+
+        }
       }
       return joint_desired;
     };
