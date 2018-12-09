@@ -27,6 +27,8 @@ class RelativeLinearTrajectoryGenerator : public LinearTrajectoryGeneratorWithTi
  private:
   Eigen::Vector3d initial_position_;
   Eigen::Quaterniond initial_orientation_;
+  Eigen::Vector3d relative_position_;
+  Eigen::Quaterniond relative_orientation_;
   double t_ = 0.0;
 };
 

@@ -22,33 +22,33 @@ void RelativeLinearTrajectoryGenerator::parse_parameters() {
       cartesian_pose_goal[i] = static_cast<double>(params_[3+i]);
     }
     Eigen::Affine3d goal_transform(Eigen::Matrix4d::Map(cartesian_pose_goal.data()));
-    goal_position_ = Eigen::Vector3d(goal_transform.translation());
-    goal_orientation_ = Eigen::Quaterniond(goal_transform.linear());
+    relative_position_ = Eigen::Vector3d(goal_transform.translation());
+    relative_orientation_ = Eigen::Quaterniond(goal_transform.linear());
   } 
   // Time + x,y,z + quaternion was given
   else if(num_params == 8)
   {
     run_time_ = static_cast<double>(params_[2]);
 
-    goal_position_[0] = static_cast<double>(params_[3]);
-    goal_position_[1] = static_cast<double>(params_[4]);
-    goal_position_[2] = static_cast<double>(params_[5]);
+    relative_position_[0] = static_cast<double>(params_[3]);
+    relative_position_[1] = static_cast<double>(params_[4]);
+    relative_position_[2] = static_cast<double>(params_[5]);
 
     std::array<double,4> goal_quaternion{};
     for(int i = 0; i < 4; i++)
     {
       goal_quaternion[i] = static_cast<double>(params_[6+i]);
     }
-    goal_orientation_ = Eigen::Quaterniond(goal_quaternion[0], goal_quaternion[1], goal_quaternion[2], goal_quaternion[3]);
+    relative_orientation_ = Eigen::Quaterniond(goal_quaternion[0], goal_quaternion[1], goal_quaternion[2], goal_quaternion[3]);
   } 
   // Time + x,y,z + axis angle was given
   else if(num_params == 7)
   {
     run_time_ = static_cast<double>(params_[2]);
 
-    goal_position_[0] = static_cast<double>(params_[3]);
-    goal_position_[1] = static_cast<double>(params_[4]);
-    goal_position_[2] = static_cast<double>(params_[5]);
+    relative_position_[0] = static_cast<double>(params_[3]);
+    relative_position_[1] = static_cast<double>(params_[4]);
+    relative_position_[2] = static_cast<double>(params_[5]);
 
     Eigen::Vector3d goal_axis_angle;
     for(int i = 0; i < 3; i++)
@@ -60,7 +60,7 @@ void RelativeLinearTrajectoryGenerator::parse_parameters() {
     double sin_angle_divided_by_2 = std::sin(angle/2);
     double cos_angle_divided_by_2 = std::cos(angle/2);
 
-    goal_orientation_ = Eigen::Quaterniond(goal_axis_angle[0] * sin_angle_divided_by_2,
+    relative_orientation_ = Eigen::Quaterniond(goal_axis_angle[0] * sin_angle_divided_by_2,
                                            goal_axis_angle[1] * sin_angle_divided_by_2,
                                            goal_axis_angle[2] * sin_angle_divided_by_2,
                                            cos_angle_divided_by_2);
@@ -79,8 +79,14 @@ void RelativeLinearTrajectoryGenerator::initialize_trajectory(const franka::Robo
   Eigen::Affine3d initial_transform(Eigen::Matrix4d::Map(robot_state.O_T_EE.data()));
   initial_position_ = Eigen::Vector3d(initial_transform.translation());
   initial_orientation_ = Eigen::Quaterniond(initial_transform.linear());
-  goal_position_ += initial_position_;
-  goal_orientation_ *= initial_orientation_; // It may be initial_orientation_ * goal_orientation_ instead
+  goal_position_ = initial_position_ + relative_position_;
+  goal_orientation_ = initial_orientation_ * relative_orientation_;
+  
+  std::cout << "Initial orientation" << std::endl;
+  std::cout << initial_orientation_.w() << ", " << initial_orientation_.x() << ", " << initial_orientation_.y() << ", " << initial_orientation_.z() << std::endl;
+  std::cout << "Goal orientation" << std::endl;
+  std::cout << goal_orientation_.w() << ", " << goal_orientation_.x() << ", " << goal_orientation_.y() << ", " << goal_orientation_.z() << std::endl;
+
 }
 
 void RelativeLinearTrajectoryGenerator::get_next_step() {
