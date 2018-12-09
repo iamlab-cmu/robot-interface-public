@@ -37,22 +37,16 @@ void DMPTrajectoryGenerator::parse_parameters() {
     memcpy(&basis_std_, &params_[8+num_basis_], num_basis_ * sizeof(float));
     memcpy(&y0_, &params_[8 + 2*num_basis_], 7 * sizeof(float));
 
-    memcpy(&weights_, &params_[8 + 2*num_basis_ + 7], num_dims_ * num_sensor_values_ * num_basis_ * sizeof(float));
-
-    std::cout << run_time_ << " " << tau_ << ", " << alpha_ << ", " << beta_ << ", " << num_basis_ << ", " << num_sensor_values_ << std::endl;
-
-    for (int i = 0; i < num_basis_; i++) {
-      std::cout << basis_mean_[i] << ", ";
+    // memcpy(&weights_, &params_[8 + 2*num_basis_ + 7], num_dims_ * num_sensor_values_ * num_basis_ * sizeof(float));
+    int params_start_idx = 8 + 2*num_basis_ + 7;
+    for (int i = 0; i < num_dims_; i++) {
+      for (int j = 0; j < num_sensor_values_; j++) {
+        for (int k = 0; k < num_basis_;k++) {
+          weights_[i][j][k] = params_[params_start_idx];
+          params_start_idx += 1;
+        }
+      }
     }
-    std::cout << std::endl;
-    for (int i = 0; i < num_basis_; i++) {
-      std::cout << basis_std_[i] << ", ";
-    }
-    std::cout << std::endl;
-    for (int i = 0; i < 7; i++)  {
-      std::cout << y0_[i] << ", ";
-    }
-    std::cout << std::endl;
 
     // TODO(Mohit): We need to start using sensor values in our trajectory generator and feedback controller.
     for (int i = 0; i < num_sensor_values_; i++) {
@@ -69,6 +63,9 @@ void DMPTrajectoryGenerator::initialize_trajectory() {
 
 void DMPTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
   // TODO: Should we use desired joint values here?
+  for (size_t i = 0; i < y0_.size(); i++) {
+    y0_[i] = static_cast<float>(robot_state.q[i]);
+  }
   y_ = robot_state.q;
   dy_ = robot_state.dq;
   x_ = 1.0;

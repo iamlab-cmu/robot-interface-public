@@ -743,7 +743,7 @@ void RunLoop::run_on_franka() {
       // NOTE: We keep on running the last skill even if it is finished!!
       if (skill != 0) {
         // Execute skill.
-        std::cout << "Will execute skill";
+        std::cout << "Will execute skill\n";
         skill->execute_skill_on_franka(&robot_, &gripper_, &control_loop_data_);
 
         // Finish skill if possible.
@@ -756,7 +756,7 @@ void RunLoop::run_on_franka() {
       // Start new skill, if possible
       BaseSkill* new_skill = skill_manager_.get_current_skill();
       if (should_start_new_skill(skill, new_skill)) {
-        std::cout << "WIll start skill\n";
+        std::cout << "Will start skill\n";
         start_new_skill(new_skill);
       }
 

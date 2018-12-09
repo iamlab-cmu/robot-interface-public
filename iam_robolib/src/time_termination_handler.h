@@ -36,5 +36,5 @@ class TimeTerminationHandler : public TerminationHandler {
   bool should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) override;
 
  private:
-  double buffer_time_;
+  double buffer_time_{0.0};
 };

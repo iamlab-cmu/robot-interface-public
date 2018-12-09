@@ -6,6 +6,7 @@ import rospy
 import actionlib
 import pickle
 import argparse
+import numpy as np
 
 from franka_action_lib.msg import ExecuteSkillAction, ExecuteSkillGoal
 
@@ -28,16 +29,17 @@ if __name__ == '__main__':
     dmp_info = pickle.load(file)
 
     skill = JointPoseWithDefaultSensorSkill()
-    skill.add_initial_sensor_values([dmp_info['phi_j']])  # sensor values
+    skill.add_initial_sensor_values(dmp_info['phi_j'])  # sensor values
 
-    y0 = [0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+    # y0 = [0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+    y0 = [-0.282618, -0.18941, 0.0668932, -2.18632, 0.0524845, 1.916, -1.06273]
 
     print(dmp_info['num_basis'])
 
     # Run time, tau, alpha, beta, num_basis, num_sensor_values, mu, h, weights
-    trajectory_params = [3.6, dmp_info['tau'], dmp_info['alpha'], dmp_info['beta'],\
-                         dmp_info['num_basis'], dmp_info['num_sensors']] + dmp_info['mu'].tolist() + \
-                         dmp_info['h'].tolist() + y0 + dmp_info['weights'].tolist()
+    trajectory_params = [7.0, dmp_info['tau'], dmp_info['alpha'], dmp_info['beta'],\
+                         float(dmp_info['num_basis']), float(dmp_info['num_sensors'])] + dmp_info['mu'] + \
+                         dmp_info['h'] + y0 + np.array(dmp_info['weights']).reshape(-1).tolist()
     skill.add_trajectory_params(trajectory_params)  
     goal = skill.create_goal()
     print(goal)
