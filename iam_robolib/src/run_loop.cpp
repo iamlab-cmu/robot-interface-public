@@ -85,7 +85,7 @@ void RunLoop::start() {
   managed_shared_memory_ = boost::interprocess::managed_shared_memory(
           boost::interprocess::create_only,
           shared_memory_info_.getSharedMemoryNameForObjects().c_str(),
-          sizeof(float) * shared_memory_info_.getObjectMemorySize());
+          shared_memory_info_.getObjectMemorySize());
 
   // Add run loop process info to the main loop.
   run_loop_info_ = managed_shared_memory_.construct<RunLoopProcessInfo>
@@ -110,7 +110,7 @@ void RunLoop::start() {
       shared_memory_info_.getSharedMemoryNameForParameters(0).c_str(),
       boost::interprocess::read_write
   );
-  shared_memory_object_0_.truncate(sizeof(float) * shared_memory_info_.getParameterMemorySize(0));
+  shared_memory_object_0_.truncate(shared_memory_info_.getParameterMemorySize(0));
 
   region_traj_params_0_=  boost::interprocess::mapped_region(
       shared_memory_object_0_,
@@ -158,14 +158,14 @@ void RunLoop::start() {
       );
 
   // Allocate memory
-  shared_memory_object_1_.truncate(sizeof(float) * shared_memory_info_.getParameterMemorySize(1));
+  shared_memory_object_1_.truncate(shared_memory_info_.getParameterMemorySize(1));
 
   // Allocate regions for each parameter array
   region_traj_params_1_ =  boost::interprocess::mapped_region(
       shared_memory_object_1_,
       boost::interprocess::read_write,
       shared_memory_info_.getOffsetForTrajectoryParameters(),
-      sizeof(float) * shared_memory_info_.getSizeForTrajectoryParameters()
+      shared_memory_info_.getSizeForTrajectoryParameters()
       );
   traj_gen_buffer_1_ = reinterpret_cast<SharedBuffer>(region_traj_params_1_.get_address());
   region_feedback_controller_params_1_ = boost::interprocess::mapped_region(
@@ -191,7 +191,6 @@ void RunLoop::start() {
       shared_memory_info_.getSizeForTimerParameters()
       );
   timer_buffer_1_ = reinterpret_cast<SharedBuffer>(region_timer_params_1_.get_address());
-
 
   /**
    * Create mutexes for parameter buffers.
@@ -319,20 +318,20 @@ void RunLoop::start() {
       boost::interprocess::read_write
   );
   shared_execution_result_0_.truncate(shared_memory_info_.getExecutionResponseMemorySize());
-  boost::interprocess::mapped_region region =  boost::interprocess::mapped_region(
+  region_execution_feedback_buffer_0 =  boost::interprocess::mapped_region(
       shared_execution_result_0_,
       boost::interprocess::read_write,
       shared_memory_info_.getOffsetForExecutionFeedbackData(),
       shared_memory_info_.getSizeForExecutionFeedbackData()
   );
-  execution_feedback_buffer_0_ = reinterpret_cast<SharedBuffer>(region.get_address());
-  region = boost::interprocess::mapped_region(
+  execution_feedback_buffer_0_ = reinterpret_cast<SharedBuffer>(region_execution_feedback_buffer_0.get_address());
+  region_execution_result_buffer_0_ = boost::interprocess::mapped_region(
       shared_execution_result_0_,
       boost::interprocess::read_write,
       shared_memory_info_.getOffsetForExecutionReturnData(),
       shared_memory_info_.getSizeForExecutionReturnData()
       );
-  execution_result_buffer_0_ = reinterpret_cast<SharedBuffer>(region.get_address());
+  execution_result_buffer_0_ = reinterpret_cast<SharedBuffer>(region_execution_result_buffer_0_.get_address());
 
   /**
    * Create memory 1 for execution response.
@@ -345,20 +344,20 @@ void RunLoop::start() {
       boost::interprocess::read_write
   );
   shared_execution_result_1_.truncate(shared_memory_info_.getExecutionResponseMemorySize());
-  region =  boost::interprocess::mapped_region(
+  region_execution_feedback_buffer_1_ =  boost::interprocess::mapped_region(
       shared_execution_result_1_,
       boost::interprocess::read_write,
       shared_memory_info_.getOffsetForExecutionFeedbackData(),
       shared_memory_info_.getSizeForExecutionFeedbackData()
   );
-  execution_feedback_buffer_1_ = reinterpret_cast<SharedBuffer>(region.get_address());
-  region = boost::interprocess::mapped_region(
+  execution_feedback_buffer_1_ = reinterpret_cast<SharedBuffer>(region_execution_feedback_buffer_1_.get_address());
+  region_execution_result_buffer_1_ = boost::interprocess::mapped_region(
       shared_execution_result_1_,
       boost::interprocess::read_write,
       shared_memory_info_.getOffsetForExecutionReturnData(),
       shared_memory_info_.getSizeForExecutionReturnData()
   );
-  execution_result_buffer_1_ = reinterpret_cast<SharedBuffer>(region.get_address());
+  execution_result_buffer_1_ = reinterpret_cast<SharedBuffer>(region_execution_result_buffer_1_.get_address());
 
   /**
    * Create mutexes for execution response.
@@ -367,7 +366,7 @@ void RunLoop::start() {
       boost::interprocess::interprocess_mutex>
       (shared_memory_info_.getExecutionResponseMutexName(0).c_str())
       ();
-  shared_sensor_data_mutex_1_ = managed_shared_memory_.construct<
+  shared_execution_result_mutex_1_ = managed_shared_memory_.construct<
       boost::interprocess::interprocess_mutex>
       (shared_memory_info_.getExecutionResponseMutexName(1).c_str())
       ();
@@ -533,7 +532,10 @@ void RunLoop::finish_current_skill(BaseSkill* skill) {
     skill->set_skill_status(SkillStatus::FINISHED);
 
     // Write results to memory
-    int memory_index = run_loop_info_->get_current_shared_memory_index();
+    int memory_index = skill->get_skill_id() % 2;
+
+    std::cout << "Writing to execution result buffer number: " << memory_index << std::endl;
+
     SharedBuffer buffer = execution_result_buffer_0_;
     if (memory_index == 1) {
       buffer = execution_result_buffer_1_;

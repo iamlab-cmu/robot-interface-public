@@ -20,7 +20,8 @@ if __name__ == '__main__':
 
     skill = ArmMoveToGoalWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-    skill.add_trajectory_params([5.0, 0.99562,0.0868484,0.0343491,0,0.0867175,-0.996209,0.00528489,0,0.0346785,-0.00228312,-0.999396,0,0.52984,0.0645623,0.271222,1])  # Run Time (1) and Desired End Effector Pose(16)
+    skill.add_trajectory_params([3.0, 0.998235,0.0375818,0.0457788,0,0.0378176,-0.999266,-0.00429513,0,0.0455846,0.00601891,-0.998942,0,0.531054,0.0154956,0.301051,1]
+)  # Run Time (1) and Desired End Effector Pose(16)
     skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
     skill.add_termination_params([1.0]) # buffer time
     goal = skill.create_goal()
@@ -30,3 +31,5 @@ if __name__ == '__main__':
 
     while not rospy.is_shutdown() and done != True:
         done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    print(client.get_result())

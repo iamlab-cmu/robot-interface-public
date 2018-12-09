@@ -164,10 +164,15 @@ class RunLoop {
   boost::interprocess::interprocess_mutex *shared_execution_result_mutex_0_= nullptr;
   boost::interprocess::interprocess_mutex *shared_execution_result_mutex_1_= nullptr;
 
-  SharedBuffer execution_feedback_buffer_0_=nullptr;
-  SharedBuffer execution_result_buffer_0_=nullptr;
-  SharedBuffer execution_feedback_buffer_1_=nullptr;
-  SharedBuffer execution_result_buffer_1_=nullptr;
+  boost::interprocess::mapped_region region_execution_feedback_buffer_0{};
+  boost::interprocess::mapped_region region_execution_result_buffer_0_{};
+  boost::interprocess::mapped_region region_execution_feedback_buffer_1_{};
+  boost::interprocess::mapped_region region_execution_result_buffer_1_{};
+
+  SharedBuffer execution_feedback_buffer_0_=0;
+  SharedBuffer execution_result_buffer_0_=0;
+  SharedBuffer execution_feedback_buffer_1_=0;
+  SharedBuffer execution_result_buffer_1_=0;
 
   /**
    * Check if new skill should be started or not. Starting a new skill
