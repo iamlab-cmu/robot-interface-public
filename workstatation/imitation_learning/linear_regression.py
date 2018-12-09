@@ -20,7 +20,7 @@ def load_data(h5_path):
 
 class DMPTrajectory(object):
     def __init__(self, num_dims, num_basis, num_sensors):
-        self.tau = 1.05
+        self.tau = 2.05
         self.alpha = 25.0
         self.beta = self.alpha / 4.0
 
@@ -70,9 +70,7 @@ class DMPTrajectory(object):
         x_list = [x_start]
         for i in range(dt.shape[0] - 1):
             dx = -(self.tau * x_list[-1])
-            x = x_list[-1]
-            x = x + dx * dt[i]
-            x_list.append(x)
+            x_list.append(x_list[-1] + dx * dt[i])
         return np.array(x_list)
 
     def convert_data_to_dmp_train_better(self, data_dict):
@@ -186,17 +184,15 @@ class DMPTrajectory(object):
         # belong to dimension 0 (i.e. N = 0). Following (M*K) values belong to
         # dimension 1 (i.e. N = 1), and so forth.
         # NOTE: We add 1 for the weights of the jerk basis function
-        w_ijk = weights
-        w_ijk = weights.reshape(
-                (self.num_dims, self.num_sensors, 1+self.num_basis))
         for i in range(traj_time - 1):
             # psi_ijk is of shape (N, M, K)
             psi_ijk = np.exp(-self.h_all * (x-self.mu_all)**2)
             psi_ij_sum = np.sum(psi_ijk, axis=2, keepdims=True)
-            f = (psi_ijk * w_ijk[:, :, 1:] * x).sum(axis=2, keepdims=True) / (psi_ij_sum + 1e-6)
+            f = (psi_ijk * weights[:, :, 1:] * x).sum(
+                    axis=2, keepdims=True) / (psi_ij_sum + 1e-6)
             f_min_jerk = min(-np.log(x)/self.tau, 1)
             f_min_jerk = (f_min_jerk**3)*(6*(f_min_jerk**2) - 15*f_min_jerk+ 10)
-            psi_ij_jerk = w_ijk[:, :, 0:1] * f_min_jerk
+            psi_ij_jerk = weights[:, :, 0:1] * f_min_jerk
             
             # calcualte f(x; w_j) -- shape (N, M)
             all_f_ij = self.alpha * self.beta * (f + psi_ij_jerk).squeeze()
@@ -208,7 +204,8 @@ class DMPTrajectory(object):
             dy[i+1] = dy[i] + ddy * dt
             y[i+1] = y[i] + dy[i+1] * dt
 
-            x -= (-self.tau * x) * dt
+            x += (-self.tau * x) * dt
+            
         return y, dy
 
 
