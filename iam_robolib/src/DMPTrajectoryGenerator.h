@@ -37,4 +37,6 @@ class DMPTrajectoryGenerator : public TrajectoryGenerator {
   std::array<double, 7> y0_={};
   std::array<double, 7> y_={};
   std::array<double, 7> dy_={};
+
+  void getInitialMeanAndStd();
 };
