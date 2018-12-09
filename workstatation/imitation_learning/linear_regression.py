@@ -4,6 +4,7 @@ import argparse
 import h5py
 import os
 import pdb
+import pickle
 
 from sklearn.linear_model import RidgeCV
 from sklearn.linear_model import Ridge
@@ -225,6 +226,26 @@ class DMPTrajectory(object):
         print("Score (max 1.0) Train: {:.3f}, Test: {:.3f}".format(
             train_score, test_score))
         return clf
+    
+    def save_weights(self, save_path, weights, **kwargs):
+        data_dict = {
+            'tau': self.tau,
+            'alpha': self.alpha,
+            'beta': self.beta,
+            'num_dims': self.num_dims,
+            'num_basis': self.num_basis,
+            'num_sensors': self.num_sensors,
+            'mu': self.mean,
+            'h': self.std,
+            'phi_j': self.phi_j,
+            'weights': weights,
+        }
+        for k, v in kwargs.items():
+            data_dict[k] = v
+
+        with open(save_path, 'wb') as pkl_f:
+            pickle.dump(data_dict, pkl_f)
+            print("Did save dmp params: {}".format(save_path))
 
 def shuffle_data(X, y):
     perm = np.random.permutation(np.arange(X.shape[0]))
