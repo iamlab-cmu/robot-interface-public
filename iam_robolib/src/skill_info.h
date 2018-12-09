@@ -46,6 +46,13 @@ class SkillInfo : public BaseSkill {
     void write_result_to_shared_memory(float *result_buffer) override;
 
     /**
+     * Write result to the shared memory after skill is done.
+     * @param result_buffer
+     */
+    void write_result_to_shared_memory(float *result_buffer, franka::Robot *robot) override;
+
+
+    /**
      * Write feedback result to the shared memory as feedback for a skill.
      * @param feedback_buffer
      */

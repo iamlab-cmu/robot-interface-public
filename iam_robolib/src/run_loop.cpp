@@ -20,6 +20,7 @@
 #include "goal_linear_trajectory_generator.h"
 #include "linear_trajectory_generator.h"
 #include "linear_trajectory_generator_with_time_and_goal.h"
+#include "relative_linear_trajectory_generator.h"
 #include "stay_in_initial_position_trajectory_generator.h"
 #include "LinearJointTrajectoryController.h"
 #include "NoopFeedbackController.h"
@@ -398,6 +399,8 @@ TrajectoryGenerator* RunLoop::get_trajectory_generator_for_skill(int memory_regi
     traj_generator = new StayInInitialPositionTrajectoryGenerator(buffer);
   } else if (traj_gen_id == 7) {
     traj_generator = new DMPTrajectoryGenerator(buffer);
+  } else if (traj_gen_id == 8) {
+    traj_generator = new RelativeLinearTrajectoryGenerator(buffer);
   } else {
     // Cannot create Trajectory generator for this skill. Throw error
     logger_.add_error_log(string_format(
@@ -535,7 +538,7 @@ void RunLoop::finish_current_skill(BaseSkill* skill) {
     if (memory_index == 1) {
       buffer = execution_result_buffer_1_;
     }
-    skill->write_result_to_shared_memory(buffer);
+    skill->write_result_to_shared_memory(buffer, &robot_);
   }
 
   if (status == SkillStatus::FINISHED) {

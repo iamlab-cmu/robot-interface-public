@@ -95,6 +95,8 @@ add_library(iam_robolib SHARED
   src/JointPoseSkill.h
   src/JointPoseWithTorqueControlSkill.cpp
   src/JointPoseWithTorqueControlSkill.h
+  src/relative_linear_trajectory_generator.cpp
+  src/relative_linear_trajectory_generator.h
   src/CustomGainTorqueController.cpp
   src/CustomGainTorqueController.h
   src/SaveTrajectorySkill.cpp

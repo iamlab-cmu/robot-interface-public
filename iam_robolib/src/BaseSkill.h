@@ -34,6 +34,7 @@ class BaseSkill {
   virtual bool should_terminate();
 
   virtual void write_result_to_shared_memory(float *result_buffer);
+  virtual void write_result_to_shared_memory(float *result_buffer, franka::Robot *robot);
 
   virtual void write_feedback_to_shared_memory(float *feedback_buffer);
 

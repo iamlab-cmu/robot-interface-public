@@ -408,6 +408,34 @@ void SkillInfo::write_result_to_shared_memory(float *result_buffer) {
   std::cout << "Should write result to shared memory\n";
 }
 
+void SkillInfo::write_result_to_shared_memory(float *result_buffer, franka::Robot* robot) {
+  std::cout << "Writing final robot state to shared memory\n";
+  franka::RobotState robot_state = robot->readOnce();
+
+  result_buffer[0] = static_cast<float>(16+7+7+7+7);
+  int result_buffer_index = 1;
+  for(int i = 0; i < 16; i++){
+    result_buffer[result_buffer_index] = static_cast<float>(robot_state.O_T_EE[i]);
+    result_buffer_index++;
+  }
+  for(int i = 0; i < 7; i++){
+    result_buffer[result_buffer_index] = static_cast<float>(robot_state.tau_J[i]);
+    result_buffer_index++;
+  }
+  for(int i = 0; i < 7; i++){
+    result_buffer[result_buffer_index] = static_cast<float>(robot_state.dtau_J[i]);
+    result_buffer_index++;
+  }
+  for(int i = 0; i < 7; i++){
+    result_buffer[result_buffer_index] = static_cast<float>(robot_state.q[i]);
+    result_buffer_index++;
+  }
+  for(int i = 0; i < 7; i++){
+    result_buffer[result_buffer_index] = static_cast<float>(robot_state.dq[i]);
+    result_buffer_index++;
+  }
+}
+
 void SkillInfo::write_feedback_to_shared_memory(float *feedback_buffer) {
   std::cout << "Should write feedback to shared memory\n";
 }
