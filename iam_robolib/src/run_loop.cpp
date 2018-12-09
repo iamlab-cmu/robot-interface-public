@@ -604,8 +604,9 @@ void RunLoop::update_process_info() {
           int new_skill_id = run_loop_info_->get_new_skill_id();
           int new_skill_type = run_loop_info_->get_new_skill_type();
           int new_meta_skill_id = run_loop_info_->get_new_meta_skill_id();
-          int new_meta_skill_type = run_loop_info_->get_new_meta_skill_type()
-          logger_.add_info_log(string_format("Did find new skill with id %d\n", new_skill_id));
+          int new_meta_skill_type = run_loop_info_->get_new_meta_skill_type();
+          logger_.add_info_log(string_format("Did find new skill id: %d, type: %d meta skill: %d, type: %d\n",
+              new_skill_id, new_skill_type, new_meta_skill_id, new_meta_skill_type));
 
           // Add new skill
           run_loop_info_->set_current_skill_id(new_skill_id);
@@ -627,7 +628,7 @@ void RunLoop::update_process_info() {
           // Get Meta-skill
           BaseMetaSkill* new_meta_skill = skill_manager_.get_meta_skill_with_id(new_meta_skill_id);
           if (new_meta_skill == nullptr) {
-            if (new_meta_skill_id == 0) {
+            if (new_meta_skill_type == 0) {
               new_meta_skill = new BaseMetaSkill(new_meta_skill_id);
             } else {
               std::cout << "Incorrect skill type: " << new_skill_type << "\n";
@@ -736,18 +737,11 @@ void RunLoop::setup_robot_default_behavior() {
   robot_.setCartesianImpedance({{3000, 3000, 3000, 300, 300, 300}});
 }
 
-BaseSkill* RunLoop::didFinishSkillInMetaSkill(BaseSkill* skill) {
+void RunLoop::didFinishSkillInMetaSkill(BaseSkill* skill) {
   // Finish skill if possible.
   finish_current_skill(skill);
   // Complete old skills and acquire new skills
   update_process_info();
-  // Start new skill, if possible
-  BaseSkill* new_skill = skill_manager_.get_current_skill();
-  if (should_start_new_skill(skill, new_skill)) {
-    std::cout << "Will start skill\n";
-    start_new_skill(new_skill);
-  }
-  return new_skill;
 }
 
 void RunLoop::run_on_franka() {
@@ -785,7 +779,7 @@ void RunLoop::run_on_franka() {
           // Finish skill if possible.
           finish_current_skill(skill);
         } else {
-          meta_skill->execute_skill_on_franka(skill, &robot_, &gripper_, &control_loop_data_);
+          meta_skill->execute_skill_on_franka(this, &robot_, &gripper_, &control_loop_data_);
         }
       }
 
@@ -820,4 +814,8 @@ void RunLoop::run_on_franka() {
   if (control_loop_data_.file_logger_thread_.joinable()) {
     control_loop_data_.file_logger_thread_.join();
   }
+}
+
+SkillInfoManager* RunLoop::getSkillInfoManager() {
+  return &skill_manager_;
 }

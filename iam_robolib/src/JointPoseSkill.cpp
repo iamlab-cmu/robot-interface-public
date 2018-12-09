@@ -74,21 +74,3 @@ void JointPoseSkill::execute_skill_on_franka(franka::Robot* robot,
   }
 }
 
-bool JointPoseSkill::next_step_on_franka(const franka::RobotState& robot_state, franka::Duration period, double& time) {
-  if (time == 0.0) {
-    traj_generator_->initialize_trajectory(robot_state);
-  }
-  time += period.toSec();
-  traj_generator_->time_ = time;
-  traj_generator_->dt_ = period.toSec();
-  traj_generator_->get_next_step();
-
-  return termination_handler_->should_terminate(traj_generator_);
-}
-
-void JointPoseSkill::execute_meta_skill_on_franka(franka::Robot *robot,
-                                                  franka::Gripper *gripper, ControlLoopData *control_loop_data) {
-  std::cout << "Not implemented\n" << std::endl;
-  assert(false);
-}
-

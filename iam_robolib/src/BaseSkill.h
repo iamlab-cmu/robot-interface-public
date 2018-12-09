@@ -20,12 +20,37 @@ class BaseSkill {
                                                 meta_skill_idx_(meta_skill_idx),
                                                 skill_status_(SkillStatus::TO_START) {};
 
+  /**
+   * Get skill id.
+   */
   int get_skill_id();
 
+  /**
+   * Get meta-skill id for this skill id.
+   */
+  int get_meta_skill_id();
+
+  /**
+   * Update skill status;
+   */
   void set_skill_status(SkillStatus new_task_status);
 
+  /**
+   * Get current skill status.
+   */
   SkillStatus get_current_skill_status();
 
+  TrajectoryGenerator* get_trajectory_generator();
+  FeedbackController* get_feedback_controller();
+  TerminationHandler* get_termination_handler();
+
+  /**
+   * Start skill. Initiliazes and parses the parameters for different skill components.
+   * @param robot
+   * @param traj_generator
+   * @param feedback_controller
+   * @param termination_handler
+   */
   void start_skill(franka::Robot* robot,
                    TrajectoryGenerator *traj_generator,
                    FeedbackController *feedback_controller,
@@ -33,13 +58,14 @@ class BaseSkill {
 
   virtual void execute_skill() = 0;
 
+  /**
+   * Execute skill on franka with the given robot and gripper configuration.
+   * @param robot
+   * @param gripper
+   * @param control_loop_data
+   */
   virtual void execute_skill_on_franka(franka::Robot *robot, franka::Gripper *gripper,
                                        ControlLoopData *control_loop_data) = 0;
-
-  virtual void execute_meta_skill_on_franka(
-      franka::Robot *robot, franka::Gripper *gripper, ControlLoopData *control_loop_data) = 0;
-
-  virtual bool next_step_on_franka(const franka::RobotState& robot_state, franka::Duration period, double& time) = 0;
 
   virtual bool should_terminate();
 

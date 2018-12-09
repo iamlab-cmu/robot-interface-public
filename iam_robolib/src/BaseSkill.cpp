@@ -15,6 +15,10 @@ int BaseSkill::get_skill_id() {
   return skill_idx_;
 }
 
+int BaseSkill::get_meta_skill_id() {
+  return meta_skill_idx_;
+}
+
 void BaseSkill::set_skill_status(SkillStatus status) {
   // TODO(Mohit): Maybe add checks such that task status progresses
   // in one direction.
@@ -23,6 +27,18 @@ void BaseSkill::set_skill_status(SkillStatus status) {
 
 SkillStatus BaseSkill::get_current_skill_status() {
   return skill_status_;
+}
+
+TrajectoryGenerator* BaseSkill::get_trajectory_generator() {
+  return traj_generator_;
+}
+
+FeedbackController* BaseSkill::get_feedback_controller() {
+  return feedback_controller_;
+}
+
+TerminationHandler* BaseSkill::get_termination_handler() {
+  return termination_handler_;
 }
 
 void BaseSkill::start_skill(franka::Robot* robot,

@@ -11,11 +11,6 @@ class JointPoseSkill : public BaseSkill {
   void execute_skill_on_franka(franka::Robot* robot, franka::Gripper* gripper,
                                ControlLoopData *control_loop_data) override;
 
-  void execute_meta_skill_on_franka(franka::Robot *robot, franka::Gripper *gripper,
-                                    ControlLoopData *control_loop_data) override;
-
-  bool next_step_on_franka(const franka::RobotState& robot_state, franka::Duration period, double& time) override;
-
  private:
   bool return_status_{false};
 };

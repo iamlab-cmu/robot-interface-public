@@ -2,6 +2,8 @@
 
 #include "BaseSkill.h"
 
+class RunLoop;
+
 class BaseMetaSkill {
  public:
   BaseMetaSkill(int skill_idx): skill_idx_(skill_idx),
@@ -15,7 +17,7 @@ class BaseMetaSkill {
 
   SkillStatus getCurrentMetaSkillStatus();
 
-  virtual void execute_skill_on_franka(BaseSkill* skill, franka::Robot *robot,
+  virtual void execute_skill_on_franka(RunLoop* run_loop, franka::Robot *robot,
       franka::Gripper *gripper, ControlLoopData *control_loop_data);
 
  private:

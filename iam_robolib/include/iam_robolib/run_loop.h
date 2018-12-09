@@ -78,6 +78,23 @@ class RunLoop {
    */
   void run_on_franka();
 
+  /**
+   * Get SkillInfo manager.
+   */
+  SkillInfoManager* getSkillInfoManager();
+
+  /**
+   * Did finish skill in meta skill.
+   * @param skill
+   */
+  void didFinishSkillInMetaSkill(BaseSkill* skill);
+
+  /**
+   * Start executing new skill.
+   * @param new_skill New skill to start.
+   */
+  void start_new_skill(BaseSkill* new_skill);
+
   static std::atomic<bool> running_skills_;
 
  private:
@@ -184,12 +201,6 @@ class RunLoop {
    * @return True if new skill should be started else false.
    */
   bool should_start_new_skill(BaseSkill* old_skill, BaseSkill* new_skill);
-
-  /**
-   * Start executing new skill.
-   * @param new_skill New skill to start.
-   */
-  void start_new_skill(BaseSkill* new_skill);
 
   /**
    *  Finish current executing skill.

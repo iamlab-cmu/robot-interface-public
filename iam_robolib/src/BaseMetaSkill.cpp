@@ -4,11 +4,13 @@
 
 #include "BaseMetaSkill.h"
 
+#include <iam_robolib/run_loop.h>
+
 int BaseMetaSkill::getMetaSkillId() {
   return skill_idx_;
 }
 
-void BaseMetaSkill::isComposableSkill() {
+bool BaseMetaSkill::isComposableSkill() {
   return is_composable_;
 }
 
@@ -20,7 +22,10 @@ SkillStatus BaseMetaSkill::getCurrentMetaSkillStatus() {
   return skill_status_;
 }
 
-void BaseMetaSkill::execute_skill_on_franka(BaseSkill* skill, franka::Robot *robot,
+void BaseMetaSkill::execute_skill_on_franka(RunLoop* run_loop, franka::Robot *robot,
     franka::Gripper *gripper, ControlLoopData *control_loop_data) {
-  skill->execute_skill_on_franka(robot, gripper, control_loop_data);
+  BaseSkill* skill = run_loop->getSkillInfoManager()->get_current_skill();
+  if (skill != nullptr) {
+    skill->execute_skill_on_franka(robot, gripper, control_loop_data);
+  }
 }
