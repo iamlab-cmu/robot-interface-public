@@ -234,8 +234,8 @@ def shuffle_data(X, y):
     X, y = X[perm], y[perm]
     return X, y
 
-def train1(args, dmp_traj):
-    expert_data = load_data(args.h5_path)
+def train1(dmp_traj, h5_path):
+    expert_data = load_data(h5_path)
     truncated_expert_data = truncate_expert_data(expert_data)
     X, y = [], []
     for k in sorted(expert_data.keys()):
@@ -262,11 +262,13 @@ def train1(args, dmp_traj):
 
     return weights
 
-def train2(args, dmp_traj):
-    expert_data = load_data(args.h5_path)
+def train2(dmp_traj, h5_path):
+    expert_data = load_data(h5_path)
     truncated_expert_data = truncate_expert_data(expert_data)
     X, y = [], []
-    for k in sorted(expert_data.keys()):
+    for k in sorted(truncated_expert_data.keys()):
+        if k == '3':
+            continue
         data = dmp_traj.convert_data_to_dmp_train_better(
                 truncated_expert_data[k])
         assert type(data['X']) is np.ndarray \
@@ -306,8 +308,8 @@ def train2(args, dmp_traj):
 def main(args):
     num_dims, num_basis, num_sensors = 7, 19, 10
     dmp_traj = DMPTrajectory(num_dims, num_basis, num_sensors)
-    # weights = train1(args, dmp_traj)
-    weights = train2(args, dmp_traj)
+    # weights = train1(dmp_traj, args.h5_path)
+    weights = train2(dmp_traj, args.h5_path)
     y, dy = dmp_traj.run_dmp_with_weights(weights,
                                           np.zeros((dmp_traj.num_dims)),
                                           0.05,

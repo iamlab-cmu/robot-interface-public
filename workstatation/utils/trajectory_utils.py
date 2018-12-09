@@ -14,7 +14,7 @@ def truncate_expert_data(expert_data):
                 start_trajectory_index = i - 1
                 break
                 
-        previous_joint_positions = q[179,:]
+        previous_joint_positions = q[-1, :]
         for i in reversed(range(0,num_saved_data_points-1)):
             current_joint_positions = q[i,:]
             if(np.linalg.norm(previous_joint_positions - current_joint_positions) > 0.001):
