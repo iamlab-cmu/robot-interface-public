@@ -228,23 +228,28 @@ class DMPTrajectory(object):
         return clf
     
     def save_weights(self, save_path, weights, **kwargs):
+        mean = [0.0] + self.mean.tolist()
+        std = [0.0] + self.std.tolist()
+        phi_j_list = self.phi_j.tolist()
+        weights_list = weights.tolist()
+
         data_dict = {
             'tau': self.tau,
             'alpha': self.alpha,
             'beta': self.beta,
             'num_dims': self.num_dims,
-            'num_basis': self.num_basis,
+            'num_basis': self.num_basis+1, # +1 for the minimum jerk trajectory
             'num_sensors': self.num_sensors,
-            'mu': self.mean,
-            'h': self.std,
-            'phi_j': self.phi_j,
-            'weights': weights,
+            'mu': mean,
+            'h': std,
+            'phi_j': phi_j_list,
+            'weights': weights_list,
         }
         for k, v in kwargs.items():
             data_dict[k] = v
 
         with open(save_path, 'wb') as pkl_f:
-            pickle.dump(data_dict, pkl_f)
+            pickle.dump(data_dict, pkl_f, protocol=2)
             print("Did save dmp params: {}".format(save_path))
 
 def shuffle_data(X, y):
