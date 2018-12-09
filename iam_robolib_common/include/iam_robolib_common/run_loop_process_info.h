@@ -13,7 +13,11 @@ class RunLoopProcessInfo {
 
   void set_new_skill_type(int type);
 
+  void set_new_meta_skill_type(int type);
+
   int get_new_skill_type();
+
+  int get_new_meta_skill_type();
 
   void set_is_running_skill(bool is_running_skill);
 
@@ -75,20 +79,40 @@ class RunLoopProcessInfo {
  */
   int get_current_skill_id();
 
+  /**
+   * Return the id for the current meta skill.
+   */
+  int get_current_meta_skill_id();
+
 /**
  * Set current skill id being executed.
  */
   void set_current_skill_id(int new_skill_id);
+
+ /**
+  * Set current skill id being executed.
+  */
+  void set_current_meta_skill_id(int new_skill_id);
 
 /**
  * Return the id for the new skill.
  */
   int get_new_skill_id();
 
+ /**
+  * Return the id for the new skill.
+  */
+  int get_new_meta_skill_id();
+
 /**
  * Set new skill id. Written from actionlib.
  */
   void set_new_skill_id(int new_skill_id);
+
+ /**
+  * Set new skill id. Written from actionlib.
+  */
+  void set_new_meta_skill_id(int new_meta_skill_id);
 
 /**
  * Return the id for the done skill.
@@ -113,6 +137,7 @@ class RunLoopProcessInfo {
  private:
   bool new_skill_available_{false};
   int new_skill_type_{0};
+  int new_meta_skill_type_{0};
   bool is_running_skill_{false};
   bool skill_preempted_{false};
 
@@ -123,5 +148,8 @@ class RunLoopProcessInfo {
   int new_skill_id_{-1};
   int done_skill_id_{-1};
   int result_skill_id_{-1};
+
+  int current_meta_skill_id_{-1};
+  int new_meta_skill_id_{-1};
 };
 

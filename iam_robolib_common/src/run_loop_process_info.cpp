@@ -16,8 +16,16 @@ void RunLoopProcessInfo::set_new_skill_type(int type) {
   new_skill_type_ = type;
 }
 
+void RunLoopProcessInfo::set_new_meta_skill_type(int type) {
+  new_meta_skill_type_ = type;
+}
+
 int RunLoopProcessInfo::get_new_skill_type() {
   return new_skill_type_;
+}
+
+int RunLoopProcessInfo::get_new_meta_skill_type() {
+  return new_meta_skill_type_;
 }
 
 void RunLoopProcessInfo::set_is_running_skill(bool is_running_skill) {
@@ -86,9 +94,19 @@ int RunLoopProcessInfo::get_current_skill_id() {
   return current_skill_id_;
 }
 
+int RunLoopProcessInfo::get_current_meta_skill_id() {
+  return current_meta_skill_id_;
+}
+
 void RunLoopProcessInfo::set_current_skill_id(int current_skill_id) {
   // Make sure we are updating to the latest available skill.
   assert(current_skill_id == new_skill_id_);
+  current_skill_id_ = current_skill_id;
+}
+
+void RunLoopProcessInfo::set_current_meta_skill_id(int current_skill_id) {
+  // Make sure we are updating to the latest available skill.
+  assert(current_skill_id == new_meta_skill_id_);
   current_skill_id_ = current_skill_id;
 }
 
@@ -96,10 +114,18 @@ int RunLoopProcessInfo::get_new_skill_id() {
   return new_skill_id_;
 }
 
+int RunLoopProcessInfo::get_new_meta_skill_id() {
+  return new_meta_skill_id_;
+}
+
 void RunLoopProcessInfo::set_new_skill_id(int new_skill_id) {
   // Make sure we are getting the new skill
   assert(new_skill_id == current_skill_id_ + 1);
   new_skill_id_ = new_skill_id;
+}
+
+void RunLoopProcessInfo::set_new_meta_skill_id(int new_meta_skill_id) {
+  new_meta_skill_id_ = new_meta_skill_id;
 }
 
 int RunLoopProcessInfo::get_done_skill_id() {

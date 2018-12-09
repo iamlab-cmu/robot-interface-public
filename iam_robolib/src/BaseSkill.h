@@ -9,11 +9,16 @@ class ControlLoopData;
 class FeedbackController;
 class TerminationHandler;
 class TrajectoryGenerator;
+namespace franka {
+  class RobotState;
+  class Duration;
+}
 
 class BaseSkill {
  public:
-  BaseSkill(int skill_idx): skill_idx_(skill_idx),
-                            skill_status_(SkillStatus::TO_START) {};
+  BaseSkill(int skill_idx, int meta_skill_idx): skill_idx_(skill_idx),
+                                                meta_skill_idx_(meta_skill_idx),
+                                                skill_status_(SkillStatus::TO_START) {};
 
   int get_skill_id();
 
@@ -31,8 +36,10 @@ class BaseSkill {
   virtual void execute_skill_on_franka(franka::Robot *robot, franka::Gripper *gripper,
                                        ControlLoopData *control_loop_data) = 0;
 
-  virtual void execute_continuous_skill_on_franka(
+  virtual void execute_meta_skill_on_franka(
       franka::Robot *robot, franka::Gripper *gripper, ControlLoopData *control_loop_data) = 0;
+
+  virtual bool next_step_on_franka(const franka::RobotState& robot_state, franka::Duration period, double& time) = 0;
 
   virtual bool should_terminate();
 
@@ -43,6 +50,7 @@ class BaseSkill {
 
  protected:
   int skill_idx_;
+  int meta_skill_idx_;
   SkillStatus skill_status_;
 
   TrajectoryGenerator *traj_generator_= nullptr;

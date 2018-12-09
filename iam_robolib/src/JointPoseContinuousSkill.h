@@ -1,14 +1,12 @@
 #pragma once
 
-#include "BaseSkill.h"
+#include "BaseMetaSkill.h"
 
-class JointPoseContinuousSkill : public BaseSkill {
+class JointPoseContinuousSkill : public BaseMetaSkill {
  public:
-  JointPoseContinuousSkill(int skill_idx): BaseSkill(skill_idx) {};
+  JointPoseContinuousSkill(int skill_idx): BaseMetaSkill(skill_idx) {};
 
-  void execute_skill() override;
-
-  void execute_skill_on_franka(franka::Robot* robot, franka::Gripper* gripper,
+  void execute_skill_on_franka(BaseSkill *skill, franka::Robot* robot, franka::Gripper* gripper,
                                ControlLoopData *control_loop_data) override;
 
  private:

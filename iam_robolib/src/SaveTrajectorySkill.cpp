@@ -52,8 +52,8 @@ bool SaveTrajectorySkill::should_terminate() {
   return should_terminate;
 }
 
-void SaveTrajectorySkill::execute_continuous_skill_on_franka(franka::Robot* robot,
-    franka::Gripper* gripper, ControlLoopData *control_loop_data) {
+void SaveTrajectorySkill::execute_meta_skill_on_franka(franka::Robot *robot,
+                                                       franka::Gripper *gripper, ControlLoopData *control_loop_data) {
   std::cout << "Not implemented\n" << std::endl;
   assert(false);
 }

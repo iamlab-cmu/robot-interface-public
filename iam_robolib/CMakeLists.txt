@@ -103,6 +103,8 @@ add_library(iam_robolib SHARED
   src/SaveTrajectorySkill.h
   src/JointPoseContinuousSkill.cpp
   src/JointPoseContinuousSkill.h
+  src/BaseMetaSkill.cpp
+  src/BaseMetaSkill.h
 )
 
 # Add namespace

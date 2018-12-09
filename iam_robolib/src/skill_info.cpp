@@ -93,8 +93,8 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot, franka::Gripper* g
   }
 }
 
-void SkillInfo::execute_continuous_skill_on_franka(franka::Robot* robot, franka::Gripper* gripper,
-                                                   ControlLoopData *control_loop_data) {
+void SkillInfo::execute_meta_skill_on_franka(franka::Robot *robot, franka::Gripper *gripper,
+                                             ControlLoopData *control_loop_data) {
   std::cout << "Not implemented\n" << std::endl;
   assert(false);
 }

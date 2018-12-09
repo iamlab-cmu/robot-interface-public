@@ -26,6 +26,7 @@
 #include "NoopFeedbackController.h"
 #include "torque_feedback_controller.h"
 
+#include "BaseMetaSkill.h"
 #include "BaseSkill.h"
 #include "ControlLoopData.h"
 #include "CustomGainTorqueController.h"
@@ -602,24 +603,38 @@ void RunLoop::update_process_info() {
           // Create new task Skill
           int new_skill_id = run_loop_info_->get_new_skill_id();
           int new_skill_type = run_loop_info_->get_new_skill_type();
+          int new_meta_skill_id = run_loop_info_->get_new_meta_skill_id();
+          int new_meta_skill_type = run_loop_info_->get_new_meta_skill_type()
           logger_.add_info_log(string_format("Did find new skill with id %d\n", new_skill_id));
 
           // Add new skill
           run_loop_info_->set_current_skill_id(new_skill_id);
           BaseSkill *new_skill;
           if (new_skill_type == 0) {
-            new_skill = new SkillInfo(new_skill_id);
+            new_skill = new SkillInfo(new_skill_id, new_meta_skill_id);
           } else if (new_skill_type == 1) {
-            new_skill = new GripperOpenSkill(new_skill_id);
+            new_skill = new GripperOpenSkill(new_skill_id, new_meta_skill_id);
           } else if (new_skill_type == 2) {
-            new_skill = new JointPoseSkill(new_skill_id);
+            new_skill = new JointPoseSkill(new_skill_id, new_meta_skill_id);
           } else if (new_skill_type == 3) {
-            new_skill = new SaveTrajectorySkill(new_skill_id);
+            new_skill = new SaveTrajectorySkill(new_skill_id, new_meta_skill_id);
           } else {
               std::cout << "Incorrect skill type: " << new_skill_type << "\n";
               assert(false);
           }
           skill_manager_.add_skill(new_skill);
+
+          // Get Meta-skill
+          BaseMetaSkill* new_meta_skill = skill_manager_.get_meta_skill_with_id(new_meta_skill_id);
+          if (new_meta_skill == nullptr) {
+            if (new_meta_skill_id == 0) {
+              new_meta_skill = new BaseMetaSkill(new_meta_skill_id);
+            } else {
+              std::cout << "Incorrect skill type: " << new_skill_type << "\n";
+              assert(false);
+            }
+            skill_manager_.add_meta_skill(new_meta_skill);
+          }
 
           // Update the shared memory region. This means that the actionlib service will now write
           // to the other memory region, i.e. not the current memory region.
@@ -721,6 +736,20 @@ void RunLoop::setup_robot_default_behavior() {
   robot_.setCartesianImpedance({{3000, 3000, 3000, 300, 300, 300}});
 }
 
+BaseSkill* RunLoop::didFinishSkillInMetaSkill(BaseSkill* skill) {
+  // Finish skill if possible.
+  finish_current_skill(skill);
+  // Complete old skills and acquire new skills
+  update_process_info();
+  // Start new skill, if possible
+  BaseSkill* new_skill = skill_manager_.get_current_skill();
+  if (should_start_new_skill(skill, new_skill)) {
+    std::cout << "Will start skill\n";
+    start_new_skill(new_skill);
+  }
+  return new_skill;
+}
+
 void RunLoop::run_on_franka() {
   init();
 
@@ -744,15 +773,20 @@ void RunLoop::run_on_franka() {
 
       // Execute the current skill (traj_generator, FBC are here)
       BaseSkill* skill = skill_manager_.get_current_skill();
+      BaseMetaSkill *meta_skill = skill_manager_.get_current_meta_skill();
 
       // NOTE: We keep on running the last skill even if it is finished!!
-      if (skill != 0) {
+      if (skill != nullptr && meta_skill != nullptr) {
         // Execute skill.
         std::cout << "Will execute skill\n";
-        skill->execute_skill_on_franka(&robot_, &gripper_, &control_loop_data_);
+        if (!meta_skill->isComposableSkill()) {
+          skill->execute_skill_on_franka(&robot_, &gripper_, &control_loop_data_);
 
-        // Finish skill if possible.
-        finish_current_skill(skill);
+          // Finish skill if possible.
+          finish_current_skill(skill);
+        } else {
+          meta_skill->execute_skill_on_franka(skill, &robot_, &gripper_, &control_loop_data_);
+        }
       }
 
       // Complete old skills and acquire new skills
@@ -769,7 +803,7 @@ void RunLoop::run_on_franka() {
       auto finish = std::chrono::high_resolution_clock::now();
       // Wait for start + milli - finish
       auto elapsed = start + milli - finish;
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      // std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
   } catch (const franka::Exception& ex) {
 
