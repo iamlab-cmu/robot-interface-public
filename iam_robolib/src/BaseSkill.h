@@ -31,6 +31,9 @@ class BaseSkill {
   virtual void execute_skill_on_franka(franka::Robot *robot, franka::Gripper *gripper,
                                        ControlLoopData *control_loop_data) = 0;
 
+  virtual void execute_continuous_skill_on_franka(
+      franka::Robot *robot, franka::Gripper *gripper, ControlLoopData *control_loop_data) = 0;
+
   virtual bool should_terminate();
 
   virtual void write_result_to_shared_memory(float *result_buffer);

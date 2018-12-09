@@ -74,3 +74,9 @@ void JointPoseSkill::execute_skill_on_franka(franka::Robot* robot,
   }
 }
 
+void JointPoseSkill::execute_continuous_skill_on_franka(franka::Robot* robot,
+    franka::Gripper* gripper, ControlLoopData *control_loop_data) {
+  std::cout << "Not implemented\n" << std::endl;
+  assert(false);
+}
+

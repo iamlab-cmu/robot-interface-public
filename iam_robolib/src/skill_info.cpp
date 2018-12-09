@@ -93,6 +93,12 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot, franka::Gripper* g
   }
 }
 
+void SkillInfo::execute_continuous_skill_on_franka(franka::Robot* robot, franka::Gripper* gripper,
+                                                   ControlLoopData *control_loop_data) {
+  std::cout << "Not implemented\n" << std::endl;
+  assert(false);
+}
+
 void SkillInfo::execute_skill_on_franka_joint_base(franka::Robot* robot, franka::Gripper* gripper,
                                                    ControlLoopData *control_loop_data) {
 

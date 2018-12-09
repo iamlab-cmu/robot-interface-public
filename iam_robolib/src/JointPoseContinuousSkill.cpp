@@ -1,4 +1,8 @@
-#include "JointPoseWithTorqueControlSkill.h"
+//
+// Created by mohit on 12/9/18.
+//
+
+#include "JointPoseContinuousSkill.h"
 
 #include <cassert>
 #include <iostream>
@@ -8,17 +12,16 @@
 #include <franka/robot.h>
 #include <franka/model.h>
 #include <franka/exception.h>
-#include <franka/rate_limiting.h>
 
 #include <iam_robolib/run_loop.h>
 #include "trajectory_generator.h"
 #include "ControlLoopData.h"
 
-void JointPoseWithTorqueControlSkill::execute_skill() {
+void JointPoseContinuousSkill::execute_skill() {
   assert(false);
 }
 
-void JointPoseWithTorqueControlSkill::execute_skill_on_franka(
+void JointPoseContinuousSkill::execute_skill_on_franka(
     franka::Robot* robot, franka::Gripper* gripper, ControlLoopData *control_loop_data) {
 
   try {
@@ -50,20 +53,15 @@ void JointPoseWithTorqueControlSkill::execute_skill_on_franka(
         control_loop_data->log_robot_state(robot_state, time);
       }
 
-      if(done or time >= traj_generator_->run_time_) {
+      if(done) {
+        // In the usual case we would have finished the control loop here
+        // But not in this case. We restart the next skill now
         return franka::MotionFinished(joint_desired);
       }
       return joint_desired;
     };
 
-    std::function<franka::Torques(const franka::RobotState&,
-        franka::Duration)> impedance_control_callback = [&](
-          const franka::RobotState& state, franka::Duration) -> franka::Torques {
-          feedback_controller_->get_next_step();
-          return feedback_controller_->tau_d_array_;
-        };
-
-    robot->control(impedance_control_callback, joint_pose_callback);
+    robot->control(joint_pose_callback);
 
   } catch (const franka::Exception& ex) {
     RunLoop::running_skills_ = false;
@@ -75,11 +73,5 @@ void JointPoseWithTorqueControlSkill::execute_skill_on_franka(
     control_loop_data->printGlobalData(50);
     control_loop_data->file_logger_thread_.join();
   }
-}
-
-void JointPoseWithTorqueControlSkill::execute_continuous_skill_on_franka(franka::Robot* robot,
-    franka::Gripper* gripper, ControlLoopData *control_loop_data) {
-  std::cout << "Not implemented\n" << std::endl;
-  assert(false);
 }
 
