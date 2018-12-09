@@ -727,7 +727,7 @@ void RunLoop::run_on_franka() {
   std::chrono::time_point<std::chrono::high_resolution_clock> start;
   auto milli = std::chrono::milliseconds(1);
 
-  // setup_robot_default_behavior();
+  setup_robot_default_behavior();
 
   try {
     running_skills_ = true;

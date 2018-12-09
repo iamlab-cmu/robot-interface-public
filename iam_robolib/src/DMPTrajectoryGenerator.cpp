@@ -26,9 +26,9 @@ void DMPTrajectoryGenerator::parse_parameters() {
   // Tau (1) + num_basis = 7 (1) + num_sensor_values = 10 (1) + initial_y0(7) + weights (7 joints * 20 basis functions * 10 sensor inputs)
   if(num_params == 109) {
     run_time_ = params_[2];
-    tau_ = params_[3];
-    alpha_  = params_[4];
-    beta_ = params_[5];
+    tau_ = static_cast<double>(params_[3]);
+    alpha_  = static_cast<double>(params_[4]);
+    beta_ = static_cast<double>(params_[5]);
     num_basis_ = static_cast<int>(params_[6]);
     num_sensor_values_ = static_cast<int>(params_[7]);
 
@@ -38,6 +38,21 @@ void DMPTrajectoryGenerator::parse_parameters() {
     memcpy(&y0_, &params_[8 + 2*num_basis_], 7 * sizeof(float));
 
     memcpy(&weights_, &params_[8 + 2*num_basis_ + 7], num_dims_ * num_sensor_values_ * num_basis_ * sizeof(float));
+
+    std::cout << run_time_ << " " << tau_ << ", " << alpha_ << ", " << beta_ << ", " << num_basis_ << ", " << num_sensor_values_ << std::endl;
+
+    for (int i = 0; i < num_basis_; i++) {
+      std::cout << basis_mean_[i] << ", ";
+    }
+    std::cout << std::endl;
+    for (int i = 0; i < num_basis_; i++) {
+      std::cout << basis_std_[i] << ", ";
+    }
+    std::cout << std::endl;
+    for (int i = 0; i < 7; i++)  {
+      std::cout << y0_[i] << ", ";
+    }
+    std::cout << std::endl;
 
     // TODO(Mohit): We need to start using sensor values in our trajectory generator and feedback controller.
     for (int i = 0; i < num_sensor_values_; i++) {
