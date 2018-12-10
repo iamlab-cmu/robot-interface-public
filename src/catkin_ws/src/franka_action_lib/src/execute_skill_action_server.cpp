@@ -39,7 +39,7 @@ namespace franka_action_lib
     while(done_skill_id < skill_id)
     {
       // check that preempt has not been requested by the client
-      if (as_.isPreemptRequested() || !ros::ok())
+      /*if (as_.isPreemptRequested() || !ros::ok())
       {
         ROS_INFO("%s: Preempted", action_name_.c_str());
         // set the action state to preempted
@@ -49,7 +49,7 @@ namespace franka_action_lib
         shared_memory_handler_.setSkillPreemptedFlagInSharedMemory(true);
 
         break;
-      }
+      }*/
 
       // TODO fill in execution_feedback from shared memory
       feedback_ = shared_memory_handler_.getSkillFeedback();

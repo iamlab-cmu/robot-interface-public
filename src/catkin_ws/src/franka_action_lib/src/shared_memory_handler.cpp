@@ -328,6 +328,8 @@ namespace franka_action_lib
 
     setNewSkillIdInSharedMemoryUnprotected(new_skill_id);
     setNewSkillTypeInSharedMemoryUnprotected(goal->skill_type);
+    setNewMetaSkillTypeInSharedMemoryUnprotected(goal->meta_skill_type);
+    setNewMetaSkillIdInSharedMemoryUnprotected(goal->meta_skill_id);
 
     // Set the new skill flag in shared memory to true to signal that a new skill has been loaded into the current free shared memory.
     setNewSkillFlagInSharedMemoryUnprotected(true);
@@ -512,6 +514,18 @@ namespace franka_action_lib
   {
     // Set new_skill_type_ in run_loop_process_info_ to the input new_skill_type
     run_loop_process_info_->set_new_skill_type(new_skill_type);
+  }
+
+  void SharedMemoryHandler::setNewMetaSkillIdInSharedMemoryUnprotected(int new_meta_skill_id)
+  {
+    // Set new_meta_skill_id_ in run_loop_process_info_ to the input new_meta_skill_id
+    run_loop_process_info_->set_new_meta_skill_id(new_meta_skill_id);
+  }
+
+  void SharedMemoryHandler::setNewMetaSkillTypeInSharedMemoryUnprotected(int new_meta_skill_type)
+  {
+    // Set new_meta_skill_type_ in run_loop_process_info_ to the input new_meta_skill_type
+    run_loop_process_info_->set_new_meta_skill_type(new_meta_skill_type);
   }
 
   void SharedMemoryHandler::setResultSkillIdInSharedMemoryUnprotected(int result_skill_id)

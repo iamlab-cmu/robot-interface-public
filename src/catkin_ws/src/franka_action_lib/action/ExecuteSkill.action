@@ -1,4 +1,6 @@
 int32 skill_type
+int32 meta_skill_type
+int32 meta_skill_id
 
 # Sensor topic to subscribe to
 string[] sensor_topics
