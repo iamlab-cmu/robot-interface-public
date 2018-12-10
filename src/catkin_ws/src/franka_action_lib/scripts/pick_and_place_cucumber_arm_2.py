@@ -24,7 +24,7 @@ if __name__ == '__main__':
     # Open the gripper
     skill = GripperWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-    skill.add_trajectory_params([0.05, 0.025, 1100])  # Gripper Width, Gripper Speed, Wait Time
+    skill.add_trajectory_params([0.07, 0.025, 1100])  # Gripper Width, Gripper Speed, Wait Time
     goal = skill.create_goal()
     print(goal)
     client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     # Move to Picking Position
     skill = ArmMoveToGoalWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-    skill.add_trajectory_params([3.0, -0.00146913,0.999948,-0.00909845,0,0.999977,0.00142362,-0.00500628,0,-0.00499316,-0.00910576,-0.999946,0,0.652849,0.0717463,0.0183853,1])  # Run Time (1) and Desired End Effector Pose(16)
+    skill.add_trajectory_params([3.0, 0.997967,0.0553182,0.0313609,0,0.0550471,-0.998429,0.0094417,0,0.0318345,-0.00769632,-0.999464,0,0.603236,0.150695,0.00406402,1])  # Run Time (1) and Desired End Effector Pose(16)
     skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
     skill.add_termination_params([1.0]) # buffer time
     goal = skill.create_goal()
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     # Close the gripper and grasp
     skill = GripperWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-    skill.add_trajectory_params([0.075, 0.025, 5, 1100]) # Gripper Width, Gripper Speed, Grasping Force, Wait Time
+    skill.add_trajectory_params([0.05, 0.025, 33, 1100]) # Gripper Width, Gripper Speed, Grasping Force, Wait Time
     goal = skill.create_goal()
     print(goal)
     client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     # Move to Intermediate Position
     skill = ArmMoveToGoalWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-    skill.add_trajectory_params([3.0, 0.00678993,0.999959,0.00403557,0,0.999118,-0.00661782,-0.0412309,0,-0.0412033,0.00431205,-0.999141,0,0.619531,-0.0983122,0.247968,1])  # Run Time (1) and Desired End Effector Pose(16)
+    skill.add_trajectory_params([3.0, 0.999077,0.03154,-0.0288332,0,0.0324637,-0.998946,0.0321529,0,-0.0277892,-0.0330599,-0.999067,0,0.595558,0.0450467,0.3142,1])  # Run Time (1) and Desired End Effector Pose(16)
     skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
     skill.add_termination_params([1.0]) # buffer time
     goal = skill.create_goal()
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     # Move to contact goal position
     skill = ArmMoveToGoalContactWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-    skill.add_trajectory_params([3.0, 0.010964,0.99987,0.0110068,0,0.999883,-0.0108553,-0.00988176,0,-0.00976118,0.011114,-0.999891,0,0.627216,-0.0954885,0.0158609,1])  # Run Time (1) and Desired End Effector Pose(16)
+    skill.add_trajectory_params([3.0, 0.00189348,-0.999791,-0.0198586,0,-0.999966,-0.0020278,0.00674575,0,-0.00678474,0.0198455,-0.99978,0,0.622919,-0.405382,0.0198905,1])  # Run Time (1) and Desired End Effector Pose(16)
     skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
     skill.add_termination_params([1.0]) # buffer time
     goal = skill.create_goal()
@@ -106,7 +106,7 @@ if __name__ == '__main__':
     # Stay in the position for a certain amount of time
     skill = StayInPositionWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-    skill.add_trajectory_params([30.0])  # Run Time 
+    skill.add_trajectory_params([300.0])  # Run Time 
     goal = skill.create_goal()
 
     print(goal)
@@ -138,7 +138,7 @@ if __name__ == '__main__':
     # Move to original position
     skill = ArmMoveToGoalWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-    skill.add_trajectory_params([5.0, -0.0268194,0.997366,-0.0672444,0,0.998971,0.0242969,-0.0380534,0,-0.0363201,-0.068197,-0.997011,0,0.551823,-0.0419016,0.265313,1])  # Run Time (1) and Desired End Effector Pose(16)
+    skill.add_trajectory_params([5.0, 0.99747,0.0476472,-0.0525668,0,0.0488561,-0.998555,0.0219546,0,-0.0514457,-0.0244678,-0.998376,0,0.434247,-0.0252676,0.333927,1])  # Run Time (1) and Desired End Effector Pose(16)
     skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
     skill.add_termination_params([1.0]) # buffer time
     goal = skill.create_goal()
