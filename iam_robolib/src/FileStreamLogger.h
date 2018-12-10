@@ -14,6 +14,7 @@ class FileStreamLogger {
                   std::vector<std::array<double, 7>>& tau_j,
                   std::vector<std::array<double, 7>>& d_tau_j,
                   std::vector<std::array<double, 7>>& q,
+                  std::vector<std::array<double, 7>>& q_d,
                   std::vector<std::array<double, 7>>& dq);
 
  private:

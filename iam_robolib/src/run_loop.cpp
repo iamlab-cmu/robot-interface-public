@@ -606,8 +606,8 @@ void RunLoop::update_process_info() {
           int new_skill_type = run_loop_info_->get_new_skill_type();
           int new_meta_skill_id = run_loop_info_->get_new_meta_skill_id();
           int new_meta_skill_type = run_loop_info_->get_new_meta_skill_type();
-          logger_.add_info_log(string_format("Did find new skill id: %d, type: %d meta skill: %d, type: %d\n",
-              new_skill_id, new_skill_type, new_meta_skill_id, new_meta_skill_type));
+          std::cout << string_format("Did find new skill id: %d, type: %d meta skill: %d, type: %d\n",
+              new_skill_id, new_skill_type, new_meta_skill_id, new_meta_skill_type);
 
           // Add new skill
           run_loop_info_->set_current_skill_id(new_skill_id);
@@ -775,7 +775,8 @@ void RunLoop::run_on_franka() {
       // NOTE: We keep on running the last skill even if it is finished!!
       if (skill != nullptr && meta_skill != nullptr) {
         // Execute skill.
-        std::cout << "Will execute skill\n";
+        std::cout << "Will execute skill: " << skill->get_skill_id() << ", meta skill: " <<
+          meta_skill->getMetaSkillId() << "\n" << std::endl;
         meta_skill->execute_skill_on_franka(this, &robot_, &gripper_, &control_loop_data_);
       }
 

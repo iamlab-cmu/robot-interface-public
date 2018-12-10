@@ -29,6 +29,7 @@ class ControlLoopData {
   std::vector<std::array<double, 7>> log_tau_j_0_{};
   std::vector<std::array<double, 7>> log_d_tau_j_0_{};
   std::vector<std::array<double, 7>> log_q_0_{};
+  std::vector<std::array<double, 7>> log_q_d_0_{};
   std::vector<std::array<double, 7>> log_dq_0_{};
   std::vector<double> log_control_time_0_{};
 
@@ -37,6 +38,7 @@ class ControlLoopData {
   std::vector<std::array<double, 7>> log_tau_j_1_{};
   std::vector<std::array<double, 7>> log_d_tau_j_1_{};
   std::vector<std::array<double, 7>> log_q_1_{};
+  std::vector<std::array<double, 7>> log_q_d_1_{};
   std::vector<std::array<double, 7>> log_dq_1_{};
   std::vector<double> log_control_time_1_{};
 

@@ -21,6 +21,8 @@ class DMPTrajectoryGenerator : public TrajectoryGenerator {
 
   void get_next_step() override;
 
+  std::array<double, 7> y_={};
+  std::array<double, 7> dy_={};
 
  private:
   // Variables initialized from shared memory should be floats.
@@ -36,10 +38,6 @@ class DMPTrajectoryGenerator : public TrajectoryGenerator {
   std::array<std::array<std::array<float, 7>, 10>, 20> weights_{};
   std::array<float, 10> initial_sensor_values_{{1., 0., 0., 0., 1., 1., 0., 0., 1., 0.}};
   std::array<float, 7> y0_={};
-
-  //
-  std::array<double, 7> y_={};
-  std::array<double, 7> dy_={};
 
   void getInitialMeanAndStd();
 };

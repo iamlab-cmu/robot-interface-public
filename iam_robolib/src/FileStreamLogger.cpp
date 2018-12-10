@@ -12,6 +12,7 @@ bool FileStreamLogger::writeData(std::vector<double> control_time,
                std::vector<std::array<double, 7>>& tau_j,
                std::vector<std::array<double, 7>>& d_tau_j,
                std::vector<std::array<double, 7>>& q,
+               std::vector<std::array<double, 7>>& q_d,
                std::vector<std::array<double, 7>>& dq) {
     if (!open_file_stream_.is_open()) {
         open_file_stream_ = std::ofstream("./traj_data.txt", std::ofstream::out | std::ofstream::app);
@@ -67,6 +68,10 @@ bool FileStreamLogger::writeData(std::vector<double> control_time,
 
         // Log q and dq
         state = q[i];
+        for (const auto &e : state) {
+            open_file_stream_ << e << ",";
+        }
+        state = q_d[i];
         for (const auto &e : state) {
             open_file_stream_ << e << ",";
         }

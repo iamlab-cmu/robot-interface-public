@@ -18,6 +18,7 @@
 #include "trajectory_generator.h"
 #include "ControlLoopData.h"
 #include "BaseSkill.h"
+#include "DMPTrajectoryGenerator.h"
 
 void JointPoseContinuousSkill::execute_skill_on_franka(RunLoop *run_loop, franka::Robot* robot,
     franka::Gripper* gripper, ControlLoopData *control_loop_data) {
@@ -32,16 +33,22 @@ void JointPoseContinuousSkill::execute_skill_on_franka(RunLoop *run_loop, franka
     std::cout << "Will run the control loop\n";
 
     franka::Model model = robot->loadModel();
+    std::array<double, 7> last_dmp_q = robot->readOnce().q;
+    std::array<double, 7> last_dmp_dq = robot->readOnce().dq;
 
     std::function<franka::JointPositions(const franka::RobotState&, franka::Duration)>
         joint_pose_callback = [&](
         const franka::RobotState& robot_state,
         franka::Duration period) -> franka::JointPositions {
 
-      TrajectoryGenerator *traj_generator = current_skill->get_trajectory_generator();
+      DMPTrajectoryGenerator* traj_generator = static_cast<DMPTrajectoryGenerator *>(
+          current_skill->get_trajectory_generator());
       if (current_skill_time == 0.0) {
         traj_generator->initialize_trajectory(robot_state);
+        traj_generator->y_ = last_dmp_q;
+        traj_generator->dy_ = last_dmp_dq;
       }
+
       double period_in_seconds = period.toSec();
       time += period_in_seconds;
       current_skill_time += period_in_seconds;
@@ -68,16 +75,28 @@ void JointPoseContinuousSkill::execute_skill_on_franka(RunLoop *run_loop, franka
         if (new_skill->get_skill_id() == current_skill->get_skill_id()) {
           // No new skill, let's just continue with the current skill.
           current_skill_time = 0.0;
+          last_dmp_q = traj_generator->y_;
+          last_dmp_dq = traj_generator->dy_;
+
+          std::cout << "Meta skill continuing with old skill: " << current_skill->get_skill_id() << "\n";
         } else {
           if (current_skill->get_meta_skill_id() != new_skill->get_meta_skill_id()) {
             // New meta skill, so we should stop this.
             skill_info_manager->get_current_meta_skill()->setMetaSkillStatus(SkillStatus::FINISHED);
+            last_dmp_q = traj_generator->y_;
+            last_dmp_dq = traj_generator->dy_;
+            std::cout << "Meta skill finished: " << skill_info_manager->get_current_meta_skill()->getMetaSkillId() << "\n";
             return franka::MotionFinished(joint_desired);
           } else {
             // Same meta skill, let's continue
             run_loop->start_new_skill(new_skill);
             current_skill_time = 0.0;
+
+            last_dmp_q = traj_generator->y_;
+            last_dmp_dq = traj_generator->dy_;
+
             current_skill = new_skill;
+            std::cout << "New skill: " << new_skill->get_skill_id() << ", found for meta skill: " << skill_info_manager->get_current_meta_skill()->getMetaSkillId() << "\n";
           }
         }
       }
