@@ -11,7 +11,7 @@ import numpy as np
 from franka_action_lib.msg import ExecuteSkillAction, ExecuteSkillGoal
 
 from skill_list import BaseSkill
-from skill_list import ArmMoveToGoalWithDefaultSensorSkill, GripperWithDefaultSensorSkill, ArmMoveToGoalContactWithDefaultSensorSkill, StayInPositionWithDefaultSensorSkill, JointPoseWithDefaultSensorSkill, ArmRelativeMotionWithDefaultSensorSkill
+from skill_list import ArmMoveToGoalWithDefaultSensorSkill, GripperWithDefaultSensorSkill, ArmMoveToGoalContactWithDefaultSensorSkill, StayInPositionWithDefaultSensorSkill, JointPoseWithDefaultSensorSkill, ArmRelativeMotionWithDefaultSensorSkill, ArmRelativeMotionToContactWithDefaultSensorSkill
 
 def feedback_callback(feedback):
     print(feedback)
@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
     skill = ArmMoveToGoalWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-    skill.add_trajectory_params([3.0, 0.0631869,0.997483,0.0318753,0,0.99777,-0.0624666,-0.0231075,0,-0.0210586,0.0332649,-0.999225,0,0.473809,-0.254063,0.256316,1])  # Run Time (1) and Desired End Effector Pose(16)
+    skill.add_trajectory_params([3.0, -0.0372113,0.999006,0.0241583,0,0.998733,0.0379922,-0.0327119,0,-0.0335979,0.0229109,-0.999173,0,0.458702,-0.243681,0.245551,1])  # Run Time (1) and Desired End Effector Pose(16)
     skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
     skill.add_termination_params([1.0]) # buffer time
     goal = skill.create_goal()
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     # Move to designated position above the cutting board
     skill = ArmMoveToGoalWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-    skill.add_trajectory_params([3.0, 0.000252738,0.99984,-0.0173324,0,0.99999,-0.000234109,0.00107684,0,0.00107263,-0.0173328,-0.999849,0,0.533067,-0.181695,0.167694,1])  # Run Time (1) and Desired End Effector Pose(16)
+    skill.add_trajectory_params([3.0, 0.00428579,0.999112,-0.0416815,0,0.999585,-0.00545372,-0.0279469,0,-0.02815,-0.0415452,-0.99874,0,0.502556,-0.175819,0.141577,1])  # Run Time (1) and Desired End Effector Pose(16)
     skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
     skill.add_termination_params([1.0]) # buffer time
     goal = skill.create_goal()
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     # Move down to contact cutting board
     skill = ArmMoveToGoalContactWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-    skill.add_trajectory_params([3.0, -0.00331102,0.999897,-0.0132526,0,0.999912,0.00347025,0.0120097,0,0.0120547,-0.013212,-0.99984,0,0.526931,-0.184499,0.0250629,1])  # Run Time (1) and Desired End Effector Pose(16)
+    skill.add_trajectory_params([3.0, 0.00338211,0.99924,-0.0385855,0,0.999849,-0.00401365,-0.0163014,0,-0.0164442,-0.0385253,-0.999122,0,0.496864,-0.176568,0.0293225,1])  # Run Time (1) and Desired End Effector Pose(16)
     skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
     skill.add_termination_params([1.0]) # buffer time
     goal = skill.create_goal()
@@ -75,10 +75,24 @@ if __name__ == '__main__':
 
     # Move left to contact cucumber
     skill = ArmMoveToGoalContactWithDefaultSensorSkill()
-    skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-    skill.add_trajectory_params([3.0, -0.00212523,0.999877,0.0148902,0,0.999981,0.00218029,-0.00368278,0,-0.00371486,0.0148824,-0.999882,0,0.539761,0.0590674,0.0261076,1])  # Run Time (1) and Desired End Effector Pose(16)
+    skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random  
+    skill.add_trajectory_params([3.0, 0.00193678,0.999977,0.00475145,0,0.9999,-0.00199989,0.0133132,0,0.0133227,0.00472528,-0.9999,0,0.507015,0.04119,0.024956,1])  # Run Time (1) and Desired End Effector Pose(16)
     skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
-    skill.add_termination_params([1.0]) # buffer time
+
+    lower_torque_thresholds_acceleration = [20.0,20.0,18.0,18.0,16.0,14.0,12.0]
+    upper_torque_thresholds_acceleration = [120.0,120.0,118.0,118.0,116.0,114.0,112.0]
+    lower_torque_thresholds_nominal = [20.0,20.0,18.0,18.0,16.0,14.0,12.0]
+    upper_torque_thresholds_nominal = [120.0,120.0,118.0,118.0,116.0,114.0,112.0]
+    lower_force_thresholds_acceleration = [20.0,5.0,20.0,25.0,25.0,25.0]
+    upper_force_thresholds_acceleration = [120.0,120.0,120.0,125.0,125.0,125.0]
+    lower_force_thresholds_nominal = [20.0,5.0,20.0,25.0,25.0,25.0]
+    upper_force_thresholds_nominal = [120.0,120.0,120.0,125.0,125.0,125.0] 
+
+    collision_termination_params = lower_torque_thresholds_acceleration + upper_torque_thresholds_acceleration + lower_torque_thresholds_nominal + \
+                                   upper_torque_thresholds_nominal + lower_force_thresholds_acceleration + upper_force_thresholds_acceleration + \
+                                   lower_force_thresholds_nominal + upper_force_thresholds_nominal
+
+    skill.add_termination_params([1.0] + collision_termination_params) # buffer time
     goal = skill.create_goal()
     print(goal)
     client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
@@ -120,12 +134,25 @@ if __name__ == '__main__':
 
         print(client.get_result())
 
+        lower_torque_thresholds_acceleration = [20.0,20.0,18.0,18.0,16.0,14.0,12.0]
+        upper_torque_thresholds_acceleration = [120.0,120.0,118.0,118.0,116.0,114.0,112.0]
+        lower_torque_thresholds_nominal = [20.0,20.0,18.0,18.0,16.0,14.0,12.0]
+        upper_torque_thresholds_nominal = [120.0,120.0,118.0,118.0,116.0,114.0,112.0]
+        lower_force_thresholds_acceleration = [20.0,20.0,5.0,25.0,25.0,25.0]
+        upper_force_thresholds_acceleration = [120.0,120.0,120.0,125.0,125.0,125.0]
+        lower_force_thresholds_nominal = [20.0,20.0,5.0,25.0,25.0,25.0]
+        upper_force_thresholds_nominal = [120.0,120.0,120.0,125.0,125.0,125.0] 
+
+        collision_termination_params = lower_torque_thresholds_acceleration + upper_torque_thresholds_acceleration + lower_torque_thresholds_nominal + \
+                                       upper_torque_thresholds_nominal + lower_force_thresholds_acceleration + upper_force_thresholds_acceleration + \
+                                       lower_force_thresholds_nominal + upper_force_thresholds_nominal
+
         # Move to contact
-        skill = ArmMoveToGoalContactWithDefaultSensorSkill()
+        skill = ArmRelativeMotionToContactWithDefaultSensorSkill()
         skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-        skill.add_trajectory_params([3.0, 0.010964,0.99987,0.0110068,0,0.999883,-0.0108553,-0.00988176,0,-0.00976118,0.011114,-0.999891,0,0.627216,-0.0954885,0.0158609,1])  # Run Time (1) and Desired End Effector Pose(16)
+        skill.add_trajectory_params([3.0, 0.0, 0.0, -0.1, 1.0, 0.0, 0.0, 0.0])  # Run Time (1) and Desired End Effector Pose(16)
         skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
-        skill.add_termination_params([1.0]) # buffer time
+        skill.add_termination_params([1.0] + collision_termination_params) # buffer time
         goal = skill.create_goal()
         print(goal)
         client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
@@ -134,7 +161,7 @@ if __name__ == '__main__':
         while not rospy.is_shutdown() and done != True:
             done = client.wait_for_result(rospy.Duration.from_sec(5.0))
 
-        # Start DMP cutting for 5 times
+        # Start DMP cutting for 3 times
         skill = JointPoseWithDefaultSensorSkill()
         skill.add_initial_sensor_values(dmp_info['phi_j'])  # sensor values
 
