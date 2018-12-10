@@ -27,5 +27,6 @@ void BaseMetaSkill::execute_skill_on_franka(RunLoop* run_loop, franka::Robot *ro
   BaseSkill* skill = run_loop->getSkillInfoManager()->get_current_skill();
   if (skill != nullptr) {
     skill->execute_skill_on_franka(robot, gripper, control_loop_data);
+    run_loop->finish_current_skill(skill);
   }
 }

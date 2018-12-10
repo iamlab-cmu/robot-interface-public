@@ -41,6 +41,7 @@
 #include "linear_trajectory_generator_with_time_and_goal_termination_handler.h"
 #include "time_termination_handler.h"
 #include "JointPoseSkill.h"
+#include "JointPoseContinuousSkill.h"
 #include "SaveTrajectorySkill.h"
 
 std::atomic<bool> RunLoop::running_skills_{false};
@@ -630,9 +631,11 @@ void RunLoop::update_process_info() {
           if (new_meta_skill == nullptr) {
             if (new_meta_skill_type == 0) {
               new_meta_skill = new BaseMetaSkill(new_meta_skill_id);
+            } else if (new_meta_skill_type == 1) {
+              new_meta_skill = new JointPoseContinuousSkill(new_meta_skill_id);
             } else {
-              std::cout << "Incorrect skill type: " << new_skill_type << "\n";
-              assert(false);
+                std::cout << "Incorrect meta skill type: " << new_skill_type << "\n";
+                assert(false);
             }
             skill_manager_.add_meta_skill(new_meta_skill);
           }
@@ -773,14 +776,7 @@ void RunLoop::run_on_franka() {
       if (skill != nullptr && meta_skill != nullptr) {
         // Execute skill.
         std::cout << "Will execute skill\n";
-        if (!meta_skill->isComposableSkill()) {
-          skill->execute_skill_on_franka(&robot_, &gripper_, &control_loop_data_);
-
-          // Finish skill if possible.
-          finish_current_skill(skill);
-        } else {
-          meta_skill->execute_skill_on_franka(this, &robot_, &gripper_, &control_loop_data_);
-        }
+        meta_skill->execute_skill_on_franka(this, &robot_, &gripper_, &control_loop_data_);
       }
 
       // Complete old skills and acquire new skills

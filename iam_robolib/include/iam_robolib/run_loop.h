@@ -95,6 +95,11 @@ class RunLoop {
    */
   void start_new_skill(BaseSkill* new_skill);
 
+  /**
+   *  Finish current executing skill.
+   */
+  void finish_current_skill(BaseSkill* skill);
+
   static std::atomic<bool> running_skills_;
 
  private:
@@ -201,11 +206,6 @@ class RunLoop {
    * @return True if new skill should be started else false.
    */
   bool should_start_new_skill(BaseSkill* old_skill, BaseSkill* new_skill);
-
-  /**
-   *  Finish current executing skill.
-   */
-  void finish_current_skill(BaseSkill* skill);
 
   /**
    * Update process info in the shared memory to reflect run-loop's

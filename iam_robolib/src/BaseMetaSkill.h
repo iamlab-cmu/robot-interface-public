@@ -20,7 +20,7 @@ class BaseMetaSkill {
   virtual void execute_skill_on_franka(RunLoop* run_loop, franka::Robot *robot,
       franka::Gripper *gripper, ControlLoopData *control_loop_data);
 
- private:
+ protected:
   int skill_idx_;
   SkillStatus skill_status_;
   bool is_composable_{false};
