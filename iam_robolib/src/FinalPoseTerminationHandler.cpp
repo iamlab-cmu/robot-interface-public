@@ -31,23 +31,31 @@ void FinalPoseTerminationHandler::initialize_handler(franka::Robot *robot) {
 }
 
 bool FinalPoseTerminationHandler::should_terminate(TrajectoryGenerator *trajectory_generator) {
-  LinearTrajectoryGenerator *linear_traj_generator =
-        static_cast<LinearTrajectoryGenerator *>(trajectory_generator);
-  for(size_t i = 0; i < 16; i++) {
-    if(fabs(pose_final_[i] - linear_traj_generator->pose_desired_[i]) > 0.0001) {
-      return false;
+  if(!done_) {
+    LinearTrajectoryGenerator *linear_traj_generator =
+          static_cast<LinearTrajectoryGenerator *>(trajectory_generator);
+    for(size_t i = 0; i < 16; i++) {
+      if(fabs(pose_final_[i] - linear_traj_generator->pose_desired_[i]) > 0.0001) {
+        return false;
+      }
     }
+    done_ = true;
   }
-  return true;
+  
+  return done_;
 }
 
 bool FinalPoseTerminationHandler::should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *trajectory_generator) {
-  LinearTrajectoryGenerator *linear_traj_generator =
-        static_cast<LinearTrajectoryGenerator *>(trajectory_generator);
-  for(size_t i = 0; i < 16; i++) {
-    if(fabs(pose_final_[i] - linear_traj_generator->pose_desired_[i]) > 0.0001) {
-      return false;
+  if(!done_){
+    LinearTrajectoryGenerator *linear_traj_generator =
+          static_cast<LinearTrajectoryGenerator *>(trajectory_generator);
+    for(size_t i = 0; i < 16; i++) {
+      if(fabs(pose_final_[i] - linear_traj_generator->pose_desired_[i]) > 0.0001) {
+        return false;
+      }
     }
+    done_ = true;
   }
-  return true;
+  
+  return done_;
 }

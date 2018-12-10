@@ -36,6 +36,7 @@ class TerminationHandler {
    */
   virtual bool should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) = 0;
 
+  bool done_ = false;
  protected:
   float *params_=0;
 };

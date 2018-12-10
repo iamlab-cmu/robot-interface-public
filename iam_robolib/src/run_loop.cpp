@@ -385,6 +385,8 @@ TrajectoryGenerator* RunLoop::get_trajectory_generator_for_skill(int memory_regi
 
   TrajectoryGenerator *traj_generator = nullptr;
 
+  std::cout << "Trajectory generator id: " << traj_gen_id << "\n";
+
   if (traj_gen_id == 1) {
     // Create Counter based trajectory.
     traj_generator = new CounterTrajectoryGenerator(buffer);
@@ -419,6 +421,8 @@ FeedbackController* RunLoop::get_feedback_controller_for_skill(int memory_region
   }
   int feedback_controller_id = static_cast<int>(buffer[0]);
 
+  std::cout << "Feedback Controller id: " << feedback_controller_id << "\n";
+
   FeedbackController* feedback_controller = nullptr;
   if (feedback_controller_id == 1) {
     // Create Counter based trajectory.
@@ -443,6 +447,8 @@ TerminationHandler* RunLoop::get_termination_handler_for_skill(int memory_region
     buffer = termination_buffer_1_;
   }
   int termination_handler_id = static_cast<int>(buffer[0]);
+
+  std::cout << "Termination Handler id: " << termination_handler_id << "\n";
 
   if (termination_handler_id == 1) {
     // Create Counter based trajectory.
@@ -627,7 +633,8 @@ void RunLoop::update_process_info() {
           skill_manager_.add_skill(new_skill);
 
           // Get Meta-skill
-          BaseMetaSkill* new_meta_skill = skill_manager_.get_meta_skill_with_id(new_meta_skill_id);
+          // BaseMetaSkill* new_meta_skill = skill_manager_.get_meta_skill_with_id(new_meta_skill_id);
+           BaseMetaSkill* new_meta_skill = nullptr;
           if (new_meta_skill == nullptr) {
             if (new_meta_skill_type == 0) {
               new_meta_skill = new BaseMetaSkill(new_meta_skill_id);
@@ -774,10 +781,18 @@ void RunLoop::run_on_franka() {
 
       // NOTE: We keep on running the last skill even if it is finished!!
       if (skill != nullptr && meta_skill != nullptr) {
-        // Execute skill.
-        std::cout << "Will execute skill: " << skill->get_skill_id() << ", meta skill: " <<
-          meta_skill->getMetaSkillId() << "\n" << std::endl;
-        meta_skill->execute_skill_on_franka(this, &robot_, &gripper_, &control_loop_data_);
+
+        if (!meta_skill->isComposableSkill() && !skill->get_termination_handler()->done_) {
+          // Execute skill.
+          std::cout << "Will execute skill: " << skill->get_skill_id() << ", meta skill: " <<
+            meta_skill->getMetaSkillId() << "\n" << std::endl;
+          meta_skill->execute_skill_on_franka(this, &robot_, &gripper_, &control_loop_data_);
+        } else if (meta_skill->isComposableSkill()) {
+          meta_skill->execute_skill_on_franka(this, &robot_, &gripper_, &control_loop_data_);
+        } else {
+          finish_current_skill(skill);
+          std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
       }
 
       // Complete old skills and acquire new skills

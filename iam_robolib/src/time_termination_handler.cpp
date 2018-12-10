@@ -30,17 +30,23 @@ void TimeTerminationHandler::initialize_handler(franka::Robot *robot) {
 }
 
 bool TimeTerminationHandler::should_terminate(TrajectoryGenerator *trajectory_generator) {
-  // Terminate if the skill time_ has exceeded the provided run_time_ + buffer_time_
-  if(trajectory_generator->time_ > trajectory_generator->run_time_ + buffer_time_) {
-    return true;
+  if(!done_) {
+    // Terminate if the skill time_ has exceeded the provided run_time_ + buffer_time_
+    if(trajectory_generator->time_ > trajectory_generator->run_time_ + buffer_time_) {
+      done_= true;
+    }
   }
-  return false;
+  
+  return done_;
 }
 
 bool TimeTerminationHandler::should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *trajectory_generator) {
-  // Terminate if the skill time_ has exceeded the provided run_time_ + buffer_time_
-  if(trajectory_generator->time_ > trajectory_generator->run_time_ + buffer_time_) {
-    return true;
+  if(!done_) {
+    // Terminate if the skill time_ has exceeded the provided run_time_ + buffer_time_
+    if(trajectory_generator->time_ > trajectory_generator->run_time_ + buffer_time_) {
+      done_= true;
+    }
   }
-  return false;
+  
+  return done_;
 }

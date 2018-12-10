@@ -289,20 +289,27 @@ void ContactTerminationHandler::initialize_handler(franka::Robot *robot) {
 }
 
 bool ContactTerminationHandler::should_terminate(TrajectoryGenerator *trajectory_generator) {
-
+  assert(false);
+  return true;
 }
 
-bool ContactTerminationHandler::should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *trajectory_generator) {
-  if(trajectory_generator->time_ > trajectory_generator->run_time_ + buffer_time_) {
-    return true;
-  }
+bool ContactTerminationHandler::should_terminate(const franka::RobotState &robot_state,
+                                                 TrajectoryGenerator *trajectory_generator) {
+  if(!done_) {
+    if(trajectory_generator->time_ > trajectory_generator->run_time_ + buffer_time_) {
+      done_ = true;
+      return done_;
+    }
 
-  std::array<double, 6> cartesian_contact = robot_state.cartesian_contact;
+    std::array<double, 6> cartesian_contact = robot_state.cartesian_contact;
 
-  for(int i = 0; i < 6; i++) {
-    if(cartesian_contacts_to_use_[i] != 0 && cartesian_contact[i] != 0) {
-      return true;
+    for(int i = 0; i < 6; i++) {
+      if(cartesian_contacts_to_use_[i] != 0 && cartesian_contact[i] != 0) {
+        done_ = true;
+        return  done_;
+      }
     }
   }
-  return false;
+  
+  return done_;
 }

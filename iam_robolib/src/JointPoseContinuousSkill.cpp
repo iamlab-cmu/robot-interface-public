@@ -20,6 +20,11 @@
 #include "BaseSkill.h"
 #include "DMPTrajectoryGenerator.h"
 
+bool JointPoseContinuousSkill::isComposableSkill() {
+  return true;
+}
+
+
 void JointPoseContinuousSkill::execute_skill_on_franka(RunLoop *run_loop, franka::Robot* robot,
     franka::Gripper* gripper, ControlLoopData *control_loop_data) {
   try {
@@ -30,7 +35,7 @@ void JointPoseContinuousSkill::execute_skill_on_franka(RunLoop *run_loop, franka
     SkillInfoManager *skill_info_manager = run_loop->getSkillInfoManager();
     BaseSkill *current_skill = skill_info_manager->get_current_skill();
 
-    std::cout << "Will run the control loop\n";
+    std::cout << "Will run JointPoseContinuousSkill control loop\n";
 
     franka::Model model = robot->loadModel();
     std::array<double, 7> last_dmp_q = robot->readOnce().q;
@@ -74,7 +79,7 @@ void JointPoseContinuousSkill::execute_skill_on_franka(RunLoop *run_loop, franka
 
         if (new_skill->get_skill_id() == current_skill->get_skill_id()) {
           // No new skill, let's just continue with the current skill.
-          current_skill_time = 0.0;
+          // current_skill_time = 0.0;
           last_dmp_q = traj_generator->y_;
           last_dmp_dq = traj_generator->dy_;
 
@@ -86,7 +91,7 @@ void JointPoseContinuousSkill::execute_skill_on_franka(RunLoop *run_loop, franka
             last_dmp_q = traj_generator->y_;
             last_dmp_dq = traj_generator->dy_;
             std::cout << "Meta skill finished: " << skill_info_manager->get_current_meta_skill()->getMetaSkillId() << "\n";
-            return franka::MotionFinished(joint_desired);
+            return franka::MotionFinished(franka::JointPositions(robot_state.q_d));
           } else {
             // Same meta skill, let's continue
             run_loop->start_new_skill(new_skill);
@@ -96,7 +101,8 @@ void JointPoseContinuousSkill::execute_skill_on_franka(RunLoop *run_loop, franka
             last_dmp_dq = traj_generator->dy_;
 
             current_skill = new_skill;
-            std::cout << "New skill: " << new_skill->get_skill_id() << ", found for meta skill: " << skill_info_manager->get_current_meta_skill()->getMetaSkillId() << "\n";
+            std::cout << "New skill: " << new_skill->get_skill_id() << ", found for meta skill: " <<
+              skill_info_manager->get_current_meta_skill()->getMetaSkillId() << "\n";
           }
         }
       }

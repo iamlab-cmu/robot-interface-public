@@ -93,7 +93,7 @@ void DMPTrajectoryGenerator::get_next_step() {
 
   for (k = 1; k < num_basis_; k++) {
     // factor[k] = (factor[k] * x_) / (den * basis_mean_[k]);
-    factor[k] = (factor[k] * x_) / den;
+    factor[k] = (factor[k] * x_) / (den + 1e-8);
   }
   t = fmin(-log(x_)/tau_, 1);
   // TODO(Mohit): Shouldn't the below index be 0?

@@ -10,6 +10,8 @@ class JointPoseContinuousSkill : public BaseMetaSkill {
     is_composable_ = true;
   };
 
+  bool isComposableSkill() override;
+  
   void execute_skill_on_franka(RunLoop *run_loop, franka::Robot* robot, franka::Gripper* gripper,
                                ControlLoopData *control_loop_data) override;
 

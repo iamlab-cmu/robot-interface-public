@@ -11,7 +11,7 @@ import numpy as np
 from franka_action_lib.msg import ExecuteSkillAction, ExecuteSkillGoal
 
 from skill_list import BaseSkill
-from skill_list import JointPoseWithDefaultSensorSkill
+from skill_list import JointPoseWithDefaultSensorSkill, ArmRelativeMotionWithDefaultSensorSkill
 
 def feedback_callback(feedback):
     print(feedback)
@@ -28,6 +28,23 @@ if __name__ == '__main__':
     file = open(args.filename,"rb")
     dmp_info = pickle.load(file)
 
+
+    skill = ArmRelativeMotionWithDefaultSensorSkill()
+    skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
+    skill.add_trajectory_params([5.0, 0.0, 0.0, -0.08, 1.0, 0.0, 0.0, 0.0])  # Run Time (1) and Desired End Effector Pose(16)
+    skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
+    skill.add_termination_params([1.0]) # buffer time
+    goal = skill.create_goal()
+    print(goal)
+    client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
+    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    while not rospy.is_shutdown() and done != True:
+        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    print(client.get_result())
+
+
     skill = JointPoseWithDefaultSensorSkill()
     skill.add_initial_sensor_values(dmp_info['phi_j'])  # sensor values
 
@@ -37,10 +54,42 @@ if __name__ == '__main__':
     print(dmp_info['num_basis'])
 
     # Run time, tau, alpha, beta, num_basis, num_sensor_values, mu, h, weights
-    trajectory_params = [7.0, dmp_info['tau'], dmp_info['alpha'], dmp_info['beta'],\
+    trajectory_params = [4.0, dmp_info['tau'], dmp_info['alpha'], dmp_info['beta'],\
                          float(dmp_info['num_basis']), float(dmp_info['num_sensors'])] + dmp_info['mu'] + \
                          dmp_info['h'] + y0 + np.array(dmp_info['weights']).reshape(-1).tolist()
     skill.add_trajectory_params(trajectory_params)  
+    goal = skill.create_goal()
+    print(goal)
+
+    skill.set_meta_skill_id(1)
+    skill.set_meta_skill_type(1)   
+    skill.add_termination_params([1.0]) 
+    goal = skill.create_goal()
+    client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
+    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    while not rospy.is_shutdown() and done != True:
+        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
+    
+    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    while not rospy.is_shutdown() and done != True:
+        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
+
+    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    while not rospy.is_shutdown() and done != True:
+        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    skill = ArmRelativeMotionWithDefaultSensorSkill()
+    skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
+    skill.add_trajectory_params([5.0, 0.0, 0.0, 0.08, 1.0, 0.0, 0.0, 0.0])  # Run Time (1) and Desired End Effector Pose(16)
+    skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
+    skill.add_termination_params([1.0]) # buffer time
     goal = skill.create_goal()
     print(goal)
     client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
@@ -49,30 +98,4 @@ if __name__ == '__main__':
     while not rospy.is_shutdown() and done != True:
         done = client.wait_for_result(rospy.Duration.from_sec(5.0))
 
-    client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
-    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-
-    while not rospy.is_shutdown() and done != True:
-        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-
-    skill.set_meta_skill_id(1)
-    skill.set_meta_skill_type(1)    
-    goal = skill.create_goal()
-    client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
-    client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
-    client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
-
-    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-
-    while not rospy.is_shutdown() and done != True:
-        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-
-    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-
-    while not rospy.is_shutdown() and done != True:
-        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-
-    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-
-    while not rospy.is_shutdown() and done != True:
-        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+    print(client.get_result())

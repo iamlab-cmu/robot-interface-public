@@ -76,105 +76,116 @@ void LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::initialize_hand
 // trajectory generator to check for termination. If you would like to use the actual position and orientation from the
 // robot state to check for termination, use the should_terminate function with robot state below.
 bool LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::should_terminate(TrajectoryGenerator *trajectory_generator) {
-  LinearTrajectoryGeneratorWithTimeAndGoal *linear_trajectory_generator_with_time_and_goal =
-        static_cast<LinearTrajectoryGeneratorWithTimeAndGoal *>(trajectory_generator);
+  if(!done_){
+    LinearTrajectoryGeneratorWithTimeAndGoal *linear_trajectory_generator_with_time_and_goal =
+          static_cast<LinearTrajectoryGeneratorWithTimeAndGoal *>(trajectory_generator);
 
-  if(linear_trajectory_generator_with_time_and_goal->time_ > linear_trajectory_generator_with_time_and_goal->run_time_ + buffer_time_)
-  {
-    return true;
-  }
-
-  Eigen::Vector3d position_error = linear_trajectory_generator_with_time_and_goal->goal_position_ - linear_trajectory_generator_with_time_and_goal->desired_position_;
-  
-  Eigen::Quaterniond goal_orientation(linear_trajectory_generator_with_time_and_goal->goal_orientation_);
-  Eigen::Quaterniond desired_orientation(linear_trajectory_generator_with_time_and_goal->desired_orientation_);
-
-  if (goal_orientation.coeffs().dot(desired_orientation.coeffs()) < 0.0) {
-    desired_orientation.coeffs() << -desired_orientation.coeffs();
-  }
-  Eigen::Quaterniond error_quaternion(desired_orientation * goal_orientation.inverse());
-  // convert to axis angle
-  Eigen::AngleAxisd error_quaternion_angle_axis(error_quaternion);
-  // compute "orientation error"
-  Eigen::Vector3d orientation_error = error_quaternion_angle_axis.axis() * error_quaternion_angle_axis.angle();
-  
-  if(num_params_ == 6)
-  {
-    for(int i=0; i<3; i++)
+    if(linear_trajectory_generator_with_time_and_goal->time_ > linear_trajectory_generator_with_time_and_goal->run_time_ + buffer_time_)
     {
-      if(std::abs(position_error[i]) > position_thresholds_[i] || std::abs(orientation_error[i]) > orientation_thresholds_[i])
-      {
-        return false;
-      }
+      done_ = true;
+      return true;
     }
-    return true;
+
+    Eigen::Vector3d position_error = linear_trajectory_generator_with_time_and_goal->goal_position_ - linear_trajectory_generator_with_time_and_goal->desired_position_;
+    
+    Eigen::Quaterniond goal_orientation(linear_trajectory_generator_with_time_and_goal->goal_orientation_);
+    Eigen::Quaterniond desired_orientation(linear_trajectory_generator_with_time_and_goal->desired_orientation_);
+
+    if (goal_orientation.coeffs().dot(desired_orientation.coeffs()) < 0.0) {
+      desired_orientation.coeffs() << -desired_orientation.coeffs();
+    }
+    Eigen::Quaterniond error_quaternion(desired_orientation * goal_orientation.inverse());
+    // convert to axis angle
+    Eigen::AngleAxisd error_quaternion_angle_axis(error_quaternion);
+    // compute "orientation error"
+    Eigen::Vector3d orientation_error = error_quaternion_angle_axis.axis() * error_quaternion_angle_axis.angle();
+    
+    if(num_params_ == 6)
+    {
+      for(int i=0; i<3; i++)
+      {
+        if(std::abs(position_error[i]) > position_thresholds_[i] || std::abs(orientation_error[i]) > orientation_thresholds_[i])
+        {
+          return false;
+        }
+      }
+      done_ = true;
+    }
+    else if(num_params_ == 2 && position_error.norm() < position_threshold_ && orientation_error.norm() < orientation_threshold_)
+    {
+      done_ = true;
+    }
+    else
+    {
+      return false;
+    }
   }
-  else if(num_params_ == 2 && position_error.norm() < position_threshold_ && orientation_error.norm() < orientation_threshold_)
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  return done_;
 }
 
 
 bool LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *trajectory_generator) {
-  LinearTrajectoryGeneratorWithTimeAndGoal *linear_trajectory_generator_with_time_and_goal =
-        static_cast<LinearTrajectoryGeneratorWithTimeAndGoal *>(trajectory_generator);
+  
+  if(!done_){
+    LinearTrajectoryGeneratorWithTimeAndGoal *linear_trajectory_generator_with_time_and_goal =
+          static_cast<LinearTrajectoryGeneratorWithTimeAndGoal *>(trajectory_generator);
 
-  // Terminate if the skill time_ has exceeded the provided run_time_ + buffer_time_ 
-  if(linear_trajectory_generator_with_time_and_goal->time_ > linear_trajectory_generator_with_time_and_goal->run_time_ + buffer_time_)
-  {
-    return true;
-  }
-
-
-  // Terminate immediately if collision is detected
-  std::array<double, 6> cartesian_collision = robot_state.cartesian_collision;
-
-  for(int i = 0; i < 6; i++) {
-    if(cartesian_collision[i] != 0) {
+    // Terminate if the skill time_ has exceeded the provided run_time_ + buffer_time_ 
+    if(linear_trajectory_generator_with_time_and_goal->time_ > linear_trajectory_generator_with_time_and_goal->run_time_ + buffer_time_)
+    {
+      done_ = true;
       return true;
     }
-  }
 
-  Eigen::Affine3d current_transform(Eigen::Matrix4d::Map(robot_state.O_T_EE.data()));
-  Eigen::Vector3d current_position(current_transform.translation());
-  Eigen::Quaterniond current_orientation(current_transform.linear());
 
-  Eigen::Vector3d position_error = linear_trajectory_generator_with_time_and_goal->goal_position_ - current_position;
-  
-  Eigen::Quaterniond goal_orientation(linear_trajectory_generator_with_time_and_goal->goal_orientation_);
+    // Terminate immediately if collision is detected
+    std::array<double, 6> cartesian_collision = robot_state.cartesian_collision;
 
-  if (goal_orientation.coeffs().dot(current_orientation.coeffs()) < 0.0) {
-    current_orientation.coeffs() << -current_orientation.coeffs();
-  }
-  Eigen::Quaterniond error_quaternion(current_orientation * goal_orientation.inverse());
-  // convert to axis angle
-  Eigen::AngleAxisd error_quaternion_angle_axis(error_quaternion);
-  // compute "orientation error"
-  Eigen::Vector3d orientation_error = error_quaternion_angle_axis.axis() * error_quaternion_angle_axis.angle();
-  
-  if(num_params_ == 6)
-  {
-    for(int i=0; i<3; i++)
-    {
-      if(std::abs(position_error[i]) > position_thresholds_[i] || std::abs(orientation_error[i]) > orientation_thresholds_[i])
-      {
-        return false;
+    for(int i = 0; i < 6; i++) {
+      if(cartesian_collision[i] != 0) {
+        done_ = true;
+        return true;
       }
     }
-    return true;
+
+    Eigen::Affine3d current_transform(Eigen::Matrix4d::Map(robot_state.O_T_EE.data()));
+    Eigen::Vector3d current_position(current_transform.translation());
+    Eigen::Quaterniond current_orientation(current_transform.linear());
+
+    Eigen::Vector3d position_error = linear_trajectory_generator_with_time_and_goal->goal_position_ - current_position;
+    
+    Eigen::Quaterniond goal_orientation(linear_trajectory_generator_with_time_and_goal->goal_orientation_);
+
+    if (goal_orientation.coeffs().dot(current_orientation.coeffs()) < 0.0) {
+      current_orientation.coeffs() << -current_orientation.coeffs();
+    }
+    Eigen::Quaterniond error_quaternion(current_orientation * goal_orientation.inverse());
+    // convert to axis angle
+    Eigen::AngleAxisd error_quaternion_angle_axis(error_quaternion);
+    // compute "orientation error"
+    Eigen::Vector3d orientation_error = error_quaternion_angle_axis.axis() * error_quaternion_angle_axis.angle();
+    
+    if(num_params_ == 6)
+    {
+      for(int i=0; i<3; i++)
+      {
+        if(std::abs(position_error[i]) > position_thresholds_[i] || std::abs(orientation_error[i]) > orientation_thresholds_[i])
+        {
+          return false;
+        }
+      }
+      done_ = true;
+    }
+    else if(num_params_ == 2 && position_error.norm() < position_threshold_ && orientation_error.norm() < orientation_threshold_)
+    {
+      done_ = true;
+    }
+    else
+    {
+      return false;
+    }
   }
-  else if(num_params_ == 2 && position_error.norm() < position_threshold_ && orientation_error.norm() < orientation_threshold_)
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  return done_;
+  
 }
 
