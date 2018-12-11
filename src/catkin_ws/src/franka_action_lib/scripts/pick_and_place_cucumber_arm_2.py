@@ -5,7 +5,7 @@ roslib.load_manifest('franka_action_lib')
 import rospy
 import actionlib
 
-from franka_action_lib.msg import ExecuteSkillAction, ExecuteSkillGoal
+from franka_action_lib.msg import ExecuteSkillAction, ExecuteSkillGoal, RobotState
 
 from skill_list import BaseSkill
 from skill_list import ArmMoveToGoalWithDefaultSensorSkill, GripperWithDefaultSensorSkill, ArmMoveToGoalContactWithDefaultSensorSkill, StayInPositionWithDefaultSensorSkill
@@ -13,10 +13,40 @@ from skill_list import ArmMoveToGoalWithDefaultSensorSkill, GripperWithDefaultSe
 def feedback_callback(feedback):
     print(feedback)
 
+def load_result_into_robot_state_msg(result):
+    robot_state = RobotState()
+
+    current_result_index = 0
+
+    for i in range(16):
+        robot_state.O_T_EE = result.execution_result[current_result_index]
+        current_result_index += 1
+
+    for i in range(7):
+        robot_state.tau_J = result.execution_result[current_result_index]
+        current_result_index += 1
+
+    for i in range(7):
+        robot_state.dtau_J = result.execution_result[current_result_index]
+        current_result_index += 1
+
+    for i in range(7):
+        robot_state.q = result.execution_result[current_result_index]
+        current_result_index += 1
+
+    for i in range(7):
+        robot_state.dq = result.execution_result[current_result_index]
+        current_result_index += 1
+
+    return robot_state
+
+
 if __name__ == '__main__':
     rospy.init_node('example_execute_skill_action_client')
     client = actionlib.SimpleActionClient('/execute_skill_action_server_node/execute_skill', ExecuteSkillAction)
     client.wait_for_server()
+    pub = rospy.Publisher('Arm_2_robot_state', RobotState, queue_size=10)
+    
 
     print ('===== ')
     print("Opening the gripper to prepare for grasping.")
@@ -50,6 +80,9 @@ if __name__ == '__main__':
 
     while not rospy.is_shutdown() and done != True:
         done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    robot_state = load_result_into_robot_state_msg(client.get_result())
+    pub.publish(robot_state)
 
     print ('===== ')
     print("Closing the gripper and grasping.")
@@ -85,6 +118,10 @@ if __name__ == '__main__':
     while not rospy.is_shutdown() and done != True:
         done = client.wait_for_result(rospy.Duration.from_sec(5.0))
 
+    robot_state = load_result_into_robot_state_msg(client.get_result())
+    pub.publish(robot_state)
+
+
     print ('===== ')
     print("Moving to intermediate position.")
 
@@ -102,6 +139,9 @@ if __name__ == '__main__':
 
     while not rospy.is_shutdown() and done != True:
         done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    robot_state = load_result_into_robot_state_msg(client.get_result())
+    pub.publish(robot_state)
 
     print ('===== ')
     print("Moving to contact goal position")
@@ -121,6 +161,9 @@ if __name__ == '__main__':
     while not rospy.is_shutdown() and done != True:
         done = client.wait_for_result(rospy.Duration.from_sec(5.0))
 
+    robot_state = load_result_into_robot_state_msg(client.get_result())
+    pub.publish(robot_state)
+
     print ('===== ')
     print("Stay in Position")
 
@@ -134,10 +177,11 @@ if __name__ == '__main__':
     print(goal)
     
     client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
-    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+    done = client.wait_for_result(rospy.Duration.from_sec(1.0))
 
     while not rospy.is_shutdown() and done != True:
-        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+        done = client.wait_for_result(rospy.Duration.from_sec(1.0))
+        pub.publish(robot_state)
 
     print ('===== ')
     print("Open the Gripper")
@@ -167,3 +211,6 @@ if __name__ == '__main__':
     print(goal)
     client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
     done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    robot_state = load_result_into_robot_state_msg(client.get_result())
+    pub.publish(robot_state)
