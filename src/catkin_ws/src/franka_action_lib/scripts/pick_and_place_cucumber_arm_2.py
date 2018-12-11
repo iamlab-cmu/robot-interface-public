@@ -19,23 +19,23 @@ def load_result_into_robot_state_msg(result):
     current_result_index = 0
 
     for i in range(16):
-        robot_state.O_T_EE = result.execution_result[current_result_index]
+        robot_state.O_T_EE[i] = result.execution_result[current_result_index]
         current_result_index += 1
 
     for i in range(7):
-        robot_state.tau_J = result.execution_result[current_result_index]
+        robot_state.tau_J[i] = result.execution_result[current_result_index]
         current_result_index += 1
 
     for i in range(7):
-        robot_state.dtau_J = result.execution_result[current_result_index]
+        robot_state.dtau_J[i] = result.execution_result[current_result_index]
         current_result_index += 1
 
     for i in range(7):
-        robot_state.q = result.execution_result[current_result_index]
+        robot_state.q[i] = result.execution_result[current_result_index]
         current_result_index += 1
 
     for i in range(7):
-        robot_state.dq = result.execution_result[current_result_index]
+        robot_state.dq[i] = result.execution_result[current_result_index]
         current_result_index += 1
 
     return robot_state
@@ -43,7 +43,7 @@ def load_result_into_robot_state_msg(result):
 
 if __name__ == '__main__':
     rospy.init_node('example_execute_skill_action_client')
-    client = actionlib.SimpleActionClient('/execute_skill_action_server_node/execute_skill', ExecuteSkillAction)
+    client = actionlib.SimpleActionClient('/execute_skill_action_server_node2/execute_skill', ExecuteSkillAction)
     client.wait_for_server()
     pub = rospy.Publisher('Arm_2_robot_state', RobotState, queue_size=10)
     
@@ -150,7 +150,7 @@ if __name__ == '__main__':
     skill = ArmMoveToGoalContactWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
     #skill.add_trajectory_params([3.0, 0.00189348,-0.999791,-0.0198586,0,-0.999966,-0.0020278,0.00674575,0,-0.00678474,0.0198455,-0.99978,0,0.622919,-0.405382,0.0198905,1])  # Run Time (1) and Desired End Effector Pose(16)
-    skill.add_trajectory_params([3.0, 0.0249987,0.811047,-0.58443,0,0.988228,-0.108277,-0.107991,0,-0.150869,-0.574862,-0.804222,0,0.634026,-0.423271,0.0336646,1])  # Run Time (1) and Desired End Effector Pose(16)
+    skill.add_trajectory_params([3.0, -0.0052017,0.837409,-0.546534,0,0.998476,-0.0255863,-0.0487069,0,-0.0547725,-0.545965,-0.836016,0,0.684861,-0.419534,0.0362174,1])  # Run Time (1) and Desired End Effector Pose(16)
     skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
     skill.add_termination_params([1.0]) # buffer time
     goal = skill.create_goal()
