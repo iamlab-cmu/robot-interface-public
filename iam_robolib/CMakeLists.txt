@@ -105,6 +105,8 @@ add_library(iam_robolib SHARED
   src/JointPoseContinuousSkill.h
   src/BaseMetaSkill.cpp
   src/BaseMetaSkill.h
+  src/SharedMemoryHandler.cpp
+  src/SharedMemoryHandler.h
 )
 
 # Add namespace
