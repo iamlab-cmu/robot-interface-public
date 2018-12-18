@@ -85,30 +85,6 @@ void RunLoop::start() {
   shared_memory_handler_->start();
 }
 
-FeedbackController* RunLoop::get_feedback_controller_for_skill(int memory_region) {
-  SharedBuffer buffer = shared_memory_handler_->getFeedbackControllerBuffer(memory_region);
-  int feedback_controller_id = static_cast<int>(buffer[0]);
-
-  std::cout << "Feedback Controller id: " << feedback_controller_id << "\n";
-
-  FeedbackController* feedback_controller = nullptr;
-  if (feedback_controller_id == 1) {
-    // Create Counter based trajectory.
-    feedback_controller = new NoopFeedbackController(buffer);
-  } else if (feedback_controller_id == 2) {
-    // Create Counter based trajectory.
-    feedback_controller = new TorqueFeedbackController(buffer);
-  } else if (feedback_controller_id == 3) {
-    feedback_controller = new CustomGainTorqueController(buffer);
-  } else {
-    logger_.add_error_log(string_format(
-        "Cannot create FeedbackController with class_id: %d\n", feedback_controller_id));
-    return nullptr;
-  }
-  feedback_controller->parse_parameters();
-  return feedback_controller;
-}
-
 TerminationHandler* RunLoop::get_termination_handler_for_skill(int memory_region) {
   SharedBuffer  buffer = shared_memory_handler_->getTerminationParametersBuffer(memory_region);
   int termination_handler_id = static_cast<int>(buffer[0]);
@@ -172,8 +148,11 @@ void RunLoop::start_new_skill(BaseSkill* new_skill) {
   TrajectoryGenerator *traj_generator = traj_gen_factory_.getTrajectoryGeneratorForSkill(
       traj_buffer);
   std::cout << "Did get traj generator\n";
+
+  SharedBuffer feedback_controller_buffer = shared_memory_handler_->getFeedbackControllerBuffer(
+      memory_index);
   FeedbackController *feedback_controller =
-      get_feedback_controller_for_skill(memory_index);
+      feedback_controller_factory_.getFeedbackControllerForSkill(feedback_controller_buffer);
   TerminationHandler* termination_handler =
       get_termination_handler_for_skill(memory_index);
   std::cout << "Did get termination_handler\n";

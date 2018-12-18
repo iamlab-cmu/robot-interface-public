@@ -20,13 +20,12 @@
 // TODO(Mohit): Fix this, CANNOT do private imports in public headers. FML.
 #include "../../src/BaseSkill.h"
 #include "../../src/skill_info_manager.h"
-#include "../../src/trajectory_generator.h"
-#include "../../src/FeedbackController.h"
 #include "../../src/TerminationHandler.h"
 #include "../../src/RunLoopLogger.h"
 #include "../../src/ControlLoopData.h"
 #include "../../src/SharedMemoryHandler.h"
 #include "../../src/TrajectoryGeneratorFactory.h"
+#include "../../src/FeedbackControllerFactory.h"
 
 
 // SharedBuffer type to share memory (Change size later)
@@ -127,7 +126,7 @@ class RunLoop {
   uint32_t elapsed_time_;
 
   TrajectoryGeneratorFactory traj_gen_factory_={};
-
+  FeedbackControllerFactory feedback_controller_factory_={};
 
   /**
    * Check if new skill should be started or not. Starting a new skill
@@ -145,15 +144,6 @@ class RunLoop {
    * current status.
    */
   void update_process_info();
-
-  /**
-   * Get feedback controller for skill.
-   *
-   * @param memory_region  Region of the memory where the parameters
-   * will be stored.
-   * @return FeedbackController instance for this skill
-   */
-  FeedbackController* get_feedback_controller_for_skill(int memory_region);
 
   /**
    * Get termination handler for skill.

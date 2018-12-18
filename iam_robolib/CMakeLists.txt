@@ -109,7 +109,8 @@ add_library(iam_robolib SHARED
   src/SharedMemoryHandler.h
   src/TrajectoryGeneratorFactory.cpp
   src/TrajectoryGeneratorFactory.h
-)
+  src/FeedbackControllerFactory.cpp
+  src/FeedbackControllerFactory.h)
 
 # Add namespace
 # add_library(IAM_RoboLib::IAM_RoboLib ALIAS iam_robolib)

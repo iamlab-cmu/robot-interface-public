@@ -11,6 +11,7 @@
 #include <franka/rate_limiting.h>
 
 #include <iam_robolib/run_loop.h>
+#include "FeedbackController.h"
 #include "trajectory_generator.h"
 #include "ControlLoopData.h"
 
