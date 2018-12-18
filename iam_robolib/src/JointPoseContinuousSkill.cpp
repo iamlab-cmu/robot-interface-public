@@ -15,10 +15,11 @@
 
 #include <iam_robolib/run_loop.h>
 
-#include "trajectory_generator.h"
-#include "ControlLoopData.h"
 #include "BaseSkill.h"
+#include "ControlLoopData.h"
 #include "DMPTrajectoryGenerator.h"
+#include "TerminationHandler.h"
+#include "trajectory_generator.h"
 
 bool JointPoseContinuousSkill::isComposableSkill() {
   return true;

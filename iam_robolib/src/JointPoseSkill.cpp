@@ -14,6 +14,7 @@
 #include <franka/exception.h>
 
 #include <iam_robolib/run_loop.h>
+#include "TerminationHandler.h"
 #include "trajectory_generator.h"
 #include "ControlLoopData.h"
 

@@ -85,37 +85,6 @@ void RunLoop::start() {
   shared_memory_handler_->start();
 }
 
-TerminationHandler* RunLoop::get_termination_handler_for_skill(int memory_region) {
-  SharedBuffer  buffer = shared_memory_handler_->getTerminationParametersBuffer(memory_region);
-  int termination_handler_id = static_cast<int>(buffer[0]);
-
-  std::cout << "Termination Handler id: " << termination_handler_id << "\n";
-
-  TerminationHandler *termination_handler = nullptr;
-  if (termination_handler_id == 1) {
-    // Create Counter based trajectory.
-    termination_handler = new NoopTerminationHandler(buffer);
-  } else if (termination_handler_id == 2) {
-    termination_handler = new FinalPoseTerminationHandler(buffer);
-  } else if (termination_handler_id == 3) {
-    termination_handler = new FinalJointTerminationHandler(buffer);
-  } else if (termination_handler_id == 4) {
-    termination_handler = new LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler(buffer);
-  } else if (termination_handler_id == 5) {
-    termination_handler = new ContactTerminationHandler(buffer);
-  } else if (termination_handler_id == 6) {
-    termination_handler = new TimeTerminationHandler(buffer);
-  } else {
-    // Cannot create Trajectory generator for this skill. Throw error
-    logger_.add_error_log(string_format(
-        "Cannot create TerminationHandler with class_id: %d\n", termination_handler_id));
-    termination_handler = nullptr;
-  }
-  termination_handler->parse_parameters();
-  return termination_handler;
-}
-
-
 void RunLoop::stop() {
   // Maybe call this after exceptions or SIGINT or any Interrupt.
   // Stop the interface gracefully.
@@ -153,9 +122,13 @@ void RunLoop::start_new_skill(BaseSkill* new_skill) {
       memory_index);
   FeedbackController *feedback_controller =
       feedback_controller_factory_.getFeedbackControllerForSkill(feedback_controller_buffer);
+
+  SharedBuffer termination_handler_buffer = shared_memory_handler_->getTerminationParametersBuffer(
+      memory_index);
   TerminationHandler* termination_handler =
-      get_termination_handler_for_skill(memory_index);
+      termination_handler_factory_.getTerminationHandlerForSkill(termination_handler_buffer);
   std::cout << "Did get termination_handler\n";
+
   // Start skill, does any pre-processing if required.
   new_skill->start_skill(&robot_, traj_generator, feedback_controller, termination_handler);
 }

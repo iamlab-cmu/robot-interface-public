@@ -18,15 +18,15 @@
 #include <franka/gripper.h>
 
 // TODO(Mohit): Fix this, CANNOT do private imports in public headers. FML.
-#include "../../src/BaseSkill.h"
 #include "../../src/skill_info_manager.h"
-#include "../../src/TerminationHandler.h"
 #include "../../src/RunLoopLogger.h"
 #include "../../src/ControlLoopData.h"
 #include "../../src/SharedMemoryHandler.h"
 #include "../../src/TrajectoryGeneratorFactory.h"
 #include "../../src/FeedbackControllerFactory.h"
+#include "../../src/TerminationHandlerFactory.h"
 
+class BaseSkill;
 
 // SharedBuffer type to share memory (Change size later)
 // using SharedBuffer = std::array<float, 1024>;
@@ -127,6 +127,7 @@ class RunLoop {
 
   TrajectoryGeneratorFactory traj_gen_factory_={};
   FeedbackControllerFactory feedback_controller_factory_={};
+  TerminationHandlerFactory termination_handler_factory_={};
 
   /**
    * Check if new skill should be started or not. Starting a new skill
@@ -144,16 +145,6 @@ class RunLoop {
    * current status.
    */
   void update_process_info();
-
-  /**
-   * Get termination handler for skill.
-   *
-   * @param memory_region  Region of the memory where the parameters
-   * will be stored.
-   * @return TermatinationHanndler instance for this skill
-   */
-  TerminationHandler* get_termination_handler_for_skill(int memory_region);
-
 
   /**
    * Setup thread to print data from the real time control loop thread.
