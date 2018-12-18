@@ -26,6 +26,8 @@
 #include "../../src/RunLoopLogger.h"
 #include "../../src/ControlLoopData.h"
 #include "../../src/SharedMemoryHandler.h"
+#include "../../src/TrajectoryGeneratorFactory.h"
+
 
 // SharedBuffer type to share memory (Change size later)
 // using SharedBuffer = std::array<float, 1024>;
@@ -124,6 +126,8 @@ class RunLoop {
   const double cutoff_frequency_; // NOLINT(readability-identifier-naming)
   uint32_t elapsed_time_;
 
+  TrajectoryGeneratorFactory traj_gen_factory_={};
+
 
   /**
    * Check if new skill should be started or not. Starting a new skill
@@ -141,14 +145,6 @@ class RunLoop {
    * current status.
    */
   void update_process_info();
-
-  /**
-   * Get trajectory generator for skill.
-   *
-   * @param memory_region  Region of the memory where the parameters
-   * will be stored.
-   */
-  TrajectoryGenerator* get_trajectory_generator_for_skill(int memory_region);
 
   /**
    * Get feedback controller for skill.

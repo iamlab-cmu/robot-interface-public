@@ -107,6 +107,8 @@ add_library(iam_robolib SHARED
   src/BaseMetaSkill.h
   src/SharedMemoryHandler.cpp
   src/SharedMemoryHandler.h
+  src/TrajectoryGeneratorFactory.cpp
+  src/TrajectoryGeneratorFactory.h
 )
 
 # Add namespace
