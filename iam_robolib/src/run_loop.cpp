@@ -76,7 +76,6 @@ bool RunLoop::init() {
   // TODO(Mohit): Initialize memory and stuff.
   bool throw_on_error;
   setCurrentThreadToRealtime(throw_on_error);
-
   shared_memory_handler_ = new SharedMemoryHandler();
 }
 
@@ -151,38 +150,28 @@ TerminationHandler* RunLoop::get_termination_handler_for_skill(int memory_region
 
   std::cout << "Termination Handler id: " << termination_handler_id << "\n";
 
+  TerminationHandler *termination_handler = nullptr;
   if (termination_handler_id == 1) {
     // Create Counter based trajectory.
-    NoopTerminationHandler *termination_handler = new NoopTerminationHandler(buffer);
-    termination_handler->parse_parameters();
-    return termination_handler;
+    termination_handler = new NoopTerminationHandler(buffer);
   } else if (termination_handler_id == 2) {
-    FinalPoseTerminationHandler *termination_handler = new FinalPoseTerminationHandler(buffer);
-    termination_handler->parse_parameters();
-    return termination_handler;
+    termination_handler = new FinalPoseTerminationHandler(buffer);
   } else if (termination_handler_id == 3) {
-    FinalJointTerminationHandler *termination_handler = new FinalJointTerminationHandler(buffer);
-    termination_handler->parse_parameters();
-    return termination_handler;
+    termination_handler = new FinalJointTerminationHandler(buffer);
   } else if (termination_handler_id == 4) {
-    LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler *termination_handler =
-          new LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler(buffer);
-    termination_handler->parse_parameters();
-    return termination_handler;
+    termination_handler = new LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler(buffer);
   } else if (termination_handler_id == 5) {
-    ContactTerminationHandler *termination_handler = new ContactTerminationHandler(buffer);
-    termination_handler->parse_parameters();
-    return termination_handler;
+    termination_handler = new ContactTerminationHandler(buffer);
   } else if (termination_handler_id == 6) {
-    TimeTerminationHandler *termination_handler = new TimeTerminationHandler(buffer);
-    termination_handler->parse_parameters();
-    return termination_handler;
+    termination_handler = new TimeTerminationHandler(buffer);
   } else {
-      // Cannot create Trajectory generator for this skill. Throw error
-      logger_.add_error_log(string_format(
-          "Cannot create TerminationHandler with class_id: %d\n", termination_handler_id));
-      return nullptr;
+    // Cannot create Trajectory generator for this skill. Throw error
+    logger_.add_error_log(string_format(
+        "Cannot create TerminationHandler with class_id: %d\n", termination_handler_id));
+    termination_handler = nullptr;
   }
+  termination_handler->parse_parameters();
+  return termination_handler;
 }
 
 
@@ -224,15 +213,6 @@ void RunLoop::start_new_skill(BaseSkill* new_skill) {
   std::cout << "Did get termination_handler\n";
   // Start skill, does any pre-processing if required.
   new_skill->start_skill(&robot_, traj_generator, feedback_controller, termination_handler);
-
-  /**
-   * HACK - Used for counter based testing only.
-  CounterTrajectoryGenerator *ctg = static_cast<CounterTrajectoryGenerator *>(traj_generator);
-  NoopFeedbackController *noopfbc = static_cast<NoopFeedbackController *>(feedback_controller);
-  ctg->delta_ = noopfbc->delta_;
-  assert(noopfbc->delta_ >= 0.0001);
-  assert(ctg->delta_ >= 0.0001);
-  */
 }
 
 
