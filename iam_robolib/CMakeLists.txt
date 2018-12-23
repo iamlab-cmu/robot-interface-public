@@ -35,8 +35,8 @@ add_library(iam_robolib SHARED
   src/duration.cpp
   src/TerminationHandler/contact_termination_handler.cpp
   src/TerminationHandler/contact_termination_handler.h
-  src/skill_info.cpp
-  src/skill_info.h
+  src/Skills/skill_info.cpp
+  src/Skills/skill_info.h
   src/skill_info_manager.cpp
   src/skill_info_manager.h
   src/TrajectoryGenerator/trajectory_generator.cpp
@@ -79,32 +79,32 @@ add_library(iam_robolib SHARED
   src/TerminationHandler/FinalJointTerminationHandler.h
   src/TrajectoryGenerator/LinearJointTrajectoryController.cpp
   src/TrajectoryGenerator/LinearJointTrajectoryController.h
-  src/GripperOpenSkill.cpp
-  src/GripperOpenSkill.h
+  src/Skills/GripperOpenSkill.cpp
+  src/Skills/GripperOpenSkill.h
   src/TrajectoryGenerator/GripperOpenTrajectoryGenerator.cpp
   src/TrajectoryGenerator/GripperOpenTrajectoryGenerator.h
-  src/BaseSkill.cpp
-  src/BaseSkill.h
+  src/Skills/BaseSkill.cpp
+  src/Skills/BaseSkill.h
   #src/JsonFileLogger.cpp
   #src/JsonFileLogger.h
   src/FileStreamLogger.cpp
   src/FileStreamLogger.h
   src/TrajectoryGenerator/DMPTrajectoryGenerator.cpp
   src/TrajectoryGenerator/DMPTrajectoryGenerator.h
-  src/JointPoseSkill.cpp
-  src/JointPoseSkill.h
-  src/JointPoseWithTorqueControlSkill.cpp
-  src/JointPoseWithTorqueControlSkill.h
+  src/Skills/JointPoseSkill.cpp
+  src/Skills/JointPoseSkill.h
+  src/Skills/JointPoseWithTorqueControlSkill.cpp
+  src/Skills/JointPoseWithTorqueControlSkill.h
   src/TrajectoryGenerator/relative_linear_trajectory_generator.cpp
   src/TrajectoryGenerator/relative_linear_trajectory_generator.h
   src/FeedbackController/CustomGainTorqueController.cpp
   src/FeedbackController/CustomGainTorqueController.h
-  src/SaveTrajectorySkill.cpp
-  src/SaveTrajectorySkill.h
-  src/JointPoseContinuousSkill.cpp
-  src/JointPoseContinuousSkill.h
-  src/BaseMetaSkill.cpp
-  src/BaseMetaSkill.h
+  src/Skills/SaveTrajectorySkill.cpp
+  src/Skills/SaveTrajectorySkill.h
+  src/Skills/JointPoseContinuousSkill.cpp
+  src/Skills/JointPoseContinuousSkill.h
+  src/Skills/BaseMetaSkill.cpp
+  src/Skills/BaseMetaSkill.h
   src/SharedMemoryHandler.cpp
   src/SharedMemoryHandler.h
   src/TrajectoryGeneratorFactory.cpp

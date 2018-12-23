@@ -16,14 +16,14 @@
 
 #include <franka/exception.h>
 
-#include "BaseMetaSkill.h"
-#include "BaseSkill.h"
+#include "Skills/BaseMetaSkill.h"
+#include "Skills/BaseSkill.h"
 #include "ControlLoopData.h"
 #include "FileStreamLogger.h"
-#include "GripperOpenSkill.h"
-#include "JointPoseSkill.h"
-#include "JointPoseContinuousSkill.h"
-#include "SaveTrajectorySkill.h"
+#include "Skills/GripperOpenSkill.h"
+#include "Skills/JointPoseSkill.h"
+#include "Skills/JointPoseContinuousSkill.h"
+#include "Skills/SaveTrajectorySkill.h"
 
 std::atomic<bool> RunLoop::running_skills_{false};
 

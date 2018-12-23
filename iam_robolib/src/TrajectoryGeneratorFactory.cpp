@@ -4,8 +4,8 @@
 
 #include "TrajectoryGeneratorFactory.h"
 
-#include "BaseMetaSkill.h"
-#include "BaseSkill.h"
+#include "Skills/BaseMetaSkill.h"
+#include "Skills/BaseSkill.h"
 #include "TrajectoryGenerator/DMPTrajectoryGenerator.h"
 #include "TrajectoryGenerator/GripperOpenTrajectoryGenerator.h"
 #include "TrajectoryGenerator/LinearJointTrajectoryController.h"

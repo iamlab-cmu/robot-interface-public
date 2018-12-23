@@ -4,8 +4,8 @@
 
 #include "skill_info_manager.h"
 
-#include "BaseSkill.h"
-#include "BaseMetaSkill.h"
+#include "Skills/BaseSkill.h"
+#include "Skills/BaseMetaSkill.h"
 
 #include <cassert>
 
