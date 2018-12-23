@@ -14,9 +14,9 @@
 #include <franka/robot.h>
 
 #include "BaseSkill.h"
-#include "FeedbackController.h"
-#include "TerminationHandler.h"
-#include "trajectory_generator.h"
+#include "FeedbackController/FeedbackController.h"
+#include "TerminationHandler/TerminationHandler.h"
+#include "TrajectoryGenerator/trajectory_generator.h"
 
 class SkillInfo : public BaseSkill {
   public:

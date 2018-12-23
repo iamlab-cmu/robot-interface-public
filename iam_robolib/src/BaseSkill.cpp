@@ -7,9 +7,9 @@
 #include <franka/robot.h>
 #include <iostream>
 
-#include "FeedbackController.h"
-#include "TerminationHandler.h"
-#include "trajectory_generator.h"
+#include "FeedbackController/FeedbackController.h"
+#include "TerminationHandler/TerminationHandler.h"
+#include "TrajectoryGenerator/trajectory_generator.h"
 
 int BaseSkill::get_skill_id() {
   return skill_idx_;

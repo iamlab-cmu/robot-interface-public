@@ -6,16 +6,16 @@
 
 #include "BaseMetaSkill.h"
 #include "BaseSkill.h"
-#include "DMPTrajectoryGenerator.h"
-#include "GripperOpenTrajectoryGenerator.h"
-#include "LinearJointTrajectoryController.h"
-#include "counter_trajectory_generator.h"
-#include "goal_linear_trajectory_generator.h"
-#include "linear_trajectory_generator.h"
-#include "linear_trajectory_generator_with_time_and_goal.h"
-#include "linear_trajectory_generator_with_time_and_goal_termination_handler.h"
-#include "relative_linear_trajectory_generator.h"
-#include "stay_in_initial_position_trajectory_generator.h"
+#include "TrajectoryGenerator/DMPTrajectoryGenerator.h"
+#include "TrajectoryGenerator/GripperOpenTrajectoryGenerator.h"
+#include "TrajectoryGenerator/LinearJointTrajectoryController.h"
+#include "TrajectoryGenerator/counter_trajectory_generator.h"
+#include "TrajectoryGenerator/goal_linear_trajectory_generator.h"
+#include "TrajectoryGenerator/linear_trajectory_generator.h"
+#include "TrajectoryGenerator/linear_trajectory_generator_with_time_and_goal.h"
+#include "TrajectoryGenerator/linear_trajectory_generator_with_time_and_goal_termination_handler.h"
+#include "TrajectoryGenerator/relative_linear_trajectory_generator.h"
+#include "TrajectoryGenerator/stay_in_initial_position_trajectory_generator.h"
 
 TrajectoryGenerator* TrajectoryGeneratorFactory::getTrajectoryGeneratorForSkill(
     SharedBuffer buffer) {

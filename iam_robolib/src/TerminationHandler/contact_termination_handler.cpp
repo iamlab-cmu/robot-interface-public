@@ -7,8 +7,8 @@
 #include <cmath>
 #include <iostream>
 
-#include "trajectory_generator.h"
-#include "counter_trajectory_generator.h"
+#include "TrajectoryGenerator/trajectory_generator.h"
+#include "TrajectoryGenerator/counter_trajectory_generator.h"
 
 void ContactTerminationHandler::parse_parameters() {
   // First parameter is reserved for the type

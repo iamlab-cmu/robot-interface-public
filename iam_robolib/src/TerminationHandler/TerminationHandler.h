@@ -5,7 +5,7 @@
 #pragma once
 
 #include <franka/robot.h>
-#include "trajectory_generator.h"
+#include "TrajectoryGenerator/trajectory_generator.h"
 
 class TerminationHandler {
  public:

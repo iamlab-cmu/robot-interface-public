@@ -10,7 +10,7 @@
 #include <franka/rate_limiting.h>
 #include <franka/robot.h>
 
-#include "trajectory_generator.h"
+#include "TrajectoryGenerator/trajectory_generator.h"
 
 
 class LinearTrajectoryGenerator : public TrajectoryGenerator {

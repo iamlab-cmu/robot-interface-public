@@ -33,72 +33,72 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../libfranka")
 add_library(iam_robolib SHARED
   src/run_loop.cpp
   src/duration.cpp
-  src/contact_termination_handler.cpp
-  src/contact_termination_handler.h
+  src/TerminationHandler/contact_termination_handler.cpp
+  src/TerminationHandler/contact_termination_handler.h
   src/skill_info.cpp
   src/skill_info.h
   src/skill_info_manager.cpp
   src/skill_info_manager.h
-  src/trajectory_generator.cpp
-  src/trajectory_generator.h
-  src/goal_linear_trajectory_generator.cpp
-  src/goal_linear_trajectory_generator.h
-  src/linear_trajectory_generator.cpp
-  src/linear_trajectory_generator.h
-  src/linear_trajectory_generator_with_time_and_goal.cpp
-  src/linear_trajectory_generator_with_time_and_goal.h
-  src/linear_trajectory_generator_with_time_and_goal_termination_handler.cpp
-  src/linear_trajectory_generator_with_time_and_goal_termination_handler.h
-  src/torque_feedback_controller.cpp
-  src/torque_feedback_controller.h
-  src/counter_trajectory_generator.cpp
-  src/counter_trajectory_generator.h
-  src/FeedbackController.cpp
-  src/FeedbackController.h
-  src/NoopFeedbackController.cpp
-  src/NoopFeedbackController.h
-  src/TerminationHandler.cpp
-  src/TerminationHandler.h
-  src/CounterTerminationHandler.cpp
-  src/CounterTerminationHandler.h
-  src/time_termination_handler.cpp
-  src/time_termination_handler.h
-  src/stay_in_initial_position_trajectory_generator.cpp
-  src/stay_in_initial_position_trajectory_generator.h
+  src/TrajectoryGenerator/trajectory_generator.cpp
+  src/TrajectoryGenerator/trajectory_generator.h
+  src/TrajectoryGenerator/goal_linear_trajectory_generator.cpp
+  src/TrajectoryGenerator/goal_linear_trajectory_generator.h
+  src/TrajectoryGenerator/linear_trajectory_generator.cpp
+  src/TrajectoryGenerator/linear_trajectory_generator.h
+  src/TrajectoryGenerator/linear_trajectory_generator_with_time_and_goal.cpp
+  src/TrajectoryGenerator/linear_trajectory_generator_with_time_and_goal.h
+  src/TrajectoryGenerator/linear_trajectory_generator_with_time_and_goal_termination_handler.cpp
+  src/TrajectoryGenerator/linear_trajectory_generator_with_time_and_goal_termination_handler.h
+  src/FeedbackController/torque_feedback_controller.cpp
+  src/FeedbackController/torque_feedback_controller.h
+  src/TrajectoryGenerator/counter_trajectory_generator.cpp
+  src/TrajectoryGenerator/counter_trajectory_generator.h
+  src/FeedbackController/FeedbackController.cpp
+  src/FeedbackController/FeedbackController.h
+  src/FeedbackController/NoopFeedbackController.cpp
+  src/FeedbackController/NoopFeedbackController.h
+  src/TerminationHandler/TerminationHandler.cpp
+  src/TerminationHandler/TerminationHandler.h
+  src/TerminationHandler/CounterTerminationHandler.cpp
+  src/TerminationHandler/CounterTerminationHandler.h
+  src/TerminationHandler/time_termination_handler.cpp
+  src/TerminationHandler/time_termination_handler.h
+  src/TrajectoryGenerator/stay_in_initial_position_trajectory_generator.cpp
+  src/TrajectoryGenerator/stay_in_initial_position_trajectory_generator.h
   src/SensorData.cpp
   src/SensorData.h
-  src/NoopTerminationHandler.cpp
-  src/NoopTerminationHandler.h
+  src/TerminationHandler/NoopTerminationHandler.cpp
+  src/TerminationHandler/NoopTerminationHandler.h
   src/RunLoopLogger.cpp
   src/RunLoopLogger.h
-  src/FinalPoseTerminationHandler.cpp
-  src/FinalPoseTerminationHandler.h
+  src/TerminationHandler/FinalPoseTerminationHandler.cpp
+  src/TerminationHandler/FinalPoseTerminationHandler.h
   src/ControlLoopData.cpp
   src/ControlLoopData.h
-  src/FinalJointTerminationHandler.cpp
-  src/FinalJointTerminationHandler.h
-  src/LinearJointTrajectoryController.cpp
-  src/LinearJointTrajectoryController.h
+  src/TerminationHandler/FinalJointTerminationHandler.cpp
+  src/TerminationHandler/FinalJointTerminationHandler.h
+  src/TrajectoryGenerator/LinearJointTrajectoryController.cpp
+  src/TrajectoryGenerator/LinearJointTrajectoryController.h
   src/GripperOpenSkill.cpp
   src/GripperOpenSkill.h
-  src/GripperOpenTrajectoryGenerator.cpp
-  src/GripperOpenTrajectoryGenerator.h
+  src/TrajectoryGenerator/GripperOpenTrajectoryGenerator.cpp
+  src/TrajectoryGenerator/GripperOpenTrajectoryGenerator.h
   src/BaseSkill.cpp
   src/BaseSkill.h
   #src/JsonFileLogger.cpp
   #src/JsonFileLogger.h
   src/FileStreamLogger.cpp
   src/FileStreamLogger.h
-  src/DMPTrajectoryGenerator.cpp
-  src/DMPTrajectoryGenerator.h
+  src/TrajectoryGenerator/DMPTrajectoryGenerator.cpp
+  src/TrajectoryGenerator/DMPTrajectoryGenerator.h
   src/JointPoseSkill.cpp
   src/JointPoseSkill.h
   src/JointPoseWithTorqueControlSkill.cpp
   src/JointPoseWithTorqueControlSkill.h
-  src/relative_linear_trajectory_generator.cpp
-  src/relative_linear_trajectory_generator.h
-  src/CustomGainTorqueController.cpp
-  src/CustomGainTorqueController.h
+  src/TrajectoryGenerator/relative_linear_trajectory_generator.cpp
+  src/TrajectoryGenerator/relative_linear_trajectory_generator.h
+  src/FeedbackController/CustomGainTorqueController.cpp
+  src/FeedbackController/CustomGainTorqueController.h
   src/SaveTrajectorySkill.cpp
   src/SaveTrajectorySkill.h
   src/JointPoseContinuousSkill.cpp

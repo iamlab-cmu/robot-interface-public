@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-#include "linear_trajectory_generator.h"
+#include "TrajectoryGenerator/linear_trajectory_generator.h"
 
 void FinalPoseTerminationHandler::parse_parameters() {
   // First parameter is reserved for the type

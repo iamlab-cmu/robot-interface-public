@@ -2,7 +2,7 @@
 // Created by Kevin on 11/29/18.
 //
 
-#include "linear_trajectory_generator.h"
+#include "TrajectoryGenerator/linear_trajectory_generator.h"
 
 void LinearTrajectoryGenerator::parse_parameters() {
   // First parameter is reserved for the type

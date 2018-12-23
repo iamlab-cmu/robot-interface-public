@@ -7,7 +7,7 @@
 #include <array>
 #include <franka/robot_state.h>
 #include <franka/model.h>
-#include "trajectory_generator.h"
+#include "TrajectoryGenerator/trajectory_generator.h"
 
 class FeedbackController {
  public:

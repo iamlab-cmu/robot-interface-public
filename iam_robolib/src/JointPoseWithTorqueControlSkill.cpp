@@ -12,9 +12,9 @@
 
 #include <iam_robolib/run_loop.h>
 #include "ControlLoopData.h"
-#include "FeedbackController.h"
-#include "TerminationHandler.h"
-#include "trajectory_generator.h"
+#include "FeedbackController/FeedbackController.h"
+#include "TerminationHandler/TerminationHandler.h"
+#include "TrajectoryGenerator/trajectory_generator.h"
 
 void JointPoseWithTorqueControlSkill::execute_skill() {
   assert(false);

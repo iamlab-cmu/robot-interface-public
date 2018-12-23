@@ -9,7 +9,7 @@
 #include <iostream>
 
 #include "ControlLoopData.h"
-#include "TerminationHandler.h"
+#include "TerminationHandler/TerminationHandler.h"
 
 void SaveTrajectorySkill::execute_skill() {
   assert(false);

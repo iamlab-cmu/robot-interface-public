@@ -17,9 +17,9 @@
 
 #include "BaseSkill.h"
 #include "ControlLoopData.h"
-#include "DMPTrajectoryGenerator.h"
-#include "TerminationHandler.h"
-#include "trajectory_generator.h"
+#include "TrajectoryGenerator/DMPTrajectoryGenerator.h"
+#include "TerminationHandler/TerminationHandler.h"
+#include "TrajectoryGenerator/trajectory_generator.h"
 
 bool JointPoseContinuousSkill::isComposableSkill() {
   return true;

@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-#include "LinearJointTrajectoryController.h"
+#include "TrajectoryGenerator/LinearJointTrajectoryController.h"
 
 void FinalJointTerminationHandler::parse_parameters() {
   // First parameter is reserved for the type

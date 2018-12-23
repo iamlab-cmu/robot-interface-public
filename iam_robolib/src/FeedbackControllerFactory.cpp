@@ -6,9 +6,9 @@
 
 #include <iostream>
 
-#include "CustomGainTorqueController.h"
-#include "NoopFeedbackController.h"
-#include "torque_feedback_controller.h"
+#include "FeedbackController/CustomGainTorqueController.h"
+#include "FeedbackController/NoopFeedbackController.h"
+#include "FeedbackController/torque_feedback_controller.h"
 
 FeedbackController* FeedbackControllerFactory::getFeedbackControllerForSkill(SharedBuffer buffer){
   int feedback_controller_id = static_cast<int>(buffer[0]);

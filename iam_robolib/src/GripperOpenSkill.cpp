@@ -4,7 +4,7 @@
 #include <iostream>
 #include <thread>
 
-#include "GripperOpenTrajectoryGenerator.h"
+#include "TrajectoryGenerator/GripperOpenTrajectoryGenerator.h"
 
 void GripperOpenSkill::execute_skill() {
   assert(false);

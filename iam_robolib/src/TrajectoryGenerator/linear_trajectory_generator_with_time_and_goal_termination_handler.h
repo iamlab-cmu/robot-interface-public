@@ -1,10 +1,9 @@
 #pragma once
 
-#include <TerminationHandler.h>
+#include <Eigen/Dense>
+#include <TerminationHandler/TerminationHandler.h>
 
-#include <franka/robot.h>
-
-class FinalPoseTerminationHandler : public TerminationHandler {
+class LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler : public TerminationHandler {
  public:
   using TerminationHandler::TerminationHandler;
 
@@ -31,8 +30,13 @@ class FinalPoseTerminationHandler : public TerminationHandler {
   /**
    * Should we terminate the current skill.
    */
-  bool should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) override;
+  virtual bool should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) override;
 
  private:
-  std::array<double, 16> pose_final_{};
+  int num_params_;
+  double buffer_time_ = 0.0;
+  double position_threshold_ = 0.001;
+  double orientation_threshold_ = 0.001;
+  Eigen::Vector3d position_thresholds_;
+  Eigen::Vector3d orientation_thresholds_;
 };

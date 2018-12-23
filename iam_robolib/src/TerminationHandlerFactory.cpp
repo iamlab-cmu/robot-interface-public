@@ -4,12 +4,12 @@
 
 #include "TerminationHandlerFactory.h"
 
-#include "FinalJointTerminationHandler.h"
-#include "FinalPoseTerminationHandler.h"
-#include "NoopTerminationHandler.h"
-#include "contact_termination_handler.h"
-#include "linear_trajectory_generator_with_time_and_goal_termination_handler.h"
-#include "time_termination_handler.h"
+#include "TerminationHandler/FinalJointTerminationHandler.h"
+#include "TerminationHandler/FinalPoseTerminationHandler.h"
+#include "TerminationHandler/NoopTerminationHandler.h"
+#include "TerminationHandler/contact_termination_handler.h"
+#include "TrajectoryGenerator/linear_trajectory_generator_with_time_and_goal_termination_handler.h"
+#include "TerminationHandler/time_termination_handler.h"
 
 #include <iostream>
 
