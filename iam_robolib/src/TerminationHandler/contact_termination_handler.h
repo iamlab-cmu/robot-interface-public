@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include "TerminationHandler.h"
+#include "termination_handler.h"
 
-class ContactTerminationHandler : public TerminationHandler {
+class ContactTerminationHandler : public termination_handler {
  public:
-  using TerminationHandler::TerminationHandler;
+  using termination_handler::termination_handler;
 
   /**
    * Parse parameters from memory.

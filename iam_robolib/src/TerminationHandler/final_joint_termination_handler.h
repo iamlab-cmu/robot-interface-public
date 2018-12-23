@@ -1,9 +1,12 @@
+//
+// Created by mohit on 11/30/18.
+//
+
 #pragma once
 
-#include <Eigen/Dense>
-#include <TerminationHandler/termination_handler.h>
+#include "termination_handler.h"
 
-class LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler : public termination_handler {
+class final_joint_termination_handler :public termination_handler{
  public:
   using termination_handler::termination_handler;
 
@@ -30,13 +33,9 @@ class LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler : public termin
   /**
    * Should we terminate the current skill.
    */
-  virtual bool should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) override;
+  bool should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) override;
 
  private:
-  int num_params_;
-  double buffer_time_ = 0.0;
-  double position_threshold_ = 0.001;
-  double orientation_threshold_ = 0.001;
-  Eigen::Vector3d position_thresholds_;
-  Eigen::Vector3d orientation_thresholds_;
+  std::array<double, 16> joint_final_{};
+
 };

@@ -19,14 +19,14 @@
 
 // TODO(Mohit): Fix this, CANNOT do private imports in public headers. FML.
 #include "../../src/skill_info_manager.h"
-#include "../../src/RunLoopLogger.h"
-#include "../../src/ControlLoopData.h"
-#include "../../src/SharedMemoryHandler.h"
-#include "../../src/TrajectoryGeneratorFactory.h"
-#include "../../src/FeedbackControllerFactory.h"
-#include "../../src/TerminationHandlerFactory.h"
+#include "../../src/run_loop_logger.h"
+#include "../../src/control_loop_data.h"
+#include "../../src/run_loop_shared_memory_handler.h"
+#include "../../src/trajectory_generator_factory.h"
+#include "../../src/feedback_controller_factory.h"
+#include "../../src/termination_handler_factory.h"
 
-class BaseSkill;
+class base_skill;
 
 // SharedBuffer type to share memory (Change size later)
 // using SharedBuffer = std::array<float, 1024>;
@@ -37,9 +37,9 @@ void setCurrentThreadToRealtime(bool throw_on_error);
 
 // TODO(Mohit): Add a namespace to these declarations.
 
-class RunLoop {
+class run_loop {
  public:
-  RunLoop(std::mutex& logger_mutex,
+  run_loop(std::mutex& logger_mutex,
           std::mutex& control_loop_data_mutex) : limit_rate_(false),
                                                  cutoff_frequency_(0.0),
                                                  logger_(logger_mutex),
@@ -50,7 +50,7 @@ class RunLoop {
                                                  gripper_("172.16.0.2") {};
 
   // Todo(Mohit): Implement this!!! We should free up the shared memory correctly.
-  // ~RunLoop();
+  // ~run_loop();
 
   bool init();
 
@@ -90,18 +90,18 @@ class RunLoop {
    * Did finish skill in meta skill.
    * @param skill
    */
-  void didFinishSkillInMetaSkill(BaseSkill* skill);
+  void didFinishSkillInMetaSkill(base_skill* skill);
 
   /**
    * Start executing new skill.
    * @param new_skill New skill to start.
    */
-  void start_new_skill(BaseSkill* new_skill);
+  void start_new_skill(base_skill* new_skill);
 
   /**
    *  Finish current executing skill.
    */
-  void finish_current_skill(BaseSkill* skill);
+  void finish_current_skill(base_skill* skill);
 
   static std::atomic<bool> running_skills_;
 
@@ -112,10 +112,10 @@ class RunLoop {
 
   std::thread print_thread_{};
 
-  SharedMemoryHandler* shared_memory_handler_ = nullptr;
+  run_loop_shared_memory_handler* shared_memory_handler_ = nullptr;
   SkillInfoManager skill_manager_{};
-  RunLoopLogger logger_;
-  ControlLoopData control_loop_data_;
+  run_loop_logger logger_;
+  control_loop_data control_loop_data_;
 
   // If this flag is true at every loop we will try to get the lock and update
   // process info.
@@ -125,9 +125,9 @@ class RunLoop {
   const double cutoff_frequency_; // NOLINT(readability-identifier-naming)
   uint32_t elapsed_time_;
 
-  TrajectoryGeneratorFactory traj_gen_factory_={};
-  FeedbackControllerFactory feedback_controller_factory_={};
-  TerminationHandlerFactory termination_handler_factory_={};
+  trajectory_generator_factory traj_gen_factory_={};
+  feedback_controller_factory feedback_controller_factory_={};
+  termination_handler_factory termination_handler_factory_={};
 
   /**
    * Check if new skill should be started or not. Starting a new skill
@@ -138,7 +138,7 @@ class RunLoop {
    * @param new_skill
    * @return True if new skill should be started else false.
    */
-  bool should_start_new_skill(BaseSkill* old_skill, BaseSkill* new_skill);
+  bool should_start_new_skill(base_skill* old_skill, base_skill* new_skill);
 
   /**
    * Update process info in the shared memory to reflect run-loop's

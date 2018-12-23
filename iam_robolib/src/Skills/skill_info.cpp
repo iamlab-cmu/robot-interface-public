@@ -14,7 +14,7 @@
 #include <franka/exception.h>
 
 #include <iam_robolib/run_loop.h>
-#include "ControlLoopData.h"
+#include "control_loop_data.h"
 
 void SkillInfo::execute_skill() {
   assert(traj_generator_ != 0);
@@ -28,7 +28,7 @@ void SkillInfo::execute_skill() {
 }
 
 void SkillInfo::execute_skill_on_franka(franka::Robot* robot, franka::Gripper* gripper,
-                                        ControlLoopData *control_loop_data) {
+                                        control_loop_data *control_loop_data) {
 
   try {
     double time = 0.0;
@@ -82,7 +82,7 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot, franka::Gripper* g
     robot->control(impedance_control_callback);
 
   } catch (const franka::Exception& ex) {
-    RunLoop::running_skills_ = false;
+    run_loop::running_skills_ = false;
     std::cerr << ex.what() << std::endl;
     // Make sure we don't lose data.
     control_loop_data->writeCurrentBufferData();
@@ -94,13 +94,13 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot, franka::Gripper* g
 }
 
 void SkillInfo::execute_meta_skill_on_franka(franka::Robot *robot, franka::Gripper *gripper,
-                                             ControlLoopData *control_loop_data) {
+                                             control_loop_data *control_loop_data) {
   std::cout << "Not implemented\n" << std::endl;
   assert(false);
 }
 
 void SkillInfo::execute_skill_on_franka_joint_base(franka::Robot* robot, franka::Gripper* gripper,
-                                                   ControlLoopData *control_loop_data) {
+                                                   control_loop_data *control_loop_data) {
 
   try {
     double time = 0.0;
@@ -154,7 +154,7 @@ void SkillInfo::execute_skill_on_franka_joint_base(franka::Robot* robot, franka:
     robot->control(impedance_control_callback);
 
   } catch (const franka::Exception& ex) {
-    RunLoop::running_skills_ = false;
+    run_loop::running_skills_ = false;
     std::cerr << ex.what() << std::endl;
     // Make sure we don't lose data.
     control_loop_data->writeCurrentBufferData();
@@ -166,7 +166,7 @@ void SkillInfo::execute_skill_on_franka_joint_base(franka::Robot* robot, franka:
 }
 
 void SkillInfo::execute_skill_on_franka_temp2(franka::Robot* robot, franka::Gripper* gripper,
-                                              ControlLoopData *control_loop_data) {
+                                              control_loop_data *control_loop_data) {
   const double translational_stiffness{500.0};
   const double rotational_stiffness{35.0};
   Eigen::MatrixXd stiffness(6, 6), damping(6, 6);
@@ -266,7 +266,7 @@ void SkillInfo::execute_skill_on_franka_temp2(franka::Robot* robot, franka::Grip
     robot->control(impedance_control_callback);
 
   } catch (const franka::Exception& ex) {
-    RunLoop::running_skills_ = false;
+    run_loop::running_skills_ = false;
     std::cerr << ex.what() << std::endl;
     // Make sure we don't lose data.
     control_loop_data->writeCurrentBufferData();
@@ -278,7 +278,7 @@ void SkillInfo::execute_skill_on_franka_temp2(franka::Robot* robot, franka::Grip
 }
 
 void SkillInfo::execute_skill_on_franka_temp(franka::Robot* robot, franka::Gripper* gripper,
-                                             ControlLoopData *control_loop_data) {
+                                             control_loop_data *control_loop_data) {
   try {
     double time = 0.0;
     int log_counter = 0;
@@ -395,7 +395,7 @@ void SkillInfo::execute_skill_on_franka_temp(franka::Robot* robot, franka::Gripp
     robot->control(impedance_control_callback);
 
   } catch (const franka::Exception& ex) {
-    RunLoop::running_skills_ = false;
+    run_loop::running_skills_ = false;
     std::cerr << ex.what() << std::endl;
     // Make sure we don't lose data.
     control_loop_data->writeCurrentBufferData();

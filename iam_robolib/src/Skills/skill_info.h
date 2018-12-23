@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "BaseSkill.h"
+#include "base_skill.h"
 
 #include <franka/duration.h>
 #include <franka/exception.h>
@@ -13,32 +13,32 @@
 #include <franka/rate_limiting.h>
 #include <franka/robot.h>
 
-#include "BaseSkill.h"
-#include "FeedbackController/FeedbackController.h"
-#include "TerminationHandler/TerminationHandler.h"
+#include "base_skill.h"
+#include "FeedbackController/feedback_controller.h"
+#include "TerminationHandler/termination_handler.h"
 #include "TrajectoryGenerator/trajectory_generator.h"
 
-class SkillInfo : public BaseSkill {
+class SkillInfo : public base_skill {
   public:
-    SkillInfo(int skill_idx, int meta_skill_idx): BaseSkill(skill_idx, meta_skill_idx) {};
+    SkillInfo(int skill_idx, int meta_skill_idx): base_skill(skill_idx, meta_skill_idx) {};
 
 
     void execute_skill() override;
 
     void execute_skill_on_franka(franka::Robot *robot, franka::Gripper *gripper,
-                                 ControlLoopData *control_loop_data) override;
+                                 control_loop_data *control_loop_data) override;
 
     void execute_meta_skill_on_franka(franka::Robot *robot, franka::Gripper *gripper,
-                                      ControlLoopData *control_loop_data);
+                                      control_loop_data *control_loop_data);
 
     void execute_skill_on_franka_temp(franka::Robot *robot, franka::Gripper *gripper,
-        ControlLoopData *control_loop_data);
+        control_loop_data *control_loop_data);
 
     void execute_skill_on_franka_temp2(franka::Robot *robot, franka::Gripper *gripper,
-        ControlLoopData *control_loop_data);
+        control_loop_data *control_loop_data);
 
     void execute_skill_on_franka_joint_base(franka::Robot* robot, franka::Gripper* gripper,
-        ControlLoopData *control_loop_data);
+        control_loop_data *control_loop_data);
 
     bool should_terminate() override;
 

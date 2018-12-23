@@ -16,16 +16,16 @@
 
 #include <franka/exception.h>
 
-#include "Skills/BaseMetaSkill.h"
-#include "Skills/BaseSkill.h"
-#include "ControlLoopData.h"
-#include "FileStreamLogger.h"
-#include "Skills/GripperOpenSkill.h"
-#include "Skills/JointPoseSkill.h"
-#include "Skills/JointPoseContinuousSkill.h"
-#include "Skills/SaveTrajectorySkill.h"
+#include "Skills/base_meta_skill.h"
+#include "Skills/base_skill.h"
+#include "control_loop_data.h"
+#include "file_stream_logger.h"
+#include "Skills/gripper_open_skill.h"
+#include "Skills/joint_pose_skill.h"
+#include "Skills/joint_pose_continuous_skill.h"
+#include "Skills/save_trajectory_skill.h"
 
-std::atomic<bool> RunLoop::running_skills_{false};
+std::atomic<bool> run_loop::running_skills_{false};
 
 template<typename ... Args>
 std::string string_format(const std::string& format, Args ... args )
@@ -53,25 +53,25 @@ void setCurrentThreadToRealtime(bool throw_on_error) {
   }
 }
 
-bool RunLoop::init() {
+bool run_loop::init() {
   // TODO(Mohit): Initialize memory and stuff.
   bool throw_on_error;
   setCurrentThreadToRealtime(throw_on_error);
-  shared_memory_handler_ = new SharedMemoryHandler();
+  shared_memory_handler_ = new run_loop_shared_memory_handler();
 }
 
-void RunLoop::start() {
+void run_loop::start() {
   // Start processing, might want to do some pre-processing 
   std::cout << "start run loop.\n";
   shared_memory_handler_->start();
 }
 
-void RunLoop::stop() {
+void run_loop::stop() {
   // Maybe call this after exceptions or SIGINT or any Interrupt.
   // Stop the interface gracefully.
 }
 
-bool RunLoop::should_start_new_skill(BaseSkill* old_skill, BaseSkill* new_skill) {
+bool run_loop::should_start_new_skill(base_skill* old_skill, base_skill* new_skill) {
   // No new skill to start.
   if (new_skill == nullptr) {
     return false;
@@ -88,7 +88,7 @@ bool RunLoop::should_start_new_skill(BaseSkill* old_skill, BaseSkill* new_skill)
   return false;
 }
 
-void RunLoop::start_new_skill(BaseSkill* new_skill) {
+void run_loop::start_new_skill(base_skill* new_skill) {
   // Generate things that are required here.
   RunLoopProcessInfo* run_loop_info = shared_memory_handler_->getRunLoopProcessInfo();
   int memory_index = run_loop_info->get_current_shared_memory_index();
@@ -101,12 +101,12 @@ void RunLoop::start_new_skill(BaseSkill* new_skill) {
 
   SharedBuffer feedback_controller_buffer = shared_memory_handler_->getFeedbackControllerBuffer(
       memory_index);
-  FeedbackController *feedback_controller =
+  feedback_controller *feedback_controller =
       feedback_controller_factory_.getFeedbackControllerForSkill(feedback_controller_buffer);
 
   SharedBuffer termination_handler_buffer = shared_memory_handler_->getTerminationParametersBuffer(
       memory_index);
-  TerminationHandler* termination_handler =
+  termination_handler* termination_handler =
       termination_handler_factory_.getTerminationHandlerForSkill(termination_handler_buffer);
   std::cout << "Did get termination_handler\n";
 
@@ -115,7 +115,7 @@ void RunLoop::start_new_skill(BaseSkill* new_skill) {
 }
 
 
-void RunLoop::finish_current_skill(BaseSkill* skill) {
+void run_loop::finish_current_skill(base_skill* skill) {
   SkillStatus status = skill->get_current_skill_status();
 
   if (skill->should_terminate()) {
@@ -136,8 +136,8 @@ void RunLoop::finish_current_skill(BaseSkill* skill) {
   // TODO(Mohit): Do any other-preprocessing if required
 }
 
-void RunLoop::update_process_info() {
-  BaseSkill* skill = skill_manager_.get_current_skill();
+void run_loop::update_process_info() {
+  base_skill* skill = skill_manager_.get_current_skill();
   int current_skill_id = -1;
   if (skill != nullptr) {
     current_skill_id = skill->get_skill_id();
@@ -197,15 +197,15 @@ void RunLoop::update_process_info() {
 
           // Add new skill
           run_loop_info->set_current_skill_id(new_skill_id);
-          BaseSkill *new_skill;
+          base_skill *new_skill;
           if (new_skill_type == 0) {
             new_skill = new SkillInfo(new_skill_id, new_meta_skill_id);
           } else if (new_skill_type == 1) {
-            new_skill = new GripperOpenSkill(new_skill_id, new_meta_skill_id);
+            new_skill = new gripper_open_skill(new_skill_id, new_meta_skill_id);
           } else if (new_skill_type == 2) {
-            new_skill = new JointPoseSkill(new_skill_id, new_meta_skill_id);
+            new_skill = new joint_pose_skill(new_skill_id, new_meta_skill_id);
           } else if (new_skill_type == 3) {
-            new_skill = new SaveTrajectorySkill(new_skill_id, new_meta_skill_id);
+            new_skill = new save_trajectory_skill(new_skill_id, new_meta_skill_id);
           } else {
               std::cout << "Incorrect skill type: " << new_skill_type << "\n";
               assert(false);
@@ -213,13 +213,13 @@ void RunLoop::update_process_info() {
           skill_manager_.add_skill(new_skill);
 
           // Get Meta-skill
-          // BaseMetaSkill* new_meta_skill = skill_manager_.get_meta_skill_with_id(new_meta_skill_id);
-           BaseMetaSkill* new_meta_skill = nullptr;
+          // base_meta_skill* new_meta_skill = skill_manager_.get_meta_skill_with_id(new_meta_skill_id);
+           base_meta_skill* new_meta_skill = nullptr;
           if (new_meta_skill == nullptr) {
             if (new_meta_skill_type == 0) {
-              new_meta_skill = new BaseMetaSkill(new_meta_skill_id);
+              new_meta_skill = new base_meta_skill(new_meta_skill_id);
             } else if (new_meta_skill_type == 1) {
-              new_meta_skill = new JointPoseContinuousSkill(new_meta_skill_id);
+              new_meta_skill = new joint_pose_continuous_skill(new_meta_skill_id);
             } else {
                 std::cout << "Incorrect meta skill type: " << new_skill_type << "\n";
                 assert(false);
@@ -242,7 +242,7 @@ void RunLoop::update_process_info() {
 
 }
 
-void RunLoop::run() {
+void run_loop::run() {
   // Wait for sometime to let the client add data to the buffer
   std::this_thread::sleep_for(std::chrono::seconds(10));
 
@@ -254,7 +254,7 @@ void RunLoop::run() {
     start = std::chrono::high_resolution_clock::now();
 
     // Execute the current skill (traj_generator, FBC are here)
-    BaseSkill *skill = skill_manager_.get_current_skill();
+    base_skill *skill = skill_manager_.get_current_skill();
 
     // NOTE: We keep on running the last skill even if it is finished!!
     if (skill != 0) {
@@ -273,7 +273,7 @@ void RunLoop::run() {
     update_process_info();
 
     // Start new skill, if possible
-    BaseSkill *new_skill = skill_manager_.get_current_skill();
+    base_skill *new_skill = skill_manager_.get_current_skill();
     if (should_start_new_skill(skill, new_skill)) {
       start_new_skill(new_skill);
     }
@@ -286,7 +286,7 @@ void RunLoop::run() {
   }
 }
 
-void RunLoop::setup_print_thread() {
+void run_loop::setup_print_thread() {
   int print_rate = 10;
   print_thread_ = std::thread([&, print_rate]() {
       // Sleep to achieve the desired print rate.
@@ -307,7 +307,7 @@ void RunLoop::setup_print_thread() {
   });
 }
 
-void RunLoop::setup_robot_default_behavior() {
+void run_loop::setup_robot_default_behavior() {
   // Set additional parameters always before the control loop, NEVER in the control loop!
   // Set collision behavior.
   /*robot_.setCollisionBehavior(
@@ -325,14 +325,14 @@ void RunLoop::setup_robot_default_behavior() {
   robot_.setCartesianImpedance({{3000, 3000, 3000, 300, 300, 300}});
 }
 
-void RunLoop::didFinishSkillInMetaSkill(BaseSkill* skill) {
+void run_loop::didFinishSkillInMetaSkill(base_skill* skill) {
   // Finish skill if possible.
   finish_current_skill(skill);
   // Complete old skills and acquire new skills
   update_process_info();
 }
 
-void RunLoop::run_on_franka() {
+void run_loop::run_on_franka() {
   init();
 
   setup_print_thread();
@@ -347,15 +347,15 @@ void RunLoop::run_on_franka() {
 
   try {
     running_skills_ = true;
-    FileStreamLogger* logger = new FileStreamLogger();
+    file_stream_logger* logger = new file_stream_logger();
     control_loop_data_.setFileStreamLogger(logger);
     control_loop_data_.startFileLoggerThread();
     while (1) {
       start = std::chrono::high_resolution_clock::now();
 
       // Execute the current skill (traj_generator, FBC are here)
-      BaseSkill* skill = skill_manager_.get_current_skill();
-      BaseMetaSkill *meta_skill = skill_manager_.get_current_meta_skill();
+      base_skill* skill = skill_manager_.get_current_skill();
+      base_meta_skill *meta_skill = skill_manager_.get_current_meta_skill();
 
       // NOTE: We keep on running the last skill even if it is finished!!
       if (skill != nullptr && meta_skill != nullptr) {
@@ -377,7 +377,7 @@ void RunLoop::run_on_franka() {
       update_process_info();
 
       // Start new skill, if possible
-      BaseSkill* new_skill = skill_manager_.get_current_skill();
+      base_skill* new_skill = skill_manager_.get_current_skill();
       if (should_start_new_skill(skill, new_skill)) {
         std::cout << "Will start skill\n";
         start_new_skill(new_skill);
@@ -406,6 +406,6 @@ void RunLoop::run_on_franka() {
   }
 }
 
-SkillInfoManager* RunLoop::getSkillInfoManager() {
+SkillInfoManager* run_loop::getSkillInfoManager() {
   return &skill_manager_;
 }
