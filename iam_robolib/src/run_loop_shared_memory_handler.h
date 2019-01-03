@@ -17,7 +17,7 @@
 #include <franka/robot.h>
 #include <franka/gripper.h>
 
-typedef float *SharedBuffer;
+#include "definitions.h"
 
 class run_loop_shared_memory_handler {
  public:

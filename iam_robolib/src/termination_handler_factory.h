@@ -1,7 +1,8 @@
 #pragma once
 
+#include "definitions.h"
+
 class termination_handler;
-typedef float * SharedBuffer;
 
 class termination_handler_factory {
  public:

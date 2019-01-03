@@ -1,9 +1,9 @@
 #pragma once
 
 #include "run_loop_shared_memory_handler.h"
-class TrajectoryGenerator;
+#include "definitions.h"
 
-typedef float* SharedBuffer;
+class TrajectoryGenerator;
 
 class trajectory_generator_factory {
  public:

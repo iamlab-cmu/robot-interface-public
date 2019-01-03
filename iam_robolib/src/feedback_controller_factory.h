@@ -1,7 +1,8 @@
 #pragma once
 
+#include "definitions.h"
+
 class feedback_controller;
-typedef float* SharedBuffer;
 
 class feedback_controller_factory {
  public:

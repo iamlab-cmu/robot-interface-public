@@ -111,6 +111,7 @@ add_library(iam_robolib SHARED
   src/feedback_controller_factory.h
   src/termination_handler_factory.cpp
   src/termination_handler_factory.h
+  src/definitions.h
 )
 
 # Add namespace

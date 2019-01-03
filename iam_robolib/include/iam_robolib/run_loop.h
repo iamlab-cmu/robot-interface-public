@@ -25,12 +25,9 @@
 #include "../../src/trajectory_generator_factory.h"
 #include "../../src/feedback_controller_factory.h"
 #include "../../src/termination_handler_factory.h"
+#include "../../src/definitions.h"
 
 class base_skill;
-
-// SharedBuffer type to share memory (Change size later)
-// using SharedBuffer = std::array<float, 1024>;
-typedef float *SharedBuffer;
 
 // Set thread to real time priority.
 void setCurrentThreadToRealtime(bool throw_on_error);
