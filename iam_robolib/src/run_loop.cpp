@@ -61,6 +61,7 @@ bool run_loop::init() {
 }
 
 void run_loop::start() {
+  init();
   // Start processing, might want to do some pre-processing 
   std::cout << "start run loop.\n";
   shared_memory_handler_->start();
@@ -333,8 +334,6 @@ void run_loop::didFinishSkillInMetaSkill(base_skill* skill) {
 }
 
 void run_loop::run_on_franka() {
-  init();
-
   setup_print_thread();
 
   // Wait for sometime to let the client add data to the buffer

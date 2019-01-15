@@ -43,7 +43,7 @@ def load_result_into_robot_state_msg(result):
 
 if __name__ == '__main__':
     rospy.init_node('example_execute_skill_action_client')
-    client = actionlib.SimpleActionClient('/execute_skill_action_server_node2/execute_skill', ExecuteSkillAction)
+    client = actionlib.SimpleActionClient('/execute_skill_action_server_node/execute_skill', ExecuteSkillAction)
     client.wait_for_server()
     pub = rospy.Publisher('Arm_2_robot_state', RobotState, queue_size=10)
     
