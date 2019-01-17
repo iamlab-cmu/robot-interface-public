@@ -11,7 +11,11 @@ where:
     -h show this help text
     -a IP address for the control PC.
     -u Username on control PC.
-    -p Use password [0/1]"
+    -p Use password [0/1]
+    
+    ./start_control_pc.sh -a 128.237.176.200 -u mohit -p 0 (Does not require passwd)
+    ./start_control_pc.sh -a 128.237.176.200 -u iam-lab -p 1 (Requires passwd)
+    "
 
 control_pc_uname="iam-lab"
 control_pc_use_passwd=1
