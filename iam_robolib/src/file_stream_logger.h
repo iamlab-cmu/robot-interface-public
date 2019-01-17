@@ -4,9 +4,9 @@
 #include <fstream>
 #include <vector>
 
-class file_stream_logger {
+class FileStreamLogger {
  public:
-   file_stream_logger(): open_file_stream_("./traj_data.txt", std::ofstream::out | std::ofstream::app) {};
+   FileStreamLogger(): open_file_stream_("./traj_data.txt", std::ofstream::out | std::ofstream::app) {};
 
    bool writeData(std::vector<double> control_time,
                   std::vector<std::array<double, 16>>& pose_desired,

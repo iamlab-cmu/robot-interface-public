@@ -6,22 +6,22 @@
 
 #include <iostream>
 
-void noop_feedback_controller::parse_parameters() {
+void NoopFeedbackController::parse_parameters() {
   // pass
 }
 
-void noop_feedback_controller::initialize_controller() {
+void NoopFeedbackController::initialize_controller() {
   // pass
 }
 
-void noop_feedback_controller::initialize_controller(franka::Model *model) {
+void NoopFeedbackController::initialize_controller(franka::Model *model) {
   // pass
 }
 
-void noop_feedback_controller::get_next_step() {
+void NoopFeedbackController::get_next_step() {
   // pass
 }
 
-void noop_feedback_controller::get_next_step(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) {
+void NoopFeedbackController::get_next_step(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) {
   // pass
 }

@@ -4,9 +4,9 @@
 
 #pragma once
 
-class sensor_data {
+class SensorData {
  public:
-  explicit sensor_data(float *v) : values_{v} {};
+  explicit SensorData(float *v) : values_{v} {};
 
   /**
    * Parse data from memory.

@@ -57,7 +57,7 @@ bool run_loop::init() {
   // TODO(Mohit): Initialize memory and stuff.
   bool throw_on_error;
   setCurrentThreadToRealtime(throw_on_error);
-  shared_memory_handler_ = new run_loop_shared_memory_handler();
+  shared_memory_handler_ = new RunLoopSharedMemoryHandler();
 }
 
 void run_loop::start() {
@@ -72,7 +72,7 @@ void run_loop::stop() {
   // Stop the interface gracefully.
 }
 
-bool run_loop::should_start_new_skill(base_skill* old_skill, base_skill* new_skill) {
+bool run_loop::should_start_new_skill(BaseSkill* old_skill, BaseSkill* new_skill) {
   // No new skill to start.
   if (new_skill == nullptr) {
     return false;
@@ -89,7 +89,7 @@ bool run_loop::should_start_new_skill(base_skill* old_skill, base_skill* new_ski
   return false;
 }
 
-void run_loop::start_new_skill(base_skill* new_skill) {
+void run_loop::start_new_skill(BaseSkill* new_skill) {
   // Generate things that are required here.
   RunLoopProcessInfo* run_loop_info = shared_memory_handler_->getRunLoopProcessInfo();
   int memory_index = run_loop_info->get_current_shared_memory_index();
@@ -102,21 +102,21 @@ void run_loop::start_new_skill(base_skill* new_skill) {
 
   SharedBuffer feedback_controller_buffer = shared_memory_handler_->getFeedbackControllerBuffer(
       memory_index);
-  feedback_controller *feedback_controller =
+  FeedbackController *feedback_controller =
       feedback_controller_factory_.getFeedbackControllerForSkill(feedback_controller_buffer);
 
   SharedBuffer termination_handler_buffer = shared_memory_handler_->getTerminationParametersBuffer(
       memory_index);
-  termination_handler* termination_handler =
+  TerminationHandler* termination_handler =
       termination_handler_factory_.getTerminationHandlerForSkill(termination_handler_buffer);
-  std::cout << "Did get termination_handler\n";
+  std::cout << "Did get TerminationHandler\n";
 
   // Start skill, does any pre-processing if required.
   new_skill->start_skill(&robot_, traj_generator, feedback_controller, termination_handler);
 }
 
 
-void run_loop::finish_current_skill(base_skill* skill) {
+void run_loop::finish_current_skill(BaseSkill* skill) {
   SkillStatus status = skill->get_current_skill_status();
 
   if (skill->should_terminate()) {
@@ -138,7 +138,7 @@ void run_loop::finish_current_skill(base_skill* skill) {
 }
 
 void run_loop::update_process_info() {
-  base_skill* skill = skill_manager_.get_current_skill();
+  BaseSkill* skill = skill_manager_.get_current_skill();
   int current_skill_id = -1;
   if (skill != nullptr) {
     current_skill_id = skill->get_skill_id();
@@ -198,15 +198,15 @@ void run_loop::update_process_info() {
 
           // Add new skill
           run_loop_info->set_current_skill_id(new_skill_id);
-          base_skill *new_skill;
+          BaseSkill *new_skill;
           if (new_skill_type == 0) {
             new_skill = new SkillInfo(new_skill_id, new_meta_skill_id);
           } else if (new_skill_type == 1) {
-            new_skill = new gripper_open_skill(new_skill_id, new_meta_skill_id);
+            new_skill = new GripperOpenSkill(new_skill_id, new_meta_skill_id);
           } else if (new_skill_type == 2) {
-            new_skill = new joint_pose_skill(new_skill_id, new_meta_skill_id);
+            new_skill = new JointPoseSkill(new_skill_id, new_meta_skill_id);
           } else if (new_skill_type == 3) {
-            new_skill = new save_trajectory_skill(new_skill_id, new_meta_skill_id);
+            new_skill = new SaveTrajectorySkill(new_skill_id, new_meta_skill_id);
           } else {
               std::cout << "Incorrect skill type: " << new_skill_type << "\n";
               assert(false);
@@ -214,13 +214,13 @@ void run_loop::update_process_info() {
           skill_manager_.add_skill(new_skill);
 
           // Get Meta-skill
-          // base_meta_skill* new_meta_skill = skill_manager_.get_meta_skill_with_id(new_meta_skill_id);
-           base_meta_skill* new_meta_skill = nullptr;
+          // BaseMetaSkill* new_meta_skill = skill_manager_.get_meta_skill_with_id(new_meta_skill_id);
+           BaseMetaSkill* new_meta_skill = nullptr;
           if (new_meta_skill == nullptr) {
             if (new_meta_skill_type == 0) {
-              new_meta_skill = new base_meta_skill(new_meta_skill_id);
+              new_meta_skill = new BaseMetaSkill(new_meta_skill_id);
             } else if (new_meta_skill_type == 1) {
-              new_meta_skill = new joint_pose_continuous_skill(new_meta_skill_id);
+              new_meta_skill = new JointPoseContinuousSkill(new_meta_skill_id);
             } else {
                 std::cout << "Incorrect meta skill type: " << new_skill_type << "\n";
                 assert(false);
@@ -255,7 +255,7 @@ void run_loop::run() {
     start = std::chrono::high_resolution_clock::now();
 
     // Execute the current skill (traj_generator, FBC are here)
-    base_skill *skill = skill_manager_.get_current_skill();
+    BaseSkill *skill = skill_manager_.get_current_skill();
 
     // NOTE: We keep on running the last skill even if it is finished!!
     if (skill != 0) {
@@ -274,7 +274,7 @@ void run_loop::run() {
     update_process_info();
 
     // Start new skill, if possible
-    base_skill *new_skill = skill_manager_.get_current_skill();
+    BaseSkill *new_skill = skill_manager_.get_current_skill();
     if (should_start_new_skill(skill, new_skill)) {
       start_new_skill(new_skill);
     }
@@ -326,7 +326,7 @@ void run_loop::setup_robot_default_behavior() {
   robot_.setCartesianImpedance({{3000, 3000, 3000, 300, 300, 300}});
 }
 
-void run_loop::didFinishSkillInMetaSkill(base_skill* skill) {
+void run_loop::didFinishSkillInMetaSkill(BaseSkill* skill) {
   // Finish skill if possible.
   finish_current_skill(skill);
   // Complete old skills and acquire new skills
@@ -346,15 +346,15 @@ void run_loop::run_on_franka() {
 
   try {
     running_skills_ = true;
-    file_stream_logger* logger = new file_stream_logger();
+    FileStreamLogger* logger = new FileStreamLogger();
     control_loop_data_.setFileStreamLogger(logger);
     control_loop_data_.startFileLoggerThread();
     while (1) {
       start = std::chrono::high_resolution_clock::now();
 
       // Execute the current skill (traj_generator, FBC are here)
-      base_skill* skill = skill_manager_.get_current_skill();
-      base_meta_skill *meta_skill = skill_manager_.get_current_meta_skill();
+      BaseSkill* skill = skill_manager_.get_current_skill();
+      BaseMetaSkill *meta_skill = skill_manager_.get_current_meta_skill();
 
       // NOTE: We keep on running the last skill even if it is finished!!
       if (skill != nullptr && meta_skill != nullptr) {
@@ -376,7 +376,7 @@ void run_loop::run_on_franka() {
       update_process_info();
 
       // Start new skill, if possible
-      base_skill* new_skill = skill_manager_.get_current_skill();
+      BaseSkill* new_skill = skill_manager_.get_current_skill();
       if (should_start_new_skill(skill, new_skill)) {
         std::cout << "Will start skill\n";
         start_new_skill(new_skill);

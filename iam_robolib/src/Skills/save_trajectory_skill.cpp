@@ -11,12 +11,12 @@
 #include "control_loop_data.h"
 #include "TerminationHandler/termination_handler.h"
 
-void save_trajectory_skill::execute_skill() {
+void SaveTrajectorySkill::execute_skill() {
   assert(false);
 }
 
-void save_trajectory_skill::execute_skill_on_franka(franka::Robot *robot, franka::Gripper* gripper,
-                                               control_loop_data *control_loop_data) {
+void SaveTrajectorySkill::execute_skill_on_franka(franka::Robot *robot, franka::Gripper* gripper,
+                                               ControlLoopData *control_loop_data) {
   if (!running_skill_) {
     std::cout << "Will execute SaveTrajectory skill\n" << std::endl;
 
@@ -43,7 +43,7 @@ void save_trajectory_skill::execute_skill_on_franka(franka::Robot *robot, franka
   }
 }
 
-bool save_trajectory_skill::should_terminate() {
+bool SaveTrajectorySkill::should_terminate() {
   bool should_terminate = termination_handler_->should_terminate(traj_generator_);
   if (should_terminate) {
     running_skill_ = false;

@@ -6,9 +6,9 @@
 
 #include "termination_handler.h"
 
-class ContactTerminationHandler : public termination_handler {
+class ContactTerminationHandler : public TerminationHandler {
  public:
-  using termination_handler::termination_handler;
+  using TerminationHandler::TerminationHandler;
 
   /**
    * Parse parameters from memory.

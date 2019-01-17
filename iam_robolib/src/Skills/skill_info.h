@@ -13,32 +13,31 @@
 #include <franka/rate_limiting.h>
 #include <franka/robot.h>
 
-#include "base_skill.h"
 #include "FeedbackController/feedback_controller.h"
 #include "TerminationHandler/termination_handler.h"
 #include "TrajectoryGenerator/trajectory_generator.h"
 
-class SkillInfo : public base_skill {
+class SkillInfo : public BaseSkill {
   public:
-    SkillInfo(int skill_idx, int meta_skill_idx): base_skill(skill_idx, meta_skill_idx) {};
+    SkillInfo(int skill_idx, int meta_skill_idx): BaseSkill(skill_idx, meta_skill_idx) {};
 
 
     void execute_skill() override;
 
     void execute_skill_on_franka(franka::Robot *robot, franka::Gripper *gripper,
-                                 control_loop_data *control_loop_data) override;
+                                 ControlLoopData *control_loop_data) override;
 
     void execute_meta_skill_on_franka(franka::Robot *robot, franka::Gripper *gripper,
-                                      control_loop_data *control_loop_data);
+                                      ControlLoopData *control_loop_data);
 
     void execute_skill_on_franka_temp(franka::Robot *robot, franka::Gripper *gripper,
-        control_loop_data *control_loop_data);
+        ControlLoopData *control_loop_data);
 
     void execute_skill_on_franka_temp2(franka::Robot *robot, franka::Gripper *gripper,
-        control_loop_data *control_loop_data);
+        ControlLoopData *control_loop_data);
 
     void execute_skill_on_franka_joint_base(franka::Robot* robot, franka::Gripper* gripper,
-        control_loop_data *control_loop_data);
+        ControlLoopData *control_loop_data);
 
     bool should_terminate() override;
 

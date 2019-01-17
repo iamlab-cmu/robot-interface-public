@@ -16,12 +16,12 @@
 #include "TerminationHandler/termination_handler.h"
 #include "TrajectoryGenerator/trajectory_generator.h"
 
-void joint_pose_with_torque_control_skill::execute_skill() {
+void JointPoseWithTorqueControlSkill::execute_skill() {
   assert(false);
 }
 
-void joint_pose_with_torque_control_skill::execute_skill_on_franka(
-    franka::Robot* robot, franka::Gripper* gripper, control_loop_data *control_loop_data) {
+void JointPoseWithTorqueControlSkill::execute_skill_on_franka(
+    franka::Robot* robot, franka::Gripper* gripper, ControlLoopData *control_loop_data) {
 
   try {
     double time = 0.0;
@@ -79,9 +79,9 @@ void joint_pose_with_torque_control_skill::execute_skill_on_franka(
   }
 }
 
-void joint_pose_with_torque_control_skill::execute_meta_skill_on_franka(franka::Robot *robot,
+void JointPoseWithTorqueControlSkill::execute_meta_skill_on_franka(franka::Robot *robot,
                                                                    franka::Gripper *gripper,
-                                                                   control_loop_data *control_loop_data) {
+                                                                   ControlLoopData *control_loop_data) {
   std::cout << "Not implemented\n" << std::endl;
   assert(false);
 }

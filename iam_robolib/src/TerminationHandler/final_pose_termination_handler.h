@@ -1,12 +1,12 @@
 #pragma once
 
-#include <TerminationHandler/termination_handler.h>
+#include "termination_handler.h"
 
 #include <franka/robot.h>
 
-class final_pose_termination_handler : public termination_handler {
+class FinalPoseTerminationHandler : public TerminationHandler {
  public:
-  using termination_handler::termination_handler;
+  using TerminationHandler::TerminationHandler;
 
   /**
    * Parse parameters from memory.

@@ -27,7 +27,7 @@
 #include "../../src/termination_handler_factory.h"
 #include "../../src/definitions.h"
 
-class base_skill;
+class BaseSkill;
 
 // Set thread to real time priority.
 void setCurrentThreadToRealtime(bool throw_on_error);
@@ -87,18 +87,18 @@ class run_loop {
    * Did finish skill in meta skill.
    * @param skill
    */
-  void didFinishSkillInMetaSkill(base_skill* skill);
+  void didFinishSkillInMetaSkill(BaseSkill* skill);
 
   /**
    * Start executing new skill.
    * @param new_skill New skill to start.
    */
-  void start_new_skill(base_skill* new_skill);
+  void start_new_skill(BaseSkill* new_skill);
 
   /**
    *  Finish current executing skill.
    */
-  void finish_current_skill(base_skill* skill);
+  void finish_current_skill(BaseSkill* skill);
 
   static std::atomic<bool> running_skills_;
 
@@ -109,10 +109,10 @@ class run_loop {
 
   std::thread print_thread_{};
 
-  run_loop_shared_memory_handler* shared_memory_handler_ = nullptr;
+  RunLoopSharedMemoryHandler* shared_memory_handler_ = nullptr;
   SkillInfoManager skill_manager_{};
-  run_loop_logger logger_;
-  control_loop_data control_loop_data_;
+  RunLoopLogger logger_;
+  ControlLoopData control_loop_data_;
 
   // If this flag is true at every loop we will try to get the lock and update
   // process info.
@@ -122,9 +122,9 @@ class run_loop {
   const double cutoff_frequency_; // NOLINT(readability-identifier-naming)
   uint32_t elapsed_time_;
 
-  trajectory_generator_factory traj_gen_factory_={};
-  feedback_controller_factory feedback_controller_factory_={};
-  termination_handler_factory termination_handler_factory_={};
+  TrajectoryGeneratorFactory traj_gen_factory_={};
+  FeedbackControllerFactory feedback_controller_factory_={};
+  TerminationHandlerFactory termination_handler_factory_={};
 
   /**
    * Check if new skill should be started or not. Starting a new skill
@@ -135,7 +135,7 @@ class run_loop {
    * @param new_skill
    * @return True if new skill should be started else false.
    */
-  bool should_start_new_skill(base_skill* old_skill, base_skill* new_skill);
+  bool should_start_new_skill(BaseSkill* old_skill, BaseSkill* new_skill);
 
   /**
    * Update process info in the shared memory to reflect run-loop's

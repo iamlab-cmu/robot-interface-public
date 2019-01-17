@@ -6,9 +6,9 @@
 
 #include "termination_handler.h"
 
-class noop_termination_handler : public termination_handler {
+class NoopTerminationHandler : public TerminationHandler {
  public:
-  using termination_handler::termination_handler;
+  using TerminationHandler::TerminationHandler;
 
   /**
    * Parse parameters from memory.

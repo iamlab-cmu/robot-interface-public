@@ -6,9 +6,9 @@
 
 #include "feedback_controller.h"
 
-class noop_feedback_controller : public feedback_controller {
+class NoopFeedbackController : public FeedbackController {
  public:
-  using feedback_controller::feedback_controller;
+  using FeedbackController::FeedbackController;
 
   void parse_parameters() override;
 

@@ -7,9 +7,9 @@
 #include <Eigen/Dense>
 #include "feedback_controller.h"
 
-class TorqueFeedbackController : public feedback_controller {
+class TorqueFeedbackController : public FeedbackController {
  public:
-  using feedback_controller::feedback_controller;
+  using FeedbackController::FeedbackController;
 
   void parse_parameters() override;
 

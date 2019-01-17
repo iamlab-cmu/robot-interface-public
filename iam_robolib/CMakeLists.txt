@@ -59,8 +59,6 @@ add_library(iam_robolib SHARED
   src/FeedbackController/noop_feedback_controller.h
   src/TerminationHandler/termination_handler.cpp
   src/TerminationHandler/termination_handler.h
-  src/TerminationHandler/counter_termination_handler.cpp
-  src/TerminationHandler/counter_termination_handler.h
   src/TerminationHandler/time_termination_handler.cpp
   src/TerminationHandler/time_termination_handler.h
   src/TrajectoryGenerator/stay_in_initial_position_trajectory_generator.cpp

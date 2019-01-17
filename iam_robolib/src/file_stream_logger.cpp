@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-bool file_stream_logger::writeData(std::vector<double> control_time,
+bool FileStreamLogger::writeData(std::vector<double> control_time,
                std::vector<std::array<double, 16>>& pose_desired,
                std::vector<std::array<double, 16>>& robot_state,
                std::vector<std::array<double, 7>>& tau_j,

@@ -5,10 +5,10 @@
 
 class TrajectoryGenerator;
 
-class trajectory_generator_factory {
+class TrajectoryGeneratorFactory {
  public:
 
-  trajectory_generator_factory() {};
+  TrajectoryGeneratorFactory() {};
 
   /**
    * Get trajectory generator for skill.

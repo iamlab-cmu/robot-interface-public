@@ -9,7 +9,7 @@
  *      2) gripper open speed
  *      3) wait time for gripper to open in milliseconds.
  */
-class gripper_open_trajectory_generator : public TrajectoryGenerator {
+class GripperOpenTrajectoryGenerator : public TrajectoryGenerator {
  public:
   using TrajectoryGenerator::TrajectoryGenerator;
 

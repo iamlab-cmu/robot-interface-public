@@ -9,7 +9,7 @@
 #include <Eigen/Dense>
 #include <array>
 
-class dmp_trajectory_generator : public TrajectoryGenerator {
+class DmpTrajectoryGenerator : public TrajectoryGenerator {
  public:
   using TrajectoryGenerator::TrajectoryGenerator;
 

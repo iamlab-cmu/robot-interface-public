@@ -2,11 +2,11 @@
 
 #include "definitions.h"
 
-class termination_handler;
+class TerminationHandler;
 
-class termination_handler_factory {
+class TerminationHandlerFactory {
  public:
-  termination_handler_factory() {};
+  TerminationHandlerFactory() {};
 
   /**
    * Get termination handler for skill.
@@ -15,6 +15,6 @@ class termination_handler_factory {
    * will be stored.
    * @return TermatinationHanndler instance for this skill
    */
-  termination_handler* getTerminationHandlerForSkill(SharedBuffer buffer);
+  TerminationHandler* getTerminationHandlerForSkill(SharedBuffer buffer);
 
 };

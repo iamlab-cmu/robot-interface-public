@@ -28,7 +28,7 @@ void SkillInfo::execute_skill() {
 }
 
 void SkillInfo::execute_skill_on_franka(franka::Robot* robot, franka::Gripper* gripper,
-                                        control_loop_data *control_loop_data) {
+                                        ControlLoopData *control_loop_data) {
 
   try {
     double time = 0.0;
@@ -94,13 +94,13 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot, franka::Gripper* g
 }
 
 void SkillInfo::execute_meta_skill_on_franka(franka::Robot *robot, franka::Gripper *gripper,
-                                             control_loop_data *control_loop_data) {
+                                             ControlLoopData *control_loop_data) {
   std::cout << "Not implemented\n" << std::endl;
   assert(false);
 }
 
 void SkillInfo::execute_skill_on_franka_joint_base(franka::Robot* robot, franka::Gripper* gripper,
-                                                   control_loop_data *control_loop_data) {
+                                                   ControlLoopData *control_loop_data) {
 
   try {
     double time = 0.0;
@@ -166,7 +166,7 @@ void SkillInfo::execute_skill_on_franka_joint_base(franka::Robot* robot, franka:
 }
 
 void SkillInfo::execute_skill_on_franka_temp2(franka::Robot* robot, franka::Gripper* gripper,
-                                              control_loop_data *control_loop_data) {
+                                              ControlLoopData *control_loop_data) {
   const double translational_stiffness{500.0};
   const double rotational_stiffness{35.0};
   Eigen::MatrixXd stiffness(6, 6), damping(6, 6);
@@ -278,7 +278,7 @@ void SkillInfo::execute_skill_on_franka_temp2(franka::Robot* robot, franka::Grip
 }
 
 void SkillInfo::execute_skill_on_franka_temp(franka::Robot* robot, franka::Gripper* gripper,
-                                             control_loop_data *control_loop_data) {
+                                             ControlLoopData *control_loop_data) {
   try {
     double time = 0.0;
     int log_counter = 0;

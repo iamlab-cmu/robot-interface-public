@@ -2,11 +2,11 @@
 
 #include "definitions.h"
 
-class feedback_controller;
+class FeedbackController;
 
-class feedback_controller_factory {
+class FeedbackControllerFactory {
  public:
-  feedback_controller_factory() {};
+  FeedbackControllerFactory() {};
 
   /**
    * Get feedback controller for skill.
@@ -15,7 +15,7 @@ class feedback_controller_factory {
    * will be stored.
    * @return FeedbackController instance for this skill
    */
-  feedback_controller* getFeedbackControllerForSkill(SharedBuffer buffer);
+  FeedbackController* getFeedbackControllerForSkill(SharedBuffer buffer);
 
 };
 

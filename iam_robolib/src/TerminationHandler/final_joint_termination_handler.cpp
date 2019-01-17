@@ -8,7 +8,7 @@
 
 #include "TrajectoryGenerator/linear_joint_trajectory_controller.h"
 
-void final_joint_termination_handler::parse_parameters() {
+void FinalJointTerminationHandler::parse_parameters() {
   // First parameter is reserved for the type
 
   int num_params = static_cast<int>(params_[1]);
@@ -22,15 +22,15 @@ void final_joint_termination_handler::parse_parameters() {
   }
 }
 
-void final_joint_termination_handler::initialize_handler() {
+void FinalJointTerminationHandler::initialize_handler() {
   // pass
 }
 
-void final_joint_termination_handler::initialize_handler(franka::Robot *robot) {
+void FinalJointTerminationHandler::initialize_handler(franka::Robot *robot) {
   // pass
 }
 
-bool final_joint_termination_handler::should_terminate(TrajectoryGenerator *trajectory_generator) {
+bool FinalJointTerminationHandler::should_terminate(TrajectoryGenerator *trajectory_generator) {
   if(!done_)
   {
     LinearJointTrajectoryGenerator *linear_traj_generator =
@@ -45,7 +45,7 @@ bool final_joint_termination_handler::should_terminate(TrajectoryGenerator *traj
   return done_;
 }
 
-bool final_joint_termination_handler::should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *trajectory_generator) {
+bool FinalJointTerminationHandler::should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *trajectory_generator) {
   if(!done_)
   {
     LinearJointTrajectoryGenerator *linear_traj_generator =

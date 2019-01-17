@@ -21,22 +21,22 @@
 #include "TerminationHandler/termination_handler.h"
 #include "TrajectoryGenerator/trajectory_generator.h"
 
-bool joint_pose_continuous_skill::isComposableSkill() {
+bool JointPoseContinuousSkill::isComposableSkill() {
   return true;
 }
 
 
-void joint_pose_continuous_skill::execute_skill_on_franka(run_loop *run_loop, franka::Robot* robot,
-    franka::Gripper* gripper, control_loop_data *control_loop_data) {
+void JointPoseContinuousSkill::execute_skill_on_franka(run_loop *run_loop, franka::Robot* robot,
+    franka::Gripper* gripper, ControlLoopData *control_loop_data) {
   try {
     double time = 0.0;
     double current_skill_time = 0.0;
     int log_counter = 0;
 
     SkillInfoManager *skill_info_manager = run_loop->getSkillInfoManager();
-    base_skill *current_skill = skill_info_manager->get_current_skill();
+    BaseSkill *current_skill = skill_info_manager->get_current_skill();
 
-    std::cout << "Will run joint_pose_continuous_skill control loop\n";
+    std::cout << "Will run JointPoseContinuousSkill control loop\n";
 
     franka::Model model = robot->loadModel();
     std::array<double, 7> last_dmp_q = robot->readOnce().q;
@@ -47,7 +47,7 @@ void joint_pose_continuous_skill::execute_skill_on_franka(run_loop *run_loop, fr
         const franka::RobotState& robot_state,
         franka::Duration period) -> franka::JointPositions {
 
-      dmp_trajectory_generator* traj_generator = static_cast<dmp_trajectory_generator *>(
+      DmpTrajectoryGenerator* traj_generator = static_cast<DmpTrajectoryGenerator *>(
           current_skill->get_trajectory_generator());
       if (current_skill_time == 0.0) {
         traj_generator->initialize_trajectory(robot_state);
@@ -68,7 +68,7 @@ void joint_pose_continuous_skill::execute_skill_on_franka(run_loop *run_loop, fr
         control_loop_data->log_robot_state(robot_state, time);
       }
 
-      termination_handler *termination_handler = current_skill->get_termination_handler();
+      TerminationHandler *termination_handler = current_skill->get_termination_handler();
       bool done = termination_handler->should_terminate(traj_generator);
       franka::JointPositions joint_desired(traj_generator->joint_desired_);
 
@@ -76,7 +76,7 @@ void joint_pose_continuous_skill::execute_skill_on_franka(run_loop *run_loop, fr
         // Finish current skill and update RunLoopProcessInfo.
         run_loop->didFinishSkillInMetaSkill(current_skill);
         // Get new skill, the above update might have found a new skill.
-        base_skill *new_skill = skill_info_manager->get_current_skill();
+        BaseSkill *new_skill = skill_info_manager->get_current_skill();
 
         if (new_skill->get_skill_id() == current_skill->get_skill_id()) {
           // No new skill, let's just continue with the current skill.

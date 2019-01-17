@@ -19,7 +19,7 @@
 
 #include "definitions.h"
 
-class run_loop_shared_memory_handler {
+class RunLoopSharedMemoryHandler {
  public:
 
   /**

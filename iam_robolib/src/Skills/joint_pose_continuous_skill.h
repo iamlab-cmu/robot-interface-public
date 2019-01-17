@@ -4,16 +4,16 @@
 
 class run_loop;
 
-class joint_pose_continuous_skill : public base_meta_skill {
+class JointPoseContinuousSkill : public BaseMetaSkill {
  public:
-  joint_pose_continuous_skill(int skill_idx): base_meta_skill(skill_idx) {
+  JointPoseContinuousSkill(int skill_idx): BaseMetaSkill(skill_idx) {
     is_composable_ = true;
   };
 
   bool isComposableSkill() override;
   
   void execute_skill_on_franka(run_loop *run_loop, franka::Robot* robot, franka::Gripper* gripper,
-                               control_loop_data *control_loop_data) override;
+                               ControlLoopData *control_loop_data) override;
 
  private:
   bool return_status_{false};
