@@ -20,3 +20,10 @@ sleep 19
 # Ssh to the control pc and start ROS action server in a new gnome-terminal
 start_ros_action_lib_on_control_pc_path="$DIR/start_ros_action_lib_on_control_pc.sh"
 gnome-terminal -e "bash $start_ros_action_lib_on_control_pc_path $control_pc_ip_address $workstation_ip_address"
+
+sleep 19
+
+# Start realsense camera on the workstation pc in a new gnome-terminal
+start_realsense_on_workstation_path="$DIR/start_realsense_on_workstation.sh"
+gnome-terminal -e "bash $start_realsense_on_workstation_path"
+
