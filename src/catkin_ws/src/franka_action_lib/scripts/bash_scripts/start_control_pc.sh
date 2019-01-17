@@ -66,13 +66,19 @@ echo "Did start ROS master in new terminal."
 
 sleep 5
 
+echo "Should start iam_robolib? Enter [0/1]"
+read should_start_iam_robolib
+
+if [ $should_start_iam_robolib -eq 1 ]; then
 # ssh to the control pc and start iam_robolib in a new gnome-terminal
 start_iam_robolib_on_control_pc_path="$DIR/start_iam_robolib_on_control_pc.sh"
 echo "Will ssh to control PC and start iam_roblib..."$start_iam_robolib_on_control_pc_path
 gnome-terminal -e "bash $start_iam_robolib_on_control_pc_path $control_pc_uname $control_pc_ip_address $workstation_ip_address $control_pc_use_passwd $control_pc_robot_lib_path"
 echo "Done"
-
 sleep 5
+else
+echo "Will not start iam_robolib on the control pc."
+fi
 
 # ssh to the control pc and start ROS action server in a new gnome-terminal
 start_ros_action_lib_on_control_pc_path="$DIR/start_ros_action_lib_on_control_pc.sh"
