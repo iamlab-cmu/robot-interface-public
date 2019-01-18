@@ -105,6 +105,8 @@ class run_loop {
 
   static std::atomic<bool> running_skills_;
 
+  bool start_time;
+
  private:
 
   franka::Robot robot_;
@@ -151,7 +153,7 @@ class run_loop {
   /**
    * Setup thread to print data from the real time control loop thread.
    */
-  void setup_print_thread();
+  void setup_save_robot_state_thread();
 
   /**
    * Setup default collision behavior for robot.

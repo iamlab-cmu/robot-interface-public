@@ -287,18 +287,21 @@ void run_loop::run() {
   }
 }
 
-void run_loop::setup_print_thread() {
+void run_loop::setup_save_robot_state_thread() {
   int print_rate = 10;   // The below thread will print at 10 FPS.
   print_thread_ = std::thread([&, print_rate]() {
       // Sleep to achieve the desired print rate.
+      std::chrono::steady_clock::time_point start_time = std::chrono::steady_clock::now();
       while (running_skills_) {
         std::this_thread::sleep_for(
             std::chrono::milliseconds(static_cast<int>((1.0 / print_rate * 1000.0))));
         // Try to lock data to avoid read write collisions.
         try {
-          std::cout << "will print" << std::endl;
           franka::RobotState robot_state = robot_.readOnce();
-          robot_state_data_->log_robot_state(robot_state, 0.0);
+          double duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+              std::chrono::steady_clock::now() - start_time).count();
+          robot_state_data_->log_robot_state(robot_state, duration / 1000.0);
+          std::cout << duration / 1000.0 << "\n";
         } catch (const franka::InvalidOperationException& ex) {
           // Some other control thread is running let's wait and try again.
           std::cerr << "Cannot read robot state for logging. Will continue. " << ex.what() << std::endl;
@@ -355,7 +358,7 @@ void run_loop::run_on_franka() {
   try {
     running_skills_ = true;
     setup_data_loggers();
-    setup_print_thread();
+    setup_save_robot_state_thread();
 
     while (1) {
       start = std::chrono::high_resolution_clock::now();
