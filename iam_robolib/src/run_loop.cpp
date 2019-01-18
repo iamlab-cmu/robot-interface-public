@@ -296,8 +296,9 @@ void run_loop::setup_print_thread() {
             std::chrono::milliseconds(static_cast<int>((1.0 / print_rate * 1000.0))));
         // Try to lock data to avoid read write collisions.
         try {
+          std::cout << "will print" << std::endl;
           franka::RobotState robot_state = robot_.readOnce();
-          robot_state_data_.log_robot_state(robot_state, 0.0);
+          robot_state_data_->log_robot_state(robot_state, 0.0);
         } catch (const franka::InvalidOperationException& ex) {
           // Some other control thread is running let's wait and try again.
           std::cerr << "Cannot read robot state for logging. Will continue. " << ex.what() << std::endl;
@@ -333,12 +334,13 @@ void run_loop::didFinishSkillInMetaSkill(BaseSkill* skill) {
 
 void run_loop::setup_data_loggers() {
   FileStreamLogger* logger = new FileStreamLogger("./control_loop_data.txt");
-  control_loop_data_.setFileStreamLogger(logger);
-  control_loop_data_.startFileLoggerThread();
+  control_loop_data_->setFileStreamLogger(logger);
+  control_loop_data_->startFileLoggerThread();
 
   FileStreamLogger *robot_logger = new FileStreamLogger("./robot_state_data.txt");
-  robot_state_data_.setFileStreamLogger(robot_logger);
-  robot_state_data_.startFileLoggerThread();
+  robot_logger->write_pose_desired_ = false;
+  robot_state_data_->setFileStreamLogger(robot_logger);
+  robot_state_data_->startFileLoggerThread();
 }
 
 void run_loop::run_on_franka() {
@@ -369,9 +371,9 @@ void run_loop::run_on_franka() {
           // Execute skill.
           std::cout << "Will execute skill: " << skill->get_skill_id() << ", meta skill: " <<
             meta_skill->getMetaSkillId() << "\n" << std::endl;
-          meta_skill->execute_skill_on_franka(this, &robot_, &gripper_, &control_loop_data_);
+          meta_skill->execute_skill_on_franka(this, &robot_, &gripper_, control_loop_data_);
         } else if (meta_skill->isComposableSkill()) {
-          meta_skill->execute_skill_on_franka(this, &robot_, &gripper_, &control_loop_data_);
+          meta_skill->execute_skill_on_franka(this, &robot_, &gripper_, control_loop_data_);
         } else {
           finish_current_skill(skill);
           std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -406,8 +408,8 @@ void run_loop::run_on_franka() {
   if (print_thread_.joinable()) {
     print_thread_.join();
   }
-  if (control_loop_data_.file_logger_thread_.joinable()) {
-    control_loop_data_.file_logger_thread_.join();
+  if (control_loop_data_->file_logger_thread_.joinable()) {
+    control_loop_data_->file_logger_thread_.join();
   }
 }
 

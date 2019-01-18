@@ -43,10 +43,11 @@ class run_loop {
                                                  logger_(logger_mutex),
                                                  elapsed_time_(0.0),
                                                  process_info_requires_update_(false),
-                                                 control_loop_data_(control_loop_data_mutex),
-                                                 robot_state_data_(robot_loop_data_mutex),
                                                  robot_("172.16.0.2"),
-                                                 gripper_("172.16.0.2") {};
+                                                 gripper_("172.16.0.2") {
+    control_loop_data_ = new ControlLoopData(control_loop_data_mutex);
+    robot_state_data_ = new ControlLoopData(robot_loop_data_mutex);
+  };
 
   // Todo(Mohit): Implement this!!! We should free up the shared memory correctly.
   // ~run_loop();
@@ -115,9 +116,9 @@ class run_loop {
   SkillInfoManager skill_manager_{};
   RunLoopLogger logger_;
   // This logs the data from within the control loops. Hence, we can record internal control state here if desired.
-  ControlLoopData control_loop_data_;
+  ControlLoopData *control_loop_data_= nullptr;
   // This logs the robot state data by using robot readState and hence can only log the robot state data made available.
-  ControlLoopData robot_state_data_;
+  ControlLoopData *robot_state_data_=nullptr;
 
   // If this flag is true at every loop we will try to get the lock and update process info.
   bool process_info_requires_update_;

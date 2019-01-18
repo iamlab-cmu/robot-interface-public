@@ -6,9 +6,9 @@
 
 #include "file_stream_logger.h"
 
-std::atomic<bool> ControlLoopData::use_buffer_0{true};
-std::mutex ControlLoopData::buffer_0_mutex_;
-std::mutex ControlLoopData::buffer_1_mutex_;
+//std::atomic<bool> ControlLoopData::use_buffer_0{true};
+//std::mutex ControlLoopData::buffer_0_mutex_;
+//std::mutex ControlLoopData::buffer_1_mutex_;
 
 template<int N>
 void printListOfVectors(std::vector<std::array<double, N>> data, int print_last) {
@@ -45,6 +45,7 @@ void ControlLoopData::printMeasuredJointJerks(std::vector<std::array<double, 7>>
 
 void ControlLoopData::setFileStreamLogger(FileStreamLogger *logger) {
     file_logger_ = logger;
+    use_buffer_0 = true;
 }
 
 void ControlLoopData::writeBufferData_0() {
@@ -138,11 +139,11 @@ void ControlLoopData::startFileLoggerThread() {
 }
 
 void ControlLoopData::writeCurrentBufferData() {
-    if (use_buffer_0) {
-      writeBufferData_0();
-    } else {
-      writeBufferData_1();
-    }
+  if (use_buffer_0) {
+    writeBufferData_0();
+  } else {
+    writeBufferData_1();
+  }
 }
 
 void ControlLoopData::printGlobalData(int print_count) {

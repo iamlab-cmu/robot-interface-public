@@ -6,7 +6,10 @@
 
 class FileStreamLogger {
  public:
-   FileStreamLogger(const std::string& filename): open_file_stream_(filename, std::ofstream::out | std::ofstream::app) {};
+   FileStreamLogger(const std::string& filename): filename_(filename),
+                                                  open_file_stream_(filename, std::ofstream::out | std::ofstream::app) {};
+
+   bool write_pose_desired_=true;
 
    bool writeData(std::vector<double> control_time,
                   std::vector<std::array<double, 16>>& pose_desired,
@@ -19,4 +22,5 @@ class FileStreamLogger {
 
  private:
   std::ofstream open_file_stream_;
+  std::string filename_;
 };

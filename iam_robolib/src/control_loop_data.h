@@ -12,9 +12,9 @@ class FileStreamLogger;
 
 class ControlLoopData {
  public:
-  static std::atomic<bool> use_buffer_0;
-  static std::mutex buffer_0_mutex_;
-  static std::mutex buffer_1_mutex_;
+  std::atomic<bool> use_buffer_0;
+  std::mutex buffer_0_mutex_;
+  std::mutex buffer_1_mutex_;
 
   ControlLoopData(std::mutex &m): mutex_(m) {};
 
