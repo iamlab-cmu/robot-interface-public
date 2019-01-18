@@ -37,12 +37,14 @@ void setCurrentThreadToRealtime(bool throw_on_error);
 class run_loop {
  public:
   run_loop(std::mutex& logger_mutex,
-          std::mutex& control_loop_data_mutex) : limit_rate_(false),
+          std::mutex& control_loop_data_mutex,
+          std::mutex& robot_loop_data_mutex) : limit_rate_(false),
                                                  cutoff_frequency_(0.0),
                                                  logger_(logger_mutex),
                                                  elapsed_time_(0.0),
                                                  process_info_requires_update_(false),
                                                  control_loop_data_(control_loop_data_mutex),
+                                                 robot_state_data_(robot_loop_data_mutex),
                                                  robot_("172.16.0.2"),
                                                  gripper_("172.16.0.2") {};
 
@@ -112,10 +114,12 @@ class run_loop {
   RunLoopSharedMemoryHandler* shared_memory_handler_ = nullptr;
   SkillInfoManager skill_manager_{};
   RunLoopLogger logger_;
+  // This logs the data from within the control loops. Hence, we can record internal control state here if desired.
   ControlLoopData control_loop_data_;
+  // This logs the robot state data by using robot readState and hence can only log the robot state data made available.
+  ControlLoopData robot_state_data_;
 
-  // If this flag is true at every loop we will try to get the lock and update
-  // process info.
+  // If this flag is true at every loop we will try to get the lock and update process info.
   bool process_info_requires_update_;
   const bool limit_rate_;  // NOLINT(readability-identifier-naming)
 
@@ -152,4 +156,9 @@ class run_loop {
    * Setup default collision behavior for robot.
    */
   void setup_robot_default_behavior();
+
+  /**
+   * Setup data loggers for logging robot state and larger control loop data.
+   */
+  void setup_data_loggers();
 };

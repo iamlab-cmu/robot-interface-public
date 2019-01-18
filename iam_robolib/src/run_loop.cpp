@@ -288,21 +288,19 @@ void run_loop::run() {
 }
 
 void run_loop::setup_print_thread() {
-  int print_rate = 10;
+  int print_rate = 10;   // The below thread will print at 10 FPS.
   print_thread_ = std::thread([&, print_rate]() {
       // Sleep to achieve the desired print rate.
       while (running_skills_) {
         std::this_thread::sleep_for(
             std::chrono::milliseconds(static_cast<int>((1.0 / print_rate * 1000.0))));
-        std::cout << "WTF, will wait for " << static_cast<int>(1.0 / print_rate * 1000.0) << "\n";
         // Try to lock data to avoid read write collisions.
-        if (control_loop_data_.mutex_.try_lock()) {
-          if (control_loop_data_.has_data_) {
-            control_loop_data_.has_data_ = false;
-            std::cout << "Count: " << control_loop_data_.counter_ << " time: " <<
-                      control_loop_data_.time_ << std::endl;
-          }
-          control_loop_data_.mutex_.unlock();
+        try {
+          franka::RobotState robot_state = robot_.readOnce();
+          robot_state_data_.log_robot_state(robot_state, 0.0);
+        } catch (const franka::InvalidOperationException& ex) {
+          // Some other control thread is running let's wait and try again.
+          std::cerr << "Cannot read robot state for logging. Will continue. " << ex.what() << std::endl;
         }
       }
   });
@@ -333,9 +331,17 @@ void run_loop::didFinishSkillInMetaSkill(BaseSkill* skill) {
   update_process_info();
 }
 
-void run_loop::run_on_franka() {
-  setup_print_thread();
+void run_loop::setup_data_loggers() {
+  FileStreamLogger* logger = new FileStreamLogger("./control_loop_data.txt");
+  control_loop_data_.setFileStreamLogger(logger);
+  control_loop_data_.startFileLoggerThread();
 
+  FileStreamLogger *robot_logger = new FileStreamLogger("./robot_state_data.txt");
+  robot_state_data_.setFileStreamLogger(robot_logger);
+  robot_state_data_.startFileLoggerThread();
+}
+
+void run_loop::run_on_franka() {
   // Wait for sometime to let the client add data to the buffer
   std::this_thread::sleep_for(std::chrono::seconds(10));
 
@@ -346,9 +352,9 @@ void run_loop::run_on_franka() {
 
   try {
     running_skills_ = true;
-    FileStreamLogger* logger = new FileStreamLogger();
-    control_loop_data_.setFileStreamLogger(logger);
-    control_loop_data_.startFileLoggerThread();
+    setup_data_loggers();
+    setup_print_thread();
+
     while (1) {
       start = std::chrono::high_resolution_clock::now();
 
