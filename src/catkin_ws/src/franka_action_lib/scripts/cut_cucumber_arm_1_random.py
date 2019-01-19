@@ -11,7 +11,13 @@ import numpy as np
 from franka_action_lib.msg import ExecuteSkillAction, ExecuteSkillGoal
 
 from skill_list import BaseSkill
-from skill_list import ArmMoveToGoalWithDefaultSensorSkill, GripperWithDefaultSensorSkill, ArmMoveToGoalContactWithDefaultSensorSkill, StayInPositionWithDefaultSensorSkill, JointPoseWithDefaultSensorSkill, ArmRelativeMotionWithDefaultSensorSkill, ArmRelativeMotionToContactWithDefaultSensorSkill
+from skill_list import ArmMoveToGoalWithDefaultSensorSkill
+from skill_list import GripperWithDefaultSensorSkill
+from skill_list import ArmMoveToGoalContactWithDefaultSensorSkill
+from skill_list import StayInPositionWithDefaultSensorSkill
+from skill_list import JointPoseWithDefaultSensorSkill
+from skill_list import ArmRelativeMotionWithDefaultSensorSkill
+from skill_list import ArmRelativeMotionToContactWithDefaultSensorSkill
 
 def feedback_callback(feedback):
     print(feedback)
