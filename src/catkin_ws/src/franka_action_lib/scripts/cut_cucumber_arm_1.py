@@ -27,6 +27,36 @@ def get_move_left_skill(distance_in_m):
     skill.add_termination_params([1.0]) # buffer time
     return skill
 
+def create_skill_to_move_to_cucumber(cutting_knife_location_x):
+     # Move left to contact cucumber
+    skill = ArmMoveToGoalContactWithDefaultSensorSkill()
+    skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random  
+    skill.add_trajectory_params(
+        [3.0, 0.00193678,0.999977,0.00475145,0,0.9999,-0.00199989,0.0133132,0,
+        0.0133227,0.00472528,-0.9999,0,cutting_knife_location_x,0.04119,0.024956,1])  # Run Time (1) and Desired End Effector Pose(16)
+    skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
+
+    lower_torque_thresholds_acceleration = [20.0,20.0,18.0,18.0,16.0,14.0,12.0]
+    upper_torque_thresholds_acceleration = [120.0,120.0,118.0,118.0,116.0,114.0,112.0]
+    lower_torque_thresholds_nominal = [20.0,20.0,18.0,18.0,16.0,14.0,12.0]
+    upper_torque_thresholds_nominal = [120.0,120.0,118.0,118.0,116.0,114.0,112.0]
+    lower_force_thresholds_acceleration = [20.0,10.0,20.0,25.0,25.0,25.0]
+    upper_force_thresholds_acceleration = [120.0,120.0,120.0,125.0,125.0,125.0]
+    lower_force_thresholds_nominal = [20.0,10.0,20.0,25.0,25.0,25.0]
+    upper_force_thresholds_nominal = [120.0,120.0,120.0,125.0,125.0,125.0] 
+
+    collision_termination_params = lower_torque_thresholds_acceleration \
+        + upper_torque_thresholds_acceleration \
+        + lower_torque_thresholds_nominal \
+        + upper_torque_thresholds_nominal \
+        + lower_force_thresholds_acceleration \
+        + upper_force_thresholds_acceleration \
+        + lower_force_thresholds_nominal \
+        + upper_force_thresholds_nominal
+
+    skill.add_termination_params([1.0] + collision_termination_params) # buffer time
+    return skill
+
 def feedback_callback(feedback):
     print(feedback)
 
@@ -41,6 +71,8 @@ if __name__ == '__main__':
 
     file = open(args.filename,"rb")
     dmp_info = pickle.load(file)
+    cutting_knife_location_x = 0.5232
+
 
     skill = ArmMoveToGoalWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
@@ -90,16 +122,16 @@ if __name__ == '__main__':
     # Move left to contact cucumber
     skill = ArmMoveToGoalContactWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random  
-    skill.add_trajectory_params([3.0, 0.00193678,0.999977,0.00475145,0,0.9999,-0.00199989,0.0133132,0,0.0133227,0.00472528,-0.9999,0,0.507015,0.04119,0.024956,1])  # Run Time (1) and Desired End Effector Pose(16)
+    skill.add_trajectory_params([3.0, 0.00193678,0.999977,0.00475145,0,0.9999,-0.00199989,0.0133132,0,0.0133227,0.00472528,-0.9999,0,0.517015,0.04119,0.024956,1])  # Run Time (1) and Desired End Effector Pose(16)
     skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
 
-    lower_torque_thresholds_acceleration = [20.0,20.0,18.0,18.0,16.0,14.0,12.0]
+    lower_torque_thresholds_acceleration = [10.0,10.0,10.0,10.0,10.0,10.0,10.0]
     upper_torque_thresholds_acceleration = [120.0,120.0,118.0,118.0,116.0,114.0,112.0]
-    lower_torque_thresholds_nominal = [20.0,20.0,18.0,18.0,16.0,14.0,12.0]
+    lower_torque_thresholds_nominal = [10.0,10.0,10.0,10.0,10.0,10.0,10.0]
     upper_torque_thresholds_nominal = [120.0,120.0,118.0,118.0,116.0,114.0,112.0]
-    lower_force_thresholds_acceleration = [20.0,5.0,20.0,25.0,25.0,25.0]
+    lower_force_thresholds_acceleration = [10.0,3.0,10.0,10.0,10.0,10.0]
     upper_force_thresholds_acceleration = [120.0,120.0,120.0,125.0,125.0,125.0]
-    lower_force_thresholds_nominal = [20.0,5.0,20.0,25.0,25.0,25.0]
+    lower_force_thresholds_nominal = [10.0,3.0,10.0,10.0,10.0,10.0]
     upper_force_thresholds_nominal = [120.0,120.0,120.0,125.0,125.0,125.0] 
 
     collision_termination_params = lower_torque_thresholds_acceleration + upper_torque_thresholds_acceleration + lower_torque_thresholds_nominal + \
@@ -148,13 +180,13 @@ if __name__ == '__main__':
 
         print(client.get_result())
 
-        lower_torque_thresholds_acceleration = [20.0,20.0,18.0,18.0,16.0,14.0,12.0]
+        lower_torque_thresholds_acceleration = [10.0,10.0,10.0,10.0,10.0,10.0,10.0]
         upper_torque_thresholds_acceleration = [120.0,120.0,118.0,118.0,116.0,114.0,112.0]
-        lower_torque_thresholds_nominal = [20.0,20.0,18.0,18.0,16.0,14.0,12.0]
+        lower_torque_thresholds_nominal = [10.0,10.0,10.0,10.0,10.0,10.0,10.0]
         upper_torque_thresholds_nominal = [120.0,120.0,118.0,118.0,116.0,114.0,112.0]
-        lower_force_thresholds_acceleration = [20.0,20.0,20.0,25.0,25.0,25.0]
+        lower_force_thresholds_acceleration = [10.0,10.0,10.0,10.0,10.0,10.0]
         upper_force_thresholds_acceleration = [120.0,120.0,120.0,125.0,125.0,125.0]
-        lower_force_thresholds_nominal = [20.0,20.0,20.0,25.0,25.0,25.0]
+        lower_force_thresholds_nominal = [10.0,10.0,10.0,10.0,10.0,10.0]
         upper_force_thresholds_nominal = [120.0,120.0,120.0,125.0,125.0,125.0] 
 
         collision_termination_params = lower_torque_thresholds_acceleration + upper_torque_thresholds_acceleration + lower_torque_thresholds_nominal + \
@@ -208,8 +240,12 @@ if __name__ == '__main__':
         while not rospy.is_shutdown() and done != True:
             done = client.wait_for_result(rospy.Duration.from_sec(5.0))
 
+        client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
+        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+        while not rospy.is_shutdown() and done != True:
+            done = client.wait_for_result(rospy.Duration.from_sec(5.0))
 
-        skill = get_move_left_skill(0.03)
+        skill = get_move_left_skill(0.06)
         goal = skill.create_goal()
         print(goal)
         client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
