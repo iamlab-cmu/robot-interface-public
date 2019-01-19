@@ -4,6 +4,8 @@ import csv
 import h5py
 import pdb
 
+from collections import OrderedDict
+
 def recursively_get_dict_from_group(group_or_data):
     d = {}
     if type(group_or_data) == h5py.Dataset:
@@ -52,30 +54,35 @@ def recursively_save_dict_contents_to_group(h5file, path, dic):
         if not did_save_key:
             print("Dropping key from h5 file: {}".format(path + key))
 
-def read_data_as_csv(csv_file):
+def read_data_as_csv(csv_file, csv_keys_to_row_idx_ord_dict=None):
     '''Read data as dictionary of arrays from csv file.'''
+    if csv_keys_to_row_idx_ord_dict is None:
+        csv_keys_list = ['time', 'pose_desired', 'robot_state', 'tau_j',
+                         'd_tau_j', 'q', 'dq']
+        csv_keys_row_indexes = [(0, 1), (1, 17), (17, 33), (33, 40), (40, 47)]
+        csv_keys_to_row_idx_ord_dict = OrderedDict()
+        csv_keys_to_row_idx_ord_dict['time'] = (0, 1)
+        csv_keys_to_row_idx_ord_dict['pose_desired'] = (1, 17)
+        csv_keys_to_row_idx_ord_dict['robot_state'] = (17, 33)
+        csv_keys_to_row_idx_ord_dict['tau_j'] = (33, 40)
+        csv_keys_to_row_idx_ord_dict['d_tau_j'] = (40, 47)
+        csv_keys_to_row_idx_ord_dict['q'] = (47, 54)
+        csv_keys_to_row_idx_ord_dict['dq'] = (54, 61)
+        
+            
     with open(csv_file, 'r') as csv_f:
         csv_reader = csv.reader(csv_f, delimiter=',')
         data = []
-        data_dict = {
-            'time': [],
-            'pose_desired': [],
-            'robot_state': [],
-            'tau_j': [],
-            'd_tau_j': [],
-            'q': [],
-            'dq': [],
-        }
+        data_dict = {}
+        for k in csv_keys_to_row_idx_ord_dict.keys():
+            data_dict[k] = []
+
         for row in csv_reader:
             # Remote the last extra , and convert to floats.
             trajectory = [float(d) for d in row[:-1]]
-            data_dict['time'].append(trajectory[0:1])
-            data_dict['pose_desired'].append(trajectory[1:17])
-            data_dict['robot_state'].append(trajectory[17:33])
-            data_dict['tau_j'].append(trajectory[33:40])
-            data_dict['d_tau_j'].append(trajectory[40:47])
-            data_dict['q'].append(trajectory[47:54])
-            data_dict['dq'].append(trajectory[54:61])
+            for col in csv_keys_to_row_idx_ord_dict.keys():
+                st_idx, end_idx = csv_keys_to_row_idx_ord_dict[col]
+                data_dict[col].append(trajectory[st_idx:end_idx])
 
         # Convert dictionary items to arrays.
         for k in data_dict.keys():
