@@ -31,7 +31,7 @@ This is a software package used for controlling and learning skills on the Frank
 14. Run catkin_make using the command `catkin_make`.
 15. Once catkin_make has finished there should be a build and devel folder in the catkin_ws folder.
 
-## Running
+## Running on the Franka Robot
 
 1. Make sure that both the user stop and the brakes of the Franka robot have been unlocked in the Franka Desk GUI.
 2. Open up 3 separate terminals.
