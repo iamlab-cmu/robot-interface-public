@@ -1,6 +1,6 @@
-### Robot Interface
+# Robot Interface
 
-This is a software package used for controlling and learning skills on the Franka Emika Panda Research Robot Arm and UR5e
+This is a software package used for controlling and learning skills on the Franka Emika Panda Research Robot Arm and UR5e.
 
 ## Requirements
 

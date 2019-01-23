@@ -1,4 +1,4 @@
-### Franka Control PC Setup Guide
+# Franka Control PC Setup Guide
 
 This guide describes how to setup the software for the computer to specifically control the Franka Robot Arm. It assumes that the [control pc ubuntu setup guide](./control_pc_ubuntu_setup_guide.md) was successfully completed.
 
@@ -26,4 +26,9 @@ You should now be able to see the Franka desk GUI in the web browser.
 1. Unlock the physical user stop.
 2. Open the Robot brakes near the bottom of the Franka Desk GUI
 3. (Optional) Program the Franka Robot in Desk by creating a new program and clicking and dragging blocks and moving the robot by pressing on the two buttons near the Franka’s end effectors.
-4. Now you are ready to return back to the main [README.md](../README.md) to continue the installation.
+
+## Franka ROS Installation
+1. Run the following terminal command to install the Franka ROS packages:
+`sudo apt install ros-kinetic-libfranka ros-kinetic-franka-ros`
+
+Now you are ready to return back to the main [README.md](../README.md) to continue the installation.
