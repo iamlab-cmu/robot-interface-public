@@ -17,12 +17,14 @@ You can identify what kernel version you are currently using with `uname -r`.
 We will download both the mainline version of the kernel we want along with the RT patch, extract the mainline kernel and apply the RT patch, then compile the kernel and install it.
 
 Create the directory and download the kernel files:
-```mkdir -p ~/Downloads/preempt_rt_4.16.18
+```
+mkdir -p ~/Downloads/preempt_rt_4.16.18
 cd ~/Downloads/preempt_rt_4.16.18
 curl -SLO https://www.kernel.org/pub/linux/kernel/v4.x/linux-4.16.18.tar.xz
 curl -SLO https://www.kernel.org/pub/linux/kernel/v4.x/linux-4.16.18.tar.sign
 curl -SLO https://www.kernel.org/pub/linux/kernel/projects/rt/4.16/patch-4.16.18-rt12.patch.xz
-curl -SLO https://www.kernel.org/pub/linux/kernel/projects/rt/4.16/patch-4.16.18-rt12.patch.sign```
+curl -SLO https://www.kernel.org/pub/linux/kernel/projects/rt/4.16/patch-4.16.18-rt12.patch.sign
+```
 
 (In the patch directory [https://mirrors.edge.kernel.org/pub/linux/kernel/projects/rt/4.16/ in this case] you may see both “patch” and “patches” file. Use “patch” -- it’s one file that contains everything that’s needed.)
 The .sign files are used to verify the files (if you’d like -- it’s optional).
@@ -41,13 +43,15 @@ Start kernel configuration using the current kernel’s config:
 `make oldconfig`
 
 Select the default [hit enter] for everything EXCEPT the kernel preemption model. It will look like this:
-```Preemption Model
+```
+Preemption Model
   1. No Forced Preemption (Server) (PREEMPT_NONE)
   2. Voluntary Kernel Preemption (Desktop) (PREEMPT_VOLUNTARY)
   3. Preemptible Kernel (Low-Latency Desktop) (PREEMPT__LL) (NEW)
   4. Preemptible Kernel (Basic RT) (PREEMPT_RTB) (NEW)
   5. Fully Preemptible Kernel (RT) (PREEMPT_RT_FULL) (NEW)
-choice[1-5?]: ```
+choice[1-5?]:
+```
 Input “5” to choose the full preemptible kernel.
 
 Build the kernel:
@@ -70,12 +74,14 @@ Set real-time settings
 `sudo usermod -a -G realtime $(whoami)`
 
 Add the following to: /etc/security/limits.conf (with sudo gedit or sudo <your favorite editor>)
-```@realtime soft rtprio 99
+```
+@realtime soft rtprio 99
 @realtime soft priority 99
 @realtime soft memlock 102400
 @realtime hard rtprio 99
 @realtime hard priority 99
-@realtime hard memlock 102400```
+@realtime hard memlock 102400
+```
 
 Restart one final time.
 
@@ -104,8 +110,10 @@ Allows cpu.sh to be executed at startup?
 `sudo gedit /etc/rc.local`
 Opens /etc/rc.local for editing (see next step for what to add)
 Add the following lines to /etc/rc.local above “exit 0”:
-```sleep 90 # Give CPU startup routines time to settle.
-/etc/init.d/cpu.sh```
+```
+sleep 90 # Give CPU startup routines time to settle.
+/etc/init.d/cpu.sh
+```
 
 In short, we have defined the default CPU governor, then created several processes for Ubuntu to automatically select this governor when you log in.
 
