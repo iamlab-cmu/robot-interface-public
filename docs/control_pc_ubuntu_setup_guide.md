@@ -30,14 +30,17 @@ curl -SLO https://www.kernel.org/pub/linux/kernel/projects/rt/4.16/patch-4.16.18
 The .sign files are used to verify the files (if you’d like -- it’s optional).
 
 Decompress tar files:
-`xz -d linux-4.16.18.tar.xz`
-`xz -d patch-4.16.18-rt12.patch.xz`
+```
+xz -d linux-4.16.18.tar.xz
+xz -d patch-4.16.18-rt12.patch.xz
+```
 
 Apply the kernel patch:
-`tar xf linux-4.16.18.tar`
-`cd linux-4.16.18/`
-`patch -p1 < ../patch-4.16.18-rt12.patch`
-
+```
+tar xf linux-4.16.18.tar
+cd linux-4.16.18/
+patch -p1 < ../patch-4.16.18-rt12.patch
+```
 
 Start kernel configuration using the current kernel’s config:
 `make oldconfig`
@@ -52,26 +55,29 @@ Preemption Model
   5. Fully Preemptible Kernel (RT) (PREEMPT_RT_FULL) (NEW)
 choice[1-5?]:
 ```
-Input “5” to choose the full preemptible kernel.
+Input `5` to choose the full preemptible kernel.
 
 Build the kernel:
 `fakeroot make -j4 deb-pkg`
 
-
-This will take a long time (~2.5 hours). Grab a cup of coffee or two…
-Now, we want to install the new .deb packages, but not ones with “dbg” in the file name:
+This will take a long time (around 2.5 hours). Grab a cup of coffee or two...
+Now, we want to install the new .deb packages, but not ones with `dbg` in the file name:
 
 Installing the kernel .deb packages:
-`cd ..`
-`sudo dpkg -i linux-headers-4.16.18-rt12_4.16.18-rt12-1_amd64.deb linux-image-4.16.18-rt12_4.16.18-rt12-1_amd64.deb linux-libc-dev_4.16.18-rt12-1_amd64.deb`
+```
+cd ..
+sudo dpkg -i linux-headers-4.16.18-rt12_4.16.18-rt12-1_amd64.deb linux-image-4.16.18-rt12_4.16.18-rt12-1_amd64.deb linux-libc-dev_4.16.18-rt12-1_amd64.deb
+```
 
 Now, restart. If the RT kernel has been successfully installed, the following will confirm:
 `uname -r` will show the new kernel: 4.16.18-rt12
 `cat /sys/kernel/realtime` should show an output of “1”
 
 Set real-time settings
-`sudo addgroup realtime`
-`sudo usermod -a -G realtime $(whoami)`
+```
+sudo addgroup realtime
+sudo usermod -a -G realtime $(whoami)
+```
 
 Add the following to: /etc/security/limits.conf (with sudo gedit or sudo <your favorite editor>)
 ```
@@ -94,7 +100,7 @@ Now, we want to install some utilities and files that will maintain the correct 
 Run the following terminal command:
 `sudo apt install indicator-cpufreq cpufrequtils`
 
-Restart (TBD: update guide to do this without restarting), and then confirm that indicator-cpufreq starts when logged in. You should see what looks like a CPU icon in the system toolbar, with a drop-down menu that shows the current CPU governor. You can select the performance mode here, but we will now add files to do this automatically.
+Restart and then confirm that indicator-cpufreq starts when logged in. You should see what looks like a CPU icon in the system toolbar, with a drop-down menu that shows the current CPU governor. You can select the performance mode here, but we will now add files to do this automatically.
 
 Run the following terminal commands:
 `echo "GOVERNOR="performance"" | sudo tee /etc/default/cpufrequtils`
@@ -122,11 +128,11 @@ Reboot.
 ## Testing CPU Governor Mode
 It is important to test that the correct CPU governor mode is automatically selected on startup, because using the wrong mode may adversely affect communications with the robot arms and thus experiments. We want this to be automatically set correctly when logging in to the computer and not have to deal with it.
 
-From a computer reboot, log in to the account.
+From a computer reboot, log in to the computer.
 Select the indicator-cpufreq icon to display the drop-down menu, but do not select anything. We will keep the menu open during this test.
 Observe that the governor is currently set to performance.
 After some time after login (30-60 seconds), a system process will change this to powersave. You will see this change automatically in the menu.
-I don’t know what process does this, but it would be fantastic if someone can identify it.
+
 However, after about 90 seconds, you should observe that the governor automatically changes back to performance.
 This happens because of the commands we added to the /etc/rc.local file!
 
