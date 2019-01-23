@@ -20,15 +20,15 @@ If this is the first time you are using the robot, please follow the UR5e Robot 
 `sudo apt-get install ros-kinetic-universal-robot`
 2. Create a catkin_ws according to instructions [here](http://wiki.ros.org/catkin/Tutorials/create_a_workspace).
 3. Go to the src directory and clone the following repositories.
-```
-cd ~/catkin_ws/src
-git clone https://github.com/dniewinski/universal_robot
-git clone https://github.com/dniewinski/ur_modern_driver.git
-```
-Make sure that you are on branch `ur_e` for the universal_robot package and branch `kinetic-devel` for the ur_modern_driver package.
+	```
+	cd ~/catkin_ws/src
+	git clone https://github.com/dniewinski/universal_robot
+	git clone https://github.com/dniewinski/ur_modern_driver.git
+	```
+	Make sure that you are on branch `ur_e` for the universal_robot package and branch `kinetic-devel` for the ur_modern_driver package.
 4. Go back to the catkin_ws directory: `cd ~/catkin_ws`.
 5. Install ROS dependencies for both packages using the following command: 
-`rosdep install --from-paths src --ignore-src --rosdistro=kinetic -y`
+	`rosdep install --from-paths src --ignore-src --rosdistro=kinetic -y`
 6. Catkin make both packages with the command `catkin_make`
 7. Make sure the UR5e is set to remote control. You can again consult http://wiki.ros.org/universal_robot/Tutorials/Getting%20Started%20with%20a%20Universal%20Robot%20and%20ROS-Industrial for how to do that.
 8. Open 2 terminals and run `source ~/catkin_ws/devel/setup.bash` in both.
