@@ -1,11 +1,17 @@
 ### Robot Interface
 
-This is a software package used for controlling and learning skills on the Franka Emika Panda Research Robot Arm.
+This is a software package used for controlling and learning skills on the Franka Emika Panda Research Robot Arm and UR5e
 
 ## Requirements
 
-* A Control PC with the Ubuntu 16.04 Realtime Kernel capable of communicating with the Franka Robot at 1 kHz over ethernet.
+* A computer with the Ubuntu 16.04 Realtime Kernel and at least 1 ethernet port.
 * ROS Kinetic 
+
+## Computer Setup Instructions
+
+1. The instructions for setting up a computer with the Ubuntu 16.04 Realtime Kernel from scratch are located here: [control pc ubuntu setup guide](docs/control_pc_ubuntu_setup_guide.md)
+2. Instructions for setting up the computer specifically for Franka Robots is located here: [franka control pc setup guide](docs/franka_control_pc_setup_guide.md)
+3. Instructions for setting up the computer specifically for the UR5e robots is located here: [ur5e control pc setup guide](docs/ur5e_control_pc_setup_guide.md)
 
 ## Installation
 
