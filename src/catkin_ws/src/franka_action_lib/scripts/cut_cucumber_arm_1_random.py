@@ -22,6 +22,16 @@ from skill_list import ArmRelativeMotionToContactWithDefaultSensorSkill
 def feedback_callback(feedback):
     print(feedback)
 
+def execute_skill(skill, client)
+    goal = skill.create_goal()
+    print(goal)
+    client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
+    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    while not rospy.is_shutdown() and done != True:
+        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+    print(client.get_result())
+
 class CutCucumberSkill(object):
     INITIAL_POSITION = [-0.0372113,0.999006,0.0241583,0,0.998733,0.0379922,
                         -0.0327119,0,-0.0335979,0.0229109,-0.999173,0,0.458702,
@@ -45,6 +55,9 @@ class CutCucumberSkill(object):
 
     # Quaternion helpers
     IDENTITY_QUATERNION = [1., 0., 0., 0.]
+
+    # Time helpers
+    RANDOM_EXPLORATION_TIME = 1.0
 
     def __init__(self, cutting_knife_location_x):
         self.cutting_knife_location_x = cutting_knife_location_x
@@ -149,15 +162,7 @@ if __name__ == '__main__':
     # translational stiffness, rotational stiffness
     skill.add_feedback_controller_params([600, 50])
     skill.add_buffer_time_for_termination(1.0)
-    goal = skill.create_goal()
-    print(goal)
-    client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
-    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-
-    while not rospy.is_shutdown() and done != True:
-        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-
-    print(client.get_result())
+    execute_skill(skill, client)
 
     # Move to designated position above the cutting board
     skill = ArmMoveToGoalWithDefaultSensorSkill()
@@ -166,15 +171,7 @@ if __name__ == '__main__':
             [3.0] + CutCucumberSkill.POSITION_ABOVE_CUTTING_BOARD)
     skill.add_feedback_controller_params([600, 50])
     skill.add_buffer_time_for_termination(1.0)
-    goal = skill.create_goal()
-    print(goal)
-    client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
-    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-
-    while not rospy.is_shutdown() and done != True:
-        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-
-    print(client.get_result())
+    execute_skill(skill, client)
 
     # Move down to contact cutting board
     skill = ArmMoveToGoalContactWithDefaultSensorSkill()
@@ -183,13 +180,20 @@ if __name__ == '__main__':
             [3.0] + CutCucumberSkill.MOVE_TO_CUTTING_BOARD_POSITION)
     skill.add_feedback_controller_params([600, 50])
     skill.add_buffer_time_for_termination(1.0)
-    goal = skill.create_goal()
-    print(goal)
-    client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
-    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+    execute_skill(skill, client)
 
-    while not rospy.is_shutdown() and done != True:
-        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+    # ==== Begin Random exploration ====
+    # Add random exploration to know that you're on the cutting board
+    skill = cut_cucumber_skill.add_random_x_exploration(
+            CutCucumberSkill.RANDOM_EXPLORATION_TIME, 0.005)
+    execute_skill(skill, client)
+    skill = cut_cucumber_skill.add_random_y_exploration(
+            CutCucumberSkill.RANDOM_EXPLORATION_TIME, 0.005)
+    execute_skill(skill, client)
+    skill = cut_cucumber_skill.add_random_z_exploration(
+            CutCucumberSkill.RANDOM_EXPLORATION_TIME, 0.005)
+    execute_skill(skill, client)
+    # ==== End ====
 
     # Move left to contact cucumber
     skill = ArmMoveToGoalContactWithDefaultSensorSkill()
@@ -202,14 +206,20 @@ if __name__ == '__main__':
             1.0,
             [10.0,3.0,10.0,10.0,10.0,10.0],
             [10.0,3.0,10.0,10.0,10.0,10.0])
+    execute_skill(skill, client)
+    # ==== Begin Random exploration ====
+    # Add random exploration to know that you're on the cutting board
+    skill = cut_cucumber_skill.add_random_x_exploration(
+            CutCucumberSkill.RANDOM_EXPLORATION_TIME, 0.005)
+    execute_skill(skill, client)
+    skill = cut_cucumber_skill.add_random_y_exploration(
+            CutCucumberSkill.RANDOM_EXPLORATION_TIME, 0.005)
+    execute_skill(skill, client)
+    skill = cut_cucumber_skill.add_random_z_exploration(
+            CutCucumberSkill.RANDOM_EXPLORATION_TIME, 0.005)
+    execute_skill(skill, client)
+    # ==== End ====
 
-    goal = skill.create_goal()
-    print(goal)
-    client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
-    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-
-    while not rospy.is_shutdown() and done != True:
-        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
 
     num_slices_to_cut = 4
 
@@ -224,15 +234,7 @@ if __name__ == '__main__':
 
         skill.add_feedback_controller_params([600, 50])
         skill.add_termination_params([1.0])
-        goal = skill.create_goal()
-        print(goal)
-        client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
-        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-
-        while not rospy.is_shutdown() and done != True:
-            done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-
-        print(client.get_result())
+        execute_skill(skill, client)
 
         # Move left above the cucumber
         skill = ArmRelativeMotionWithDefaultSensorSkill()
@@ -244,15 +246,7 @@ if __name__ == '__main__':
 
         skill.add_feedback_controller_params([600, 50])
         skill.add_termination_params([1.0])
-        goal = skill.create_goal()
-        print(goal)
-        client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
-        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-
-        while not rospy.is_shutdown() and done != True:
-            done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-
-        print(client.get_result())
+        execute_skill(skill, client)
 
         # Move to contact
         skill = ArmRelativeMotionToContactWithDefaultSensorSkill()
@@ -263,22 +257,13 @@ if __name__ == '__main__':
                 CutCucumberSkill.IDENTITY_QUATERNION)
         skill.add_controller_stiffness_params(600, 50)
         skill.add_contact_termination_params(1.0, [10.0] * 6, [10.0] * 6)
-
-        goal = skill.create_goal()
-        print(goal)
-        client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
-        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-
-        while not rospy.is_shutdown() and done != True:
-            done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+        execute_skill(skill, client)
 
         # Start DMP cutting for 3 times
         skill = JointPoseWithDefaultSensorSkill()
         skill.add_initial_sensor_values(dmp_info['phi_j'])  # sensor values
-
         # y0 = [0.0,0.0,0.0,0.0,0.0,0.0,0.0]
         y0 = [-0.282, -0.189, 0.0668, -2.186, 0.0524, 1.916, -1.06273
-
         # Run time, tau, alpha, beta, num_basis, num_sensor_values, mu, h, weights
         trajectory_params = [
                 4.0, dmp_info['tau'], dmp_info['alpha'], dmp_info['beta'],
@@ -292,31 +277,12 @@ if __name__ == '__main__':
         skill.set_meta_skill_id(slice_idx+1)
         skill.set_meta_skill_type(1)
         skill.add_termination_params([1.0])
-        goal = skill.create_goal()
-
         num_of_dmps_to_run = 4
         for _ in range(num_of_dmps_to_run):
-            client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
-            done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-            while not rospy.is_shutdown() and done != True:
-                done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+            execute_skill(skill, client)
 
         skill = cut_cucumber_skill.get_move_left_skill(0.06)
-        goal = skill.create_goal()
-        print(goal)
-        client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
-        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-
-        while not rospy.is_shutdown() and done != True:
-            done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-
-        print(client.get_result())
+        execute_skill(skill, client)
 
         skill = cut_cucumber_skill.create_skill_to_move_to_cucumber()
-        goal = skill.create_goal()
-        print(goal)
-        client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
-        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-
-        while not rospy.is_shutdown() and done != True:
-            done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+        execute_skill(skill, client)
