@@ -5,7 +5,7 @@
 
 enum class SkillStatus { TO_START, RUNNING, FINISHED };  // enum class
 
-class ControlLoopData;
+class RobotStateData;
 class FeedbackController;
 class TerminationHandler;
 class TrajectoryGenerator;
@@ -62,10 +62,10 @@ class BaseSkill {
    * Execute skill on franka with the given robot and gripper configuration.
    * @param robot
    * @param gripper
-   * @param control_loop_data
+   * @param robot_state_data
    */
   virtual void execute_skill_on_franka(franka::Robot *robot, franka::Gripper *gripper,
-                                       ControlLoopData *control_loop_data) = 0;
+                                       RobotStateData *robot_state_data) = 0;
 
   virtual bool should_terminate();
 

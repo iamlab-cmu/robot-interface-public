@@ -11,7 +11,7 @@ void GripperOpenSkill::execute_skill() {
 }
 
 void GripperOpenSkill::execute_skill_on_franka(franka::Robot *robot, franka::Gripper* gripper,
-                                               ControlLoopData *control_loop_data) {
+                                               RobotStateData *robot_state_data) {
   // Check for the maximum grasping width.
   franka::GripperState gripper_state = gripper->readOnce();
   GripperOpenTrajectoryGenerator *gripper_traj_generator = static_cast<

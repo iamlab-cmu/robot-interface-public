@@ -13,7 +13,7 @@ class GripperOpenSkill : public BaseSkill {
   void execute_skill() override;
 
   void execute_skill_on_franka(franka::Robot* robot, franka::Gripper* gripper,
-                               ControlLoopData *control_loop_data) override;
+                               RobotStateData *robot_state_data) override;
 
   bool should_terminate() override;
 

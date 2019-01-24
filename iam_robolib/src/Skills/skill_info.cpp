@@ -14,7 +14,7 @@
 #include <franka/exception.h>
 
 #include <iam_robolib/run_loop.h>
-#include "control_loop_data.h"
+#include "robot_state_data.h"
 
 void SkillInfo::execute_skill() {
   assert(traj_generator_ != 0);
@@ -28,7 +28,7 @@ void SkillInfo::execute_skill() {
 }
 
 void SkillInfo::execute_skill_on_franka(franka::Robot* robot, franka::Gripper* gripper,
-                                        ControlLoopData *control_loop_data) {
+                                        RobotStateData *robot_state_data) {
 
   try {
     double time = 0.0;
@@ -48,11 +48,11 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot, franka::Gripper* g
         feedback_controller_->initialize_controller(&model);
       }
 
-      if (control_loop_data->mutex_.try_lock()) {
-        control_loop_data->counter_ += 1;
-        control_loop_data->time_ =  period.toSec();
-        control_loop_data->has_data_ = true;
-        control_loop_data->mutex_.unlock();
+      if (robot_state_data->mutex_.try_lock()) {
+        robot_state_data->counter_ += 1;
+        robot_state_data->time_ =  period.toSec();
+        robot_state_data->has_data_ = true;
+        robot_state_data->mutex_.unlock();
       }
 
       traj_generator_->dt_ = period.toSec();
@@ -63,8 +63,8 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot, franka::Gripper* g
       traj_generator_->get_next_step();
 
       if (log_counter % 1 == 0) {
-        control_loop_data->log_pose_desired(traj_generator_->pose_desired_);
-        control_loop_data->log_robot_state(robot_state, time);
+        robot_state_data->log_pose_desired(traj_generator_->pose_desired_);
+        robot_state_data->log_robot_state(robot_state, time);
       }
 
       feedback_controller_->get_next_step(robot_state, traj_generator_);
@@ -85,22 +85,22 @@ void SkillInfo::execute_skill_on_franka(franka::Robot* robot, franka::Gripper* g
     run_loop::running_skills_ = false;
     std::cerr << ex.what() << std::endl;
     // Make sure we don't lose data.
-    control_loop_data->writeCurrentBufferData();
+    robot_state_data->writeCurrentBufferData();
 
     // print last 50 values
-    control_loop_data->printGlobalData(50);
-    control_loop_data->file_logger_thread_.join();
+    robot_state_data->printGlobalData(50);
+    robot_state_data->file_logger_thread_.join();
   }
 }
 
 void SkillInfo::execute_meta_skill_on_franka(franka::Robot *robot, franka::Gripper *gripper,
-                                             ControlLoopData *control_loop_data) {
+                                             RobotStateData *robot_state_data) {
   std::cout << "Not implemented\n" << std::endl;
   assert(false);
 }
 
 void SkillInfo::execute_skill_on_franka_joint_base(franka::Robot* robot, franka::Gripper* gripper,
-                                                   ControlLoopData *control_loop_data) {
+                                                   RobotStateData *robot_state_data) {
 
   try {
     double time = 0.0;
@@ -120,11 +120,11 @@ void SkillInfo::execute_skill_on_franka_joint_base(franka::Robot* robot, franka:
         feedback_controller_->initialize_controller(&model);
       }
 
-      if (control_loop_data->mutex_.try_lock()) {
-        control_loop_data->counter_ += 1;
-        control_loop_data->time_ =  period.toSec();
-        control_loop_data->has_data_ = true;
-        control_loop_data->mutex_.unlock();
+      if (robot_state_data->mutex_.try_lock()) {
+        robot_state_data->counter_ += 1;
+        robot_state_data->time_ =  period.toSec();
+        robot_state_data->has_data_ = true;
+        robot_state_data->mutex_.unlock();
       }
 
       traj_generator_->dt_ = period.toSec();
@@ -135,8 +135,8 @@ void SkillInfo::execute_skill_on_franka_joint_base(franka::Robot* robot, franka:
       traj_generator_->get_next_step();
 
       if (log_counter % 1 == 0) {
-        control_loop_data->log_pose_desired(traj_generator_->pose_desired_);
-        control_loop_data->log_robot_state(robot_state, time);
+        robot_state_data->log_pose_desired(traj_generator_->pose_desired_);
+        robot_state_data->log_robot_state(robot_state, time);
       }
 
       feedback_controller_->get_next_step(robot_state, traj_generator_);
@@ -157,16 +157,16 @@ void SkillInfo::execute_skill_on_franka_joint_base(franka::Robot* robot, franka:
     run_loop::running_skills_ = false;
     std::cerr << ex.what() << std::endl;
     // Make sure we don't lose data.
-    control_loop_data->writeCurrentBufferData();
+    robot_state_data->writeCurrentBufferData();
 
     // print last 50 values
-    control_loop_data->printGlobalData(50);
-    control_loop_data->file_logger_thread_.join();
+    robot_state_data->printGlobalData(50);
+    robot_state_data->file_logger_thread_.join();
   }
 }
 
 void SkillInfo::execute_skill_on_franka_temp2(franka::Robot* robot, franka::Gripper* gripper,
-                                              ControlLoopData *control_loop_data) {
+                                              RobotStateData *robot_state_data) {
   const double translational_stiffness{500.0};
   const double rotational_stiffness{35.0};
   Eigen::MatrixXd stiffness(6, 6), damping(6, 6);
@@ -196,11 +196,11 @@ void SkillInfo::execute_skill_on_franka_temp2(franka::Robot* robot, franka::Grip
         traj_generator_->initialize_trajectory(robot_state);
       }
 
-      if (control_loop_data->mutex_.try_lock()) {
-        control_loop_data->counter_ += 1;
-        control_loop_data->time_ =  period.toSec();
-        control_loop_data->has_data_ = true;
-        control_loop_data->mutex_.unlock();
+      if (robot_state_data->mutex_.try_lock()) {
+        robot_state_data->counter_ += 1;
+        robot_state_data->time_ =  period.toSec();
+        robot_state_data->has_data_ = true;
+        robot_state_data->mutex_.unlock();
       }
 
       traj_generator_->dt_ = period.toSec();
@@ -213,8 +213,8 @@ void SkillInfo::execute_skill_on_franka_temp2(franka::Robot* robot, franka::Grip
       bool done = termination_handler_->should_terminate(traj_generator_);
 
       if (log_counter % 1 == 0) {
-        control_loop_data->log_pose_desired(traj_generator_->pose_desired_);
-        control_loop_data->log_robot_state(robot_state, time);
+        robot_state_data->log_pose_desired(traj_generator_->pose_desired_);
+        robot_state_data->log_robot_state(robot_state, time);
       }
 
       Eigen::Affine3d initial_transform(Eigen::Matrix4d::Map(traj_generator_->pose_desired_.data()));
@@ -269,16 +269,16 @@ void SkillInfo::execute_skill_on_franka_temp2(franka::Robot* robot, franka::Grip
     run_loop::running_skills_ = false;
     std::cerr << ex.what() << std::endl;
     // Make sure we don't lose data.
-    control_loop_data->writeCurrentBufferData();
+    robot_state_data->writeCurrentBufferData();
 
     // print last 50 values
-    control_loop_data->printGlobalData(50);
-    control_loop_data->file_logger_thread_.join();
+    robot_state_data->printGlobalData(50);
+    robot_state_data->file_logger_thread_.join();
   }
 }
 
 void SkillInfo::execute_skill_on_franka_temp(franka::Robot* robot, franka::Gripper* gripper,
-                                             ControlLoopData *control_loop_data) {
+                                             RobotStateData *robot_state_data) {
   try {
     double time = 0.0;
     int log_counter = 0;
@@ -292,11 +292,11 @@ void SkillInfo::execute_skill_on_franka_temp(franka::Robot* robot, franka::Gripp
             traj_generator_->initialize_trajectory(robot_state);
           }
 
-          if (control_loop_data->mutex_.try_lock()) {
-            control_loop_data->counter_ += 1;
-            control_loop_data->time_ =  period.toSec();
-            control_loop_data->has_data_ = true;
-            control_loop_data->mutex_.unlock();
+          if (robot_state_data->mutex_.try_lock()) {
+            robot_state_data->counter_ += 1;
+            robot_state_data->time_ =  period.toSec();
+            robot_state_data->has_data_ = true;
+            robot_state_data->mutex_.unlock();
           }
 
           traj_generator_->dt_ = period.toSec();
@@ -310,8 +310,8 @@ void SkillInfo::execute_skill_on_franka_temp(franka::Robot* robot, franka::Gripp
 
           franka::CartesianPose pose_desired(traj_generator_->pose_desired_);
           if (log_counter % 1 == 0) {
-            control_loop_data->log_pose_desired(traj_generator_->pose_desired_);
-            control_loop_data->log_robot_state(robot_state, time);
+            robot_state_data->log_pose_desired(traj_generator_->pose_desired_);
+            robot_state_data->log_robot_state(robot_state, time);
           }
 
           if(done or time >= traj_generator_->run_time_ + traj_generator_->acceleration_time_)
@@ -339,8 +339,8 @@ void SkillInfo::execute_skill_on_franka_temp(franka::Robot* robot, franka::Gripp
 
       log_counter += 1;
       if (log_counter % 1 == 0) {
-        control_loop_data->log_pose_desired(traj_generator_->pose_desired_);
-        control_loop_data->log_robot_state(robot_state, time);
+        robot_state_data->log_pose_desired(traj_generator_->pose_desired_);
+        robot_state_data->log_robot_state(robot_state, time);
       }
 
       if(done or time >= traj_generator_->run_time_) {
@@ -398,11 +398,11 @@ void SkillInfo::execute_skill_on_franka_temp(franka::Robot* robot, franka::Gripp
     run_loop::running_skills_ = false;
     std::cerr << ex.what() << std::endl;
     // Make sure we don't lose data.
-    control_loop_data->writeCurrentBufferData();
+    robot_state_data->writeCurrentBufferData();
 
     // print last 50 values
-    control_loop_data->printGlobalData(50);
-    control_loop_data->file_logger_thread_.join();
+    robot_state_data->printGlobalData(50);
+    robot_state_data->file_logger_thread_.join();
   }
 }
 

@@ -25,19 +25,19 @@ class SkillInfo : public BaseSkill {
     void execute_skill() override;
 
     void execute_skill_on_franka(franka::Robot *robot, franka::Gripper *gripper,
-                                 ControlLoopData *control_loop_data) override;
+                                 RobotStateData *robot_state_data) override;
 
     void execute_meta_skill_on_franka(franka::Robot *robot, franka::Gripper *gripper,
-                                      ControlLoopData *control_loop_data);
+                                      RobotStateData *robot_state_data);
 
     void execute_skill_on_franka_temp(franka::Robot *robot, franka::Gripper *gripper,
-        ControlLoopData *control_loop_data);
+        RobotStateData *robot_state_data);
 
     void execute_skill_on_franka_temp2(franka::Robot *robot, franka::Gripper *gripper,
-        ControlLoopData *control_loop_data);
+        RobotStateData *robot_state_data);
 
     void execute_skill_on_franka_joint_base(franka::Robot* robot, franka::Gripper* gripper,
-        ControlLoopData *control_loop_data);
+        RobotStateData *robot_state_data);
 
     bool should_terminate() override;
 

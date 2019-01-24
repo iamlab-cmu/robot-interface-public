@@ -16,7 +16,7 @@
 #include <iam_robolib/run_loop.h>
 
 #include "base_skill.h"
-#include "control_loop_data.h"
+#include "robot_state_data.h"
 #include "TrajectoryGenerator/dmp_trajectory_generator.h"
 #include "TerminationHandler/termination_handler.h"
 #include "TrajectoryGenerator/trajectory_generator.h"
@@ -27,7 +27,7 @@ bool JointPoseContinuousSkill::isComposableSkill() {
 
 
 void JointPoseContinuousSkill::execute_skill_on_franka(run_loop *run_loop, franka::Robot* robot,
-    franka::Gripper* gripper, ControlLoopData *control_loop_data) {
+    franka::Gripper* gripper, RobotStateData *robot_state_data) {
   try {
     double time = 0.0;
     double current_skill_time = 0.0;
@@ -64,8 +64,8 @@ void JointPoseContinuousSkill::execute_skill_on_franka(run_loop *run_loop, frank
 
       log_counter += 1;
       if (log_counter % 1 == 0) {
-        control_loop_data->log_pose_desired(traj_generator->pose_desired_);
-        control_loop_data->log_robot_state(robot_state, time);
+        robot_state_data->log_pose_desired(traj_generator->pose_desired_);
+        robot_state_data->log_robot_state(robot_state, time);
       }
 
       TerminationHandler *termination_handler = current_skill->get_termination_handler();
@@ -116,11 +116,11 @@ void JointPoseContinuousSkill::execute_skill_on_franka(run_loop *run_loop, frank
     run_loop::running_skills_ = false;
     std::cerr << ex.what() << std::endl;
     // Make sure we don't lose data.
-    control_loop_data->writeCurrentBufferData();
+    robot_state_data->writeCurrentBufferData();
 
     // print last 50 values
-    control_loop_data->printGlobalData(50);
-    control_loop_data->file_logger_thread_.join();
+    robot_state_data->printGlobalData(50);
+    robot_state_data->file_logger_thread_.join();
   }
 }
 

@@ -8,7 +8,7 @@
 #include <franka/robot.h>
 #include <iostream>
 
-#include "control_loop_data.h"
+#include "robot_state_data.h"
 #include "TerminationHandler/termination_handler.h"
 
 void SaveTrajectorySkill::execute_skill() {
@@ -16,7 +16,7 @@ void SaveTrajectorySkill::execute_skill() {
 }
 
 void SaveTrajectorySkill::execute_skill_on_franka(franka::Robot *robot, franka::Gripper* gripper,
-                                               ControlLoopData *control_loop_data) {
+                                               RobotStateData *robot_state_data) {
   if (!running_skill_) {
     std::cout << "Will execute SaveTrajectory skill\n" << std::endl;
 
@@ -31,8 +31,8 @@ void SaveTrajectorySkill::execute_skill_on_franka(franka::Robot *robot, franka::
         curr_time = robot_state.time;
         double time = curr_time.toSec() - start_time.toSec();
 
-        control_loop_data->log_pose_desired(traj_generator_->pose_desired_);
-        control_loop_data->log_robot_state(robot_state, time);
+        robot_state_data->log_pose_desired(traj_generator_->pose_desired_);
+        robot_state_data->log_robot_state(robot_state, time);
 
         traj_generator_->time_ = time;
 

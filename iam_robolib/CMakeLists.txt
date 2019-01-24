@@ -71,8 +71,8 @@ add_library(iam_robolib SHARED
   src/run_loop_logger.h
   src/TerminationHandler/final_pose_termination_handler.cpp
   src/TerminationHandler/final_pose_termination_handler.h
-  src/control_loop_data.cpp
-  src/control_loop_data.h
+  src/robot_state_data.cpp
+  src/robot_state_data.h
   src/TerminationHandler/final_joint_termination_handler.cpp
   src/TerminationHandler/final_joint_termination_handler.h
   src/TrajectoryGenerator/linear_joint_trajectory_controller.cpp

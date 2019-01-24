@@ -10,13 +10,13 @@
 
 class FileStreamLogger;
 
-class ControlLoopData {
+class RobotStateData {
  public:
   std::atomic<bool> use_buffer_0;
   std::mutex buffer_0_mutex_;
   std::mutex buffer_1_mutex_;
 
-  ControlLoopData(std::mutex &m): mutex_(m) {};
+  RobotStateData(std::mutex &m): mutex_(m) {};
 
   std::mutex& mutex_;
   bool has_data_=false;

@@ -16,7 +16,7 @@
 #include <iam_robolib/run_loop.h>
 #include "TerminationHandler/termination_handler.h"
 #include "TrajectoryGenerator/trajectory_generator.h"
-#include "control_loop_data.h"
+#include "robot_state_data.h"
 
 void JointPoseSkill::execute_skill() {
   assert(false);
@@ -24,7 +24,7 @@ void JointPoseSkill::execute_skill() {
 
 void JointPoseSkill::execute_skill_on_franka(franka::Robot* robot,
                                              franka::Gripper* gripper,
-                                             ControlLoopData *control_loop_data) {
+                                             RobotStateData *robot_state_data) {
 
   try {
     double time = 0.0;
@@ -51,8 +51,8 @@ void JointPoseSkill::execute_skill_on_franka(franka::Robot* robot,
 
       log_counter += 1;
       if (log_counter % 1 == 0) {
-        control_loop_data->log_pose_desired(traj_generator_->pose_desired_);
-        control_loop_data->log_robot_state(robot_state, time);
+        robot_state_data->log_pose_desired(traj_generator_->pose_desired_);
+        robot_state_data->log_robot_state(robot_state, time);
       }
 
       if(done) {
@@ -67,11 +67,11 @@ void JointPoseSkill::execute_skill_on_franka(franka::Robot* robot,
     run_loop::running_skills_ = false;
     std::cerr << ex.what() << std::endl;
     // Make sure we don't lose data.
-    control_loop_data->writeCurrentBufferData();
+    robot_state_data->writeCurrentBufferData();
 
     // print last 50 values
-    control_loop_data->printGlobalData(50);
-    control_loop_data->file_logger_thread_.join();
+    robot_state_data->printGlobalData(50);
+    robot_state_data->file_logger_thread_.join();
   }
 }
 
