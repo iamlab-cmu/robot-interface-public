@@ -70,9 +70,67 @@ class CutCucumberSkill(object):
         skill.add_contact_termination_params(1.0, [10.0] * 6, [10.0] * 6)
         return skill
 
+    def add_random_exploration(
+            self,
+            time,
+            position_delta,
+            lower_force_thresholds_accel=[10.0] * 6,
+            lower_force_thresholds_nominal=[10.0] * 6):
+        skill = ArmRelativeMotionToContactWithDefaultSensorSkill()
+        skill.add_initial_sensor_values([1, 3, 5, 7, 8])
+        skill.add_traj_params_with_quaternion(
+                time,
+                position_delta,
+                CutCucumberSkill.IDENTITY_QUATERNION)
+        skill.add_controller_stiffness_params(600, 50)
+        skill.add_contact_termination_params(
+                1.0,
+                lower_force_thresholds_accel,
+                lower_force_thresholds_nominal)
+        return skill
+
+    def add_random_x_exploration(
+            self,
+            time,
+            x_delta,
+            lower_force_thresholds_accel=[10.0] * 6,
+            lower_force_thresholds_nominal=[10.0] * 6):
+        return self.add_random_exploration(
+                time,
+                [x_delta, 0., 0.],
+                lower_force_thresholds_accel,
+                lower_force_thresholds_nominal)
+
+    def add_random_y_exploration(
+            self,
+            time,
+            y_delta,
+            lower_force_thresholds_accel=[10.0] * 6,
+            lower_force_thresholds_nominal=[10.0] * 6):
+        return self.add_random_exploration(
+                time,
+                [0., y_delta, 0.],
+                lower_force_thresholds_accel,
+                lower_force_thresholds_nominal)
+
+    def add_random_z_exploration(
+            self,
+            time,
+            z_delta,
+            lower_force_thresholds_accel=[10.0] * 6,
+            lower_force_thresholds_nominal=[10.0] * 6):
+        return self.add_random_exploration(
+                time,
+                [0., 0. z_delta],
+                lower_force_thresholds_accel,
+                lower_force_thresholds_nominal)
+
+
 if __name__ == '__main__':
     rospy.init_node('example_execute_skill_action_client')
-    client = actionlib.SimpleActionClient('/execute_skill_action_server_node/execute_skill', ExecuteSkillAction)
+    client = actionlib.SimpleActionClient(
+            '/execute_skill_action_server_node/execute_skill',
+            ExecuteSkillAction)
     client.wait_for_server()
 
     parser = argparse.ArgumentParser(description='Joint DMP Skill Example')
