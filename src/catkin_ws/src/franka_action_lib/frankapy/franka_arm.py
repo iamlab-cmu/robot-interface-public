@@ -108,29 +108,39 @@ class FrankaArm:
         '''
         pass
 
-    def goto_gripper_width(self, width):
-        '''Commands gripper to goto a certain width, applying force if needed
+    def gripper_goto(self, width, speed=0.04, force=None):
+        '''Commands gripper to goto a certain width, applying up to the given (default is max) force if needed
 
         Args:
             width (float): A float in the unit of meters
+            speed (float): Gripper operation speed in meters per sec
+            force (float): Max gripper force to apply in N. Default to None, which gives acceptable force
 
         Raises:
             ValueError: If width is less than 0 or greater than TODO(jacky) the maximum gripper opening
         '''
-        pass
+        skill = GripperWithDefaultSensorSkill()
+        skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
+        # TODO(jacky): why is wait time needed?
+        if force is not None:
+            skill.add_trajectory_params([width, speed, force, 1000])  # Gripper Width, Gripper Speed, Wait Time
+        else:
+            skill.add_trajectory_params([width, speed, 1000])  # Gripper Width, Gripper Speed, Wait Time
+            
+        goal = skill.create_goal()
 
-    def goto_gripper_force(self, force):
-        '''Commands gripper to close until it reaches the given force
+        retval = self._send_goal(goal, cb=lambda x: skill.feedback_callback(x))
+        # TODO(jacky): raise appropriate exceptions depending on retval
 
-        Args:
-            force (float): A float in the unit of N
-        '''
-        pass
-
-    def open_gripper(self):
+    def gripper_open(self):
         '''Opens gripper to maximum width
         '''
-        pass
+        self.gripper_goto(0.05)
+
+    def gripper_close(self):
+        '''Closes the gripper as much as possible
+        '''
+        self.gripper_goto(0)
 
     '''
     Reads
