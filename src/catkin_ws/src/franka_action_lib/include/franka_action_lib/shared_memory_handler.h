@@ -41,6 +41,10 @@ namespace franka_action_lib
 
       franka_action_lib::ExecuteSkillResult getSkillResult(int skill_id);
 
+      bool getNewSkillAvailableFlagInSharedMemory();
+
+      int getNewSkillIdInSharedMemory();
+
 
     private:
 
@@ -120,7 +124,7 @@ namespace franka_action_lib
       int getCurrentSkillIdInSharedMemoryUnprotected();
       void setCurrentSkillIdInSharedMemoryUnprotected(int current_skill_id);
       int getDoneSkillIdInSharedMemoryUnprotected();
-      bool getNewSkillFlagInSharedMemoryUnprotected();
+      bool getNewSkillAvailableFlagInSharedMemoryUnprotected();
       void setNewSkillFlagInSharedMemoryUnprotected(bool new_skill_flag);
       int getNewSkillIdInSharedMemoryUnprotected();
       void setNewSkillIdInSharedMemoryUnprotected(int new_skill_id);

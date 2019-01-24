@@ -27,8 +27,8 @@ def execute_skill(skill, client):
     print(goal)
     client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
     done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-
     while not rospy.is_shutdown() and done != True:
+        print(goal)
         done = client.wait_for_result(rospy.Duration.from_sec(5.0))
     print(client.get_result())
 
@@ -208,7 +208,7 @@ if __name__ == '__main__':
 
     # ==== Begin Random exploration ====
     # Add random exploration to know that you're on the cutting board
-    cut_cucumber_skill.run_random_exploration_skills(0.2, 0.005)
+    cut_cucumber_skill.run_random_exploration_skills(0.5, 0.005)
     # ==== End ====
 
     # Move left to contact cucumber
@@ -225,7 +225,7 @@ if __name__ == '__main__':
     execute_skill(skill, client)
     # ==== Begin Random exploration ====
     # Add random exploration to know that you're on the cutting board
-    cut_cucumber_skill.run_random_exploration_skills(0.2, 0.005)
+    cut_cucumber_skill.run_random_exploration_skills(0.5, 0.005)
     # ==== End ====
 
 
@@ -247,7 +247,7 @@ if __name__ == '__main__':
         # Move left above the cucumber
         skill = ArmRelativeMotionWithDefaultSensorSkill()
         skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-        self.add_relative_motion_with_quaternion(
+        skill.add_relative_motion_with_quaternion(
                 3.0,
                 [0., CutCucumberSkill.SLICE_THICKNESS, 0.],
                 CutCucumberSkill.IDENTITY_QUATERNION)
