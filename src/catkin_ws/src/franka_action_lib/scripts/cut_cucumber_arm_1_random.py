@@ -19,30 +19,56 @@ from skill_list import JointPoseWithDefaultSensorSkill
 from skill_list import ArmRelativeMotionWithDefaultSensorSkill
 from skill_list import ArmRelativeMotionToContactWithDefaultSensorSkill
 
-def get_move_left_skill(distance_in_m):
-    skill = ArmRelativeMotionWithDefaultSensorSkill()
-    skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-    skill.add_trajectory_params([3.0, 0.0, -distance_in_m, 0.0, 1.0, 0.0, 0.0, 0.0])
-    skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
-    skill.add_termination_params([1.0]) # buffer time
-    return skill
-
-def create_skill_to_move_to_cucumber(cutting_knife_location_x):
-     # Move left to contact cucumber
-    skill = ArmMoveToGoalContactWithDefaultSensorSkill()
-    skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random  
-    skill.add_trajectory_params(
-        [3.0, 0.00193678, 1.0, 0.00475145,0, 1.0 ,-0.00199989,0.0133132,0,
-        0.0133227,0.00472528,-0.9999,0,cutting_knife_location_x,0.04119,0.024956,1])  # Run Time (1) and Desired End Effector Pose(16)
-    skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
-    skill.add_contact_termination_params(1.0, [10.0] * 6, [10.0] * 6)
-    return skill
-
 def feedback_callback(feedback):
     print(feedback)
 
 class CutCucumberSkill(object):
-    def __init__(self):
+    INITIAL_POSITION = [-0.0372113,0.999006,0.0241583,0,0.998733,0.0379922,
+                        -0.0327119,0,-0.0335979,0.0229109,-0.999173,0,0.458702,
+                        -0.243681,0.245551,1]
+
+    POSITION_ABOVE_CUTTING_BOARD = [0.00428579,0.999112,-0.0416815,0,0.999585,
+                                    -0.00545372,-0.0279469,0,-0.02815, -0.0415,
+                                    -0.99874,0,0.502556,-0.175819,0.141577,1]
+
+    MOVE_TO_CUTTING_BOARD_POSITION = [0.00338211,0.99924,-0.0385855,0,0.999849,
+                                      -0.00401365,-0.0163014,0,-0.0164442,
+                                      -0.0385253,-0.999122,0,0.496864,
+                                      -0.176568,0.0293225,1]
+    MOVE_TO_CUCUMBER_POSITION = [0.00193678,0.999977,0.00475145,0,0.9999,
+                                 -0.00199989,0.0133132,0,0.0133227,0.00472528,
+                                 -0.9999,0,0.517015,0.04119,0.024956,1]
+
+    SLICE_THICKNESS = 0.0075
+
+    RELATIVE_MOTION_TO_CONTACT_FOR_CUTTING = 0.08
+
+    # Quaternion helpers
+    IDENTITY_QUATERNION = [1., 0., 0., 0.]
+
+    def __init__(self, cutting_knife_location_x):
+        self.cutting_knife_location_x = cutting_knife_location_x
+
+    def get_move_left_skill(self, distance_in_m):
+        skill = ArmRelativeMotionWithDefaultSensorSkill()
+        skill.add_initial_sensor_values([1, 3, 5, 7, 8])
+        skill.add_relative_motion_with_quaternion(
+                3.0,
+                [0., -distance_in_m, 0.],
+                CutCucumberSkill.IDENTITY_QUATERNION)
+        skill.add_feedback_controller_params([600, 50])
+        skill.add_termination_params([1.0])
+        return skill
+
+    def create_skill_to_move_to_cucumber(self):
+        ''' Move left to contact cucumber '''
+        skill = ArmMoveToGoalContactWithDefaultSensorSkill()
+        skill.add_initial_sensor_values([1, 3, 5, 7, 8])
+        skill.add_trajectory_params(
+                [3.0] + CutCucumberSkill.MOVE_TO_CUCUMBER_POSITION)
+        skill.add_feedback_controller_params([600, 50])
+        skill.add_contact_termination_params(1.0, [10.0] * 6, [10.0] * 6)
+        return skill
 
 if __name__ == '__main__':
     rospy.init_node('example_execute_skill_action_client')
@@ -56,13 +82,15 @@ if __name__ == '__main__':
     file = open(args.filename,"rb")
     dmp_info = pickle.load(file)
     cutting_knife_location_x = 0.5232
-
+    cut_cucumber_skill = CutCucumberSkill(cutting_knife_location_x)
 
     skill = ArmMoveToGoalWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-    skill.add_trajectory_params([3.0, -0.0372113,0.999006,0.0241583,0,0.998733,0.0379922,-0.0327119,0,-0.0335979,0.0229109,-0.999173,0,0.458702,-0.243681,0.245551,1])  # Run Time (1) and Desired End Effector Pose(16)
-    skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
-    skill.add_termination_params([1.0]) # buffer time
+    # Run Time (1) and Desired End Effector Pose(16)
+    skill.add_trajectory_params([3.0] + CutCucumberSkill.INITIAL_POSITION])
+    # translational stiffness, rotational stiffness
+    skill.add_feedback_controller_params([600, 50])
+    skill.add_buffer_time_for_termination(1.0)
     goal = skill.create_goal()
     print(goal)
     client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
@@ -76,9 +104,10 @@ if __name__ == '__main__':
     # Move to designated position above the cutting board
     skill = ArmMoveToGoalWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-    skill.add_trajectory_params([3.0, 0.00428579,0.999112,-0.0416815,0,0.999585,-0.00545372,-0.0279469,0,-0.02815,-0.0415452,-0.99874,0,0.502556,-0.175819,0.141577,1])  # Run Time (1) and Desired End Effector Pose(16)
-    skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
-    skill.add_termination_params([1.0]) # buffer time
+    skill.add_trajectory_params(
+            [3.0] + CutCucumberSkill.POSITION_ABOVE_CUTTING_BOARD)
+    skill.add_feedback_controller_params([600, 50])
+    skill.add_buffer_time_for_termination(1.0)
     goal = skill.create_goal()
     print(goal)
     client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
@@ -92,9 +121,10 @@ if __name__ == '__main__':
     # Move down to contact cutting board
     skill = ArmMoveToGoalContactWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-    skill.add_trajectory_params([3.0, 0.00338211,0.99924,-0.0385855,0,0.999849,-0.00401365,-0.0163014,0,-0.0164442,-0.0385253,-0.999122,0,0.496864,-0.176568,0.0293225,1])  # Run Time (1) and Desired End Effector Pose(16)
-    skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
-    skill.add_termination_params([1.0]) # buffer time
+    skill.add_trajectory_params(
+            [3.0] + CutCucumberSkill.MOVE_TO_CUTTING_BOARD_POSITION)
+    skill.add_feedback_controller_params([600, 50])
+    skill.add_buffer_time_for_termination(1.0)
     goal = skill.create_goal()
     print(goal)
     client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
@@ -105,9 +135,10 @@ if __name__ == '__main__':
 
     # Move left to contact cucumber
     skill = ArmMoveToGoalContactWithDefaultSensorSkill()
-    skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random  
-    skill.add_trajectory_params([3.0, 0.00193678,0.999977,0.00475145,0,0.9999,-0.00199989,0.0133132,0,0.0133227,0.00472528,-0.9999,0,0.517015,0.04119,0.024956,1])  # Run Time (1) and Desired End Effector Pose(16)
-    skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
+    skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
+    skill.add_trajectory_params(
+            [3.0] + CutCucumberSkill.MOVE_TO_CUCUMBER_POSITION)
+    skill.add_feedback_controller_params([600, 50])
 
     skill.add_contact_termination_params(
             1.0,
@@ -122,15 +153,19 @@ if __name__ == '__main__':
     while not rospy.is_shutdown() and done != True:
         done = client.wait_for_result(rospy.Duration.from_sec(5.0))
 
-    num_slices_to_cut
+    num_slices_to_cut = 4
 
     for slice_idx in range(num_slices_to_cut):
         # Move up above the cucumber
         skill = ArmRelativeMotionWithDefaultSensorSkill()
         skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-        skill.add_trajectory_params([3.0, 0.0, 0.0, 0.08, 1.0, 0.0, 0.0, 0.0])  # Run Time (1) and Desired End Effector Pose(16)
-        skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
-        skill.add_termination_params([1.0]) # buffer time
+        skill.add_relative_motion_with_quaternion(
+                3.0,
+                [0., 0., CutCucumberSkill.RELATIVE_MOTION_TO_CONTACT_FOR_CUTTING],
+                CutCucumberSkill.IDENTITY_QUATERNION)
+
+        skill.add_feedback_controller_params([600, 50])
+        skill.add_termination_params([1.0])
         goal = skill.create_goal()
         print(goal)
         client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
@@ -144,9 +179,13 @@ if __name__ == '__main__':
         # Move left above the cucumber
         skill = ArmRelativeMotionWithDefaultSensorSkill()
         skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-        skill.add_trajectory_params([3.0, 0.0, 0.0075, 0.0, 1.0, 0.0, 0.0, 0.0])  # Run Time (1) and Desired End Effector Pose(16)
-        skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
-        skill.add_termination_params([1.0]) # buffer time
+        self.add_relative_motion_with_quaternion(
+                3.0,
+                [0., CutCucumberSkill.SLICE_THICKNESS, 0.],
+                CutCucumberSkill.IDENTITY_QUATERNION)
+
+        skill.add_feedback_controller_params([600, 50])
+        skill.add_termination_params([1.0])
         goal = skill.create_goal()
         print(goal)
         client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
@@ -160,9 +199,10 @@ if __name__ == '__main__':
         # Move to contact
         skill = ArmRelativeMotionToContactWithDefaultSensorSkill()
         skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-        skill.add_traj_params_with_quaternion(3.0,
-                                              [0., 0., -0.08],
-                                              [1.0, 0., 0., 0.])
+        skill.add_traj_params_with_quaternion(
+                3.0,
+                [0., 0., -CutCucumberSkill.RELATIVE_MOTION_TO_CONTACT_FOR_CUTTING],
+                CutCucumberSkill.IDENTITY_QUATERNION)
         skill.add_controller_stiffness_params(600, 50)
         skill.add_contact_termination_params(1.0, [10.0] * 6, [10.0] * 6)
 
@@ -179,21 +219,18 @@ if __name__ == '__main__':
         skill.add_initial_sensor_values(dmp_info['phi_j'])  # sensor values
 
         # y0 = [0.0,0.0,0.0,0.0,0.0,0.0,0.0]
-        y0 = [-0.282618, -0.18941, 0.0668932, -2.18632, 0.0524845, 1.916, -1.06273]
+        y0 = [-0.282, -0.189, 0.0668, -2.186, 0.0524, 1.916, -1.06273
 
         # Run time, tau, alpha, beta, num_basis, num_sensor_values, mu, h, weights
         trajectory_params = [
-                4.0,
-                dmp_info['tau'],
-                dmp_info['alpha'],
-                dmp_info['beta'],
-                float(dmp_info['num_basis']),
-                float(dmp_info['num_sensors'])] + dmp_info['mu'] \
+                4.0, dmp_info['tau'], dmp_info['alpha'], dmp_info['beta'],
+                float(dmp_info['num_basis']), float(dmp_info['num_sensors'])] \
+                        + dmp_info['mu'] \
                         + dmp_info['h'] \
                         + y0 \
                         + np.array(dmp_info['weights']).reshape(-1).tolist()
 
-        skill.add_trajectory_params(trajectory_params)  
+        skill.add_trajectory_params(trajectory_params)
         skill.set_meta_skill_id(slice_idx+1)
         skill.set_meta_skill_type(1)
         skill.add_termination_params([1.0])
@@ -206,7 +243,7 @@ if __name__ == '__main__':
             while not rospy.is_shutdown() and done != True:
                 done = client.wait_for_result(rospy.Duration.from_sec(5.0))
 
-        skill = get_move_left_skill(0.06)
+        skill = cut_cucumber_skill.get_move_left_skill(0.06)
         goal = skill.create_goal()
         print(goal)
         client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
@@ -215,9 +252,9 @@ if __name__ == '__main__':
         while not rospy.is_shutdown() and done != True:
             done = client.wait_for_result(rospy.Duration.from_sec(5.0))
 
-        print(client.get_result())         
+        print(client.get_result())
 
-        skill = create_skill_to_move_to_cucumber(cutting_knife_location_x)
+        skill = cut_cucumber_skill.create_skill_to_move_to_cucumber()
         goal = skill.create_goal()
         print(goal)
         client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))

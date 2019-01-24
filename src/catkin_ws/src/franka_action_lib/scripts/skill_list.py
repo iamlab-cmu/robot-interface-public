@@ -176,6 +176,9 @@ class ArmMoveToGoalWithDefaultSensorSkill(BaseSkill):
               termination_type,
               timer_type)
 
+    def add_buffer_time_for_termination(self, buffer_time):
+        self.add_termination_params([buffer_time])
+
 class ArmMoveToGoalContactWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
                 skill_type=0,
@@ -213,6 +216,11 @@ class ArmRelativeMotionWithDefaultSensorSkill(BaseSkill):
               feedback_controller_type,
               termination_type,
               timer_type)
+
+    def add_relative_motion_with_quaternion(self, time, position, quaternion):
+        assert len(position) == 3, "Incorrect position to move to."
+        assert len(quaternion) == 4, "Incorrect quaternion representation."
+        self.add_trajectory_params([time] + position + quaternion)
 
 class ArmRelativeMotionToContactWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
