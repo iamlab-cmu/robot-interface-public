@@ -22,7 +22,7 @@ from skill_list import ArmRelativeMotionToContactWithDefaultSensorSkill
 def feedback_callback(feedback):
     print(feedback)
 
-def execute_skill(skill, client)
+def execute_skill(skill, client):
     goal = skill.create_goal()
     print(goal)
     client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
@@ -134,7 +134,7 @@ class CutCucumberSkill(object):
             lower_force_thresholds_nominal=[10.0] * 6):
         return self.add_random_exploration(
                 time,
-                [0., 0. z_delta],
+                [0., 0., z_delta],
                 lower_force_thresholds_accel,
                 lower_force_thresholds_nominal)
     
@@ -182,7 +182,7 @@ if __name__ == '__main__':
     skill = ArmMoveToGoalWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
     # Run Time (1) and Desired End Effector Pose(16)
-    skill.add_trajectory_params([3.0] + CutCucumberSkill.INITIAL_POSITION])
+    skill.add_trajectory_params([3.0] + CutCucumberSkill.INITIAL_POSITION)
     # translational stiffness, rotational stiffness
     skill.add_feedback_controller_params([600, 50])
     skill.add_buffer_time_for_termination(1.0)
@@ -275,7 +275,7 @@ if __name__ == '__main__':
         skill = JointPoseWithDefaultSensorSkill()
         skill.add_initial_sensor_values(dmp_info['phi_j'])  # sensor values
         # y0 = [0.0,0.0,0.0,0.0,0.0,0.0,0.0]
-        y0 = [-0.282, -0.189, 0.0668, -2.186, 0.0524, 1.916, -1.06273
+        y0 = [-0.282, -0.189, 0.0668, -2.186, 0.0524, 1.916, -1.06273]
         # Run time, tau, alpha, beta, num_basis, num_sensor_values, mu, h, weights
         trajectory_params = [
                 4.0, dmp_info['tau'], dmp_info['alpha'], dmp_info['beta'],

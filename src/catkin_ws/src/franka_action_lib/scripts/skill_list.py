@@ -248,7 +248,7 @@ class ArmRelativeMotionToContactWithDefaultSensorSkill(BaseSkill):
         default_upper_torque_thresholds_accel = \
                 [120.0,120.0,118.0,118.0,116.0,114.0,112.0]
         default_lower_torque_thresholds_nominal = \
-                [20.0,20.0,18.0,18.0,16.0,14.0,12.0}};
+                [20.0,20.0,18.0,18.0,16.0,14.0,12.0];
         default_upper_torque_thresholds_nominal = \
                 [120.0,120.0,118.0,118.0,116.0,114.0,112.0]
 
@@ -257,7 +257,7 @@ class ArmRelativeMotionToContactWithDefaultSensorSkill(BaseSkill):
             'upper_torque_thresholds_accel': upper_torque_thresholds_accel,
             'lower_torque_thresholds_nominal': lower_torque_thresholds_nominal,
             'upper_torque_thresholds_nominal': upper_torque_thresholds_nominal,
-                }
+        }
 
     @staticmethod
     def get_default_force_thresholds():
