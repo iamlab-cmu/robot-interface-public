@@ -137,6 +137,30 @@ class CutCucumberSkill(object):
                 [0., 0. z_delta],
                 lower_force_thresholds_accel,
                 lower_force_thresholds_nominal)
+    
+    def run_random_exploration_skills(self, time, delta_movement):
+        # Add random exploration to know that you're on the cutting board
+        d = delta_movement
+        skill = cut_cucumber_skill.add_random_x_exploration(time, d)
+        execute_skill(skill, client)
+        skill = cut_cucumber_skill.add_random_x_exploration(time, -2 * d)
+        execute_skill(skill, client)
+        skill = cut_cucumber_skill.add_random_x_exploration(time, d)
+        execute_skill(skill, client)
+
+        skill = cut_cucumber_skill.add_random_y_exploration(time, d)
+        execute_skill(skill, client)
+        skill = cut_cucumber_skill.add_random_y_exploration(time, -2 * d)
+        execute_skill(skill, client)
+        skill = cut_cucumber_skill.add_random_y_exploration(time, d)
+        execute_skill(skill, client)
+
+        skill = cut_cucumber_skill.add_random_z_exploration(time, d)
+        execute_skill(skill, client)
+        skill = cut_cucumber_skill.add_random_z_exploration(time, -2 * d)
+        execute_skill(skill, client)
+        skill = cut_cucumber_skill.add_random_z_exploration(time, d)
+        execute_skill(skill, client)
 
 
 if __name__ == '__main__':
@@ -184,15 +208,7 @@ if __name__ == '__main__':
 
     # ==== Begin Random exploration ====
     # Add random exploration to know that you're on the cutting board
-    skill = cut_cucumber_skill.add_random_x_exploration(
-            CutCucumberSkill.RANDOM_EXPLORATION_TIME, 0.005)
-    execute_skill(skill, client)
-    skill = cut_cucumber_skill.add_random_y_exploration(
-            CutCucumberSkill.RANDOM_EXPLORATION_TIME, 0.005)
-    execute_skill(skill, client)
-    skill = cut_cucumber_skill.add_random_z_exploration(
-            CutCucumberSkill.RANDOM_EXPLORATION_TIME, 0.005)
-    execute_skill(skill, client)
+    cut_cucumber_skill.run_random_exploration_skills(0.2, 0.005)
     # ==== End ====
 
     # Move left to contact cucumber
@@ -209,15 +225,7 @@ if __name__ == '__main__':
     execute_skill(skill, client)
     # ==== Begin Random exploration ====
     # Add random exploration to know that you're on the cutting board
-    skill = cut_cucumber_skill.add_random_x_exploration(
-            CutCucumberSkill.RANDOM_EXPLORATION_TIME, 0.005)
-    execute_skill(skill, client)
-    skill = cut_cucumber_skill.add_random_y_exploration(
-            CutCucumberSkill.RANDOM_EXPLORATION_TIME, 0.005)
-    execute_skill(skill, client)
-    skill = cut_cucumber_skill.add_random_z_exploration(
-            CutCucumberSkill.RANDOM_EXPLORATION_TIME, 0.005)
-    execute_skill(skill, client)
+    cut_cucumber_skill.run_random_exploration_skills(0.2, 0.005)
     # ==== End ====
 
 
@@ -258,6 +266,10 @@ if __name__ == '__main__':
         skill.add_controller_stiffness_params(600, 50)
         skill.add_contact_termination_params(1.0, [10.0] * 6, [10.0] * 6)
         execute_skill(skill, client)
+        # ==== Begin Random exploration ====
+        # Add random exploration to know that you're on the cutting board
+        cut_cucumber_skill.run_random_exploration_skills(0.2, 0.005)
+        # ==== End ====
 
         # Start DMP cutting for 3 times
         skill = JointPoseWithDefaultSensorSkill()
