@@ -6,9 +6,9 @@
 
 enum RunLoopLoggerCode {INFO, WARNING, ERROR, ABORT};
 
-class run_loop_logger {
+class RunLoopLogger {
  public:
-  run_loop_logger(std::mutex& m) : mutex_(m) {};
+  RunLoopLogger(std::mutex& m) : mutex_(m) {};
 
   std::mutex& mutex_;
 

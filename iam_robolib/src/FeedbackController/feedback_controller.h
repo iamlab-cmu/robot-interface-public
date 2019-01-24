@@ -9,9 +9,9 @@
 #include <franka/model.h>
 #include "TrajectoryGenerator/trajectory_generator.h"
 
-class feedback_controller {
+class FeedbackController {
  public:
-  explicit feedback_controller(float *p) : params_{p} {};
+  explicit FeedbackController(float *p) : params_{p} {};
 
   /**
    * Parse parameters from memory.

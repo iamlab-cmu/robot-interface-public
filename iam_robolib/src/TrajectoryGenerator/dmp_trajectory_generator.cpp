@@ -8,7 +8,7 @@
 #include <cmath>
 #include <iostream>
 
-void dmp_trajectory_generator::getInitialMeanAndStd() {
+void DmpTrajectoryGenerator::getInitialMeanAndStd() {
   std::array<double, 10> basis_mean{};
   std::array<double, 10> basis_std{};
   for (int i = 0; i < num_basis_; i++)  {
@@ -20,7 +20,7 @@ void dmp_trajectory_generator::getInitialMeanAndStd() {
   basis_std[num_basis_ - 1] = basis_std[num_basis_ - 2];
 }
 
-void dmp_trajectory_generator::parse_parameters() {
+void DmpTrajectoryGenerator::parse_parameters() {
   int num_params = static_cast<int>(params_[1]);
 
   // Tau (1) + num_basis = 7 (1) + num_sensor_values = 10 (1) + initial_y0(7) + weights (7 joints * 20 basis functions * 10 sensor inputs)
@@ -53,15 +53,15 @@ void dmp_trajectory_generator::parse_parameters() {
       initial_sensor_values_[i] = 1.0;
     }
   } else {
-    std::cout << "dmp_trajectory_generator Invalid number of parameters: " << num_params << std::endl;
+    std::cout << "DmpTrajectoryGenerator Invalid number of parameters: " << num_params << std::endl;
   }
 }
 
-void dmp_trajectory_generator::initialize_trajectory() {
+void DmpTrajectoryGenerator::initialize_trajectory() {
   // assert(false);
 }
 
-void dmp_trajectory_generator::initialize_trajectory(const franka::RobotState &robot_state) {
+void DmpTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
   // TODO: Should we use desired joint values here?
   for (size_t i = 0; i < y0_.size(); i++) {
     y0_[i] = static_cast<float>(robot_state.q_d[i]);
@@ -72,7 +72,7 @@ void dmp_trajectory_generator::initialize_trajectory(const franka::RobotState &r
 }
 
 
-void dmp_trajectory_generator::get_next_step() {
+void DmpTrajectoryGenerator::get_next_step() {
   static int i, j, k;
   static double ddy, t;
 

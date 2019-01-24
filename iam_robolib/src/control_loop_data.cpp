@@ -6,9 +6,9 @@
 
 #include "file_stream_logger.h"
 
-std::atomic<bool> control_loop_data::use_buffer_0{true};
-std::mutex control_loop_data::buffer_0_mutex_;
-std::mutex control_loop_data::buffer_1_mutex_;
+//std::atomic<bool> ControlLoopData::use_buffer_0{true};
+//std::mutex ControlLoopData::buffer_0_mutex_;
+//std::mutex ControlLoopData::buffer_1_mutex_;
 
 template<int N>
 void printListOfVectors(std::vector<std::array<double, N>> data, int print_last) {
@@ -25,7 +25,7 @@ void printListOfVectors(std::vector<std::array<double, N>> data, int print_last)
   }
 }
 
-void control_loop_data::printMeasuredJointJerks(std::vector<std::array<double, 7>> data, int print_last) {
+void ControlLoopData::printMeasuredJointJerks(std::vector<std::array<double, 7>> data, int print_last) {
   int print_counter = 0;
   for (auto it = data.rbegin(); it != data.rend(); it++) {
     std::array<double, 7> temp = *it;
@@ -43,11 +43,12 @@ void control_loop_data::printMeasuredJointJerks(std::vector<std::array<double, 7
   }
 }
 
-void control_loop_data::setFileStreamLogger(file_stream_logger *logger) {
+void ControlLoopData::setFileStreamLogger(FileStreamLogger *logger) {
     file_logger_ = logger;
+    use_buffer_0 = true;
 }
 
-void control_loop_data::writeBufferData_0() {
+void ControlLoopData::writeBufferData_0() {
     std::lock_guard<std::mutex> lock(buffer_0_mutex_);
     // std::cout << "Will save buffer 0\n";
 
@@ -80,7 +81,7 @@ void control_loop_data::writeBufferData_0() {
     // std::cout << "Did save buffer 0\n";
 };
 
-void control_loop_data::writeBufferData_1() {
+void ControlLoopData::writeBufferData_1() {
     std::lock_guard<std::mutex> lock(buffer_1_mutex_);
     // std::cout << "Will save buffer 1\n";
 
@@ -112,7 +113,7 @@ void control_loop_data::writeBufferData_1() {
     // std::cout << "Did save buffer 1\n";
 };
 
-void control_loop_data::startFileLoggerThread() {
+void ControlLoopData::startFileLoggerThread() {
     file_logger_thread_ = std::thread([&]() {
       // Sleep to achieve the desired print rate.
       while (run_loop::running_skills_) {
@@ -137,15 +138,15 @@ void control_loop_data::startFileLoggerThread() {
     });
 }
 
-void control_loop_data::writeCurrentBufferData() {
-    if (use_buffer_0) {
-      writeBufferData_0();
-    } else {
-      writeBufferData_1();
-    }
+void ControlLoopData::writeCurrentBufferData() {
+  if (use_buffer_0) {
+    writeBufferData_0();
+  } else {
+    writeBufferData_1();
+  }
 }
 
-void control_loop_data::printGlobalData(int print_count) {
+void ControlLoopData::printGlobalData(int print_count) {
   std::cout << "===== Robots state ======\n";
   printListOfVectors<16>(log_robot_state_g_, print_count);
 
@@ -162,7 +163,7 @@ void control_loop_data::printGlobalData(int print_count) {
   printMeasuredJointJerks(log_dq_g_, print_count);
 }
 
-void control_loop_data::log_pose_desired(std::array<double, 16> pose_desired) {
+void ControlLoopData::log_pose_desired(std::array<double, 16> pose_desired) {
   // Should we try to get lock or just remain lock free and fast (we might lose some data in that case).
   if (use_buffer_0) {
     if (buffer_0_mutex_.try_lock()) {
@@ -177,7 +178,7 @@ void control_loop_data::log_pose_desired(std::array<double, 16> pose_desired) {
   }
 }
 
-void control_loop_data::log_robot_state(franka::RobotState robot_state, double time) {
+void ControlLoopData::log_robot_state(franka::RobotState robot_state, double time) {
   if (use_buffer_0) {
     if (buffer_0_mutex_.try_lock()) {
       log_robot_state_0_.push_back(robot_state.O_T_EE);

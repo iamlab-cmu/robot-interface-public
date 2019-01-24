@@ -4,9 +4,9 @@
 
 #include <array>
 
-class custom_gain_torque_controller : public feedback_controller {
+class CustomGainTorqueController : public FeedbackController {
  public:
-  using feedback_controller::feedback_controller;
+  using FeedbackController::FeedbackController;
 
   void parse_parameters() override;
 

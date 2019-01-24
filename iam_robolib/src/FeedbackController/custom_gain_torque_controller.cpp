@@ -8,7 +8,7 @@
 
 #include <franka/rate_limiting.h>
 
-void custom_gain_torque_controller::parse_parameters() {
+void CustomGainTorqueController::parse_parameters() {
   // First parameter is reserved for the type
 
   int num_params = static_cast<int>(params_[1]);
@@ -27,15 +27,15 @@ void custom_gain_torque_controller::parse_parameters() {
   }
 }
 
-void custom_gain_torque_controller::initialize_controller() {}
+void CustomGainTorqueController::initialize_controller() {}
 
-void custom_gain_torque_controller::initialize_controller(franka::Model *model) {
+void CustomGainTorqueController::initialize_controller(franka::Model *model) {
   model_ = model;
 }
 
-void custom_gain_torque_controller::get_next_step() {}
+void CustomGainTorqueController::get_next_step() {}
 
-void custom_gain_torque_controller::get_next_step(const franka::RobotState &robot_state,
+void CustomGainTorqueController::get_next_step(const franka::RobotState &robot_state,
                                                TrajectoryGenerator *traj_generator) {
 
   // Read current coriolis terms from model.

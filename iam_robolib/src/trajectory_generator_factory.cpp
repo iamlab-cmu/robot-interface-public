@@ -17,7 +17,7 @@
 #include "TrajectoryGenerator/relative_linear_trajectory_generator.h"
 #include "TrajectoryGenerator/stay_in_initial_position_trajectory_generator.h"
 
-TrajectoryGenerator* trajectory_generator_factory::getTrajectoryGeneratorForSkill(
+TrajectoryGenerator* TrajectoryGeneratorFactory::getTrajectoryGeneratorForSkill(
     SharedBuffer buffer) {
   int traj_gen_id = static_cast<int>(buffer[0]);
   TrajectoryGenerator *traj_generator = nullptr;
@@ -34,11 +34,11 @@ TrajectoryGenerator* trajectory_generator_factory::getTrajectoryGeneratorForSkil
   } else if (traj_gen_id == 4) {
     traj_generator = new LinearTrajectoryGeneratorWithTimeAndGoal(buffer);
   } else if (traj_gen_id == 5){
-    traj_generator = new gripper_open_trajectory_generator(buffer);
+    traj_generator = new GripperOpenTrajectoryGenerator(buffer);
   } else if (traj_gen_id == 6) {
     traj_generator = new StayInInitialPositionTrajectoryGenerator(buffer);
   } else if (traj_gen_id == 7) {
-    traj_generator = new dmp_trajectory_generator(buffer);
+    traj_generator = new DmpTrajectoryGenerator(buffer);
   } else if (traj_gen_id == 8) {
     traj_generator = new RelativeLinearTrajectoryGenerator(buffer);
   } else {

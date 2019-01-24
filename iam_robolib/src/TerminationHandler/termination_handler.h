@@ -7,9 +7,9 @@
 #include <franka/robot.h>
 #include "TrajectoryGenerator/trajectory_generator.h"
 
-class termination_handler {
+class TerminationHandler {
  public:
-  explicit termination_handler(float *p) : params_{p} {};
+  explicit TerminationHandler(float *p) : params_{p} {};
 
   /**
    * Parse parameters from memory.

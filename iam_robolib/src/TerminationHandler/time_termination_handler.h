@@ -6,9 +6,9 @@
 
 #include "termination_handler.h"
 
-class TimeTerminationHandler : public termination_handler {
+class TimeTerminationHandler : public TerminationHandler {
  public:
-  using termination_handler::termination_handler;
+  using TerminationHandler::TerminationHandler;
 
   /**
    * Parse parameters from memory.

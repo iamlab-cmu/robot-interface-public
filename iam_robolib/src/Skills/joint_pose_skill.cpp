@@ -18,13 +18,13 @@
 #include "TrajectoryGenerator/trajectory_generator.h"
 #include "control_loop_data.h"
 
-void joint_pose_skill::execute_skill() {
+void JointPoseSkill::execute_skill() {
   assert(false);
 }
 
-void joint_pose_skill::execute_skill_on_franka(franka::Robot* robot,
+void JointPoseSkill::execute_skill_on_franka(franka::Robot* robot,
                                              franka::Gripper* gripper,
-                                             control_loop_data *control_loop_data) {
+                                             ControlLoopData *control_loop_data) {
 
   try {
     double time = 0.0;

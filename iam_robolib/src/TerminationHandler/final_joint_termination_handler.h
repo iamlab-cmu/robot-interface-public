@@ -6,9 +6,9 @@
 
 #include "termination_handler.h"
 
-class final_joint_termination_handler :public termination_handler{
+class FinalJointTerminationHandler :public TerminationHandler{
  public:
-  using termination_handler::termination_handler;
+  using TerminationHandler::TerminationHandler;
 
   /**
    * Parse parameters from memory.

@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-void gripper_open_trajectory_generator::parse_parameters() {
+void GripperOpenTrajectoryGenerator::parse_parameters() {
   int num_params = static_cast<int>(params_[1]);
 
   if(num_params == 3) {
@@ -25,34 +25,34 @@ void gripper_open_trajectory_generator::parse_parameters() {
   }
 }
 
-void gripper_open_trajectory_generator::initialize_trajectory() {
+void GripperOpenTrajectoryGenerator::initialize_trajectory() {
   // pass
 }
 
-void gripper_open_trajectory_generator::initialize_trajectory(const franka::RobotState &robot_state) {
+void GripperOpenTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
   // pass
 }
 
-void gripper_open_trajectory_generator::get_next_step() {
+void GripperOpenTrajectoryGenerator::get_next_step() {
   // pass
 }
 
-double gripper_open_trajectory_generator::getWidth() {
+double GripperOpenTrajectoryGenerator::getWidth() {
   return width_;
 }
 
-double gripper_open_trajectory_generator::getSpeed()  {
+double GripperOpenTrajectoryGenerator::getSpeed()  {
   return speed_;
 }
 
-double gripper_open_trajectory_generator::getForce()  {
+double GripperOpenTrajectoryGenerator::getForce()  {
   return force_;
 }
 
-bool gripper_open_trajectory_generator::isGraspSkill(){
+bool GripperOpenTrajectoryGenerator::isGraspSkill(){
   return is_grasp_skill_;
 }
 
-double gripper_open_trajectory_generator::getWaitTimeInMilliseconds() {
+double GripperOpenTrajectoryGenerator::getWaitTimeInMilliseconds() {
   return wait_time_in_milliseconds_;
 }

@@ -8,7 +8,7 @@
 
 #include "TrajectoryGenerator/linear_trajectory_generator.h"
 
-void final_pose_termination_handler::parse_parameters() {
+void FinalPoseTerminationHandler::parse_parameters() {
   // First parameter is reserved for the type
 
   int num_params = static_cast<int>(params_[1]);
@@ -22,15 +22,15 @@ void final_pose_termination_handler::parse_parameters() {
   }
 }
 
-void final_pose_termination_handler::initialize_handler() {
+void FinalPoseTerminationHandler::initialize_handler() {
   // pass
 }
 
-void final_pose_termination_handler::initialize_handler(franka::Robot *robot) {
+void FinalPoseTerminationHandler::initialize_handler(franka::Robot *robot) {
   // pass
 }
 
-bool final_pose_termination_handler::should_terminate(TrajectoryGenerator *trajectory_generator) {
+bool FinalPoseTerminationHandler::should_terminate(TrajectoryGenerator *trajectory_generator) {
   if(!done_) {
     LinearTrajectoryGenerator *linear_traj_generator =
           static_cast<LinearTrajectoryGenerator *>(trajectory_generator);
@@ -45,7 +45,7 @@ bool final_pose_termination_handler::should_terminate(TrajectoryGenerator *traje
   return done_;
 }
 
-bool final_pose_termination_handler::should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *trajectory_generator) {
+bool FinalPoseTerminationHandler::should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *trajectory_generator) {
   if(!done_){
     LinearTrajectoryGenerator *linear_traj_generator =
           static_cast<LinearTrajectoryGenerator *>(trajectory_generator);

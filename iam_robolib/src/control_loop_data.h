@@ -8,15 +8,15 @@
 
 #include <franka/robot.h>
 
-class file_stream_logger;
+class FileStreamLogger;
 
-class control_loop_data {
+class ControlLoopData {
  public:
-  static std::atomic<bool> use_buffer_0;
-  static std::mutex buffer_0_mutex_;
-  static std::mutex buffer_1_mutex_;
+  std::atomic<bool> use_buffer_0;
+  std::mutex buffer_0_mutex_;
+  std::mutex buffer_1_mutex_;
 
-  control_loop_data(std::mutex &m): mutex_(m) {};
+  ControlLoopData(std::mutex &m): mutex_(m) {};
 
   std::mutex& mutex_;
   bool has_data_=false;
@@ -60,7 +60,7 @@ class control_loop_data {
    * Set filestream logger to save data.
    * @param logger
    */
-  void setFileStreamLogger(file_stream_logger *logger);
+  void setFileStreamLogger(FileStreamLogger *logger);
 
   /**
    * Start logging to some global buffer or file.
@@ -93,7 +93,7 @@ class control_loop_data {
   void log_robot_state(franka::RobotState robot_state, double time);
 
  private:
-  file_stream_logger *file_logger_ = nullptr;
+  FileStreamLogger *file_logger_ = nullptr;
 
   void writeBufferData_0();
 

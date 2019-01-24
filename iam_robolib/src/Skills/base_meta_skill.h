@@ -4,9 +4,9 @@
 
 class run_loop;
 
-class base_meta_skill {
+class BaseMetaSkill {
  public:
-  base_meta_skill(int skill_idx): skill_idx_(skill_idx),
+  BaseMetaSkill(int skill_idx): skill_idx_(skill_idx),
                                 skill_status_(SkillStatus::TO_START) {};
 
   int getMetaSkillId();
@@ -18,7 +18,7 @@ class base_meta_skill {
   SkillStatus getCurrentMetaSkillStatus();
 
   virtual void execute_skill_on_franka(run_loop* run_loop, franka::Robot *robot,
-      franka::Gripper *gripper, control_loop_data *control_loop_data);
+      franka::Gripper *gripper, ControlLoopData *control_loop_data);
 
  protected:
   int skill_idx_;

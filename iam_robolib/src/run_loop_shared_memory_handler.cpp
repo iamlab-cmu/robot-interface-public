@@ -6,15 +6,15 @@
 
 #include <iostream>
 
-RunLoopProcessInfo* run_loop_shared_memory_handler::getRunLoopProcessInfo() {
+RunLoopProcessInfo* RunLoopSharedMemoryHandler::getRunLoopProcessInfo() {
   return run_loop_info_;
 }
 
-boost::interprocess::interprocess_mutex* run_loop_shared_memory_handler::getRunLoopProcessInfoMutex() {
+boost::interprocess::interprocess_mutex* RunLoopSharedMemoryHandler::getRunLoopProcessInfoMutex() {
   return run_loop_info_mutex_;
 }
 
-SharedBuffer run_loop_shared_memory_handler::getTrajectoryGeneratorBuffer(int memory_region) {
+SharedBuffer RunLoopSharedMemoryHandler::getTrajectoryGeneratorBuffer(int memory_region) {
   if (memory_region == 0) {
     return traj_gen_buffer_0_;
   } else if (memory_region == 1) {
@@ -25,7 +25,7 @@ SharedBuffer run_loop_shared_memory_handler::getTrajectoryGeneratorBuffer(int me
   }
 }
 
-SharedBuffer run_loop_shared_memory_handler::getFeedbackControllerBuffer(int memory_region) {
+SharedBuffer RunLoopSharedMemoryHandler::getFeedbackControllerBuffer(int memory_region) {
   if (memory_region == 0) {
     return feedback_controller_buffer_0_;
   } else if (memory_region == 1) {
@@ -36,7 +36,7 @@ SharedBuffer run_loop_shared_memory_handler::getFeedbackControllerBuffer(int mem
   }
 }
 
-SharedBuffer run_loop_shared_memory_handler::getTerminationParametersBuffer(int memory_region) {
+SharedBuffer RunLoopSharedMemoryHandler::getTerminationParametersBuffer(int memory_region) {
   if (memory_region == 0) {
     return termination_buffer_0_;
   } else if (memory_region == 1) {
@@ -47,7 +47,7 @@ SharedBuffer run_loop_shared_memory_handler::getTerminationParametersBuffer(int 
   }
 }
 
-SharedBuffer run_loop_shared_memory_handler::getExecutionResultBuffer(int memory_region) {
+SharedBuffer RunLoopSharedMemoryHandler::getExecutionResultBuffer(int memory_region) {
   if (memory_region == 0) {
     return execution_result_buffer_0_;
   } else if (memory_region == 1) {
@@ -58,7 +58,7 @@ SharedBuffer run_loop_shared_memory_handler::getExecutionResultBuffer(int memory
   }
 }
 
-SharedBuffer run_loop_shared_memory_handler::getFeedbackResultBuffer(int memory_region) {
+SharedBuffer RunLoopSharedMemoryHandler::getFeedbackResultBuffer(int memory_region) {
   if (memory_region == 0) {
     return execution_feedback_buffer_0_;
   } else if (memory_region == 1) {
@@ -69,7 +69,7 @@ SharedBuffer run_loop_shared_memory_handler::getFeedbackResultBuffer(int memory_
   }
 }
 
-void run_loop_shared_memory_handler::start() {
+void RunLoopSharedMemoryHandler::start() {
   // Start processing, might want to do some pre-processing
   std::cout << "start run loop.\n";
 

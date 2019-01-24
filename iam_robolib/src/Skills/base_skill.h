@@ -5,18 +5,18 @@
 
 enum class SkillStatus { TO_START, RUNNING, FINISHED };  // enum class
 
-class control_loop_data;
-class feedback_controller;
-class termination_handler;
+class ControlLoopData;
+class FeedbackController;
+class TerminationHandler;
 class TrajectoryGenerator;
 namespace franka {
   class RobotState;
   class Duration;
 }
 
-class base_skill {
+class BaseSkill {
  public:
-  base_skill(int skill_idx, int meta_skill_idx): skill_idx_(skill_idx),
+  BaseSkill(int skill_idx, int meta_skill_idx): skill_idx_(skill_idx),
                                                 meta_skill_idx_(meta_skill_idx),
                                                 skill_status_(SkillStatus::TO_START) {};
 
@@ -41,8 +41,8 @@ class base_skill {
   SkillStatus get_current_skill_status();
 
   TrajectoryGenerator* get_trajectory_generator();
-  feedback_controller* get_feedback_controller();
-  termination_handler* get_termination_handler();
+  FeedbackController* get_feedback_controller();
+  TerminationHandler* get_termination_handler();
 
   /**
    * Start skill. Initiliazes and parses the parameters for different skill components.
@@ -53,8 +53,8 @@ class base_skill {
    */
   void start_skill(franka::Robot* robot,
                    TrajectoryGenerator *traj_generator,
-                   feedback_controller *feedback_controller,
-                   termination_handler *termination_handler);
+                   FeedbackController *feedback_controller,
+                   TerminationHandler *termination_handler);
 
   virtual void execute_skill() = 0;
 
@@ -65,7 +65,7 @@ class base_skill {
    * @param control_loop_data
    */
   virtual void execute_skill_on_franka(franka::Robot *robot, franka::Gripper *gripper,
-                                       control_loop_data *control_loop_data) = 0;
+                                       ControlLoopData *control_loop_data) = 0;
 
   virtual bool should_terminate();
 
@@ -80,6 +80,6 @@ class base_skill {
   SkillStatus skill_status_;
 
   TrajectoryGenerator *traj_generator_= nullptr;
-  feedback_controller *feedback_controller_= nullptr;
-  termination_handler *termination_handler_= nullptr;
+  FeedbackController *feedback_controller_= nullptr;
+  TerminationHandler *termination_handler_= nullptr;
 };

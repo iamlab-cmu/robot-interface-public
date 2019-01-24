@@ -3,9 +3,9 @@
 #include <Eigen/Dense>
 #include <TerminationHandler/termination_handler.h>
 
-class LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler : public termination_handler {
+class LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler : public TerminationHandler {
  public:
-  using termination_handler::termination_handler;
+  using TerminationHandler::TerminationHandler;
 
   /**
    * Parse parameters from memory.
