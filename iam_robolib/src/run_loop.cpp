@@ -115,7 +115,6 @@ void run_loop::start_new_skill(BaseSkill* new_skill) {
   new_skill->start_skill(&robot_, traj_generator, feedback_controller, termination_handler);
 }
 
-
 void run_loop::finish_current_skill(BaseSkill* skill) {
   SkillStatus status = skill->get_current_skill_status();
 
@@ -540,6 +539,9 @@ void run_loop::run_on_franka() {
 
   if (print_thread_.joinable()) {
     print_thread_.join();
+  }
+  if (current_robot_state_io_thread_.joinable()) {
+    current_robot_state_io_thread_.join();
   }
   if (robot_state_data_->file_logger_thread_.joinable()) {
     robot_state_data_->file_logger_thread_.join();
