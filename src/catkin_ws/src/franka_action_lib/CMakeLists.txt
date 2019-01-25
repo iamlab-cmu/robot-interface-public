@@ -149,6 +149,7 @@ include_directories(
 # add_executable(${PROJECT_NAME}_node src/franka_action_lib_node.cpp)
 add_executable(example_execute_skill_action_client_node src/example_execute_skill_action_client.cpp)
 add_executable(execute_skill_action_server_node src/shared_memory_handler.cpp src/execute_skill_action_server.cpp src/execute_skill_action_server_node.cpp)
+add_executable(robot_state_publisher_node src/shared_memory_handler.cpp src/robot_state_publisher.cpp src/robot_state_publisher_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -171,6 +172,14 @@ target_link_libraries(
 )
 target_link_libraries(
   execute_skill_action_server_node
+  Threads::Threads
+  ${Boost_LIBRARIES}
+  ${catkin_LIBRARIES}
+  rt
+  iam_robolib_common
+)
+target_link_libraries(
+  robot_state_publisher_node
   Threads::Threads
   ${Boost_LIBRARIES}
   ${catkin_LIBRARIES}

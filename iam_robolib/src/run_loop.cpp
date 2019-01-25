@@ -288,7 +288,7 @@ void run_loop::run() {
 }
 
 void run_loop::setup_save_robot_state_thread() {
-  int print_rate = 10;   // The below thread will print at 10 FPS.
+  int print_rate = 100;   // The below thread will print at 10 FPS.
   print_thread_ = std::thread([&, print_rate]() {
       // Sleep to achieve the desired print rate.
       std::chrono::steady_clock::time_point start_time = std::chrono::steady_clock::now();
@@ -298,15 +298,151 @@ void run_loop::setup_save_robot_state_thread() {
         // Try to lock data to avoid read write collisions.
         try {
           franka::RobotState robot_state = robot_.readOnce();
+          // TODO(jacky): is this duration still needed?
           double duration = std::chrono::duration_cast<std::chrono::milliseconds>(
               std::chrono::steady_clock::now() - start_time).count();
           robot_state_data_->log_pose_desired(robot_state.O_T_EE_d); // Fictitious call to log pose desired so pose_desired buffer length matches during non-skill execution
           robot_state_data_->log_robot_state(robot_state, duration / 1000.0);
-          std::cout << duration / 1000.0 << "\n";
+          // std::cout << duration / 1000.0 << "\n";
         } catch (const franka::InvalidOperationException& ex) {
           // Some other control thread is running let's wait and try again.
           std::cerr << "Cannot read robot state for logging. Will continue. " << ex.what() << std::endl;
         }
+      }
+  });
+}
+
+void run_loop::setup_current_robot_state_io_thread() {
+  int io_rate = 100;
+  current_robot_state_io_thread_ = std::thread([&, io_rate]() {
+      std::chrono::steady_clock::time_point start_time = std::chrono::steady_clock::now();
+
+      while (running_skills_) {
+        std::this_thread::sleep_for(
+            std::chrono::milliseconds(static_cast<int>((1.0 / io_rate * 1000.0))));
+
+          if (robot_state_data_ == nullptr || robot_state_data_->log_robot_state_0_.size() == 0) continue;
+
+          // Try to lock data to avoid read write collisions.
+          
+          if (robot_state_data_->use_buffer_0) {
+            if (robot_state_data_->buffer_0_mutex_.try_lock()) {
+              if (shared_memory_handler_->getCurrentRobotStateBufferMutex()->try_lock()) {
+                  float* current_robot_state_data_buffer = shared_memory_handler_->getCurrentRobotStateBuffer();
+                  size_t buffer_idx = 0;
+                  double double_val = 0;
+                  std::array<double, 16> double_array_16;
+                  std::array<double, 7> double_array_7;
+
+                  double_array_16 = robot_state_data_->log_pose_desired_0_.back();
+                  for (size_t i = 0; i < double_array_16.size(); i++) {
+                    double_val = double_array_16[i];
+                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+                  }
+
+                  double_array_16 = robot_state_data_->log_robot_state_0_.back();
+                  for (size_t i = 0; i < double_array_16.size(); i++) {
+                    double_val = double_array_16[i];
+                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+                  }
+
+                  double_array_7 = robot_state_data_->log_tau_j_0_.back();
+                  for (size_t i = 0; i < double_array_7.size(); i++) {
+                    double_val = double_array_7[i];
+                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+                  }
+
+                  double_array_7 = robot_state_data_->log_d_tau_j_0_.back();
+                  for (size_t i = 0; i < double_array_7.size(); i++) {
+                    double_val = double_array_7[i];
+                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+                  }
+
+                  double_array_7 = robot_state_data_->log_q_0_.back();
+                  for (size_t i = 0; i < double_array_7.size(); i++) {
+                    double_val = double_array_7[i];
+                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+                  }
+
+                  double_array_7 = robot_state_data_->log_q_d_0_.back();
+                  for (size_t i = 0; i < double_array_7.size(); i++) {
+                    double_val = double_array_7[i];
+                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+                  }
+
+                  double_array_7 = robot_state_data_->log_dq_0_.back();
+                  for (size_t i = 0; i < double_array_7.size(); i++) {
+                    double_val = double_array_7[i];
+                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+                  }
+
+                  double_val = robot_state_data_->log_control_time_0_.back();
+                  current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+
+                  shared_memory_handler_->getCurrentRobotStateBufferMutex()->unlock();
+              }
+              robot_state_data_->buffer_0_mutex_.unlock();
+            }
+          }
+          else {
+            if (robot_state_data_->buffer_1_mutex_.try_lock()) {
+              if (shared_memory_handler_->getCurrentRobotStateBufferMutex()->try_lock()) {
+                  float* current_robot_state_data_buffer = shared_memory_handler_->getCurrentRobotStateBuffer();
+                  size_t buffer_idx = 0;
+                  double double_val = 0;
+                  std::array<double, 16> double_array_16;
+                  std::array<double, 7> double_array_7;
+
+                  double_array_16 = robot_state_data_->log_pose_desired_1_.back();
+                  for (size_t i = 0; i < double_array_16.size(); i++) {
+                    double_val = double_array_16[i];
+                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+                  }
+
+                  double_array_16 = robot_state_data_->log_robot_state_1_.back();
+                  for (size_t i = 0; i < double_array_16.size(); i++) {
+                    double_val = double_array_16[i];
+                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+                  }
+
+                  double_array_7 = robot_state_data_->log_tau_j_1_.back();
+                  for (size_t i = 0; i < double_array_7.size(); i++) {
+                    double_val = double_array_7[i];
+                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+                  }
+
+                  double_array_7 = robot_state_data_->log_d_tau_j_1_.back();
+                  for (size_t i = 0; i < double_array_7.size(); i++) {
+                    double_val = double_array_7[i];
+                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+                  }
+
+                  double_array_7 = robot_state_data_->log_q_1_.back();
+                  for (size_t i = 0; i < double_array_7.size(); i++) {
+                    double_val = double_array_7[i];
+                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+                  }
+
+                  double_array_7 = robot_state_data_->log_q_d_1_.back();
+                  for (size_t i = 0; i < double_array_7.size(); i++) {
+                    double_val = double_array_7[i];
+                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+                  }
+
+                  double_array_7 = robot_state_data_->log_dq_1_.back();
+                  for (size_t i = 0; i < double_array_7.size(); i++) {
+                    double_val = double_array_7[i];
+                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+                  }
+
+                  double_val = robot_state_data_->log_control_time_1_.back();
+                  current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+
+                  shared_memory_handler_->getCurrentRobotStateBufferMutex()->unlock();
+              }
+              robot_state_data_->buffer_1_mutex_.unlock();
+            }
+          }
       }
   });
 }
@@ -338,15 +474,11 @@ void run_loop::didFinishSkillInMetaSkill(BaseSkill* skill) {
 
 void run_loop::setup_data_loggers() {
   FileStreamLogger *robot_logger = new FileStreamLogger("./robot_state_data.txt");
-  // robot_logger->write_pose_desired_ = true;
   robot_state_data_->setFileStreamLogger(robot_logger);
   robot_state_data_->startFileLoggerThread();
 }
 
 void run_loop::run_on_franka() {
-  // Wait for sometime to let the client add data to the buffer
-  std::this_thread::sleep_for(std::chrono::seconds(10));
-
   std::chrono::time_point<std::chrono::high_resolution_clock> start;
   auto milli = std::chrono::milliseconds(1);
 
@@ -356,6 +488,7 @@ void run_loop::run_on_franka() {
     running_skills_ = true;
     setup_data_loggers();
     setup_save_robot_state_thread();
+    setup_current_robot_state_io_thread();
 
     while (1) {
       start = std::chrono::high_resolution_clock::now();

@@ -14,6 +14,10 @@ boost::interprocess::interprocess_mutex* RunLoopSharedMemoryHandler::getRunLoopP
   return run_loop_info_mutex_;
 }
 
+boost::interprocess::interprocess_mutex* RunLoopSharedMemoryHandler::getCurrentRobotStateBufferMutex() {
+  return shared_current_robot_state_mutex_;
+}
+
 SharedBuffer RunLoopSharedMemoryHandler::getTrajectoryGeneratorBuffer(int memory_region) {
   if (memory_region == 0) {
     return traj_gen_buffer_0_;
@@ -67,6 +71,10 @@ SharedBuffer RunLoopSharedMemoryHandler::getFeedbackResultBuffer(int memory_regi
     std::cout << "Incorrect memory region for execution feedback result buffer\n";
     return nullptr;
   }
+}
+
+SharedBuffer RunLoopSharedMemoryHandler::getCurrentRobotStateBuffer() {
+    return current_robot_state_buffer_;
 }
 
 void RunLoopSharedMemoryHandler::start() {
@@ -352,7 +360,7 @@ void RunLoopSharedMemoryHandler::start() {
   );
   execution_result_buffer_1_ = reinterpret_cast<SharedBuffer>(region_execution_result_buffer_1_.get_address());
 
-  /**
+      /**
    * Create mutexes for execution response.
    */
   shared_execution_result_mutex_0_ = managed_shared_memory_.construct<
@@ -362,6 +370,31 @@ void RunLoopSharedMemoryHandler::start() {
   shared_execution_result_mutex_1_ = managed_shared_memory_.construct<
       boost::interprocess::interprocess_mutex>
       (shared_memory_info_.getExecutionResponseMutexName(1).c_str())
+      ();
+
+
+  /**
+   * Create memory for current robot state.
+   */
+  const char *current_robot_state = shared_memory_info_.getSharedMemoryNameForCurrentRobotState().c_str();
+  boost::interprocess::shared_memory_object::remove(current_robot_state);
+  shared_current_robot_state_ = boost::interprocess::shared_memory_object(
+      boost::interprocess::open_or_create,
+      shared_memory_info_.getSharedMemoryNameForCurrentRobotState().c_str(),
+      boost::interprocess::read_write
+  );
+  shared_current_robot_state_.truncate(shared_memory_info_.getCurrentRobotStateMemorySize());
+  region_current_robot_state_buffer_ = boost::interprocess::mapped_region(
+      shared_current_robot_state_,
+      boost::interprocess::read_write,
+      shared_memory_info_.getOffsetForCurrentRobotState(),
+      shared_memory_info_.getSizeForCurrentRobotState()
+  );
+  current_robot_state_buffer_ = reinterpret_cast<SharedBuffer>(region_current_robot_state_buffer_.get_address());
+
+  shared_current_robot_state_mutex_ = managed_shared_memory_.construct<
+      boost::interprocess::interprocess_mutex>
+      (shared_memory_info_.getCurrentRobotStateMutexName().c_str())
       ();
 
   std::cout << "Did create all shared memory buffers." << std::endl;

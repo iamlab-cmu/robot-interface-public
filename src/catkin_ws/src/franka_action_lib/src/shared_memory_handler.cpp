@@ -267,6 +267,30 @@ namespace franka_action_lib
     );
     execution_result_buffer_1_ = reinterpret_cast<float *>(execution_result_region_1_.get_address());
 
+    // Get mutex for current robot state buffer
+    std::pair<boost::interprocess::interprocess_mutex *, std::size_t> shared_current_robot_state_mutex_pair = \
+                                managed_shared_memory_.find<boost::interprocess::interprocess_mutex>
+                                (shared_memory_info_.getCurrentRobotStateMutexName().c_str());
+    shared_current_robot_state_mutex_ = shared_current_robot_state_mutex_pair.first;
+    assert(shared_current_robot_state_mutex_ != 0);
+
+    /**
+     * Open shared memory region for current robot state buffer
+     */
+    shared_current_robot_state_ = boost::interprocess::shared_memory_object(
+        boost::interprocess::open_only,
+        shared_memory_info_.getSharedMemoryNameForCurrentRobotState().c_str(),
+        boost::interprocess::read_only
+    );
+
+    shared_current_robot_region_ =  boost::interprocess::mapped_region(
+        shared_current_robot_state_,
+        boost::interprocess::read_only,
+        shared_memory_info_.getOffsetForExecutionFeedbackData(),
+        shared_memory_info_.getSizeForExecutionFeedbackData()
+    );
+    current_robot_state_buffer_ = reinterpret_cast<float *>(shared_current_robot_region_.get_address());
+
   }
 
   int SharedMemoryHandler::loadSkillParametersIntoSharedMemory(const franka_action_lib::ExecuteSkillGoalConstPtr &goal)
@@ -458,6 +482,40 @@ namespace franka_action_lib
     return result;
 
     // The lock of the run_loop_info_mutex_ should be released automatically
+  }
+
+  franka_action_lib::RobotState SharedMemoryHandler::getRobotState()
+  {
+    franka_action_lib::RobotState robot_state;
+
+    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> current_robot_state_lock(*shared_current_robot_state_mutex_);
+    robot_state.header.stamp = ros::Time::now();
+
+    size_t offset = 0;
+    memcpy(&robot_state.pose_desired, &current_robot_state_buffer_[offset], robot_state.pose_desired.size() * sizeof(float));
+    offset += robot_state.pose_desired.size();
+
+    memcpy(&robot_state.pose, &current_robot_state_buffer_[offset], robot_state.pose.size() * sizeof(float));
+    offset += robot_state.pose.size();
+    
+    memcpy(&robot_state.joint_torques, &current_robot_state_buffer_[offset], robot_state.joint_torques.size() * sizeof(float));
+    offset += robot_state.joint_torques.size();
+
+    memcpy(&robot_state.joint_torques_derivative, &current_robot_state_buffer_[offset], robot_state.joint_torques_derivative.size() * sizeof(float));
+    offset += robot_state.joint_torques_derivative.size();
+    
+    memcpy(&robot_state.joints, &current_robot_state_buffer_[offset], robot_state.joints.size() * sizeof(float));
+    offset += robot_state.joints.size();
+    
+    memcpy(&robot_state.joints_desired, &current_robot_state_buffer_[offset], robot_state.joints_desired.size() * sizeof(float));
+    offset += robot_state.joints_desired.size();
+    
+    memcpy(&robot_state.joint_velocities, &current_robot_state_buffer_[offset], robot_state.joint_velocities.size() * sizeof(float));
+    offset += robot_state.joint_velocities.size();
+    
+    robot_state.time_since_skill_started = current_robot_state_buffer_[offset];
+
+    return robot_state;
   }
 
   // ALL UNPROTECTED FUNCTIONS BELOW REQUIRE A MUTEX OVER THE RUN_LOOP_INFO

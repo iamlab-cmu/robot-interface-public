@@ -35,6 +35,8 @@ class RunLoopSharedMemoryHandler {
 
   boost::interprocess::interprocess_mutex* getRunLoopProcessInfoMutex();
 
+  boost::interprocess::interprocess_mutex* getCurrentRobotStateBufferMutex();
+
   SharedBuffer getTrajectoryGeneratorBuffer(int memory_region);
 
   SharedBuffer getFeedbackControllerBuffer(int memory_region);
@@ -44,6 +46,8 @@ class RunLoopSharedMemoryHandler {
   SharedBuffer getExecutionResultBuffer(int memory_region);
 
   SharedBuffer getFeedbackResultBuffer(int memory_region);
+
+  SharedBuffer getCurrentRobotStateBuffer();
 
  private:
   SharedMemoryInfo shared_memory_info_=SharedMemoryInfo();
@@ -120,6 +124,11 @@ class RunLoopSharedMemoryHandler {
   SharedBuffer execution_result_buffer_0_=0;
   SharedBuffer execution_feedback_buffer_1_=0;
   SharedBuffer execution_result_buffer_1_=0;
+
+  boost::interprocess::shared_memory_object shared_current_robot_state_{};
+  boost::interprocess::mapped_region region_current_robot_state_buffer_{};
+  SharedBuffer current_robot_state_buffer_=0;
+  boost::interprocess::interprocess_mutex *shared_current_robot_state_mutex_ = nullptr;
 
 };
 

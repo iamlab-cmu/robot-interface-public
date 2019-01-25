@@ -101,6 +101,7 @@ class run_loop {
    */
   void finish_current_skill(BaseSkill* skill);
 
+  // TODO(jacky): this isn't actually being used. should implement this properly by introducing exit conditions on threads.
   static std::atomic<bool> running_skills_;
 
   bool start_time;
@@ -111,6 +112,7 @@ class run_loop {
   franka::Gripper gripper_;
 
   std::thread print_thread_{};
+  std::thread current_robot_state_io_thread_{};
 
   RunLoopSharedMemoryHandler* shared_memory_handler_ = nullptr;
   SkillInfoManager skill_manager_{};
@@ -150,6 +152,11 @@ class run_loop {
    * Setup thread to print data from the real time control loop thread.
    */
   void setup_save_robot_state_thread();
+
+  /**
+   * Setup thread to save current robot state data to shared memory buffer.
+   */
+  void setup_current_robot_state_io_thread();
 
   /**
    * Setup default collision behavior for robot.

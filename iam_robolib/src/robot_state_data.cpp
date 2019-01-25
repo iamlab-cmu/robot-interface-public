@@ -146,6 +146,7 @@ void RobotStateData::writeCurrentBufferData() {
   }
 }
 
+// TODO(jacky): switch to printing buffer 0 or 1, b/c global data buffers are not actually populated.
 void RobotStateData::printGlobalData(int print_count) {
   std::cout << "===== Robots state ======\n";
   printListOfVectors<16>(log_robot_state_g_, print_count);
