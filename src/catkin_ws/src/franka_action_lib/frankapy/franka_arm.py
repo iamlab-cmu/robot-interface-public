@@ -86,6 +86,9 @@ class FrankaArm:
             ValueError: If is_joints_reachable(joints) returns False
             FrankaArmCollisionException if a collision is detected
         '''
+        if not self.is_joints_reachable(joints):
+            raise ValueError('Joints not reachable!')
+
         skill = JointPoseWithDefaultSensorSkill()
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_termination_params(FC.DEFAULT_TERM_PARAMS)
@@ -241,4 +244,8 @@ class FrankaArm:
         Returns:
             True if all joints within joint limits
         '''
-        pass
+        for i, val in enumerate(joints):
+            if val <= FC.JOINT_LIMITS_MIN[i] or val >= FC.JOINT_LIMITS_MAX[i]:
+                return False
+
+        return True
