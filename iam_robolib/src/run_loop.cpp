@@ -93,7 +93,7 @@ void run_loop::start_new_skill(BaseSkill* new_skill) {
   // Generate things that are required here.
   RunLoopProcessInfo* run_loop_info = shared_memory_handler_->getRunLoopProcessInfo();
   int memory_index = run_loop_info->get_current_shared_memory_index();
-  logger_.add_info_log(string_format("Create skill from memory index: %d\n", memory_index));
+  std::cout << string_format("Create skill from memory index: %d\n", memory_index);
 
   SharedBuffer traj_buffer = shared_memory_handler_->getTrajectoryGeneratorBuffer(memory_index);
   TrajectoryGenerator *traj_generator = traj_gen_factory_.getTrajectoryGeneratorForSkill(
@@ -160,25 +160,23 @@ void run_loop::update_process_info() {
         if (skill != nullptr && !is_executing_skill) {
           if (run_loop_info->get_done_skill_id() > current_skill_id) {
             // Make sure get done skill id is not ahead of us.
-            logger_.add_error_log(string_format("INVALID: RunLoopProcInfo has done skill id %d "
+            std::cout << string_format("INVALID: RunLoopProcInfo has done skill id %d "
                                                 " greater than current skill id %d\n",
                                                 run_loop_info->get_done_skill_id(),
-                                                current_skill_id));
+                                                current_skill_id);
           } else if (run_loop_info->get_result_skill_id() + 2 <= current_skill_id) {
             // Make sure that ActionLib has read the skill results before we overwrite them.
-            logger_.add_error_log(
-                string_format("ActionLib server has not read previous result %d. "
+            std::cout << string_format("ActionLib server has not read previous result %d. "
                               "Cannot write new result %d\n",
                               run_loop_info->get_result_skill_id(),
-                              current_skill_id));
+                              current_skill_id);
           } else if (run_loop_info->get_done_skill_id() != current_skill_id - 1) {
             // Make sure we are only updating skill sequentially.
-            logger_.add_info_log(
-                string_format("RunLoopProcInfo done skill id: %d current skill id: %d\n",
-                    run_loop_info->get_done_skill_id(), current_skill_id));
+            std::cout << string_format("RunLoopProcInfo done skill id: %d current skill id: %d\n",
+                    run_loop_info->get_done_skill_id(), current_skill_id);
           } else {
             run_loop_info->set_done_skill_id(current_skill_id);
-            logger_.add_info_log(string_format("Did set done_skill_id %d\n", current_skill_id));
+            std::cout << string_format("Did set done_skill_id %d\n", current_skill_id);
           }
         }
         process_info_requires_update_ = false;
@@ -233,27 +231,15 @@ void run_loop::update_process_info() {
           // TODO(Mohit): We should lock the other memory so that ActionLibServer cannot modify it?
           run_loop_info->update_shared_memory_region();
           run_loop_info->set_new_skill_available(false);
-        } else {
-          std::cout << "run_loop is_executing_skill: " << is_executing_skill << "set_new_skill_available: " << 
-              run_loop_info->get_new_skill_available();
-          
-          std::cout << "Did NOT get new skill";
-          // Create new task Skill
-          int new_skill_id = run_loop_info->get_new_skill_id();
-          int new_skill_type = run_loop_info->get_new_skill_type();
-          int new_meta_skill_id = run_loop_info->get_new_meta_skill_id();
-          int new_meta_skill_type = run_loop_info->get_new_meta_skill_type();
-          std::cout << string_format("Did NOT find new skill id: %d, type: %d meta skill: %d, type: %d\n",
-              new_skill_id, new_skill_type, new_meta_skill_id, new_meta_skill_type);
-
+        } else {          
+          std::cout << "Did not get new skill\n";
         }
       }
     } catch (boost::interprocess::lock_exception) {
       // TODO(Mohit): Do something better here.
-      logger_.add_info_log("Cannot acquire lock for run loop info");
+      std:: cout << "Cannot acquire lock for run loop info";
     }
   }
-
 }
 
 void run_loop::run() {
@@ -371,7 +357,9 @@ void run_loop::run_on_franka() {
   try {
     running_skills_ = true;
     setup_data_loggers();
-    setup_save_robot_state_thread();
+    // NOTE: This causes a weird race condition between reading the robot state and 
+    // running the control loop. Hence we don't do it for now.
+    // setup_save_robot_state_thread();
 
     while (1) {
       start = std::chrono::high_resolution_clock::now();
@@ -413,7 +401,7 @@ void run_loop::run_on_franka() {
       // std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
   } catch (const franka::Exception& ex) {
-
+    std::cout << "Franka exception occurred during control loop. Will exit." << std::endl;
     std::cerr << ex.what() << std::endl;
     logger_.print_error_log();
     logger_.print_warning_log();
