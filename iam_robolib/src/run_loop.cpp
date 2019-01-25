@@ -233,6 +233,19 @@ void run_loop::update_process_info() {
           // TODO(Mohit): We should lock the other memory so that ActionLibServer cannot modify it?
           run_loop_info->update_shared_memory_region();
           run_loop_info->set_new_skill_available(false);
+        } else {
+          std::cout << "run_loop is_executing_skill: " << is_executing_skill << "set_new_skill_available: " << 
+              run_loop_info->get_new_skill_available();
+          
+          std::cout << "Did NOT get new skill";
+          // Create new task Skill
+          int new_skill_id = run_loop_info->get_new_skill_id();
+          int new_skill_type = run_loop_info->get_new_skill_type();
+          int new_meta_skill_id = run_loop_info->get_new_meta_skill_id();
+          int new_meta_skill_type = run_loop_info->get_new_meta_skill_type();
+          std::cout << string_format("Did NOT find new skill id: %d, type: %d meta skill: %d, type: %d\n",
+              new_skill_id, new_skill_type, new_meta_skill_id, new_meta_skill_type);
+
         }
       }
     } catch (boost::interprocess::lock_exception) {
