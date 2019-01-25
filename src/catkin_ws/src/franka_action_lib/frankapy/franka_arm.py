@@ -6,13 +6,15 @@ from franka_action_lib.msg import ExecuteSkillAction
 
 from skill_list import *
 from exceptions import *
+from franka_arm_subscriber import FrankaArmSubscriber
 
 class FrankaArm:
 
     def __init__(self, rosnode_name='franka_arm_client'):
         rospy.init_node(rosnode_name)
+        self._sub = FrankaArmSubscriber(new_ros_node=False)
         self._client = actionlib.SimpleActionClient('/execute_skill_action_server_node/execute_skill', ExecuteSkillAction)
-        self._client.wait_for_server()
+        self._client.wait_for_server()        
 
     def _send_goal(self, goal, cb):
         '''
@@ -146,43 +148,45 @@ class FrankaArm:
     Reads
     '''
     
+    def get_robot_state(self):
+        '''
+        Returns:
+            dict of full robot state data
+        '''
+        return self._sub.get_data()
+
     def get_pose(self):
         '''
         Returns:
             pose (RigidTransform) of the current end-effector
-
-        Raises:
-            FrankaArmCommException if a timeout is reached
         '''
-        pass
+        return self._sub.get_pose()
 
     def get_joints(self):
         '''
         Returns:
             ndarray of shape (7,) of joint angles in radians
-
-        Raises:
-            FrankaArmCommException if a timeout is reached
         '''
-        pass
+        return self._sub.get_joints()
 
-    def get_torques(self):
+    def get_joint_torques(self):
         '''
         Returns:
             ndarray of shape (7,) of joint torques in Nm
-
-        Raises:
-            FrankaArmCommException if a timeout is reached
         '''
-        pass
+        return self._sub.get_joint_torques()
+
+    def get_joint_velocities(self):
+        '''
+        Returns:
+            ndarray of shape (7,) of joint velocities in rads/s
+        '''
+        return self._sub.get_joint_velocities()
 
     def get_gripper_width(self):
         '''
         Returns:
             float of gripper width in meters
-
-        Raises:
-            FrankaArmCommException if a timeout is reached
         '''
         pass
 
@@ -190,9 +194,6 @@ class FrankaArm:
         '''
         Returns:
             float of gripper force in N
-
-        Raises:
-            FrankaArmCommException if a timeout is reached
         '''
         pass
 
