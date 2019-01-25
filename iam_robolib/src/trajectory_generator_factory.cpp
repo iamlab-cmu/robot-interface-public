@@ -8,12 +8,11 @@
 #include "Skills/base_skill.h"
 #include "TrajectoryGenerator/dmp_trajectory_generator.h"
 #include "TrajectoryGenerator/gripper_open_trajectory_generator.h"
-#include "TrajectoryGenerator/linear_joint_trajectory_controller.h"
+#include "TrajectoryGenerator/linear_joint_trajectory_generator.h"
 #include "TrajectoryGenerator/counter_trajectory_generator.h"
 #include "TrajectoryGenerator/goal_linear_trajectory_generator.h"
 #include "TrajectoryGenerator/linear_trajectory_generator.h"
 #include "TrajectoryGenerator/linear_trajectory_generator_with_time_and_goal.h"
-#include "TrajectoryGenerator/linear_trajectory_generator_with_time_and_goal_termination_handler.h"
 #include "TrajectoryGenerator/relative_linear_trajectory_generator.h"
 #include "TrajectoryGenerator/stay_in_initial_position_trajectory_generator.h"
 

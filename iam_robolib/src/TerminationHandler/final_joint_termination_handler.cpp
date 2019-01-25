@@ -6,19 +6,19 @@
 
 #include <iostream>
 
-#include "TrajectoryGenerator/linear_joint_trajectory_controller.h"
+#include "../TrajectoryGenerator/linear_joint_trajectory_generator.h"
 
 void FinalJointTerminationHandler::parse_parameters() {
-  // First parameter is reserved for the type
+  num_params_ = static_cast<int>(params_[1]);
 
-  int num_params = static_cast<int>(params_[1]);
-
-  if(num_params != 7) {
-    std::cout << "Incorrect number of params given: " << num_params << std::endl;
+  if(num_params_ == 0)
+  {
+    std::cout << "No parameters given, using default buffer time and error thresholds." << std::endl;
   }
-
-  for (size_t i=0; i < joint_final_.size(); i++) {
-    joint_final_[i] = static_cast<double>(params_[2 + i]);
+  // buffer_time(1) 
+  else if(num_params_ == 1)
+  {
+    buffer_time_ = static_cast<double>(params_[2]);
   }
 }
 
@@ -31,31 +31,42 @@ void FinalJointTerminationHandler::initialize_handler(franka::Robot *robot) {
 }
 
 bool FinalJointTerminationHandler::should_terminate(TrajectoryGenerator *trajectory_generator) {
-  if(!done_)
-  {
-    LinearJointTrajectoryGenerator *linear_traj_generator =
+  if (!done_) {
+    LinearJointTrajectoryGenerator *linear_joint_traj_generator =
         static_cast<LinearJointTrajectoryGenerator *>(trajectory_generator);
-    for(size_t i = 0; i < joint_final_.size(); i++) {
-      if(fabs(joint_final_[i] - linear_traj_generator->joint_desired_[i]) > 0.0001) {
+
+    if(linear_joint_traj_generator->time_ > linear_joint_traj_generator->run_time_ + buffer_time_)
+    {
+      done_ = true;
+      return true;
+    }
+
+    for(size_t i = 0; i < linear_joint_traj_generator->joint_goal_.size(); i++) {
+      if(fabs(linear_joint_traj_generator->joint_goal_[i] - linear_joint_traj_generator->joint_desired_[i]) > 0.0001) {
         return false;
       }
     }
-    done_ = true;
   }
   return done_;
 }
 
-bool FinalJointTerminationHandler::should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *trajectory_generator) {
+bool FinalJointTerminationHandler::should_terminate(const franka::RobotState &_, TrajectoryGenerator *trajectory_generator) {
   if(!done_)
   {
-    LinearJointTrajectoryGenerator *linear_traj_generator =
+    LinearJointTrajectoryGenerator *linear_joint_traj_generator =
         static_cast<LinearJointTrajectoryGenerator *>(trajectory_generator);
-    for(size_t i = 0; i < joint_final_.size(); i++) {
-      if(fabs(joint_final_[i] - linear_traj_generator->joint_desired_[i]) > 0.0001) {
+
+    if(linear_joint_traj_generator->time_ > linear_joint_traj_generator->run_time_ + buffer_time_)
+    {
+      done_ = true;
+      return true;
+    }
+
+    for(size_t i = 0; i < linear_joint_traj_generator->joint_goal_.size(); i++) {
+      if(fabs(linear_joint_traj_generator->joint_goal_[i] - linear_joint_traj_generator->joint_desired_[i]) > 0.0001) {
         return false;
       }
     }
-    done_ = true;
   }
   return done_;
 }

@@ -478,6 +478,9 @@ void run_loop::setup_data_loggers() {
 }
 
 void run_loop::run_on_franka() {
+  // Wait for sometime to let the client add data to the buffer
+  std::this_thread::sleep_for(std::chrono::seconds(2));
+
   std::chrono::time_point<std::chrono::high_resolution_clock> start;
   auto milli = std::chrono::milliseconds(1);
 

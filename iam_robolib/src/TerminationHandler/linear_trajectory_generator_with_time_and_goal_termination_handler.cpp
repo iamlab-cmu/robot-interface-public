@@ -7,7 +7,7 @@
 #include <iostream>
 #include <Eigen/Dense>
 
-#include "linear_trajectory_generator_with_time_and_goal.h"
+#include "../TrajectoryGenerator/linear_trajectory_generator_with_time_and_goal.h"
 
 void LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::parse_parameters() {
   // First parameter is reserved for the type

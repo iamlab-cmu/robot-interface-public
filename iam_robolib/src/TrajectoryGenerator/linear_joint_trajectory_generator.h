@@ -18,8 +18,9 @@ class LinearJointTrajectoryGenerator : public TrajectoryGenerator {
 
   void get_next_step() override;
 
+  std::array<double, 7> joint_goal_={};
  private:
-  float deltas_[7]={};
-  std::array<double, 7>joint_initial_={};
+  std::array<double, 7> joint_initial_={};
+  double t_ = 0.0;
 };
 

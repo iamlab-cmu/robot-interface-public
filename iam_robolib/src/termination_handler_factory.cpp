@@ -8,7 +8,7 @@
 #include "TerminationHandler/final_pose_termination_handler.h"
 #include "TerminationHandler/noop_termination_handler.h"
 #include "TerminationHandler/contact_termination_handler.h"
-#include "TrajectoryGenerator/linear_trajectory_generator_with_time_and_goal_termination_handler.h"
+#include "TerminationHandler/linear_trajectory_generator_with_time_and_goal_termination_handler.h"
 #include "TerminationHandler/time_termination_handler.h"
 
 #include <iostream>

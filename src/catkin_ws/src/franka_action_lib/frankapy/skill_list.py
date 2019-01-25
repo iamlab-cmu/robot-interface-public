@@ -118,7 +118,7 @@ class GripperWithDefaultSensorSkill(BaseSkill):
               termination_type,
               timer_type)
 
-class JointPoseWithDefaultSensorSkill(BaseSkill):
+class JointPoseDMPWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
                 skill_type=2,
                 meta_skill_type=0,
@@ -127,7 +127,7 @@ class JointPoseWithDefaultSensorSkill(BaseSkill):
                 feedback_controller_type=1,
                 termination_type=6,
                 timer_type=1):
-        super(JointPoseWithDefaultSensorSkill, self).__init__(
+        super(JointPoseDMPWithDefaultSensorSkill, self).__init__(
               skill_type,
               meta_skill_type,
               meta_skill_id,
@@ -137,7 +137,7 @@ class JointPoseWithDefaultSensorSkill(BaseSkill):
               termination_type,
               timer_type)
 
-class JointPoseWithTorqueControlWithDefaultSensorSkill(BaseSkill):
+class JointPoseDMPWithTorqueControlWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
                 skill_type=2,
                 meta_skill_type=0,
@@ -146,7 +146,26 @@ class JointPoseWithTorqueControlWithDefaultSensorSkill(BaseSkill):
                 feedback_controller_type=3,
                 termination_type=6,
                 timer_type=1):
-        super(JointPoseWithTorqueControlWithDefaultSensorSkill, self).__init__(
+        super(JointPoseDMPWithTorqueControlWithDefaultSensorSkill, self).__init__(
+              skill_type,
+              meta_skill_type,
+              meta_skill_id,
+              ['/franka_robot/camera'],
+              trajectory_generator_type,
+              feedback_controller_type,
+              termination_type,
+              timer_type)
+
+class JointPoseWithDefaultSensorSkill(BaseSkill):
+    def __init__(self, 
+                skill_type=2,
+                meta_skill_type=0,
+                meta_skill_id=0,
+                trajectory_generator_type=3,
+                feedback_controller_type=1,
+                termination_type=3,
+                timer_type=1):
+        super(JointPoseWithDefaultSensorSkill, self).__init__(
               skill_type,
               meta_skill_type,
               meta_skill_id,

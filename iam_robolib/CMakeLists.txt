@@ -47,8 +47,8 @@ add_library(iam_robolib SHARED
   src/TrajectoryGenerator/linear_trajectory_generator.h
   src/TrajectoryGenerator/linear_trajectory_generator_with_time_and_goal.cpp
   src/TrajectoryGenerator/linear_trajectory_generator_with_time_and_goal.h
-  src/TrajectoryGenerator/linear_trajectory_generator_with_time_and_goal_termination_handler.cpp
-  src/TrajectoryGenerator/linear_trajectory_generator_with_time_and_goal_termination_handler.h
+  src/TerminationHandler/linear_trajectory_generator_with_time_and_goal_termination_handler.cpp
+  src/TerminationHandler/linear_trajectory_generator_with_time_and_goal_termination_handler.h
   src/FeedbackController/torque_feedback_controller.cpp
   src/FeedbackController/torque_feedback_controller.h
   src/TrajectoryGenerator/counter_trajectory_generator.cpp
@@ -75,8 +75,8 @@ add_library(iam_robolib SHARED
   src/robot_state_data.h
   src/TerminationHandler/final_joint_termination_handler.cpp
   src/TerminationHandler/final_joint_termination_handler.h
-  src/TrajectoryGenerator/linear_joint_trajectory_controller.cpp
-  src/TrajectoryGenerator/linear_joint_trajectory_controller.h
+  src/TrajectoryGenerator/linear_joint_trajectory_generator.cpp
+  src/TrajectoryGenerator/linear_joint_trajectory_generator.h
   src/Skills/gripper_open_skill.cpp
   src/Skills/gripper_open_skill.h
   src/TrajectoryGenerator/gripper_open_trajectory_generator.cpp

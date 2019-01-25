@@ -1,5 +1,6 @@
 //
-// Created by mohit on 11/29/18.
+// Created by mohit on 11/29/18
+// TODO(jacky): final pose shouldn't be passed in - it should be read from traj gen. No skill is using this right now.
 //
 
 #include "final_pose_termination_handler.h"

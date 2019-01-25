@@ -7,6 +7,7 @@ from franka_action_lib.msg import ExecuteSkillAction
 from skill_list import *
 from exceptions import *
 from franka_arm_subscriber import FrankaArmSubscriber
+from franka_constants import FrankaConstants as FC
 
 class FrankaArm:
 
@@ -34,57 +35,65 @@ class FrankaArm:
     Controls
     '''
 
-    def goto_pose(self, pose):
+    def goto_pose(self, pose, duration=3):
         '''Commands Arm to the given pose via linear interpolation
 
         Args:
             pose (RigidTransform)
+            duration (float) : How much time this robot motion should take
 
         Raises:
             FrankaArmCollisionException if a collision is detected
         '''
         skill = ArmMoveToGoalWithDefaultSensorSkill()
-        skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-        skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
-        skill.add_termination_params([1.0]) # buffer time
+        skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
+        skill.add_feedback_controller_params(FC.DEFAULT_TORQUE_CONTROLLER_PARAMS)
+        skill.add_termination_params(FC.DEFAULT_TERM_PARAMS) 
 
-        skill.add_trajectory_params([3] + pose.matrix.T.flatten().tolist())
+        skill.add_trajectory_params([duration] + pose.matrix.T.flatten().tolist())
         goal = skill.create_goal()
         
-        retval = self._send_goal(goal, cb=lambda x: skill.feedback_callback(x))
-        # TODO(jacky): raise appropriate exceptions depending on retval
+        self._send_goal(goal, cb=lambda x: skill.feedback_callback(x))
 
-    def goto_pose_delta(self, pose):
+    def goto_pose_delta(self, pose, duration=3):
         '''Commands Arm to the given delta pose via linear interpolation
 
         Args:
             pose (RigidTransform)
+            duration (float) : How much time this robot motion should take
 
         Raises:
             FrankaArmCollisionException if a collision is detected
         '''
         skill = ArmRelativeMotionWithDefaultSensorSkill()
-        skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-        skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
-        skill.add_termination_params([1.0]) # buffer time
+        skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
+        skill.add_feedback_controller_params(FC.DEFAULT_TORQUE_CONTROLLER_PARAMS) 
+        skill.add_termination_params(FC.DEFAULT_TERM_PARAMS)
 
-        skill.add_trajectory_params([3] + pose.translation.tolist() + pose.quaternion.tolist())
+        skill.add_trajectory_params([duration] + pose.translation.tolist() + pose.quaternion.tolist())
         goal = skill.create_goal()
         
-        retval = self._send_goal(goal, cb=lambda x: skill.feedback_callback(x))
-        # TODO(jacky): raise appropriate exceptions depending on retval
+        self._send_goal(goal, cb=lambda x: skill.feedback_callback(x))
         
-    def goto_joints(self, joints):
+    def goto_joints(self, joints, duration=3):
         '''Commands Arm to the given joint configuration
 
         Args:
             joints (list): A list of 7 numbers that correspond to joint angles in radians
+            duration (float) : How much time this robot motion should take       
 
         Raises:
             ValueError: If is_joints_reachable(joints) returns False
             FrankaArmCollisionException if a collision is detected
         '''
-        pass
+        skill = JointPoseWithDefaultSensorSkill()
+        skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
+        skill.add_termination_params(FC.DEFAULT_TERM_PARAMS)
+
+        skill.add_trajectory_params([duration] + np.array(joints).tolist())
+        goal = skill.create_goal()
+        
+        self._send_goal(goal, cb=lambda x: skill.feedback_callback(x))
     
     def apply_joint_torques(self, torques, duration):
         '''Commands Arm to apply given joint torques for duration seconds
@@ -122,7 +131,8 @@ class FrankaArm:
             ValueError: If width is less than 0 or greater than TODO(jacky) the maximum gripper opening
         '''
         skill = GripperWithDefaultSensorSkill()
-        skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
+        skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
+
         # TODO(jacky): why is wait time needed?
         if force is not None:
             skill.add_trajectory_params([width, speed, force, 1000])  # Gripper Width, Gripper Speed, Wait Time
@@ -131,8 +141,7 @@ class FrankaArm:
             
         goal = skill.create_goal()
 
-        retval = self._send_goal(goal, cb=lambda x: skill.feedback_callback(x))
-        # TODO(jacky): raise appropriate exceptions depending on retval
+        self._send_goal(goal, cb=lambda x: skill.feedback_callback(x))
 
     def gripper_open(self):
         '''Opens gripper to maximum width
@@ -225,7 +234,7 @@ class FrankaArm:
         Raises:
             FrankaArmCollisionException if a collision is detected
         '''
-        pass
+        self.goto_joints(FC.HOME_JOINTS, duration=5)
 
     def is_joints_reachable(self, joints):
         '''

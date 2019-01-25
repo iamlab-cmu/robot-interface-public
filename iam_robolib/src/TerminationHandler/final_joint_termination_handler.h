@@ -35,7 +35,8 @@ class FinalJointTerminationHandler :public TerminationHandler{
    */
   bool should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) override;
 
- private:
-  std::array<double, 16> joint_final_{};
+  private:
+    double buffer_time_ = 0.0;
+    int num_params_;
 
 };

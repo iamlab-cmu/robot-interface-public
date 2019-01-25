@@ -2,7 +2,7 @@
 // Created by mohit on 11/30/18.
 //
 
-#include "linear_joint_trajectory_controller.h"
+#include "linear_joint_trajectory_generator.h"
 
 #include <cassert>
 #include <iostream>
@@ -13,11 +13,15 @@ void LinearJointTrajectoryGenerator::parse_parameters() {
 
   int num_params = static_cast<int>(params_[1]);
 
-  if(num_params != 7) {
+  if(num_params == 8) {
+    run_time_ = static_cast<double>(params_[2]);
+    for (int i = 0; i < joint_goal_.size(); i++) {
+      joint_goal_[i] = static_cast<double>(params_[i + 3]);
+    }
+  }
+  else {
     std::cout << "Incorrect number of params given: " << num_params << std::endl;
   }
-
-  memcpy(deltas_, &params_[2], 7 * sizeof(float));
 }
 
 void LinearJointTrajectoryGenerator::initialize_trajectory() {
@@ -30,15 +34,10 @@ void LinearJointTrajectoryGenerator::initialize_trajectory(const franka::RobotSt
 }
 
 void LinearJointTrajectoryGenerator::get_next_step() {
-  // double delta_angle = M_PI / 8.0 * (1 - std::cos(M_PI / 0.625 * time_));
-  double delta_angle = (M_PI / 8.0) * (time_ / 4.0);
-  double max_delta = (M_PI / 8.0);
-  if (delta_angle > max_delta) {
-    delta_angle = max_delta;
+  t_ = std::min(std::max(time_ / run_time_, 0.0), 1.0);
+
+  for (int i = 0; i < joint_desired_.size(); i++) {
+    joint_desired_[i] = joint_initial_[i] * (1 - t_) + joint_goal_[i] * t_;
   }
-  //double delta_angle = 0;
-  joint_desired_[3] = joint_initial_[3] + delta_angle;
-  // joint_desired_[4] = joint_initial_[4] + delta_angle;
-  joint_desired_[6] = joint_initial_[6] + delta_angle;
 }
   
