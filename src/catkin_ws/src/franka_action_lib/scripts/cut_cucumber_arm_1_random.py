@@ -10,14 +10,7 @@ import numpy as np
 
 from franka_action_lib.msg import ExecuteSkillAction, ExecuteSkillGoal
 
-from skill_list import BaseSkill
-from skill_list import ArmMoveToGoalWithDefaultSensorSkill
-from skill_list import GripperWithDefaultSensorSkill
-from skill_list import ArmMoveToGoalContactWithDefaultSensorSkill
-from skill_list import StayInPositionWithDefaultSensorSkill
-from skill_list import JointPoseWithDefaultSensorSkill
-from skill_list import ArmRelativeMotionWithDefaultSensorSkill
-from skill_list import ArmRelativeMotionToContactWithDefaultSensorSkill
+from frankapy.skill_list import *
 
 def feedback_callback(feedback):
     print(feedback)
@@ -206,7 +199,7 @@ if __name__ == '__main__':
             done = client.wait_for_result(rospy.Duration.from_sec(5.0))
 
         # Start DMP cutting for 3 times
-        skill = JointPoseWithDefaultSensorSkill()
+        skill = JointPoseDMPWithDefaultSensorSkill()
         skill.add_initial_sensor_values(dmp_info['phi_j'])  # sensor values
 
         # y0 = [0.0,0.0,0.0,0.0,0.0,0.0,0.0]
