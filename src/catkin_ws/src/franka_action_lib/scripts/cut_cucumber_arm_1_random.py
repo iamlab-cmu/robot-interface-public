@@ -49,7 +49,8 @@ class CutCucumberSkill(object):
                                  -0.00199989,0.0133132,0,0.0133227,0.00472528,
                                  -0.9999,0,0.517015,0.04119,0.024956,1]
 
-    SLICE_THICKNESS = 0.0075
+    SLICE_THICKNESS = 0.007
+    FIRST_SLICE_THICKNESS = 0.01
 
     RELATIVE_MOTION_TO_CONTACT_FOR_CUTTING = 0.08
 
@@ -208,7 +209,7 @@ if __name__ == '__main__':
 
     # ==== Begin Random exploration ====
     # Add random exploration to know that you're on the cutting board
-    cut_cucumber_skill.run_random_exploration_skills(0.5, 0.005)
+    cut_cucumber_skill.run_random_exploration_skills(0.2, 0.005)
     # ==== End ====
 
     # Move left to contact cucumber
@@ -225,7 +226,7 @@ if __name__ == '__main__':
     execute_skill(skill, client)
     # ==== Begin Random exploration ====
     # Add random exploration to know that you're on the cutting board
-    cut_cucumber_skill.run_random_exploration_skills(0.5, 0.005)
+    cut_cucumber_skill.run_random_exploration_skills(0.2, 0.005)
     # ==== End ====
 
 
@@ -236,7 +237,7 @@ if __name__ == '__main__':
         skill = ArmRelativeMotionWithDefaultSensorSkill()
         skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
         skill.add_relative_motion_with_quaternion(
-                3.0,
+                1.0,
                 [0., 0., CutCucumberSkill.RELATIVE_MOTION_TO_CONTACT_FOR_CUTTING],
                 CutCucumberSkill.IDENTITY_QUATERNION)
 
@@ -244,12 +245,13 @@ if __name__ == '__main__':
         skill.add_termination_params([1.0])
         execute_skill(skill, client)
 
+        slice_thickness = SLICE_THICKNESS if slice_idx > 0 else FIRST_SLICE_THICKNESS
         # Move left above the cucumber
         skill = ArmRelativeMotionWithDefaultSensorSkill()
         skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
         skill.add_relative_motion_with_quaternion(
-                3.0,
-                [0., CutCucumberSkill.SLICE_THICKNESS, 0.],
+                1.0,
+                [0., slice_thickness, 0.],
                 CutCucumberSkill.IDENTITY_QUATERNION)
 
         skill.add_feedback_controller_params([600, 50])
@@ -260,7 +262,7 @@ if __name__ == '__main__':
         skill = ArmRelativeMotionToContactWithDefaultSensorSkill()
         skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
         skill.add_traj_params_with_quaternion(
-                3.0,
+                1.0,
                 [0., 0., -CutCucumberSkill.RELATIVE_MOTION_TO_CONTACT_FOR_CUTTING],
                 CutCucumberSkill.IDENTITY_QUATERNION)
         skill.add_controller_stiffness_params(600, 50)
