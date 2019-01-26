@@ -298,7 +298,7 @@ namespace franka_action_lib
     // Grab lock of run_loop_info_mutex_ to see if we can load the new skill parameters into the shared memory
     boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> run_loop_info_lock(*run_loop_info_mutex_);
 
-    bool new_skill_flag = getNewSkillFlagInSharedMemoryUnprotected();
+    bool new_skill_flag = getNewSkillAvailableFlagInSharedMemoryUnprotected();
 
     // Return -1 if the new_skill_flag is already set to true, which means that another new skill has already been loaded
     // into the shared memory.
@@ -521,6 +521,28 @@ namespace franka_action_lib
 
     return robot_state;
   }
+  
+  bool SharedMemoryHandler::getNewSkillAvailableFlagInSharedMemory()
+  {
+    // Grab the lock of the run_loop_info_mutex_
+    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> run_loop_info_lock(*run_loop_info_mutex_);
+
+    // Return the done_skill_id
+    return getNewSkillAvailableFlagInSharedMemoryUnprotected();
+
+    // The lock of the run_loop_info_mutex_ should be released automatically
+  }
+
+  int SharedMemoryHandler::getNewSkillIdInSharedMemory()
+  {
+    // Grab the lock of the run_loop_info_mutex_
+    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> run_loop_info_lock(*run_loop_info_mutex_);
+
+    // Return the done_skill_id
+    return getNewSkillIdInSharedMemoryUnprotected();
+
+    // The lock of the run_loop_info_mutex_ should be released automatically
+  }
 
   // ALL UNPROTECTED FUNCTIONS BELOW REQUIRE A MUTEX OVER THE RUN_LOOP_INFO
 
@@ -548,7 +570,7 @@ namespace franka_action_lib
     return run_loop_process_info_->get_done_skill_id();
   }
 
-  bool SharedMemoryHandler::getNewSkillFlagInSharedMemoryUnprotected()
+  bool SharedMemoryHandler::getNewSkillAvailableFlagInSharedMemoryUnprotected()
   {
     // Return the new_skill_available_flag
     return run_loop_process_info_->get_new_skill_available();

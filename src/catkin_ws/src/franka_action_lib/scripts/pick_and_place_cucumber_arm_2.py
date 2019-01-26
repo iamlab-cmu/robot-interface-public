@@ -170,7 +170,7 @@ if __name__ == '__main__':
     # Stay in the position for a certain amount of time
     skill = StayInPositionWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-    skill.add_trajectory_params([300.0])  # Run Time 
+    skill.add_trajectory_params([1000.0])  # Run Time 
     skill.add_feedback_controller_params([800, 50]) # translational stiffness, rotational stiffness
     goal = skill.create_goal()
 
