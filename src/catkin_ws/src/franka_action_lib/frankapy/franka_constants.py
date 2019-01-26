@@ -21,3 +21,5 @@ class FrankaConstants:
 
     GRIPPER_WIDTH_MAX = 0.08
     GRIPPER_WIDTH_MIN = 0
+    GRIPPER_WAIT_TIME = 0
+    GRIPPER_MAX_FORCE = 80

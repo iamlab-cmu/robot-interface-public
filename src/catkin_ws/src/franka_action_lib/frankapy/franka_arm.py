@@ -136,7 +136,7 @@ class FrankaArm:
         '''
         pass
 
-    def gripper_goto(self, width, speed=0.04, force=None):
+    def goto_gripper(self, width, speed=0.04, force=None):
         '''Commands gripper to goto a certain width, applying up to the given (default is max) force if needed
 
         Args:
@@ -152,23 +152,23 @@ class FrankaArm:
 
         # TODO(jacky): why is wait time needed?
         if force is not None:
-            skill.add_trajectory_params([width, speed, force, 1000])  # Gripper Width, Gripper Speed, Wait Time
+            skill.add_trajectory_params([width, speed, force, FC.GRIPPER_WAIT_TIME])  # Gripper Width, Gripper Speed, Wait Time
         else:
-            skill.add_trajectory_params([width, speed, 1000])  # Gripper Width, Gripper Speed, Wait Time
+            skill.add_trajectory_params([width, speed, FC.GRIPPER_WAIT_TIME])  # Gripper Width, Gripper Speed, Wait Time
             
         goal = skill.create_goal()
 
         self._send_goal(goal, cb=lambda x: skill.feedback_callback(x))
 
-    def gripper_open(self):
+    def open_gripper(self):
         '''Opens gripper to maximum width
         '''
         self.gripper_goto(FC.GRIPPER_WIDTH_MAX)
 
-    def gripper_close(self):
+    def close_gripper(self, grasp=True):
         '''Closes the gripper as much as possible
         '''
-        self.gripper_goto(FC.GRIPPER_WIDTH_MIN)
+        self.gripper_goto(FC.GRIPPER_WIDTH_MIN, force=FC.GRIPPER_MAX_FORCE if grasp else None)
 
     '''
     Reads

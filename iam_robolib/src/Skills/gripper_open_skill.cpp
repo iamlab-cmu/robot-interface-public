@@ -35,6 +35,7 @@ void GripperOpenSkill::execute_skill_on_franka(franka::Robot *robot, franka::Gri
     return_status_ = gripper->move(open_width, open_speed);
   }
 
+  // TODO(Jacky): Why is this needed since grasp and move commands are blocking?
   double wait_time = gripper_traj_generator->getWaitTimeInMilliseconds();
   std::cout << "Gripper wait time: " << wait_time << "\n";
   // Block on this thread to allow gripper to execute skill.
