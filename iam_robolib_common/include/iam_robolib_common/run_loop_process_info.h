@@ -159,7 +159,8 @@ class RunLoopProcessInfo {
   int new_skill_id_{-1};
   int done_skill_id_{-1};
   int result_skill_id_{-1};
-  std::string new_skill_description_{""};
+  char new_skill_description_[1000];
+  size_t new_skill_description_len_=1;
 
   int current_meta_skill_id_{-1};
   int new_meta_skill_id_{-1};

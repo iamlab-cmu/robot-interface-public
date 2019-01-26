@@ -4,6 +4,9 @@
 
 #include <iam_robolib_common/run_loop_process_info.h>
 
+#include <iostream>
+#include <cstring>
+
 void RunLoopProcessInfo::set_new_skill_available(bool new_skill_available) {
   new_skill_available_ = new_skill_available;
 }
@@ -25,7 +28,10 @@ int RunLoopProcessInfo::get_new_skill_type() {
 }
 
 std::string RunLoopProcessInfo::get_new_skill_description() {
-  return new_skill_description_;
+  // return new_skill_description_;
+  std::string desc(new_skill_description_,
+                   new_skill_description_ + sizeof(new_skill_description_[0]) * new_skill_description_len_);
+  return desc;
 }
 
 int RunLoopProcessInfo::get_new_meta_skill_type() {
@@ -133,7 +139,9 @@ void RunLoopProcessInfo::set_new_meta_skill_id(int new_meta_skill_id) {
 }
 
 void RunLoopProcessInfo::set_new_skill_description(std::string description){
-  new_skill_description_ = description;
+  std::cout << description << std::endl;
+  std::memcpy(&new_skill_description_, description.c_str(), description.size());
+  new_skill_description_len_  = description.size();
 }
 
 int RunLoopProcessInfo::get_done_skill_id() {

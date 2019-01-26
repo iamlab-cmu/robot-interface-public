@@ -347,7 +347,7 @@ void run_loop::setup_data_loggers() {
 }
 
 void run_loop::log_skill_info(BaseSkill* skill) {
-  std::string log_desc = string_format("Will execute skill: %d, meta_skill: %d",
+  std::string log_desc = string_format("Will execute skill: %d, meta_skill: %d, ",
                                        skill->get_skill_id(), skill->get_meta_skill_id());
   log_desc += ("desc: " + skill->get_description());
   control_loop_data_->log_skill_info(log_desc);
@@ -382,8 +382,6 @@ void run_loop::run_on_franka() {
         if (!meta_skill->isComposableSkill() && !skill->get_termination_handler()->done_) {
           // Execute skill.
           log_skill_info(skill);
-          std::cout << "Will execute skill: " << skill->get_skill_id() << ", meta skill: " <<
-            meta_skill->getMetaSkillId() << "\n" << std::endl;
           meta_skill->execute_skill_on_franka(this, &robot_, &gripper_, control_loop_data_);
         } else if (meta_skill->isComposableSkill()) {
           log_skill_info(skill);
