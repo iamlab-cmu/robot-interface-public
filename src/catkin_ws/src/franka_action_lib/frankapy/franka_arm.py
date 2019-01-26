@@ -163,12 +163,12 @@ class FrankaArm:
     def gripper_open(self):
         '''Opens gripper to maximum width
         '''
-        self.gripper_goto(0.05)
+        self.gripper_goto(FC.GRIPPER_WIDTH_MAX)
 
     def gripper_close(self):
         '''Closes the gripper as much as possible
         '''
-        self.gripper_goto(0)
+        self.gripper_goto(FC.GRIPPER_WIDTH_MIN)
 
     '''
     Reads
@@ -218,14 +218,14 @@ class FrankaArm:
         Returns:
             float of gripper width in meters
         '''
-        pass
+        return self._sub.get_gripper_width()
 
-    def get_gripper_force(self):
+    def get_gripper_is_grasped(self):
         '''
         Returns:
-            float of gripper force in N
+            True if gripper is grasping something. False otherwise
         '''
-        pass
+        return self._sub.get_gripper_is_grasped()
 
     def get_speed(self, speed):
         '''

@@ -203,5 +203,20 @@ void RobotStateData::log_robot_state(franka::RobotState robot_state, double time
       buffer_1_mutex_.unlock();
     }
   }
+}
 
+void RobotStateData::log_gripper_state(franka::GripperState gripper_state) {
+  if (use_buffer_0) {
+    if (buffer_0_mutex_.try_lock()) {
+      log_gripper_width_0_.push_back(gripper_state.width);
+      log_gripper_is_grasped_0_.push_back(gripper_state.is_grasped);
+      buffer_0_mutex_.unlock();
+    }
+  } else {
+    if (buffer_1_mutex_.try_lock()) {
+      log_gripper_width_1_.push_back(gripper_state.width);
+      log_gripper_is_grasped_1_.push_back(gripper_state.is_grasped);
+      buffer_1_mutex_.unlock();
+    }
+  }
 }

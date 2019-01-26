@@ -18,3 +18,6 @@ class FrankaConstants:
     # See https://frankaemika.github.io/docs/control_parameters.html
     JOINT_LIMITS_MIN = [-2.8973, -1.7628, -2.8973, -3.0718, -2.8973, -0.0175, -2.8973]
     JOINT_LIMITS_MAX = [2.8973, 1.7628, 2.8973, -0.0698, 2.8973, 3.7525, 2.8973]
+
+    GRIPPER_WIDTH_MAX = 0.08
+    GRIPPER_WIDTH_MIN = 0

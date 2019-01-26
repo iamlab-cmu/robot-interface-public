@@ -32,7 +32,7 @@ class FrankaArmSubscriber:
         '''Get all fields of current robot data in a dict.
 
         Returns:
-            out: dict of robot state
+            dict of robot state
         '''
         ros_data = self._data_q.get(block=True)
 
@@ -44,7 +44,9 @@ class FrankaArmSubscriber:
             'joints': np.array(ros_data.joints),
             'joints_desired': np.array(ros_data.joints_desired),
             'joint_velocities': np.array(ros_data.joint_velocities),
-            'time_since_skill_started': ros_data.time_since_skill_started            
+            'time_since_skill_started': ros_data.time_since_skill_started,
+            'gripper_width': ros_data.gripper_width,
+            'gripper_is_grasped': ros_data.gripper_is_grasped       
         }
 
         return data
@@ -53,7 +55,7 @@ class FrankaArmSubscriber:
         '''Get the current pose.
 
         Returns:
-            out : RigidTransform
+            RigidTransform
         '''
         return self.get_data()['pose']
 
@@ -61,7 +63,7 @@ class FrankaArmSubscriber:
         '''Get the current joint configuration.
 
         Returns:
-            out : ndarray of shape (7,)
+            ndarray of shape (7,)
         '''
         return self.get_data()['joints']
 
@@ -69,7 +71,7 @@ class FrankaArmSubscriber:
         '''Get the current joint torques.
 
         Returns:
-            out : ndarray of shape (7,)
+            ndarray of shape (7,)
         '''
         return self.get_data()['joint_torques']
 
@@ -77,6 +79,22 @@ class FrankaArmSubscriber:
         '''Get the current joint velocities.
 
         Returns:
-            out : ndarray of shape (7,)
+            ndarray of shape (7,)
         '''
         return self.get_data()['joint_velocities']
+
+    def get_gripper_width(self):
+        '''Get most recent gripper width. Note this value will *not* be updated during a control command.
+
+        Returns:
+            float of gripper width in meters
+        '''
+        return self.get_data()['gripper_width']
+
+    def get_gripper_is_grasped(self):
+        '''Returns whether or not the gripper is grasping something. Note this value will *not* be updated during a control command.
+
+        Returns:
+            True if gripper is grasping something. False otherwise
+        '''
+        return self.get_data()['gripper_is_grasped']

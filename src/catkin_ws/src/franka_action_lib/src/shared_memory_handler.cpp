@@ -513,7 +513,11 @@ namespace franka_action_lib
     memcpy(&robot_state.joint_velocities, &current_robot_state_buffer_[offset], robot_state.joint_velocities.size() * sizeof(float));
     offset += robot_state.joint_velocities.size();
     
-    robot_state.time_since_skill_started = current_robot_state_buffer_[offset];
+    robot_state.time_since_skill_started = current_robot_state_buffer_[offset++];
+
+    robot_state.gripper_width = current_robot_state_buffer_[offset++];
+
+    robot_state.gripper_is_grasped = current_robot_state_buffer_[offset++] == 1 ? true : false;
 
     return robot_state;
   }

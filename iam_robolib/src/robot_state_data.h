@@ -7,6 +7,7 @@
 #include <thread>
 
 #include <franka/robot.h>
+#include <franka/gripper.h>
 
 class FileStreamLogger;
 
@@ -32,6 +33,8 @@ class RobotStateData {
   std::vector<std::array<double, 7>> log_q_d_0_{};
   std::vector<std::array<double, 7>> log_dq_0_{};
   std::vector<double> log_control_time_0_{};
+  std::vector<double> log_gripper_width_0_{};
+  std::vector<bool> log_gripper_is_grasped_0_{};
 
   std::vector<std::array<double, 16>> log_pose_desired_1_{};
   std::vector<std::array<double, 16>> log_robot_state_1_{};
@@ -41,6 +44,8 @@ class RobotStateData {
   std::vector<std::array<double, 7>> log_q_d_1_{};
   std::vector<std::array<double, 7>> log_dq_1_{};
   std::vector<double> log_control_time_1_{};
+  std::vector<double> log_gripper_width_1_{};
+  std::vector<bool> log_gripper_is_grasped_1_{};
 
   //These act as global buffers
   std::vector<std::array<double, 16>> log_pose_desired_g_{};
@@ -91,6 +96,7 @@ class RobotStateData {
    */
   void log_pose_desired(std::array<double, 16> pose_desired_);
   void log_robot_state(franka::RobotState robot_state, double time);
+  void log_gripper_state(franka::GripperState gripper_state);
 
  private:
   FileStreamLogger *file_logger_ = nullptr;

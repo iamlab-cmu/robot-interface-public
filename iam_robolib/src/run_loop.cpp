@@ -297,11 +297,13 @@ void run_loop::setup_save_robot_state_thread() {
         // Try to lock data to avoid read write collisions.
         try {
           franka::RobotState robot_state = robot_.readOnce();
+          franka::GripperState gripper_state = gripper_.readOnce();
           // TODO(jacky): is this duration still needed?
           double duration = std::chrono::duration_cast<std::chrono::milliseconds>(
               std::chrono::steady_clock::now() - start_time).count();
           robot_state_data_->log_pose_desired(robot_state.O_T_EE_d); // Fictitious call to log pose desired so pose_desired buffer length matches during non-skill execution
           robot_state_data_->log_robot_state(robot_state, duration / 1000.0);
+          robot_state_data_->log_gripper_state(gripper_state);
           // std::cout << duration / 1000.0 << "\n";
         } catch (const franka::InvalidOperationException& ex) {
           // Some other control thread is running let's wait and try again.
@@ -378,6 +380,12 @@ void run_loop::setup_current_robot_state_io_thread() {
                   double_val = robot_state_data_->log_control_time_0_.back();
                   current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
 
+                  double_val = robot_state_data_->log_gripper_width_0_.back();
+                  current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+
+                  double_val = robot_state_data_->log_gripper_is_grasped_0_.back() ? 1 : 0;
+                  current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+
                   shared_memory_handler_->getCurrentRobotStateBufferMutex()->unlock();
               }
               robot_state_data_->buffer_0_mutex_.unlock();
@@ -435,6 +443,12 @@ void run_loop::setup_current_robot_state_io_thread() {
                   }
 
                   double_val = robot_state_data_->log_control_time_1_.back();
+                  current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+
+                  double_val = robot_state_data_->log_gripper_width_1_.back();
+                  current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+
+                  double_val = robot_state_data_->log_gripper_is_grasped_1_.back() ? 1 : 0;
                   current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
 
                   shared_memory_handler_->getCurrentRobotStateBufferMutex()->unlock();
