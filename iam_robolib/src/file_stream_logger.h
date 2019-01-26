@@ -20,6 +20,13 @@ class FileStreamLogger {
                   std::vector<std::array<double, 7>>& q_d,
                   std::vector<std::array<double, 7>>& dq);
 
+   /**
+    * Write string data to logger. String data is prefixed by "info:" to allow us to easily find it in the logs.
+    * @param data String data to log does not require a "\n" in the end.
+    * @return True if we did write the data successfully else false.
+    */
+   bool writeStringData(std::vector<std::string> data);
+
  private:
   std::ofstream open_file_stream_;
   std::string filename_;

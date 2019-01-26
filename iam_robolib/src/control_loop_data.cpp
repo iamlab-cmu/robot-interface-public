@@ -53,6 +53,15 @@ void ControlLoopData::writeBufferData_0() {
     // std::cout << "Will save buffer 0\n";
 
     if (file_logger_ != nullptr) {
+        if (log_skill_info_0_.size() > 0) {
+          bool result = file_logger_->writeStringData(log_skill_info_0_);
+          if (result) {
+            std::cout << "Success: Did write string data from buffer 0." << std::endl;
+          } else {
+            std::cout << "Fail: Did not write string data from buffer 0." << std::endl;
+          }
+        }
+
         bool result = file_logger_->writeData(log_control_time_0_,
                                               log_pose_desired_0_,
                                               log_robot_state_0_,
@@ -69,6 +78,7 @@ void ControlLoopData::writeBufferData_0() {
     }
 
     // For now just clear them
+    log_skill_info_0_.clear();
     log_pose_desired_0_.clear();
     log_robot_state_0_.clear();
     log_tau_j_0_.clear();
@@ -86,6 +96,14 @@ void ControlLoopData::writeBufferData_1() {
     // std::cout << "Will save buffer 1\n";
 
     if (file_logger_ != nullptr) {
+        if (log_skill_info_1_.size() > 0) {
+          bool result = file_logger_->writeStringData(log_skill_info_1_);
+          if (result) {
+            std::cout << "Success: Did write string data from buffer 0." << std::endl;
+          } else {
+            std::cout << "Fail: Did not write string data from buffer 0." << std::endl;
+          }
+        }
         bool result = file_logger_->writeData(log_control_time_1_,
                                               log_pose_desired_1_,
                                               log_robot_state_1_,
@@ -101,6 +119,7 @@ void ControlLoopData::writeBufferData_1() {
         }
     }
 
+    log_skill_info_1_.clear();
     log_pose_desired_1_.clear();
     log_robot_state_1_.clear();
     log_tau_j_1_.clear();
@@ -203,4 +222,18 @@ void ControlLoopData::log_robot_state(franka::RobotState robot_state, double tim
     }
   }
 
+}
+
+void ControlLoopData::log_skill_info(std::string info) {
+  if (use_buffer_0) {
+    if (buffer_0_mutex_.try_lock()) {
+      log_skill_info_0_.push_back(info);
+      buffer_0_mutex_.unlock();
+    }
+  } else {
+    if (buffer_1_mutex_.try_lock()) {
+      log_skill_info_1_.push_back(info);
+      buffer_1_mutex_.unlock();
+    }
+  }
 }

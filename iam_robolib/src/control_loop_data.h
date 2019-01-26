@@ -24,6 +24,10 @@ class ControlLoopData {
   double time_=0;
   int counter_=0;
 
+  // Log skill info e.g. name, id, type of skill before it begins.
+  std::vector<std::string> log_skill_info_0_{};
+  std::vector<std::string> log_skill_info_1_{};
+
   std::vector<std::array<double, 16>> log_pose_desired_0_{};
   std::vector<std::array<double, 16>> log_robot_state_0_{};
   std::vector<std::array<double, 7>> log_tau_j_0_{};
@@ -91,6 +95,7 @@ class ControlLoopData {
    */
   void log_pose_desired(std::array<double, 16> pose_desired_);
   void log_robot_state(franka::RobotState robot_state, double time);
+  void log_skill_info(std::string info);
 
  private:
   FileStreamLogger *file_logger_ = nullptr;
