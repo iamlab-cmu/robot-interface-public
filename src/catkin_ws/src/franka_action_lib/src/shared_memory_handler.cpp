@@ -5,12 +5,12 @@ namespace franka_action_lib
 
   SharedMemoryHandler::SharedMemoryHandler() : shared_memory_info_()
   {
-    managed_shared_memory_ = boost::interprocess::managed_shared_memory(boost::interprocess::open_only,
-                                                                        shared_memory_info_.getSharedMemoryNameForObjects().c_str());
+    managed_shared_memory_ = boost::interprocess::managed_shared_memory(
+        boost::interprocess::open_only, shared_memory_info_.getSharedMemoryNameForObjects().c_str());
 
     // Get RunLoopProcessInfo from the the shared memory segment.
-    std::pair<RunLoopProcessInfo*, std::size_t> run_loop_process_info_pair = managed_shared_memory_.find<RunLoopProcessInfo>
-                                                                             (shared_memory_info_.getRunLoopInfoObjectName().c_str());
+    std::pair<RunLoopProcessInfo*, std::size_t> run_loop_process_info_pair = \
+        managed_shared_memory_.find<RunLoopProcessInfo> (shared_memory_info_.getRunLoopInfoObjectName().c_str());
     run_loop_process_info_ = run_loop_process_info_pair.first;
 
     // Make sure the process info object can be found in memory.
@@ -328,6 +328,7 @@ namespace franka_action_lib
 
     setNewSkillIdInSharedMemoryUnprotected(new_skill_id);
     setNewSkillTypeInSharedMemoryUnprotected(goal->skill_type);
+    setNewSkillDescriptionInSharedMemoryUnprotected(goal->skill_description);
     setNewMetaSkillTypeInSharedMemoryUnprotected(goal->meta_skill_type);
     setNewMetaSkillIdInSharedMemoryUnprotected(goal->meta_skill_id);
 
@@ -532,6 +533,12 @@ namespace franka_action_lib
     run_loop_process_info_->set_new_skill_id(new_skill_id);
   }
 
+  void SharedMemoryHandler::setNewSkillDescriptionInSharedMemoryUnprotected(std::string description)
+  {
+    // Set new_skill_id_ in run_loop_process_info_ to the input new_skill_id
+    run_loop_process_info_->set_new_skill_description(description);
+  }
+
   void SharedMemoryHandler::setNewSkillTypeInSharedMemoryUnprotected(int new_skill_type)
   {
     // Set new_skill_type_ in run_loop_process_info_ to the input new_skill_type
@@ -558,7 +565,8 @@ namespace franka_action_lib
 
   // Loads sensor data into the designated sensor memory buffer
   // Requires a lock on the mutex of the designated sensor memory buffer
-  void SharedMemoryHandler::loadSensorDataUnprotected(const franka_action_lib::ExecuteSkillGoalConstPtr &goal, int current_free_shared_memory_index)
+  void SharedMemoryHandler::loadSensorDataUnprotected(const franka_action_lib::ExecuteSkillGoalConstPtr &goal,
+                                                      int current_free_shared_memory_index)
   {
     if(current_free_shared_memory_index == 0)
     {
@@ -576,7 +584,8 @@ namespace franka_action_lib
 
   // Loads traj gen parameters into the designated current_free_shared_memory_index buffer
   // Requires a lock on the mutex of the designated current_free_shared_memory_index buffer
-  void SharedMemoryHandler::loadTrajGenParamsUnprotected(const franka_action_lib::ExecuteSkillGoalConstPtr &goal, int current_free_shared_memory_index)
+  void SharedMemoryHandler::loadTrajGenParamsUnprotected(const franka_action_lib::ExecuteSkillGoalConstPtr &goal,
+                                                         int current_free_shared_memory_index)
   {
     if(current_free_shared_memory_index == 0)
     {
@@ -594,25 +603,31 @@ namespace franka_action_lib
 
   // Loads feedback controller parameters into the designated current_free_shared_memory_index buffer
   // Requires a lock on the mutex of the designated current_free_shared_memory_index buffer
-  void SharedMemoryHandler::loadFeedbackControllerParamsUnprotected(const franka_action_lib::ExecuteSkillGoalConstPtr &goal, int current_free_shared_memory_index)
+  void SharedMemoryHandler::loadFeedbackControllerParamsUnprotected(
+      const franka_action_lib::ExecuteSkillGoalConstPtr &goal, int current_free_shared_memory_index)
   {
     if(current_free_shared_memory_index == 0)
     {
       feedback_controller_buffer_0_[0] = static_cast<float>(goal->feedback_controller_type);
       feedback_controller_buffer_0_[1] = static_cast<float>(goal->num_feedback_controller_params);
-      memcpy(feedback_controller_buffer_0_ + 2, &goal->feedback_controller_params[0], goal->num_feedback_controller_params * sizeof(float));
+      memcpy(feedback_controller_buffer_0_ + 2,
+          &goal->feedback_controller_params[0],
+          goal->num_feedback_controller_params * sizeof(float));
     }
     else if(current_free_shared_memory_index == 1)
     {
       feedback_controller_buffer_1_[0] = static_cast<float>(goal->feedback_controller_type);
       feedback_controller_buffer_1_[1] = static_cast<float>(goal->num_feedback_controller_params);
-      memcpy(feedback_controller_buffer_1_ + 2, &goal->feedback_controller_params[0], goal->num_feedback_controller_params * sizeof(float));
+      memcpy(feedback_controller_buffer_1_ + 2,
+          &goal->feedback_controller_params[0],
+          goal->num_feedback_controller_params * sizeof(float));
     }
   }
 
   // Loads termination parameters into the designated current_free_shared_memory_index buffer
   // Requires a lock on the mutex of the designated current_free_shared_memory_index buffer
-  void SharedMemoryHandler::loadTerminationParamsUnprotected(const franka_action_lib::ExecuteSkillGoalConstPtr &goal, int current_free_shared_memory_index)
+  void SharedMemoryHandler::loadTerminationParamsUnprotected(const franka_action_lib::ExecuteSkillGoalConstPtr &goal,
+                                                             int current_free_shared_memory_index)
   {
     if(current_free_shared_memory_index == 0)
     {
@@ -630,7 +645,8 @@ namespace franka_action_lib
 
   // Loads timer parameters into the designated current_free_shared_memory_index buffer
   // Requires a lock on the mutex of the designated current_free_shared_memory_index buffer
-  void SharedMemoryHandler::loadTimerParamsUnprotected(const franka_action_lib::ExecuteSkillGoalConstPtr &goal, int current_free_shared_memory_index)
+  void SharedMemoryHandler::loadTimerParamsUnprotected(const franka_action_lib::ExecuteSkillGoalConstPtr &goal,
+                                                       int current_free_shared_memory_index)
   {
     if(current_free_shared_memory_index == 0)
     {

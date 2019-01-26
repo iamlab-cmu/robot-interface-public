@@ -24,6 +24,10 @@ int RunLoopProcessInfo::get_new_skill_type() {
   return new_skill_type_;
 }
 
+std::string RunLoopProcessInfo::get_new_skill_description() {
+  return new_skill_description_;
+}
+
 int RunLoopProcessInfo::get_new_meta_skill_type() {
   return new_meta_skill_type_;
 }
@@ -126,6 +130,10 @@ void RunLoopProcessInfo::set_new_skill_id(int new_skill_id) {
 
 void RunLoopProcessInfo::set_new_meta_skill_id(int new_meta_skill_id) {
   new_meta_skill_id_ = new_meta_skill_id;
+}
+
+void RunLoopProcessInfo::set_new_skill_description(std::string description){
+  new_skill_description_ = description;
 }
 
 int RunLoopProcessInfo::get_done_skill_id() {

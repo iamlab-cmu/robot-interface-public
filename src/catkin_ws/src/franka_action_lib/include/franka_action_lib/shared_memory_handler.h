@@ -128,6 +128,7 @@ namespace franka_action_lib
       void setNewSkillFlagInSharedMemoryUnprotected(bool new_skill_flag);
       int getNewSkillIdInSharedMemoryUnprotected();
       void setNewSkillIdInSharedMemoryUnprotected(int new_skill_id);
+      void setNewSkillDescriptionInSharedMemoryUnprotected(std::string description);
       void setNewSkillTypeInSharedMemoryUnprotected(int new_skill_type);
       void setNewMetaSkillIdInSharedMemoryUnprotected(int new_meta_skill_id);
       void setNewMetaSkillTypeInSharedMemoryUnprotected(int new_meta_skill_type);
