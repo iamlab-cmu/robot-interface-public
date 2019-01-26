@@ -19,6 +19,10 @@ int BaseSkill::get_meta_skill_id() {
   return meta_skill_idx_;
 }
 
+std::string BaseSkill::get_description() {
+  return description_;
+}
+
 void BaseSkill::set_skill_status(SkillStatus status) {
   // TODO(Mohit): Maybe add checks such that task status progresses
   // in one direction.

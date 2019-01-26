@@ -19,7 +19,8 @@
 
 class SkillInfo : public BaseSkill {
   public:
-    SkillInfo(int skill_idx, int meta_skill_idx): BaseSkill(skill_idx, meta_skill_idx) {};
+    SkillInfo(int skill_idx, int meta_skill_idx, std::string description): BaseSkill(
+        skill_idx, meta_skill_idx, description) {};
 
 
     void execute_skill() override;

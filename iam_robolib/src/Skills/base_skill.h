@@ -16,9 +16,10 @@ namespace franka {
 
 class BaseSkill {
  public:
-  BaseSkill(int skill_idx, int meta_skill_idx): skill_idx_(skill_idx),
-                                                meta_skill_idx_(meta_skill_idx),
-                                                skill_status_(SkillStatus::TO_START) {};
+  BaseSkill(int skill_idx, int meta_skill_idx, std::string description): skill_idx_(skill_idx),
+                                                                         meta_skill_idx_(meta_skill_idx),
+                                                                         skill_status_(SkillStatus::TO_START),
+                                                                         description_(description){};
 
   /**
    * Get skill id.
@@ -29,6 +30,12 @@ class BaseSkill {
    * Get meta-skill id for this skill id.
    */
   int get_meta_skill_id();
+
+  /**
+   * Get skill description.
+   * @return
+   */
+  std::string get_description();
 
   /**
    * Update skill status;
@@ -78,6 +85,7 @@ class BaseSkill {
   int skill_idx_;
   int meta_skill_idx_;
   SkillStatus skill_status_;
+  std::string description_;
 
   TrajectoryGenerator *traj_generator_= nullptr;
   FeedbackController *feedback_controller_= nullptr;
