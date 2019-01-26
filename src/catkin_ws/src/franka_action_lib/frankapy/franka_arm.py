@@ -1,9 +1,11 @@
+import numpy as np
+from autolab_core import RigidTransform
+
 import roslib
 roslib.load_manifest('franka_action_lib')
 import rospy
 import actionlib
 from franka_action_lib.msg import ExecuteSkillAction
-
 from skill_list import *
 from exceptions import *
 from franka_arm_subscriber import FrankaArmSubscriber
@@ -15,7 +17,9 @@ class FrankaArm:
         rospy.init_node(rosnode_name)
         self._sub = FrankaArmSubscriber(new_ros_node=False)
         self._client = actionlib.SimpleActionClient('/execute_skill_action_server_node/execute_skill', ExecuteSkillAction)
-        self._client.wait_for_server()        
+        self._client.wait_for_server()
+
+        self._tool_delta_pose = RigidTransform(from_frame='franka_tool', to_frame='franka_tool_base')
 
     def _send_goal(self, goal, cb):
         '''
@@ -35,42 +39,52 @@ class FrankaArm:
     Controls
     '''
 
-    def goto_pose(self, pose, duration=3):
+    def goto_pose(self, tool_pose, duration=3):
         '''Commands Arm to the given pose via linear interpolation
 
         Args:
-            pose (RigidTransform)
+            tool_pose (RigidTransform) : End-effector pose in tool frame
             duration (float) : How much time this robot motion should take
 
         Raises:
             FrankaArmCollisionException if a collision is detected
         '''
+        if pose.from_frame != 'franka_tool' or pose.to_frame != 'world':
+            raise ValueError('pose has invalid frame names! Make sure pose has from_frame=franka_tool and to_frame=world')
+
+        tool_base_pose = tool_pose * self._tool_delta_pose.inverse()
+
         skill = ArmMoveToGoalWithDefaultSensorSkill()
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_feedback_controller_params(FC.DEFAULT_TORQUE_CONTROLLER_PARAMS)
         skill.add_termination_params(FC.DEFAULT_TERM_PARAMS) 
 
-        skill.add_trajectory_params([duration] + pose.matrix.T.flatten().tolist())
+        skill.add_trajectory_params([duration] + tool_base_pose.matrix.T.flatten().tolist())
         goal = skill.create_goal()
         
         self._send_goal(goal, cb=lambda x: skill.feedback_callback(x))
 
-    def goto_pose_delta(self, pose, duration=3):
+    def goto_pose_delta(self, delta_tool_pose, duration=3):
         '''Commands Arm to the given delta pose via linear interpolation
 
         Args:
-            pose (RigidTransform)
+            delta_tool_pose (RigidTransform) : Delta pose in tool frame
             duration (float) : How much time this robot motion should take
 
         Raises:
             FrankaArmCollisionException if a collision is detected
         '''
+        if delta_tool_pose.from_frame != 'franka_tool' or delta_tool_pose.to_frame != 'franka_tool':
+            raise ValueError('delta_pose has invalid frame names! Make sure delta_pose has from_frame=franka_tool and to_frame=franka_tool')
+
+        delta_tool_base_pose = self._tool_delta_pose * delta_tool_pose * self._tool_delta_pose.inverse()
+
         skill = ArmRelativeMotionWithDefaultSensorSkill()
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_feedback_controller_params(FC.DEFAULT_TORQUE_CONTROLLER_PARAMS) 
         skill.add_termination_params(FC.DEFAULT_TERM_PARAMS)
 
-        skill.add_trajectory_params([duration] + pose.translation.tolist() + pose.quaternion.tolist())
+        skill.add_trajectory_params([duration] + delta_tool_base_pose.translation.tolist() + delta_tool_base_pose.quaternion.tolist())
         goal = skill.create_goal()
         
         self._send_goal(goal, cb=lambda x: skill.feedback_callback(x))
@@ -172,7 +186,11 @@ class FrankaArm:
         Returns:
             pose (RigidTransform) of the current end-effector
         '''
-        return self._sub.get_pose()
+        tool_base_pose = self._sub.get_pose()
+
+        tool_pose = tool_base_pose * self._tool_delta_pose
+
+        return tool_pose
 
     def get_joints(self):
         '''
@@ -216,10 +234,28 @@ class FrankaArm:
         '''
         pass
 
+    def get_tool_base_pose(self):
+        '''
+        Returns:
+            RigidTransform of current tool base pose
+        '''
+        return self._tool_delta_pose.copy()
+
     '''
     Sets
     '''
     
+    def set_tool_delta_pose(self, tool_delta_pose):
+        '''Sets the tool pose relative to the end-effector pose
+
+        Args:
+            tool_delta_pose (RigidTransform)
+        '''
+        if tool_delta_pose.from_frame != 'franka_tool' or tool_delta_pose.to_frame != 'franka_tool_base':
+            raise ValueError('tool_delta_pose has invalid frame names! Make sure the has from_frame=franka_tool, and to_frame=franka_tool_base')
+
+        self._tool_delta_pose = tool_delta_pose.copy()
+
     def set_speed(self, speed):
         '''Sets current target speed parameter
         
