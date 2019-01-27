@@ -22,3 +22,7 @@ class ControlLoopData(object):
     def get_duration_for_each_skill(self):
         return [a[1] - a[0] for a in self.skill_time_as_tuple_list]
 
+    def set_skill_list(self, skill_list):
+        assert len(skill_list) == len(self.skill_time_as_tuple_list), \
+                "Skill list len does not match skill time as tuple"
+        self.skill_list = skill_list
