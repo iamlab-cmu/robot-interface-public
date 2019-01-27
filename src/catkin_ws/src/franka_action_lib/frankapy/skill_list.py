@@ -97,7 +97,7 @@ class BaseSkill(object):
         return goal
 
     def feedback_callback(self, feedback):
-        print(feedback)
+        pass
 
 class GripperWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
@@ -196,7 +196,6 @@ class ArmMoveToGoalWithDefaultSensorSkill(BaseSkill):
 
     def add_buffer_time_for_termination(self, buffer_time):
         self.add_termination_params([buffer_time])
-
 
 class ArmRelativeMotionWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
@@ -423,6 +422,25 @@ class StayInPositionWithDefaultSensorSkill(BaseSkill):
                 termination_type=6,
                 timer_type=1):
         super(StayInPositionWithDefaultSensorSkill, self).__init__(
+              skill_type,
+              meta_skill_type,
+              meta_skill_id,
+              ['/franka_robot/camera'],
+              trajectory_generator_type,
+              feedback_controller_type,
+              termination_type,
+              timer_type)
+
+class ForceTorqueSkill(BaseSkill):
+    def __init__(self, 
+                skill_type=4,
+                meta_skill_type=0,
+                meta_skill_id=0,
+                trajectory_generator_type=9,
+                feedback_controller_type=1,
+                termination_type=6,
+                timer_type=1):
+        super(ForceTorqueSkill, self).__init__(
               skill_type,
               meta_skill_type,
               meta_skill_id,

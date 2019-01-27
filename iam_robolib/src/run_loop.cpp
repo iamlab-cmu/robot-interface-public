@@ -24,6 +24,7 @@
 #include "Skills/joint_pose_skill.h"
 #include "Skills/joint_pose_continuous_skill.h"
 #include "Skills/save_trajectory_skill.h"
+#include "Skills/force_torque_skill.h"
 
 std::atomic<bool> run_loop::running_skills_{false};
 
@@ -204,6 +205,8 @@ void run_loop::update_process_info() {
             new_skill = new JointPoseSkill(new_skill_id, new_meta_skill_id);
           } else if (new_skill_type == 3) {
             new_skill = new SaveTrajectorySkill(new_skill_id, new_meta_skill_id);
+          } else if (new_skill_type == 4) {
+            new_skill = new ForceTorqueSkill(new_skill_id, new_meta_skill_id);
           } else {
               std::cout << "Incorrect skill type: " << new_skill_type << "\n";
               assert(false);
@@ -296,13 +299,13 @@ void run_loop::setup_save_robot_state_thread() {
         // Try to lock data to avoid read write collisions.
         try {
           franka::RobotState robot_state = robot_.readOnce();
-          franka::GripperState gripper_state = gripper_.readOnce();
+          // franka::GripperState gripper_state = gripper_.readOnce();
           // TODO(jacky): is this duration still needed?
           double duration = std::chrono::duration_cast<std::chrono::milliseconds>(
               std::chrono::steady_clock::now() - start_time).count();
           robot_state_data_->log_pose_desired(robot_state.O_T_EE_d); // Fictitious call to log pose desired so pose_desired buffer length matches during non-skill execution
           robot_state_data_->log_robot_state(robot_state, duration / 1000.0);
-          robot_state_data_->log_gripper_state(gripper_state);
+          // robot_state_data_->log_gripper_state(gripper_state);
           // std::cout << duration / 1000.0 << "\n";
         } catch (const franka::InvalidOperationException& ex) {
           // Some other control thread is running let's wait and try again.
@@ -379,11 +382,16 @@ void run_loop::setup_current_robot_state_io_thread() {
                   double_val = robot_state_data_->log_control_time_0_.back();
                   current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
 
-                  double_val = robot_state_data_->log_gripper_width_0_.back();
-                  current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+                  if (robot_state_data_->log_gripper_width_0_.size() > 0) {
+                    double_val = robot_state_data_->log_gripper_width_0_.back();
+                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
 
-                  double_val = robot_state_data_->log_gripper_is_grasped_0_.back() ? 1 : 0;
-                  current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+                    double_val = robot_state_data_->log_gripper_is_grasped_0_.back() ? 1 : 0;
+                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+                  } else {
+                    current_robot_state_data_buffer[buffer_idx++] = -1.f;
+                    current_robot_state_data_buffer[buffer_idx++] = 0.f;
+                  }
 
                   shared_memory_handler_->getCurrentRobotStateBufferMutex()->unlock();
               }
@@ -444,11 +452,16 @@ void run_loop::setup_current_robot_state_io_thread() {
                   double_val = robot_state_data_->log_control_time_1_.back();
                   current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
 
-                  double_val = robot_state_data_->log_gripper_width_1_.back();
-                  current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+                  if (robot_state_data_->log_gripper_width_1_.size() > 0) {
+                    double_val = robot_state_data_->log_gripper_width_1_.back();
+                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
 
-                  double_val = robot_state_data_->log_gripper_is_grasped_1_.back() ? 1 : 0;
-                  current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+                    double_val = robot_state_data_->log_gripper_is_grasped_1_.back() ? 1 : 0;
+                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+                  } else {
+                    current_robot_state_data_buffer[buffer_idx++] = -1.f;
+                    current_robot_state_data_buffer[buffer_idx++] = 0.f;
+                  }
 
                   shared_memory_handler_->getCurrentRobotStateBufferMutex()->unlock();
               }
@@ -502,11 +515,10 @@ void run_loop::run_on_franka() {
   try {
     running_skills_ = true;
     setup_data_loggers();
+    setup_current_robot_state_io_thread();
     // TODO(Mohit): This causes a weird race condition between reading the robot state and 
     // running the control loop. It prevents iam_robolib from running when robot is in guide mode.
-    setup_save_robot_state_thread();
-
-    setup_current_robot_state_io_thread();
+    // setup_save_robot_state_thread();
 
     while (1) {
       start = std::chrono::high_resolution_clock::now();
@@ -553,7 +565,6 @@ void run_loop::run_on_franka() {
     logger_.print_error_log();
     logger_.print_warning_log();
     logger_.print_info_log();
-
   }
 
   if (print_thread_.joinable()) {

@@ -15,6 +15,7 @@
 #include "TrajectoryGenerator/linear_trajectory_generator_with_time_and_goal.h"
 #include "TrajectoryGenerator/relative_linear_trajectory_generator.h"
 #include "TrajectoryGenerator/stay_in_initial_position_trajectory_generator.h"
+#include "TrajectoryGenerator/impulse_trajectory_generator.h"
 
 TrajectoryGenerator* TrajectoryGeneratorFactory::getTrajectoryGeneratorForSkill(
     SharedBuffer buffer) {
@@ -40,6 +41,8 @@ TrajectoryGenerator* TrajectoryGeneratorFactory::getTrajectoryGeneratorForSkill(
     traj_generator = new DmpTrajectoryGenerator(buffer);
   } else if (traj_gen_id == 8) {
     traj_generator = new RelativeLinearTrajectoryGenerator(buffer);
+  } else if (traj_gen_id == 9) {
+    traj_generator = new ImpulseTrajectoryGenerator(buffer);
   } else {
     // Cannot create Trajectory generator for this skill. Throw error
     std::cout << "Cannot create TrajectoryGenerator with class_id:" << traj_gen_id << "\n";

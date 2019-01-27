@@ -34,12 +34,13 @@ class TrajectoryGenerator {
 
   std::array<double, 16> pose_desired_{};
   std::array<double, 7> joint_desired_{};
+  std::array<double, 6> force_torque_desired_{};
   Eigen::Vector3d desired_position_;
   Eigen::Quaterniond desired_orientation_;
 
   const double acceleration_time_ = 5.0;
-  float run_time_ = 20.5;
-  float dt_ = 0.001;
+  double run_time_ = 0.0; // TODO(jacky): This was 20.5. Why?
+  float dt_ = 0.001f;
   double time_ = 0.0;
 
  protected:

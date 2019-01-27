@@ -124,17 +124,35 @@ class FrankaArm:
         '''
         pass
 
-    def apply_effector_force(self, force, duration):
-        '''Commands Arm to apply given force at the end-effector for duration seconds
+    def apply_effector_forces_torques(self, duration, forces=None, torques=None):
+        '''Applies the given end-effector forces and torques in N and Nm
 
         Args:
-            force (list): A list of 3 numbers that correspond to end-effector forces in 3 directions
             duration (float): A float in the unit of seconds
+            forces (list): Optional (defaults to None). 
+                A list of 3 numbers that correspond to end-effector forces in 3 directions
+            torques (list): Optional (defaults to None).
+                A list of 3 numbers that correspond to end-effector torques in 3 axes
 
         Raises:
             FrankaArmCollisionException if a collision is detected
         '''
-        pass
+        forces = [0, 0, 0] if forces is None else np.array(forces).tolist()
+        torques = [0, 0, 0] if torques is None else np.array(torques).tolist()
+
+        if np.linalg.norm(forces) > FC.MAX_FORCE_NORM:
+            raise ValueError('Force magnitude exceeds safety threshold of {}'.format(FC.MAX_FORCE_NORM))
+        if np.linalg.norm(torques) > FC.MAX_TORQUE_NORM:
+            raise ValueError('Torque magnitude exceeds safety threshold of {}'.format(FC.MAX_TORQUE_NORM))
+
+        skill = ForceTorqueSkill()
+        skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
+        skill.add_termination_params([duration])
+
+        skill.add_trajectory_params([0] + forces + torques)
+        goal = skill.create_goal()
+        
+        self._send_goal(goal, cb=lambda x: skill.feedback_callback(x))
 
     def goto_gripper(self, width, speed=0.04, force=None):
         '''Commands gripper to goto a certain width, applying up to the given (default is max) force if needed

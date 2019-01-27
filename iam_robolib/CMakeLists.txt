@@ -47,6 +47,8 @@ add_library(iam_robolib SHARED
   src/TrajectoryGenerator/linear_trajectory_generator.h
   src/TrajectoryGenerator/linear_trajectory_generator_with_time_and_goal.cpp
   src/TrajectoryGenerator/linear_trajectory_generator_with_time_and_goal.h
+  src/TrajectoryGenerator/impulse_trajectory_generator.cpp
+  src/TrajectoryGenerator/impulse_trajectory_generator.h
   src/TerminationHandler/linear_trajectory_generator_with_time_and_goal_termination_handler.cpp
   src/TerminationHandler/linear_trajectory_generator_with_time_and_goal_termination_handler.h
   src/FeedbackController/torque_feedback_controller.cpp
@@ -91,6 +93,8 @@ add_library(iam_robolib SHARED
   src/Skills/joint_pose_skill.h
   src/Skills/joint_pose_with_torque_control_skill.cpp
   src/Skills/joint_pose_with_torque_control_skill.h
+  src/Skills/force_torque_skill.cpp
+  src/Skills/force_torque_skill.h
   src/TrajectoryGenerator/relative_linear_trajectory_generator.cpp
   src/TrajectoryGenerator/relative_linear_trajectory_generator.h
   src/FeedbackController/custom_gain_torque_controller.cpp
