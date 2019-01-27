@@ -22,15 +22,6 @@ from skill_list import ArmRelativeMotionToContactWithDefaultSensorSkill
 def feedback_callback(feedback):
     print(feedback)
 
-def execute_skill(skill, client):
-    goal = skill.create_goal()
-    print(goal)
-    client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
-    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-    while not rospy.is_shutdown() and done != True:
-        print(goal)
-        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
-    print(client.get_result())
 
 class CutCucumberSkill(object):
     INITIAL_POSITION = [-0.0372113,0.999006,0.0241583,0,0.998733,0.0379922,
@@ -62,9 +53,31 @@ class CutCucumberSkill(object):
 
     def __init__(self, cutting_knife_location_x):
         self.cutting_knife_location_x = cutting_knife_location_x
+        self.skill_id = 0
 
-    def get_move_left_skill(self, distance_in_m):
-        skill = ArmRelativeMotionWithDefaultSensorSkill()
+    def execute_skill(self, skill, client):
+        goal = skill.create_goal()
+        print(goal)
+        client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
+        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+        while not rospy.is_shutdown() and done != True:
+            print(goal)
+            done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+        print(client.get_result())
+        self.skill_id = self.skill_id + 1
+
+    def create_skill_for_class(self, klass, description):
+        skill = klass(
+                skill_description=
+                description 
+                + ' type: {}, '.format(klass.__name__)
+                + ' id: {}'.format(self.skill_id))
+        return skill
+
+    def get_move_left_skill(self, distance_in_m, desc=''):
+        skill = self.create_skill_for_class(
+                ArmRelativeMotionWithDefaultSensorSkill,
+                desc)
         skill.add_initial_sensor_values([1, 3, 5, 7, 8])
         skill.add_relative_motion_with_quaternion(
                 3.0,
@@ -89,8 +102,11 @@ class CutCucumberSkill(object):
             time,
             position_delta,
             lower_force_thresholds_accel=[10.0] * 6,
-            lower_force_thresholds_nominal=[10.0] * 6):
-        skill = ArmRelativeMotionToContactWithDefaultSensorSkill()
+            lower_force_thresholds_nominal=[10.0] * 6,
+            description=''):
+        skill = self.create_skill_for_class(
+            ArmRelativeMotionToContactWithDefaultSensorSkill,
+            description)
         skill.add_initial_sensor_values([1, 3, 5, 7, 8])
         skill.add_traj_params_with_quaternion(
                 time,
@@ -108,60 +124,86 @@ class CutCucumberSkill(object):
             time,
             x_delta,
             lower_force_thresholds_accel=[10.0] * 6,
-            lower_force_thresholds_nominal=[10.0] * 6):
+            lower_force_thresholds_nominal=[10.0] * 6,
+            description=''):
         return self.add_random_exploration(
                 time,
                 [x_delta, 0., 0.],
                 lower_force_thresholds_accel,
-                lower_force_thresholds_nominal)
+                lower_force_thresholds_nominal,
+                description=description)
 
     def add_random_y_exploration(
             self,
             time,
             y_delta,
             lower_force_thresholds_accel=[10.0] * 6,
-            lower_force_thresholds_nominal=[10.0] * 6):
+            lower_force_thresholds_nominal=[10.0] * 6,
+            description=''):
         return self.add_random_exploration(
                 time,
                 [0., y_delta, 0.],
                 lower_force_thresholds_accel,
-                lower_force_thresholds_nominal)
+                lower_force_thresholds_nominal,
+                description=description)
 
     def add_random_z_exploration(
             self,
             time,
             z_delta,
             lower_force_thresholds_accel=[10.0] * 6,
-            lower_force_thresholds_nominal=[10.0] * 6):
+            lower_force_thresholds_nominal=[10.0] * 6,
+            description=''):
         return self.add_random_exploration(
                 time,
                 [0., 0., z_delta],
                 lower_force_thresholds_accel,
-                lower_force_thresholds_nominal)
+                lower_force_thresholds_nominal,
+                description=description)
     
-    def run_random_exploration_skills(self, time, delta_movement):
+    def run_random_exploration_skills(self, time, delta_movement, 
+                                      desc_prefix=''):
         # Add random exploration to know that you're on the cutting board
         d = delta_movement
-        skill = cut_cucumber_skill.add_random_x_exploration(time, d)
-        execute_skill(skill, client)
-        skill = cut_cucumber_skill.add_random_x_exploration(time, -2 * d)
-        execute_skill(skill, client)
-        skill = cut_cucumber_skill.add_random_x_exploration(time, d)
-        execute_skill(skill, client)
+        d_suffix = '_pos_{:.3f}_time_{:.3f}'.format(d, time)
+        skill = cut_cucumber_skill.add_random_x_exploration(
+                time, d, 
+                description=desc_prefix+'_x_1'+d_suffix)
+        self.execute_skill(skill, client)
+        skill = cut_cucumber_skill.add_random_x_exploration(
+                time, -2 * d,
+                description=desc_prefix+'_x_2'+d_suffix)
+        self.execute_skill(skill, client)
+        skill = cut_cucumber_skill.add_random_x_exploration(
+                time, d,
+                description=desc_prefix+'_x_3'+d_suffix)
+        self.execute_skill(skill, client)
 
-        skill = cut_cucumber_skill.add_random_y_exploration(time, d)
-        execute_skill(skill, client)
-        skill = cut_cucumber_skill.add_random_y_exploration(time, -2 * d)
-        execute_skill(skill, client)
-        skill = cut_cucumber_skill.add_random_y_exploration(time, d)
-        execute_skill(skill, client)
+        skill = cut_cucumber_skill.add_random_y_exploration(
+                time, d,
+                description=desc_prefix+'_y_1'+d_suffix)
+        self.execute_skill(skill, client)
+        skill = cut_cucumber_skill.add_random_y_exploration(
+                time, -2 * d,
+                description=desc_prefix+'_y_2'+d_suffix)
+        self.execute_skill(skill, client)
+        skill = cut_cucumber_skill.add_random_y_exploration(
+                time, d,
+                description=desc_prefix+'_y_3'+d_suffix)
+        self.execute_skill(skill, client)
 
-        skill = cut_cucumber_skill.add_random_z_exploration(time, d)
-        execute_skill(skill, client)
-        skill = cut_cucumber_skill.add_random_z_exploration(time, -2 * d)
-        execute_skill(skill, client)
-        skill = cut_cucumber_skill.add_random_z_exploration(time, d)
-        execute_skill(skill, client)
+        skill = cut_cucumber_skill.add_random_z_exploration(
+                time, d,
+                description=desc_prefix+'_z_1'+d_suffix)
+        self.execute_skill(skill, client)
+        skill = cut_cucumber_skill.add_random_z_exploration(
+                time, -2 * d,
+                description=desc_prefix+'_z_2'+d_suffix)
+        self.execute_skill(skill, client)
+        skill = cut_cucumber_skill.add_random_z_exploration(
+                time, d,
+                description=desc_prefix+'_z_3'+d_suffix)
+        self.execute_skill(skill, client)
 
 
 if __name__ == '__main__':
@@ -180,40 +222,56 @@ if __name__ == '__main__':
     cutting_knife_location_x = 0.5232
     cut_cucumber_skill = CutCucumberSkill(cutting_knife_location_x)
 
-    skill = ArmMoveToGoalWithDefaultSensorSkill()
+    skill = cut_cucumber_skill.create_skill_for_class(
+            ArmMoveToGoalWithDefaultSensorSkill,
+            'move_to_initial_position')
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
     # Run Time (1) and Desired End Effector Pose(16)
     skill.add_trajectory_params([3.0] + CutCucumberSkill.INITIAL_POSITION)
     # translational stiffness, rotational stiffness
     skill.add_feedback_controller_params([600, 50])
     skill.add_buffer_time_for_termination(1.0)
-    execute_skill(skill, client)
+    cut_cucumber_skill.execute_skill(skill, client)
+    skill_id = skill_id + 1
 
     # Move to designated position above the cutting board
-    skill = ArmMoveToGoalWithDefaultSensorSkill()
+    skill = create_skill_for_class(
+            ArmMoveToGoalWithDefaultSensorSkill,
+            'move_above_cutting_board',
+            skill_id)
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
     skill.add_trajectory_params(
             [3.0] + CutCucumberSkill.POSITION_ABOVE_CUTTING_BOARD)
     skill.add_feedback_controller_params([600, 50])
     skill.add_buffer_time_for_termination(1.0)
-    execute_skill(skill, client)
+    cut_cucumber_skill.execute_skill(skill, client)
+    skill_id = skill_id + 1
 
     # Move down to contact cutting board
     skill = ArmMoveToGoalContactWithDefaultSensorSkill()
+    skill = create_skill_for_class(
+            ArmMoveToGoalWithDefaultSensorSkill,
+            'move_onto_cutting_board',
+            skill_id)
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
     skill.add_trajectory_params(
             [3.0] + CutCucumberSkill.MOVE_TO_CUTTING_BOARD_POSITION)
     skill.add_feedback_controller_params([600, 50])
     skill.add_buffer_time_for_termination(1.0)
-    execute_skill(skill, client)
+    cut_cucumber_skill.execute_skill(skill, client)
+    skill_id = skill_id + 1
 
     # ==== Begin Random exploration ====
     # Add random exploration to know that you're on the cutting board
-    cut_cucumber_skill.run_random_exploration_skills(0.2, 0.005)
+    cut_cucumber_skill.run_random_exploration_skills(
+            0.2, 0.005, desc_prefix='random_exploration_on_cutting_board')
     # ==== End ====
 
     # Move left to contact cucumber
     skill = ArmMoveToGoalContactWithDefaultSensorSkill()
+    skill = cut_cucumber_skill.create_skill_for_class(
+             ArmMoveToGoalContactWithDefaultSensorSkill,
+             'move_left_to_contact_cucumber')
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
     skill.add_trajectory_params(
             [3.0] + CutCucumberSkill.MOVE_TO_CUCUMBER_POSITION)
@@ -223,10 +281,12 @@ if __name__ == '__main__':
             1.0,
             [10.0,3.0,10.0,10.0,10.0,10.0],
             [10.0,3.0,10.0,10.0,10.0,10.0])
-    execute_skill(skill, client)
+    cut_cucumber_skill.execute_skill(skill, client)
+
     # ==== Begin Random exploration ====
     # Add random exploration to know that you're on the cutting board
-    cut_cucumber_skill.run_random_exploration_skills(0.2, 0.005)
+    cut_cucumber_skill.run_random_exploration_skills(0.2, 0.005,
+            desc_prefix='random_exploration_next_to_cucumber')
     # ==== End ====
 
 
@@ -234,7 +294,9 @@ if __name__ == '__main__':
 
     for slice_idx in range(num_slices_to_cut):
         # Move up above the cucumber
-        skill = ArmRelativeMotionWithDefaultSensorSkill()
+        skill = cut_cucumber_skill.create_skill_for_class(
+            ArmRelativeMotionWithDefaultSensorSkill,
+            'move_up_above_cucumber_{}'.format(slice_idx))
         skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
         skill.add_relative_motion_with_quaternion(
                 1.0,
@@ -243,11 +305,13 @@ if __name__ == '__main__':
 
         skill.add_feedback_controller_params([600, 50])
         skill.add_termination_params([1.0])
-        execute_skill(skill, client)
+        cut_cucumber_skill.execute_skill(skill, client)
 
         slice_thickness = SLICE_THICKNESS if slice_idx > 0 else FIRST_SLICE_THICKNESS
         # Move left above the cucumber
-        skill = ArmRelativeMotionWithDefaultSensorSkill()
+        skill = cut_cucumber_skill.create_skill_for_class(
+            ArmRelativeMotionWithDefaultSensorSkill,
+            'move_left_to_cut_slice_{}'.format(slice_idx))
         skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
         skill.add_relative_motion_with_quaternion(
                 1.0,
@@ -256,10 +320,12 @@ if __name__ == '__main__':
 
         skill.add_feedback_controller_params([600, 50])
         skill.add_termination_params([1.0])
-        execute_skill(skill, client)
+        cut_cucumber_skill.execute_skill(skill, client)
 
         # Move to contact
-        skill = ArmRelativeMotionToContactWithDefaultSensorSkill()
+        skill = cut_cucumber_skill.create_skill_for_class(
+                ArmRelativeMotionToContactWithDefaultSensorSkill,
+                'move_onto_cucumber_to_cut_{}'.format(slice_idx))
         skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
         skill.add_traj_params_with_quaternion(
                 1.0,
@@ -267,14 +333,18 @@ if __name__ == '__main__':
                 CutCucumberSkill.IDENTITY_QUATERNION)
         skill.add_controller_stiffness_params(600, 50)
         skill.add_contact_termination_params(1.0, [10.0] * 6, [10.0] * 6)
-        execute_skill(skill, client)
+        cut_cucumber_skill.execute_skill(skill, client)
         # ==== Begin Random exploration ====
         # Add random exploration to know that you're on the cutting board
-        cut_cucumber_skill.run_random_exploration_skills(0.2, 0.005)
+        cut_cucumber_skill.run_random_exploration_skills(
+                0.2, 0.005,
+                desc_prefix='random_exploration_on_cucumber_{}'.format(slice_idx))
         # ==== End ====
 
         # Start DMP cutting for 3 times
-        skill = JointPoseWithDefaultSensorSkill()
+        skill = cut_cucumber_skill.create_skill_for_class(
+                JointPoseWithDefaultSensorSkill,
+                'cut_dmp')
         skill.add_initial_sensor_values(dmp_info['phi_j'])  # sensor values
         # y0 = [0.0,0.0,0.0,0.0,0.0,0.0,0.0]
         y0 = [-0.282, -0.189, 0.0668, -2.186, 0.0524, 1.916, -1.06273]
@@ -293,10 +363,13 @@ if __name__ == '__main__':
         skill.add_termination_params([1.0])
         num_of_dmps_to_run = 4
         for _ in range(num_of_dmps_to_run):
-            execute_skill(skill, client)
+            cut_cucumber_skill.execute_skill(skill, client)
 
-        skill = cut_cucumber_skill.get_move_left_skill(0.06)
-        execute_skill(skill, client)
+        skill = cut_cucumber_skill.get_move_left_skill(
+                0.06, 
+                desc='move_to_separate_cut_slice_{}'.format(slice_idx))
+        cut_cucumber_skill.execute_skill(skill, client)
 
-        skill = cut_cucumber_skill.create_skill_to_move_to_cucumber()
-        execute_skill(skill, client)
+        skill = cut_cucumber_skill.create_skill_to_move_to_cucumber(
+                desc='move_left_to_contact_cucumber_after_slice_{}'.format(slice_idx))
+        cut_cucumber_skill.execute_skill(skill, client)
