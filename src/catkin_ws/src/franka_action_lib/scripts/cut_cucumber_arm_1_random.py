@@ -307,7 +307,8 @@ if __name__ == '__main__':
         skill.add_termination_params([1.0])
         cut_cucumber_skill.execute_skill(skill, client)
 
-        slice_thickness = SLICE_THICKNESS if slice_idx > 0 else FIRST_SLICE_THICKNESS
+        slice_thickness = CutCucumberSkill.SLICE_THICKNESS \
+                if slice_idx > 0 else CutCucumberSkill.FIRST_SLICE_THICKNESS
         # Move left above the cucumber
         skill = cut_cucumber_skill.create_skill_for_class(
             ArmRelativeMotionWithDefaultSensorSkill,
