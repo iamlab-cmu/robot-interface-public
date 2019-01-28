@@ -240,7 +240,7 @@ void RobotStateData::log_gripper_state(franka::GripperState gripper_state) {
   }
 }
 
-void ControlLoopData::log_skill_info(std::string info) {
+void RobotStateData::log_skill_info(std::string info) {
   if (use_buffer_0) {
     if (buffer_0_mutex_.try_lock()) {
       log_skill_info_0_.push_back(info);

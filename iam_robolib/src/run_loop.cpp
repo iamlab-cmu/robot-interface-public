@@ -207,7 +207,7 @@ void run_loop::update_process_info() {
           } else if (new_skill_type == 3) {
             new_skill = new SaveTrajectorySkill(new_skill_id, new_meta_skill_id, new_skill_description);
           } else if (new_skill_type == 4) {
-            new_skill = new ForceTorqueSkill(new_skill_id, new_meta_skill_id);
+            new_skill = new ForceTorqueSkill(new_skill_id, new_meta_skill_id, new_skill_description);
           } else {
               std::cout << "Incorrect skill type: " << new_skill_type << "\n";
               assert(false);
@@ -508,7 +508,7 @@ void run_loop::log_skill_info(BaseSkill* skill) {
   std::string log_desc = string_format("Will execute skill: %d, meta_skill: %d, ",
                                        skill->get_skill_id(), skill->get_meta_skill_id());
   log_desc += ("desc: " + skill->get_description());
-  control_loop_data_->log_skill_info(log_desc);
+  robot_state_data_->log_skill_info(log_desc);
   std::cout << log_desc << "\n" << std::endl;
 };
 
@@ -541,10 +541,10 @@ void run_loop::run_on_franka() {
         if (!meta_skill->isComposableSkill() && !skill->get_termination_handler()->done_) {
           // Execute skill.
           log_skill_info(skill);
-          meta_skill->execute_skill_on_franka(this, &robot_, &gripper_, control_loop_data_);
+          meta_skill->execute_skill_on_franka(this, &robot_, &gripper_, robot_state_data_);
         } else if (meta_skill->isComposableSkill()) {
           log_skill_info(skill);
-          meta_skill->execute_skill_on_franka(this, &robot_, &gripper_, control_loop_data_);
+          meta_skill->execute_skill_on_franka(this, &robot_, &gripper_, robot_state_data_);
         } else {
           finish_current_skill(skill);
           std::this_thread::sleep_for(std::chrono::milliseconds(10));
