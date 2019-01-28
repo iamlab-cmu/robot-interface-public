@@ -87,9 +87,11 @@ class CutCucumberSkill(object):
         skill.add_termination_params([1.0])
         return skill
 
-    def create_skill_to_move_to_cucumber(self):
+    def create_skill_to_move_to_cucumber(self, desc=''):
         ''' Move left to contact cucumber '''
-        skill = ArmMoveToGoalContactWithDefaultSensorSkill()
+	skill = self.create_skill_for_class(
+		ArmMoveToGoalContactWithDefaultSensorSkill,
+		desc)
         skill.add_initial_sensor_values([1, 3, 5, 7, 8])
         skill.add_trajectory_params(
                 [3.0] + CutCucumberSkill.MOVE_TO_CUCUMBER_POSITION)
@@ -232,34 +234,28 @@ if __name__ == '__main__':
     skill.add_feedback_controller_params([600, 50])
     skill.add_buffer_time_for_termination(1.0)
     cut_cucumber_skill.execute_skill(skill, client)
-    skill_id = skill_id + 1
 
     # Move to designated position above the cutting board
-    skill = create_skill_for_class(
+    skill = cut_cucumber_skill.create_skill_for_class(
             ArmMoveToGoalWithDefaultSensorSkill,
-            'move_above_cutting_board',
-            skill_id)
+            'move_above_cutting_board')
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
     skill.add_trajectory_params(
             [3.0] + CutCucumberSkill.POSITION_ABOVE_CUTTING_BOARD)
     skill.add_feedback_controller_params([600, 50])
     skill.add_buffer_time_for_termination(1.0)
     cut_cucumber_skill.execute_skill(skill, client)
-    skill_id = skill_id + 1
 
     # Move down to contact cutting board
-    skill = ArmMoveToGoalContactWithDefaultSensorSkill()
-    skill = create_skill_for_class(
+    skill = cut_cucumber_skill.create_skill_for_class(
             ArmMoveToGoalWithDefaultSensorSkill,
-            'move_onto_cutting_board',
-            skill_id)
+            'move_onto_cutting_board')
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
     skill.add_trajectory_params(
             [3.0] + CutCucumberSkill.MOVE_TO_CUTTING_BOARD_POSITION)
     skill.add_feedback_controller_params([600, 50])
     skill.add_buffer_time_for_termination(1.0)
     cut_cucumber_skill.execute_skill(skill, client)
-    skill_id = skill_id + 1
 
     # ==== Begin Random exploration ====
     # Add random exploration to know that you're on the cutting board
@@ -268,7 +264,6 @@ if __name__ == '__main__':
     # ==== End ====
 
     # Move left to contact cucumber
-    skill = ArmMoveToGoalContactWithDefaultSensorSkill()
     skill = cut_cucumber_skill.create_skill_for_class(
              ArmMoveToGoalContactWithDefaultSensorSkill,
              'move_left_to_contact_cucumber')
