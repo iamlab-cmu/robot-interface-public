@@ -87,3 +87,13 @@ bool FileStreamLogger::writeData(std::vector<double> control_time,
     open_file_stream_.close();
     return true;
 }
+
+bool FileStreamLogger::writeStringData(std::vector<std::string> data) {
+    if (!open_file_stream_.is_open()) {
+        open_file_stream_ = std::ofstream(filename_, std::ofstream::out | std::ofstream::app);
+    }
+    size_t data_size = data.size();
+    for (int i = 0; i < data_size ; i++) {
+        open_file_stream_ << "info: " << data[i] << "\n";
+    }
+}

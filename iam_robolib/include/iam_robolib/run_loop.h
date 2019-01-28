@@ -167,4 +167,10 @@ class run_loop {
    * Setup data loggers for logging robot state and larger control loop data.
    */
   void setup_data_loggers();
+
+  /**
+   * Log skill description to file logger. Only logs once when the skill begins.
+   * @param skill Skill to log.
+   */
+  void log_skill_info(BaseSkill* skill);
 };

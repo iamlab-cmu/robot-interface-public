@@ -86,7 +86,6 @@ void RelativeLinearTrajectoryGenerator::initialize_trajectory(const franka::Robo
   std::cout << initial_orientation_.w() << ", " << initial_orientation_.x() << ", " << initial_orientation_.y() << ", " << initial_orientation_.z() << std::endl;
   std::cout << "Goal orientation" << std::endl;
   std::cout << goal_orientation_.w() << ", " << goal_orientation_.x() << ", " << goal_orientation_.y() << ", " << goal_orientation_.z() << std::endl;
-
 }
 
 void RelativeLinearTrajectoryGenerator::get_next_step() {
@@ -94,5 +93,17 @@ void RelativeLinearTrajectoryGenerator::get_next_step() {
 
   desired_position_ = initial_position_ + (goal_position_ - initial_position_) * t_;
   desired_orientation_ = initial_orientation_.slerp(t_, goal_orientation_);
+
+  // Helper code to get pose_desired_ for logging.
+  // TODO(Mohit): Verify this works.
+  Eigen::Matrix3d rot3d = desired_orientation_.toRotationMatrix();
+  Eigen::Matrix4d pose_desired;
+  Eigen::Vector4d v(0, 0, 0, 1);
+  pose_desired << rot3d , goal_position_, v.transpose();
+  double* pose_desired_ptr = pose_desired.data();
+  for (size_t i = 0; i < 16; i++) {
+    pose_desired_[i] = pose_desired_ptr[i];
+  }
+
 }
 

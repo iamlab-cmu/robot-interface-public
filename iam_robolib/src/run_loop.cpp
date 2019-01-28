@@ -191,6 +191,7 @@ void run_loop::update_process_info() {
           int new_skill_type = run_loop_info->get_new_skill_type();
           int new_meta_skill_id = run_loop_info->get_new_meta_skill_id();
           int new_meta_skill_type = run_loop_info->get_new_meta_skill_type();
+          std::string new_skill_description = run_loop_info->get_new_skill_description();
           std::cout << string_format("Did find new skill id: %d, type: %d meta skill: %d, type: %d\n",
               new_skill_id, new_skill_type, new_meta_skill_id, new_meta_skill_type);
 
@@ -198,13 +199,13 @@ void run_loop::update_process_info() {
           run_loop_info->set_current_skill_id(new_skill_id);
           BaseSkill *new_skill;
           if (new_skill_type == 0) {
-            new_skill = new SkillInfo(new_skill_id, new_meta_skill_id);
+            new_skill = new SkillInfo(new_skill_id, new_meta_skill_id, new_skill_description);
           } else if (new_skill_type == 1) {
-            new_skill = new GripperOpenSkill(new_skill_id, new_meta_skill_id);
+            new_skill = new GripperOpenSkill(new_skill_id, new_meta_skill_id, new_skill_description);
           } else if (new_skill_type == 2) {
-            new_skill = new JointPoseSkill(new_skill_id, new_meta_skill_id);
+            new_skill = new JointPoseSkill(new_skill_id, new_meta_skill_id, new_skill_description);
           } else if (new_skill_type == 3) {
-            new_skill = new SaveTrajectorySkill(new_skill_id, new_meta_skill_id);
+            new_skill = new SaveTrajectorySkill(new_skill_id, new_meta_skill_id, new_skill_description);
           } else if (new_skill_type == 4) {
             new_skill = new ForceTorqueSkill(new_skill_id, new_meta_skill_id);
           } else {
@@ -503,6 +504,14 @@ void run_loop::setup_data_loggers() {
   robot_state_data_->startFileLoggerThread();
 }
 
+void run_loop::log_skill_info(BaseSkill* skill) {
+  std::string log_desc = string_format("Will execute skill: %d, meta_skill: %d, ",
+                                       skill->get_skill_id(), skill->get_meta_skill_id());
+  log_desc += ("desc: " + skill->get_description());
+  control_loop_data_->log_skill_info(log_desc);
+  std::cout << log_desc << "\n" << std::endl;
+};
+
 void run_loop::run_on_franka() {
   // Wait for sometime to let the client add data to the buffer
   std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -529,14 +538,13 @@ void run_loop::run_on_franka() {
 
       // NOTE: We keep on running the last skill even if it is finished!!
       if (skill != nullptr && meta_skill != nullptr) {
-
         if (!meta_skill->isComposableSkill() && !skill->get_termination_handler()->done_) {
           // Execute skill.
-          std::cout << "Will execute skill: " << skill->get_skill_id() << ", meta skill: " <<
-            meta_skill->getMetaSkillId() << "\n" << std::endl;
-          meta_skill->execute_skill_on_franka(this, &robot_, &gripper_, robot_state_data_);
+          log_skill_info(skill);
+          meta_skill->execute_skill_on_franka(this, &robot_, &gripper_, control_loop_data_);
         } else if (meta_skill->isComposableSkill()) {
-          meta_skill->execute_skill_on_franka(this, &robot_, &gripper_, robot_state_data_);
+          log_skill_info(skill);
+          meta_skill->execute_skill_on_franka(this, &robot_, &gripper_, control_loop_data_);
         } else {
           finish_current_skill(skill);
           std::this_thread::sleep_for(std::chrono::milliseconds(10));
