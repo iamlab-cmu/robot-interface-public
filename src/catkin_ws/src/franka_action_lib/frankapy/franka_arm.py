@@ -6,10 +6,11 @@ roslib.load_manifest('franka_action_lib')
 import rospy
 import actionlib
 from franka_action_lib.msg import ExecuteSkillAction
-from skill_list import *
-from exceptions import *
-from franka_arm_subscriber import FrankaArmSubscriber
-from franka_constants import FrankaConstants as FC
+
+from .skill_list import *
+from .exceptions import *
+from .franka_arm_subscriber import FrankaArmSubscriber
+from .franka_constants import FrankaConstants as FC
 
 class FrankaArm:
 

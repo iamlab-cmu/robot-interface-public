@@ -1,14 +1,17 @@
 import sys, logging
 from multiprocessing import Queue
-from Queue import Empty
+try:
+    from Queue import Empty
+except:
+    from queue import Empty
 from time import sleep
 
 import numpy as np
 import rospy
 from franka_action_lib.msg import RobotState
 
-from franka_constants import FrankaConstants as FC
-from utils import franka_pose_to_rigid_transform
+from .franka_constants import FrankaConstants as FC
+from .utils import franka_pose_to_rigid_transform
 
 class FrankaArmSubscriber:
 
