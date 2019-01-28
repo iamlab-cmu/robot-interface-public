@@ -181,12 +181,12 @@ class FrankaArm:
     def open_gripper(self):
         '''Opens gripper to maximum width
         '''
-        self.gripper_goto(FC.GRIPPER_WIDTH_MAX)
+        self.goto_gripper(FC.GRIPPER_WIDTH_MAX)
 
     def close_gripper(self, grasp=True):
         '''Closes the gripper as much as possible
         '''
-        self.gripper_goto(FC.GRIPPER_WIDTH_MIN, force=FC.GRIPPER_MAX_FORCE if grasp else None)
+        self.goto_gripper(FC.GRIPPER_WIDTH_MIN, force=FC.GRIPPER_MAX_FORCE if grasp else None)
 
     '''
     Reads
