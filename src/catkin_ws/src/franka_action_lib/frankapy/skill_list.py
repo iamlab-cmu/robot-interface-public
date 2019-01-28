@@ -175,14 +175,18 @@ class JointPoseDMPWithTorqueControlWithDefaultSensorSkill(BaseSkill):
 class JointPoseWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
                 skill_type=2,
+                skill_description='',
                 meta_skill_type=0,
                 meta_skill_id=0,
                 trajectory_generator_type=3,
                 feedback_controller_type=1,
                 termination_type=3,
                 timer_type=1):
+        if len(skill_description) == 0:
+            skill_description = JointPoseWithDefaultSensorSkill.__name__
         super(JointPoseWithDefaultSensorSkill, self).__init__(
               skill_type,
+              skill_description,
               meta_skill_type,
               meta_skill_id,
               ['/franka_robot/camera'],
