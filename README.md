@@ -15,41 +15,26 @@ This is a software package used for controlling and learning skills on the Frank
 
 ## Installation
 
-### I. Clone Repo and its Submodules:
+1. Clone Repo and its Submodules:
 
 ```bash
 git clone --recurse-submodules https://github.com/iamlab-cmu/robot-interface.git
 ```
 All directories below are given relative to `/robot-interface`.
 
-### II. Make LibFranka
-1. Open `libfranka/CMakeLists.txt`, change line 129's `BUILD_TESTS` to `OFF`:
-
-```
-option(BUILD_TESTS "Build tests" OFF)
-```
-
-2. Build LibFranka:
+2. Build LibFranka
 ```bash
-cd libfranka
-mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release .. && make
+bash make_libfranka.sh
 ```
 
-### III. Make iam_robolib
-1. Copy libfranka files
-```bash
-cp -R libfranka/cmake .
-```
-
-2. Run build script
+3. Build iam_robolib
 ```bash
 bash make_iam_robolib.sh
 ```
 Once it has finished building, you should see an application named `main_iam_robolib` in the build folder.
 
-### IV. Build ROS Node franka_action_lib
-1. Make sure that you have installed ROS Kinetic already and have added the `source /opt/ros/kinetic/setup.bash` into your `~/.bashrc` file.
+4. Build ROS Node franka_action_lib
+Make sure that you have installed ROS Kinetic already and have added the `source /opt/ros/kinetic/setup.bash` into your `~/.bashrc` file.
 
 ```bash
 cd src/catkin_ws
@@ -57,7 +42,7 @@ catkin_make
 ```
 Once catkin_make has finished there should be a build and devel folder in the catkin_ws folder.
 
-### V. Install FrankaPy
+5. Install FrankaPy
 ```bash
 cd src/catkin_ws/src/franka_action_lib
 pip install -e .
@@ -85,4 +70,4 @@ source src/catkin_ws/devel/setup.sh
 ```
 Now in terminal 3 you can run any of the scripts in `src/catkin_ws/src/examples` and `src/catkin_ws/src/scripts`.
 
-See `src/catkin_ws/src_scripts/reset_arm` for an example of how to use the `FrankaPy` python package.
+See `src/catkin_ws/src_scripts/reset_arm.py` for an example of how to use the `FrankaPy` python package.
