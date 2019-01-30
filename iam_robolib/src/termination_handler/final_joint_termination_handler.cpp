@@ -31,6 +31,8 @@ void FinalJointTerminationHandler::initialize_handler(franka::Robot *robot) {
 }
 
 bool FinalJointTerminationHandler::should_terminate(TrajectoryGenerator *trajectory_generator) {
+  check_terminate_preempt();
+
   if (!done_) {
     LinearJointTrajectoryGenerator *linear_joint_traj_generator =
         static_cast<LinearJointTrajectoryGenerator *>(trajectory_generator);
@@ -51,6 +53,8 @@ bool FinalJointTerminationHandler::should_terminate(TrajectoryGenerator *traject
 }
 
 bool FinalJointTerminationHandler::should_terminate(const franka::RobotState &_, TrajectoryGenerator *trajectory_generator) {
+  check_terminate_preempt();
+  
   if(!done_)
   {
     LinearJointTrajectoryGenerator *linear_joint_traj_generator =
