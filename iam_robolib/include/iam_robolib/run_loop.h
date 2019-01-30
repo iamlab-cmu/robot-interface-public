@@ -1,4 +1,5 @@
-#pragma once
+#ifndef IAM_ROBOLIB_RUN_LOOP_H_
+#define IAM_ROBOLIB_RUN_LOOP_H_
 
 #include <atomic>
 #include <chrono>
@@ -18,16 +19,17 @@
 #include <franka/gripper.h>
 
 // TODO(Mohit): Fix this, CANNOT do private imports in public headers. FML.
-#include "../../src/skill_info_manager.h"
-#include "../../src/run_loop_logger.h"
-#include "../../src/robot_state_data.h"
-#include "../../src/run_loop_shared_memory_handler.h"
-#include "../../src/trajectory_generator_factory.h"
-#include "../../src/feedback_controller_factory.h"
-#include "../../src/termination_handler_factory.h"
-#include "../../src/definitions.h"
+#include "iam_robolib/skill_info_manager.h"
+#include "iam_robolib/skills/skill_info.h"
+#include "iam_robolib/run_loop_logger.h"
+#include "iam_robolib/robot_state_data.h"
+#include "iam_robolib/run_loop_shared_memory_handler.h"
+#include "iam_robolib/trajectory_generator_factory.h"
+#include "iam_robolib/feedback_controller_factory.h"
+#include "iam_robolib/termination_handler_factory.h"
+#include "iam_robolib/definitions.h"
 
-class BaseSkill;
+//class BaseSkill;
 
 // Set thread to real time priority.
 void setCurrentThreadToRealtime(bool throw_on_error);
@@ -174,3 +176,5 @@ class run_loop {
    */
   void log_skill_info(BaseSkill* skill);
 };
+
+#endif  // IAM_ROBOLIB_ROBOT_STATE_DATA_H_

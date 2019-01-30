@@ -1,5 +1,4 @@
-#include <iam_robolib/run_loop.h>
-#include <iam_robolib/duration.h>
+#include "iam_robolib/run_loop.h"
 
 #include <boost/interprocess/managed_shared_memory.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
@@ -16,15 +15,16 @@
 
 #include <franka/exception.h>
 
-#include "Skills/base_meta_skill.h"
-#include "Skills/base_skill.h"
-#include "robot_state_data.h"
-#include "file_stream_logger.h"
-#include "Skills/gripper_open_skill.h"
-#include "Skills/joint_pose_skill.h"
-#include "Skills/joint_pose_continuous_skill.h"
-#include "Skills/save_trajectory_skill.h"
-#include "Skills/force_torque_skill.h"
+#include "iam_robolib/duration.h"
+#include "iam_robolib/skills/base_meta_skill.h"
+#include "iam_robolib/skills/base_skill.h"
+#include "iam_robolib/robot_state_data.h"
+#include "iam_robolib/file_stream_logger.h"
+#include "iam_robolib/skills/gripper_open_skill.h"
+#include "iam_robolib/skills/joint_pose_skill.h"
+#include "iam_robolib/skills/joint_pose_continuous_skill.h"
+#include "iam_robolib/skills/save_trajectory_skill.h"
+#include "iam_robolib/skills/force_torque_skill.h"
 
 std::atomic<bool> run_loop::running_skills_{false};
 
