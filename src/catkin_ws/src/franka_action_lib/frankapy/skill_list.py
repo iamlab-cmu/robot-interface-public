@@ -137,7 +137,7 @@ class JointPoseDMPWithDefaultSensorSkill(BaseSkill):
                 timer_type=1):
         if len(skill_description) == 0:
             skill_description = JointPoseWithDefaultSensorSkill.__name__
-        super(JointPoseWithDefaultSensorSkill, self).__init__(
+        super(JointPoseDMPWithDefaultSensorSkill, self).__init__(
               skill_type,
               skill_description,
               meta_skill_type,
@@ -161,7 +161,7 @@ class JointPoseDMPWithTorqueControlWithDefaultSensorSkill(BaseSkill):
         if len(skill_description) == 0:
             skill_description = \
                     JointPoseWithTorqueControlWithDefaultSensorSkill.__name__
-        super(JointPoseWithTorqueControlWithDefaultSensorSkill, self).__init__(
+        super(JointPoseDMPWithTorqueControlWithDefaultSensorSkill, self).__init__(
               skill_type,
               skill_description,
               meta_skill_type,
