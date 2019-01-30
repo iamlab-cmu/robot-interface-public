@@ -109,7 +109,7 @@ void run_loop::start_new_skill(BaseSkill* new_skill) {
   SharedBuffer termination_handler_buffer = shared_memory_handler_->getTerminationParametersBuffer(
       memory_index);
   TerminationHandler* termination_handler =
-      termination_handler_factory_.getTerminationHandlerForSkill(termination_handler_buffer);
+      termination_handler_factory_.getTerminationHandlerForSkill(termination_handler_buffer, run_loop_info);
   std::cout << "Did get TerminationHandler\n";
 
   // Start skill, does any pre-processing if required.

@@ -17,9 +17,9 @@ void NoopTerminationHandler::initialize_handler(franka::Robot *robot) {
 }
 
 bool NoopTerminationHandler::should_terminate(TrajectoryGenerator *trajectory_generator) {
-  // pass
+  check_terminate_preempt();
 }
 
 bool NoopTerminationHandler::should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *trajectory_generator) {
-  // pass
+  check_terminate_preempt();
 }

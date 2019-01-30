@@ -32,6 +32,8 @@ void FinalPoseTerminationHandler::initialize_handler(franka::Robot *robot) {
 }
 
 bool FinalPoseTerminationHandler::should_terminate(TrajectoryGenerator *trajectory_generator) {
+  check_terminate_preempt();
+
   if(!done_) {
     LinearTrajectoryGenerator *linear_traj_generator =
           static_cast<LinearTrajectoryGenerator *>(trajectory_generator);
@@ -47,6 +49,8 @@ bool FinalPoseTerminationHandler::should_terminate(TrajectoryGenerator *trajecto
 }
 
 bool FinalPoseTerminationHandler::should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *trajectory_generator) {
+  check_terminate_preempt();
+  
   if(!done_){
     LinearTrajectoryGenerator *linear_traj_generator =
           static_cast<LinearTrajectoryGenerator *>(trajectory_generator);

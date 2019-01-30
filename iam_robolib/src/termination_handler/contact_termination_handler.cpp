@@ -289,12 +289,17 @@ void ContactTerminationHandler::initialize_handler(franka::Robot *robot) {
 }
 
 bool ContactTerminationHandler::should_terminate(TrajectoryGenerator *trajectory_generator) {
+  check_terminate_preempt();
+
+  // TODO(jacky): this is not used
   assert(false);
   return true;
 }
 
 bool ContactTerminationHandler::should_terminate(const franka::RobotState &robot_state,
                                                  TrajectoryGenerator *trajectory_generator) {
+  check_terminate_preempt();
+
   if(!done_) {
     if(trajectory_generator->time_ > trajectory_generator->run_time_ + buffer_time_) {
       done_ = true;
