@@ -118,8 +118,8 @@ class CutCucumberSkill(object):
             self,
             time,
             x_delta,
-            lower_force_thresholds_accel=[10.0] * 6,
-            lower_force_thresholds_nominal=[10.0] * 6,
+            lower_force_thresholds_accel=[3.0] * 6,
+            lower_force_thresholds_nominal=[3.0] * 6,
             description=''):
         return self.add_random_exploration(
                 time,
@@ -132,8 +132,8 @@ class CutCucumberSkill(object):
             self,
             time,
             y_delta,
-            lower_force_thresholds_accel=[10.0] * 6,
-            lower_force_thresholds_nominal=[10.0] * 6,
+            lower_force_thresholds_accel=[3.0] * 6,
+            lower_force_thresholds_nominal=[3.0] * 6,
             description=''):
         return self.add_random_exploration(
                 time,
@@ -146,8 +146,8 @@ class CutCucumberSkill(object):
             self,
             time,
             z_delta,
-            lower_force_thresholds_accel=[10.0] * 6,
-            lower_force_thresholds_nominal=[10.0] * 6,
+            lower_force_thresholds_accel=[3.0] * 6,
+            lower_force_thresholds_nominal=[3.0] * 6,
             description=''):
         return self.add_random_exploration(
                 time,
@@ -253,7 +253,7 @@ if __name__ == '__main__':
     # ==== Begin Random exploration ====
     # Add random exploration to know that you're on the cutting board
     cut_cucumber_skill.run_random_exploration_skills(
-            0.2, 0.005, desc_prefix='random_exploration_on_cutting_board')
+            0.2, 0.01, desc_prefix='random_exploration_on_cutting_board')
     # ==== End ====
 
     # Move left to contact cucumber
@@ -273,7 +273,7 @@ if __name__ == '__main__':
 
     # ==== Begin Random exploration ====
     # Add random exploration to know that you're on the cutting board
-    cut_cucumber_skill.run_random_exploration_skills(0.2, 0.005,
+    cut_cucumber_skill.run_random_exploration_skills(0.2, 0.01,
             desc_prefix='random_exploration_next_to_cucumber')
     # ==== End ====
 
@@ -326,7 +326,7 @@ if __name__ == '__main__':
         # ==== Begin Random exploration ====
         # Add random exploration to know that you're on the cutting board
         cut_cucumber_skill.run_random_exploration_skills(
-                0.2, 0.005,
+                0.2, 0.01,
                 desc_prefix='random_exploration_on_cucumber_{}'.format(slice_idx))
         # ==== End ====
 
@@ -351,9 +351,19 @@ if __name__ == '__main__':
         skill.set_meta_skill_type(1)
         skill.add_termination_params([1.0])
         num_of_dmps_to_run = 4
-        for _ in range(num_of_dmps_to_run):
+        for dmp_idx in range(num_of_dmps_to_run):
+            if num_of_dmps_to_run > 2:
+                cut_cucumber_skill.run_random_exploration_skills(
+                    0.2, 0.01,
+                    desc_prefix='random_exploration_in_cucumber_{}_{}'.format(
+                        slice_idx, dmp_idx))
+
             cut_cucumber_skill.execute_skill(skill, client)
 
+        cut_cucumber_skill.run_random_exploration_skills(
+                0.2, 0.01,
+                desc_prefix='random_exploration_after_cut_slice_{}'.format(
+                    slice_idx, dmp_idx))
         skill = cut_cucumber_skill.get_move_left_skill(
                 0.06, 
                 desc='move_to_separate_cut_slice_{}'.format(slice_idx))
