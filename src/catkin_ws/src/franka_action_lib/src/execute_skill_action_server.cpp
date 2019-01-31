@@ -67,6 +67,8 @@ namespace franka_action_lib
     }
     ROS_INFO("Skill terminated id = %d", skill_id);
 
+    shared_memory_handler_.setNewSkillDescriptionInSharedMemory("");
+
     if (done_skill_id == skill_id || done_skill_id == skill_id + 1) {
       // Get execution result from shared memory
       result_ = shared_memory_handler_.getSkillResult(skill_id);

@@ -403,6 +403,16 @@ namespace franka_action_lib
     // The lock of the run_loop_info_mutex_ should be released automatically
   }
 
+  void SharedMemoryHandler::setNewSkillDescriptionInSharedMemory(std::string description)
+  {
+    // Grab the lock of the run_loop_info_mutex_
+    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> run_loop_info_lock(*run_loop_info_mutex_);
+
+    setNewSkillDescriptionInSharedMemoryUnprotected(description);
+
+    // The lock of the run_loop_info_mutex_ should be released automatically
+  }
+
   franka_action_lib::ExecuteSkillFeedback SharedMemoryHandler::getSkillFeedback()
   {
     franka_action_lib::ExecuteSkillFeedback feedback;
@@ -485,8 +495,7 @@ namespace franka_action_lib
     // The lock of the run_loop_info_mutex_ should be released automatically
   }
 
-  franka_action_lib::RobotState SharedMemoryHandler::getRobotState()
-  {
+  franka_action_lib::RobotState SharedMemoryHandler::getRobotState() {
     franka_action_lib::RobotState robot_state;
 
     boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> current_robot_state_lock(*shared_current_robot_state_mutex_);
@@ -519,6 +528,10 @@ namespace franka_action_lib
     robot_state.gripper_width = current_robot_state_buffer_[offset++];
 
     robot_state.gripper_is_grasped = current_robot_state_buffer_[offset++] == 1 ? true : false;
+
+    // Grab the lock of the run_loop_info_mutex_
+    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> run_loop_info_lock(*run_loop_info_mutex_);
+    robot_state.skill_description = run_loop_process_info_->get_new_skill_description();
 
     return robot_state;
   }
