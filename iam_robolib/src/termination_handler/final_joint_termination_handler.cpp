@@ -26,7 +26,7 @@ void FinalJointTerminationHandler::initialize_handler() {
   // pass
 }
 
-void FinalJointTerminationHandler::initialize_handler(franka::Robot *robot) {
+void FinalJointTerminationHandler::initialize_handler_on_franka(FrankaRobot *robot) {
   // pass
 }
 
@@ -52,7 +52,8 @@ bool FinalJointTerminationHandler::should_terminate(TrajectoryGenerator *traject
   return done_;
 }
 
-bool FinalJointTerminationHandler::should_terminate(const franka::RobotState &_, TrajectoryGenerator *trajectory_generator) {
+bool FinalJointTerminationHandler::should_terminate_on_franka(const franka::RobotState &_, 
+                                                              TrajectoryGenerator *trajectory_generator) {
   check_terminate_preempt();
   
   if(!done_)

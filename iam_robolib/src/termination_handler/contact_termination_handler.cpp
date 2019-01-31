@@ -277,8 +277,8 @@ void ContactTerminationHandler::initialize_handler() {
   // pass
 }
 
-void ContactTerminationHandler::initialize_handler(franka::Robot *robot) {
-  robot->setCollisionBehavior(lower_torque_thresholds_acceleration_, 
+void ContactTerminationHandler::initialize_handler_on_franka(FrankaRobot *robot) {
+  robot->robot_.setCollisionBehavior(lower_torque_thresholds_acceleration_, 
                               upper_torque_thresholds_acceleration_,
                               lower_torque_thresholds_nominal_,
                               upper_torque_thresholds_nominal_,
@@ -296,8 +296,8 @@ bool ContactTerminationHandler::should_terminate(TrajectoryGenerator *trajectory
   return true;
 }
 
-bool ContactTerminationHandler::should_terminate(const franka::RobotState &robot_state,
-                                                 TrajectoryGenerator *trajectory_generator) {
+bool ContactTerminationHandler::should_terminate_on_franka(const franka::RobotState &robot_state,
+                                                           TrajectoryGenerator *trajectory_generator) {
   check_terminate_preempt();
 
   if(!done_) {
