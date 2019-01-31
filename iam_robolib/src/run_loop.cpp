@@ -113,7 +113,8 @@ void run_loop::start_new_skill(BaseSkill* new_skill) {
   std::cout << "Did get TerminationHandler\n";
 
   // Start skill, does any pre-processing if required.
-  new_skill->start_skill(&robot_, traj_generator, feedback_controller, termination_handler);
+  
+  new_skill->start_skill(robot_, traj_generator, feedback_controller, termination_handler);
 }
 
 void run_loop::finish_current_skill(BaseSkill* skill) {
@@ -128,7 +129,7 @@ void run_loop::finish_current_skill(BaseSkill* skill) {
     std::cout << "Writing to execution result buffer number: " << memory_index << std::endl;
 
     SharedBuffer buffer = shared_memory_handler_->getExecutionResultBuffer(memory_index);
-    skill->write_result_to_shared_memory(buffer, &robot_);
+    skill->write_result_to_shared_memory(buffer, robot_);
   }
 
   if (status == SkillStatus::FINISHED) {
@@ -299,15 +300,24 @@ void run_loop::setup_save_robot_state_thread() {
             std::chrono::milliseconds(static_cast<int>((1.0 / print_rate * 1000.0))));
         // Try to lock data to avoid read write collisions.
         try {
-          franka::RobotState robot_state = robot_.readOnce();
-          // franka::GripperState gripper_state = gripper_.readOnce();
-          // TODO(jacky): is this duration still needed?
-          double duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-              std::chrono::steady_clock::now() - start_time).count();
-          robot_state_data_->log_pose_desired(robot_state.O_T_EE_d); // Fictitious call to log pose desired so pose_desired buffer length matches during non-skill execution
-          robot_state_data_->log_robot_state(robot_state, duration / 1000.0);
-          // robot_state_data_->log_gripper_state(gripper_state);
-          // std::cout << duration / 1000.0 << "\n";
+          switch(robot_->robot_type_)
+          {
+            case RobotType::FRANKA: {
+                franka::RobotState robot_state = dynamic_cast<FrankaRobot* >(robot_)->getRobotState();
+                // franka::GripperState gripper_state = gripper_.readOnce();
+                // TODO(jacky): is this duration still needed?
+                double duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::steady_clock::now() - start_time).count();
+                robot_state_data_->log_pose_desired(robot_state.O_T_EE_d); // Fictitious call to log pose desired so pose_desired buffer length matches during non-skill execution
+                robot_state_data_->log_robot_state(robot_state, duration / 1000.0);
+                // robot_state_data_->log_gripper_state(gripper_state);
+                // std::cout << duration / 1000.0 << "\n";
+              }
+              break;
+            case RobotType::UR5E:
+              break;
+          }
+          
         } catch (const franka::InvalidOperationException& ex) {
           // Some other control thread is running let's wait and try again.
           std::cerr << "Cannot read robot state for logging. Will continue. " << ex.what() << std::endl;
@@ -474,21 +484,30 @@ void run_loop::setup_current_robot_state_io_thread() {
 }
 
 void run_loop::setup_robot_default_behavior() {
-  // Set additional parameters always before the control loop, NEVER in the control loop!
-  // Set collision behavior.
-  /*robot_.setCollisionBehavior(
-      {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}},
-      {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}},
-      {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}},
-      {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}});*/
-  robot_.setCollisionBehavior(
-      {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{120.0, 120.0, 118.0, 118.0, 116.0, 114.0, 112.0}},
-      {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{120.0, 120.0, 118.0, 118.0, 116.0, 114.0, 112.0}},
-      {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{120.0, 120.0, 120.0, 125.0, 125.0, 125.0}},
-      {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{120.0, 120.0, 120.0, 125.0, 125.0, 125.0}});
+  switch(robot_->robot_type_)
+  {
+    case RobotType::FRANKA: {
+        // Set additional parameters always before the control loop, NEVER in the control loop!
+        // Set collision behavior.
+        /*robot_->robot_.setCollisionBehavior(
+            {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}},
+            {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}},
+            {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}},
+            {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}});*/
+        dynamic_cast<FrankaRobot* >(robot_)->robot_.setCollisionBehavior(
+            {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{120.0, 120.0, 118.0, 118.0, 116.0, 114.0, 112.0}},
+            {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{120.0, 120.0, 118.0, 118.0, 116.0, 114.0, 112.0}},
+            {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{120.0, 120.0, 120.0, 125.0, 125.0, 125.0}},
+            {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{120.0, 120.0, 120.0, 125.0, 125.0, 125.0}});
 
-  robot_.setJointImpedance({{3000, 3000, 3000, 2500, 2500, 2000, 2000}});
-  robot_.setCartesianImpedance({{3000, 3000, 3000, 300, 300, 300}});
+        dynamic_cast<FrankaRobot* >(robot_)->robot_.setJointImpedance({{3000, 3000, 3000, 2500, 2500, 2000, 2000}});
+        dynamic_cast<FrankaRobot* >(robot_)->robot_.setCartesianImpedance({{3000, 3000, 3000, 300, 300, 300}});
+      }
+      break;
+    case RobotType::UR5E:
+      break;
+  }
+  
 }
 
 void run_loop::didFinishSkillInMetaSkill(BaseSkill* skill) {
@@ -541,10 +560,10 @@ void run_loop::run_on_franka() {
         if (!meta_skill->isComposableSkill() && !skill->get_termination_handler()->done_) {
           // Execute skill.
           log_skill_info(skill);
-          meta_skill->execute_skill_on_franka(this, &robot_, &gripper_, robot_state_data_);
+          meta_skill->execute_skill_on_franka(this, dynamic_cast<FrankaRobot* >(robot_), robot_state_data_);
         } else if (meta_skill->isComposableSkill()) {
           log_skill_info(skill);
-          meta_skill->execute_skill_on_franka(this, &robot_, &gripper_, robot_state_data_);
+          meta_skill->execute_skill_on_franka(this, dynamic_cast<FrankaRobot* >(robot_), robot_state_data_);
         } else {
           finish_current_skill(skill);
           std::this_thread::sleep_for(std::chrono::milliseconds(10));

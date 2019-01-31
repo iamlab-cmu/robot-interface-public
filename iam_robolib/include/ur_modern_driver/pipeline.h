@@ -185,6 +185,31 @@ public:
   {
   }
 
+  Pipeline()
+    : queue_{ 32 }, running_{ false }
+  {
+  }
+
+  void setConsumer(IConsumer<T>& consumer)
+  {
+    consumer_ = consumer;
+  }
+
+  void setProducer(IProducer<T>& producer)
+  {
+    producer_ = producer;
+  }
+
+  void setName(std::string name)
+  {
+    name_ = name;
+  }
+
+  void setNotifier(INotifier& notifier)
+  {
+    notifier_ = notifier;
+  }
+
   void run()
   {
     if (running_)
