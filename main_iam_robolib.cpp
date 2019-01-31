@@ -43,16 +43,20 @@ int main(int argc, char *argv[]) {
     std::mutex robot_loop_data_mutex;
     run_loop rl = run_loop(std::ref(m), std::ref(robot_loop_data_mutex), robot_type, robot_ip);
     std::cout << "Will start run loop.\n";
-    rl.start();
-    std::cout << "Did start run loop.\n";
-    std::cout << "Will run..\n";
+    
     switch(robot_type)
     {
       case RobotType::FRANKA:
+        rl.start();
+        std::cout << "Did start run loop.\n";
+        std::cout << "Will run..\n";
         rl.run_on_franka();
         break;
       case RobotType::UR5E:
-        //rl.run_on_ur5e();
+        rl.start_ur5e();
+        std::cout << "Did start run loop.\n";
+        std::cout << "Will run..\n";
+        rl.run_on_ur5e();
         break;
     }
     

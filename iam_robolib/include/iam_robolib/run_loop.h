@@ -28,6 +28,7 @@
 #include "iam_robolib/robots/robot.h"
 #include "iam_robolib/robots/franka_robot.h"
 #include "iam_robolib/robots/ur5e_robot.h"
+#include "ur_modern_driver/log.h"
 
 // Set thread to real time priority.
 void setCurrentThreadToRealtime(bool throw_on_error);
@@ -54,7 +55,7 @@ class run_loop {
         robot_ = new FrankaRobot(robot_ip, robot_type);
         break;
       case RobotType::UR5E:
-        robot_ = new UR5ERobot(robot_ip, robot_type);
+        robot_ = new UR5eRobot(robot_ip, robot_type);
         break;
       default:
         robot_ = new Robot(robot_ip, robot_type);
@@ -76,6 +77,15 @@ class run_loop {
    */
   void start();
 
+  /**
+   *  Start the RunLoop.
+   *
+   *  This will allocate the shared memory buffers i.e., shared memory object and
+   *  shared memory segment used to communicate between the actionlib interface and
+   *  the real time loop.
+   */
+  void start_ur5e();
+
   void stop();
 
   /**
@@ -93,6 +103,11 @@ class run_loop {
    *  Start running the real time loop on franka
    */
   void run_on_franka();
+
+  /**
+   *  Start running the real time loop on ur5e
+   */
+  void run_on_ur5e();
 
   /**
    * Get SkillInfo manager.

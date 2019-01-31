@@ -68,6 +68,16 @@ void run_loop::start() {
   shared_memory_handler_->start();
 }
 
+void run_loop::start_ur5e() {
+  init();
+  // Start processing, might want to do some pre-processing 
+  std::cout << "start run loop.\n";
+  shared_memory_handler_->start();
+
+  dynamic_cast<UR5eRobot* >(robot_)->rt_pl_->run();
+  dynamic_cast<UR5eRobot* >(robot_)->rt_transmit_stream_.connect();
+}
+
 void run_loop::stop() {
   // Maybe call this after exceptions or SIGINT or any Interrupt.
   // Stop the interface gracefully.
@@ -603,6 +613,112 @@ void run_loop::run_on_franka() {
   if (robot_state_data_->file_logger_thread_.joinable()) {
     robot_state_data_->file_logger_thread_.join();
   }
+}
+
+void run_loop::run_on_ur5e() {
+  // Wait for sometime to let the client add data to the buffer
+  std::this_thread::sleep_for(std::chrono::seconds(2));
+
+  std::chrono::time_point<std::chrono::high_resolution_clock> start;
+  auto milli = std::chrono::milliseconds(1);
+
+  std::array<double, 6> pose = {0.13339,-0.49242,0.48877,0.0,3.136,0.0};
+  //std::array<double, 6> joints = {1.57,-1.57,1.57,-1.57,-1.57,0};
+  double tool_acceleration = 1.0;
+  //double gain = 300.0;
+
+  int i = 0;
+
+  LOG_INFO("Starting main loop");
+
+  while(i < 10000)
+  {
+    //joints[5] += 0.0003;
+    pose[2] -= 0.00001;
+    //rt_commander->servoj(joints, gain);
+
+    dynamic_cast<UR5eRobot* >(robot_)->rt_commander_->movel(pose, tool_acceleration);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    i++;
+    //std::cout << i << std::endl;
+  }
+
+  dynamic_cast<UR5eRobot* >(robot_)->rt_commander_->stopl();
+
+  // setup_robot_default_behavior();
+
+  /*try {
+    running_skills_ = true;
+
+    //setup_data_loggers();
+    //setup_current_robot_state_io_thread();
+
+    // TODO(Mohit): This causes a weird race condition between reading the robot state and 
+    // running the control loop. It prevents iam_robolib from running when robot is in guide mode.
+    // setup_save_robot_state_thread();
+
+    LOG_INFO("Starting main loop");
+
+    while (1) {
+      start = std::chrono::high_resolution_clock::now();
+
+      // Execute the current skill (traj_generator, FBC are here)
+      BaseSkill* skill = skill_manager_.get_current_skill();
+      BaseMetaSkill *meta_skill = skill_manager_.get_current_meta_skill();
+
+      // NOTE: We keep on running the last skill even if it is finished!!
+      if (skill != nullptr && meta_skill != nullptr) {
+        if (!meta_skill->isComposableSkill() && !skill->get_termination_handler()->done_) {
+          // Execute skill.
+          log_skill_info(skill);
+          //meta_skill->execute_skill_on_franka(this, dynamic_cast<FrankaRobot* >(robot_), robot_state_data_);
+        } else if (meta_skill->isComposableSkill()) {
+          log_skill_info(skill);
+          //meta_skill->execute_skill_on_franka(this, dynamic_cast<FrankaRobot* >(robot_), robot_state_data_);
+        } else {
+          finish_current_skill(skill);
+          std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+      }
+
+      // Complete old skills and acquire new skills
+      update_process_info();
+
+      // Start new skill, if possible
+      BaseSkill* new_skill = skill_manager_.get_current_skill();
+      if (should_start_new_skill(skill, new_skill)) {
+        std::cout << "Will start skill\n";
+        start_new_skill(new_skill);
+      }
+
+      // Sleep to maintain 1Khz frequency, not sure if this is required or not.
+      auto finish = std::chrono::high_resolution_clock::now();
+      // Wait for start + milli - finish
+      auto elapsed = start + milli - finish;
+      // std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+  } catch (const franka::Exception& ex) {
+    std::cout << "Franka exception occurred during control loop. Will exit." << std::endl;
+    std::cerr << ex.what() << std::endl;
+    logger_.print_error_log();
+    logger_.print_warning_log();
+    logger_.print_info_log();
+  }*/
+
+  /*if (print_thread_.joinable()) {
+    print_thread_.join();
+  }
+  if (current_robot_state_io_thread_.joinable()) {
+    current_robot_state_io_thread_.join();
+  }
+  if (robot_state_data_->file_logger_thread_.joinable()) {
+    robot_state_data_->file_logger_thread_.join();
+  }*/
+
+  LOG_INFO("Stopping, shutting down pipelines");
+
+  dynamic_cast<UR5eRobot* >(robot_)->rt_transmit_stream_.disconnect();
+  dynamic_cast<UR5eRobot* >(robot_)->rt_pl_->stop();
 }
 
 SkillInfoManager* run_loop::getSkillInfoManager() {
