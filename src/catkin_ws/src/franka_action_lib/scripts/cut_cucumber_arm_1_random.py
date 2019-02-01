@@ -89,15 +89,15 @@ class CutCucumberSkill(object):
         skill.add_trajectory_params(
                 [3.0] + CutCucumberSkill.MOVE_TO_CUCUMBER_POSITION)
         skill.add_feedback_controller_params([600, 50])
-        skill.add_contact_termination_params(1.0, [10.0] * 6, [10.0] * 6)
+        skill.add_contact_termination_params(1.0, [5.0] * 6, [5.0] * 6)
         return skill
 
     def add_random_exploration(
             self,
             time,
             position_delta,
-            lower_force_thresholds_accel=[10.0] * 6,
-            lower_force_thresholds_nominal=[10.0] * 6,
+            lower_force_thresholds_accel=[3.0] * 6,
+            lower_force_thresholds_nominal=[3.0] * 6,
             description=''):
         skill = self.create_skill_for_class(
             ArmRelativeMotionToContactWithDefaultSensorSkill,
@@ -267,13 +267,13 @@ if __name__ == '__main__':
 
     skill.add_contact_termination_params(
             1.0,
-            [10.0,3.0,10.0,10.0,10.0,10.0],
-            [10.0,3.0,10.0,10.0,10.0,10.0])
+            [10.0,3.0,10.0,10.0,10.0,3.0],
+            [10.0,3.0,10.0,10.0,10.0,3.0])
     cut_cucumber_skill.execute_skill(skill, client)
 
     # ==== Begin Random exploration ====
     # Add random exploration to know that you're on the cutting board
-    cut_cucumber_skill.run_random_exploration_skills(0.2, 0.01,
+    cut_cucumber_skill.run_random_exploration_skills(0.2, 0.005,
             desc_prefix='random_exploration_next_to_cucumber')
     # ==== End ====
 
@@ -332,7 +332,7 @@ if __name__ == '__main__':
 
         # Start DMP cutting for 3 times
         skill = cut_cucumber_skill.create_skill_for_class(
-                JointPoseWithDefaultSensorSkill,
+                JointPoseDMPWithDefaultSensorSkill,
                 'cut_dmp')
         skill.add_initial_sensor_values(dmp_info['phi_j'])  # sensor values
         # y0 = [0.0,0.0,0.0,0.0,0.0,0.0,0.0]
