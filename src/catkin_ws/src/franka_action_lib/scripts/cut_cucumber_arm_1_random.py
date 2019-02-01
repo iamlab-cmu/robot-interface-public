@@ -33,8 +33,8 @@ class CutCucumberSkill(object):
                                  -0.00199989,0.0133132,0,0.0133227,0.00472528,
                                  -0.9999,0,0.517015,0.04119,0.024956,1]
 
-    SLICE_THICKNESS = 0.007
-    FIRST_SLICE_THICKNESS = 0.01
+    SLICE_THICKNESS = 0.012
+    FIRST_SLICE_THICKNESS = 0.015
 
     RELATIVE_MOTION_TO_CONTACT_FOR_CUTTING = 0.08
 
@@ -276,7 +276,7 @@ if __name__ == '__main__':
 
     # ==== Begin Random exploration ====
     # Add random exploration to know that you're on the cutting board
-    cut_cucumber_skill.run_random_exploration_skills(0.2, 0.005,
+    cut_cucumber_skill.run_random_exploration_skills(0.2, 0.003,
             desc_prefix='random_exploration_next_to_cucumber')
     # ==== End ====
 
@@ -329,7 +329,7 @@ if __name__ == '__main__':
         # ==== Begin Random exploration ====
         # Add random exploration to know that you're on the cutting board
         cut_cucumber_skill.run_random_exploration_skills(
-                0.2, 0.01,
+                0.2, 0.005,
                 desc_prefix='random_exploration_on_cucumber_{}'.format(slice_idx))
         # ==== End ====
 
@@ -357,7 +357,7 @@ if __name__ == '__main__':
         for dmp_idx in range(num_of_dmps_to_run):
             if num_of_dmps_to_run == 3:
                 cut_cucumber_skill.run_random_exploration_skills(
-                    0.2, 0.01,
+                    0.2, 0.005,
                     desc_prefix='random_exploration_in_cucumber_{}_{}'.format(
                         slice_idx, dmp_idx))
 
