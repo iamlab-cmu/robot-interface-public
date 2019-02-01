@@ -278,14 +278,14 @@ class ArmRelativeMotionToContactWithDefaultSensorSkill(BaseSkill):
         lower_torque_thresholds_accel = \
                 [20.0,20.0,18.0,18.0,16.0,14.0,12.0]
         upper_torque_thresholds_accel = \
-                [120.0,120.0,118.0,118.0,116.0,114.0,112.0]
+                [40.0,40.0,40.0,48.0,46.0,44.0,42.0]
         lower_torque_thresholds_nominal = \
                 [20.0,20.0,18.0,18.0,16.0,14.0,12.0];
         upper_torque_thresholds_nominal = \
-                [120.0,120.0,118.0,118.0,116.0,114.0,112.0]
+                [40.0,40.0,48.0,48.0,46.0,44.0,42.0]
 
         return {
-            'lower_torque_thresholds_accel': upper_torque_thresholds_accel,
+            'lower_torque_thresholds_accel': lower_torque_thresholds_accel,
             'upper_torque_thresholds_accel': upper_torque_thresholds_accel,
             'lower_torque_thresholds_nominal': lower_torque_thresholds_nominal,
             'upper_torque_thresholds_nominal': upper_torque_thresholds_nominal,
@@ -294,13 +294,13 @@ class ArmRelativeMotionToContactWithDefaultSensorSkill(BaseSkill):
     @staticmethod
     def get_default_force_thresholds():
         lower_force_thresholds_accel = \
-                [20.0,20.0,20.0,25.0,25.0,25.0]
+                [10.0,10.0,10.0,10.0,10.0,10.0]
         upper_force_thresholds_accel = \
-                [120.0,120.0,120.0,125.0,125.0,125.0]
+                [40.0,40.0,40.0,45.0,45.0,45.0]
         lower_force_thresholds_nominal = \
-                [20.0,20.0,20.0,25.0,25.0,25.0]
+                [10.0,10.0,10.0,10.0,10.0,10.0]
         upper_force_thresholds_nominal = \
-                [120.0,120.0,120.0,125.0,125.0,125.0]
+                [40.0,40.0,40.0,45.0,45.0,45.0]
         return {
             'lower_force_thresholds_accel': lower_force_thresholds_accel,
             'upper_force_thresholds_accel': upper_force_thresholds_accel,
@@ -327,13 +327,13 @@ class ArmRelativeMotionToContactWithDefaultSensorSkill(BaseSkill):
 
     def add_collision_termination_params(self, buffer_time,
             lower_torque_thresholds_accel=[10.0,10.0,10.0,10.0,10.0,10.0,10.0],
-            upper_torque_thresholds_accel=[120.0,120.0,118.0,118.0,116.0,114.0,112.0],
+            upper_torque_thresholds_accel=[40.0,40.0,48.0,48.0,46.0,44.0,42.0],
             lower_torque_thresholds_nominal=[10.0,10.0,10.0,10.0,10.0,10.0,10.0],
-            upper_torque_thresholds_nominal=[120.0,120.0,118.0,118.0,116.0,114.0,112.0],
+            upper_torque_thresholds_nominal=[40.0,40.0,48.0,48.0,46.0,44.0,42.0],
             lower_force_thresholds_accel=[10.0,10.0,10.0,10.0,10.0,10.0],
-            upper_force_thresholds_accel=[120.0,120.0,120.0,125.0,125.0,125.0],
+            upper_force_thresholds_accel=[40.0,40.0,40.0,45.0,45.0,45.0],
             lower_force_thresholds_nominal=[10.0,10.0,10.0,10.0,10.0,10.0],
-            upper_force_thresholds_nominal=[120.0,120.0,120.0,125.0,125.0,125.0]):
+            upper_force_thresholds_nominal=[40.0,40.0,40.0,45.0,45.0,45.0]):
         collision_termination_params = lower_torque_thresholds_accel \
                 + upper_torque_thresholds_accel \
                 + lower_torque_thresholds_nominal \
@@ -358,9 +358,9 @@ class ArmRelativeMotionToContactWithDefaultSensorSkill(BaseSkill):
                 + torque_thresholds['upper_torque_thresholds_accel'] \
                 + torque_thresholds['lower_torque_thresholds_nominal'] \
                 + torque_thresholds['upper_torque_thresholds_nominal'] \
-                + force_thresholds['lower_force_thresholds_accel'] \
+                + lower_force_thresholds_accel \
                 + force_thresholds['upper_force_thresholds_accel'] \
-                + force_thresholds['lower_force_thresholds_nominal'] \
+                + lower_force_thresholds_nominal \
                 + force_thresholds['upper_force_thresholds_nominal']
 
         self.add_termination_params(params)
@@ -405,9 +405,9 @@ class ArmMoveToGoalContactWithDefaultSensorSkill(BaseSkill):
                 + torque_thresholds['upper_torque_thresholds_accel'] \
                 + torque_thresholds['lower_torque_thresholds_nominal'] \
                 + torque_thresholds['upper_torque_thresholds_nominal'] \
-                + force_thresholds['lower_force_thresholds_accel'] \
+                + lower_force_thresholds_accel \
                 + force_thresholds['upper_force_thresholds_accel'] \
-                + force_thresholds['lower_force_thresholds_nominal'] \
+                + lower_force_thresholds_nominal \
                 + force_thresholds['upper_force_thresholds_nominal']
 
         self.add_termination_params(params)

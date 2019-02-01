@@ -517,7 +517,6 @@ void run_loop::setup_robot_default_behavior() {
     case RobotType::UR5E:
       break;
   }
-  
 }
 
 void run_loop::didFinishSkillInMetaSkill(BaseSkill* skill) {
