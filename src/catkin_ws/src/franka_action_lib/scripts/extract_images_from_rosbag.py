@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! /usr/bin/env python
 
 import roslib
 roslib.load_manifest('franka_action_lib')
@@ -11,19 +11,25 @@ import rospy
 import cv2
 from std_msgs.msg import String
 from sensor_msgs.msg import Image
+from rosgraph_msgs.msg import Clock
 from cv_bridge import CvBridge, CvBridgeError
+
+from franka_action_lib.msg import RobotState
 
 # IMAGE_TOPICS_LIST = ['/camera1/color/image_raw', '/camera2/color/image_raw',
                      # '/camera3/color/image_raw']
 IMAGE_TOPICS_LIST = ['/camera1/color/image_raw']
-DEPTH_TOPICS_LIST = ['/camera1/depth/image_rect_raw']
+DEPTH_TOPICS_LIST = []
+# DEPTH_TOPICS_LIST = ['/camera1/depth/image_rect_raw']
+
+ROBOT_STATE_TOPIC = '/robot_state_publisher_node/robot_state'
 
 
 class ImageConverter:
     def __init__(self, img_topic_list, depth_topic_list):
         self.bridge = CvBridge()
         self.images_by_topic = {}
-
+u
         self.image_sub_list = []
         for i, topic in enumerate(img_topic_list):
             cb = self.get_callback_for_topic(topic)
@@ -36,6 +42,13 @@ class ImageConverter:
             image_sub = rospy.Subscriber(topic, Image, cb)
             self.image_sub_list.append(image_sub)
             print("Subscribed to topic: {}".format(topic))
+
+        self.robot_state_list = []
+        self.robot_state_sub = rospy.Subscriber(
+                ROBOT_STATE_TOPIC, RobotState, self.get_robot_state_callback)
+        self.time_state_sub = rospy.Subscriber(
+                '/clock', R
+        print("Subscribed to topic: {}".format(ROBOT_STATE_TOPIC))
 
     def get_callback_for_topic(self, topic):
         self.images_by_topic[topic] = []
@@ -90,6 +103,10 @@ class ImageConverter:
 
         return depth_callback
 
+    def get_robot_state_callback(self, robot_state_data):
+        print("wtf")
+        print(type(robot_state_data))
+
     def save_images_as_jpeg(self, target_dir):
         if not os.path.exists(target_dir):
             os.makedirs(target_dir)
@@ -113,8 +130,11 @@ def main(args):
     any_topic = ic.images_by_topic.keys()[0]
     try:
         while not rospy.is_shutdown():
-            prev_num_images = len(ic.images_by_topic[any_topic])
             # Sleep for 2s
+            rospy.sleep(5)
+
+            '''
+            prev_num_images = len(ic.images_by_topic[any_topic])
             rospy.sleep(5)
             new_num_images = len(ic.images_by_topic[any_topic])
             
@@ -125,6 +145,7 @@ def main(args):
                 break
             else:
                 print("Still adding images")
+            '''
 
     except KeyboardInterrupt:
         print("Shutting down")

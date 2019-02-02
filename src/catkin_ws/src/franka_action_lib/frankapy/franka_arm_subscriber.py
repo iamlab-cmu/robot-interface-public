@@ -87,7 +87,8 @@ class FrankaArmSubscriber:
         return self.get_data()['joint_velocities']
 
     def get_gripper_width(self):
-        '''Get most recent gripper width. Note this value will *not* be updated during a control command.
+        '''Get most recent gripper width. Note this value will *not* be updated
+        during a control command.
 
         Returns:
             float of gripper width in meters
@@ -95,7 +96,8 @@ class FrankaArmSubscriber:
         return self.get_data()['gripper_width']
 
     def get_gripper_is_grasped(self):
-        '''Returns whether or not the gripper is grasping something. Note this value will *not* be updated during a control command.
+        '''Returns whether or not the gripper is grasping something. Note this
+        value will *not* be updated during a control command.
 
         Returns:
             True if gripper is grasping something. False otherwise
