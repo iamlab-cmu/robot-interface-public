@@ -345,12 +345,14 @@ void run_loop::setup_current_robot_state_io_thread() {
         std::this_thread::sleep_for(
             std::chrono::milliseconds(static_cast<int>((1.0 / io_rate * 1000.0))));
 
-          if (robot_state_data_ == nullptr || robot_state_data_->log_robot_state_0_.size() == 0) continue;
-
+          if (robot_state_data_ == nullptr) {
+            continue;
+          }
           // Try to lock data to avoid read write collisions.
+          std::cout << "Log robot state will try to get lock\n";
           
           if (robot_state_data_->use_buffer_0) {
-            if (robot_state_data_->buffer_0_mutex_.try_lock()) {
+            if (robot_state_data_->log_robot_state_0_.size() > 0 && robot_state_data_->buffer_0_mutex_.try_lock()) {
               if (shared_memory_handler_->getCurrentRobotStateBufferMutex()->try_lock()) {
                   SharedBuffer current_robot_state_data_buffer = shared_memory_handler_->getCurrentRobotStateBuffer();
                   size_t buffer_idx = 0;
@@ -417,10 +419,12 @@ void run_loop::setup_current_robot_state_io_thread() {
                   shared_memory_handler_->getCurrentRobotStateBufferMutex()->unlock();
               }
               robot_state_data_->buffer_0_mutex_.unlock();
+            } else if (robot_state_data_->log_robot_state_0_.size() > 0) {
+              std::cout << "Get robot state failed to get lock 0\n";
             }
           }
           else {
-            if (robot_state_data_->buffer_1_mutex_.try_lock()) {
+            if (robot_state_data_->log_robot_state_1_.size() > 0 && robot_state_data_->buffer_1_mutex_.try_lock()) {
               if (shared_memory_handler_->getCurrentRobotStateBufferMutex()->try_lock()) {
                   float* current_robot_state_data_buffer = shared_memory_handler_->getCurrentRobotStateBuffer();
                   size_t buffer_idx = 0;
@@ -488,6 +492,8 @@ void run_loop::setup_current_robot_state_io_thread() {
                   shared_memory_handler_->getCurrentRobotStateBufferMutex()->unlock();
               }
               robot_state_data_->buffer_1_mutex_.unlock();
+            } else if (robot_state_data_->log_robot_state_1_.size() > 0) {
+              std::cout << "Get robot state failed to get lock 1\n";
             }
           }
       }
