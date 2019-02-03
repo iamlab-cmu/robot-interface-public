@@ -23,14 +23,15 @@ DEPTH_TOPICS_LIST = []
 # DEPTH_TOPICS_LIST = ['/camera1/depth/image_rect_raw']
 
 ROBOT_STATE_TOPIC = '/robot_state_publisher_node/robot_state'
+CLOCK_TOPIC = '/clock'
 
 
 class ImageConverter:
     def __init__(self, img_topic_list, depth_topic_list):
         self.bridge = CvBridge()
         self.images_by_topic = {}
-u
         self.image_sub_list = []
+
         for i, topic in enumerate(img_topic_list):
             cb = self.get_callback_for_topic(topic)
             image_sub = rospy.Subscriber(topic, Image, cb)
@@ -46,9 +47,11 @@ u
         self.robot_state_list = []
         self.robot_state_sub = rospy.Subscriber(
                 ROBOT_STATE_TOPIC, RobotState, self.get_robot_state_callback)
-        self.time_state_sub = rospy.Subscriber(
-                '/clock', R
         print("Subscribed to topic: {}".format(ROBOT_STATE_TOPIC))
+        self.time_list = []
+        self.time_state_sub = rospy.Subscriber(
+                CLOCK_TOPIC, Clock, self.get_clock_callback)
+        print("Subscribed to topic: {}".format(CLOCK_TOPIC))
 
     def get_callback_for_topic(self, topic):
         self.images_by_topic[topic] = []
@@ -104,8 +107,10 @@ u
         return depth_callback
 
     def get_robot_state_callback(self, robot_state_data):
-        print("wtf")
-        print(type(robot_state_data))
+        self.robot_state_list.append(robot_state_data)
+    
+    def get_clock_callback(self, clock_data):
+        self.time_list.append(clock_data)
 
     def save_images_as_jpeg(self, target_dir):
         if not os.path.exists(target_dir):
@@ -131,24 +136,24 @@ def main(args):
     try:
         while not rospy.is_shutdown():
             # Sleep for 2s
-            rospy.sleep(5)
+            # rospy.sleep(5)
 
-            '''
             prev_num_images = len(ic.images_by_topic[any_topic])
             rospy.sleep(5)
             new_num_images = len(ic.images_by_topic[any_topic])
-            
-            if new_num_images == prev_num_images or new_num_images > 100:
+        
+            if new_num_images == prev_num_images:
                 print("No new images added to topic: {}. Will save and exit!".format(
                     any_topic))
-                ic.save_images_as_jpeg('/home/mohit/temp_images')
+                # ic.save_images_as_jpeg('/home/mohit/temp_images')
                 break
             else:
                 print("Still adding images")
-            '''
 
     except KeyboardInterrupt:
         print("Shutting down")
+
+    import pdb; pdb.set_trace()
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
