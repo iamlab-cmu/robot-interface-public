@@ -246,7 +246,7 @@ void run_loop::update_process_info() {
           run_loop_info->update_shared_memory_region();
           run_loop_info->set_new_skill_available(false);
         } else {          
-          std::cout << "Did not get new skill\n";
+          // std::cout << "Did not get new skill\n";
         }
       }
     } catch (boost::interprocess::lock_exception) {
@@ -352,7 +352,7 @@ void run_loop::setup_current_robot_state_io_thread() {
           if (robot_state_data_->use_buffer_0) {
             if (robot_state_data_->buffer_0_mutex_.try_lock()) {
               if (shared_memory_handler_->getCurrentRobotStateBufferMutex()->try_lock()) {
-                  float* current_robot_state_data_buffer = shared_memory_handler_->getCurrentRobotStateBuffer();
+                  SharedBuffer current_robot_state_data_buffer = shared_memory_handler_->getCurrentRobotStateBuffer();
                   size_t buffer_idx = 0;
                   double double_val = 0;
                   std::array<double, 16> double_array_16;
@@ -472,6 +472,7 @@ void run_loop::setup_current_robot_state_io_thread() {
 
                   double_val = robot_state_data_->log_control_time_1_.back();
                   current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+                  std::cout << "robot state time: " << static_cast<float>(double_val);
 
                   if (robot_state_data_->log_gripper_width_1_.size() > 0) {
                     double_val = robot_state_data_->log_gripper_width_1_.back();

@@ -9,6 +9,8 @@ import argparse
 import math
 from shutil import move
 
+import pprint
+
 import pdb
 
 
@@ -18,6 +20,8 @@ DEPTH_TOPICS_LIST = []
 
 ROBOT_STATE_TOPIC = '/robot_state_publisher_node/robot_state'
 CLOCK_TOPIC = '/clock'
+
+TARGET_SKILL_DESC = 'random_exploration_after_cut_slice_2_z_2_pos_0.010_time_0.200 type: ArmRelativeMotionToContactWithDefaultSensorSkill,  id: 129'
 
 def status(length, percent):
   sys.stdout.write('\x1B[2K') # Erase entire current line
@@ -32,51 +36,6 @@ def status(length, percent):
   sys.stdout.write(progress)
   sys.stdout.flush()
 
-
-def main_old(args):
-    parser = argparse.ArgumentParser(description='Reorder a bagfile based on header timestamps.')
-    parser.add_argument('--bagfile', nargs=1, help='input bag file')
-    args = parser.parse_args()
-
-    # Get bag duration
-
-    bagfile = args.bagfile[0]
-
-    info_dict = yaml.load(subprocess.Popen(
-        ['rosbag', 'info', '--yaml', bagfile], 
-        stdout=subprocess.PIPE).communicate()[0])
-    duration = info_dict['duration']
-    start_time = info_dict['start']
-
-    orig = os.path.splitext(bagfile)[0] + ".orig.bag"
-
-    move(bagfile, orig)
-
-    last_time = time.clock()
-    for topic, msg, t in rosbag.Bag(bagfile).read_messages():
-
-      if time.clock() - last_time > .1:
-          percent = (t.to_sec() - start_time) / duration
-          status(40, percent)
-          last_time = time.clock()
-
-      # This also replaces tf timestamps under the assumption
-      # that all transforms in the message share the same timestamp
-      if topic == "/tf" and msg.transforms:
-        # Writing transforms to bag file 1 second ahead of time to ensure availability
-        diff = math.fabs(msg.transforms[0].header.stamp.to_sec() - t.to_sec())
-        outbag.write(
-                topic,
-                msg,
-                msg.transforms[0].header.stamp - rospy.Duration(1) \
-                        if diff < args.max_offset else t)
-      elif msg._has_header:
-        diff = math.fabs(msg.header.stamp.to_sec() - t.to_sec())
-        outbag.write(topic, msg, msg.header.stamp if diff < args.max_offset else t)
-      else:
-        outbag.write(topic, msg, t)
-    print "\ndone"
-
 class RosbagUtils(object):
     def __init__(self, rosbag_path):
         assert os.path.exists(rosbag_path), "Rosbag does not exist"
@@ -85,7 +44,7 @@ class RosbagUtils(object):
     def get_rosbag_info(self):
         '''Run rosbag info on the rosbag.'''
         info_dict = yaml.load(subprocess.Popen(
-            ['rosbag', 'info', '--yaml', bagfile],
+            ['rosbag', 'info', '--yaml', self._rosbag_path],
             stdout=subprocess.PIPE).communicate()[0])
         return info_dict
 
@@ -109,18 +68,27 @@ class RosbagUtils(object):
     def get_robot_state_indexed_by_skill(self):
         '''Get the robot state indexed by skill.'''
         robot_state_by_skill_dict = {}
-        for topic, msg, t in rosbag.Bag(bagfile).read_messages(
+        for topic, msg, t in rosbag.Bag(self._rosbag_path).read_messages(
                 topics=[ROBOT_STATE_TOPIC]):
             skill_desc = msg.skill_description
             assert type(skill_desc) is str, "Incorrect skill description type"
             if robot_state_by_skill_dict.get(skill_desc) is None:
-                robot_state_by_skill_dict[skill_desc] = []
+                robot_state_by_skill_dict[skill_desc] = {}
+
+            if skill_desc == TARGET_SKILL_DESC:
+                print("Got target skill: {}".format(robot_state['time_since_skill_started']))
 
             # Append robot_state
             robot_state = RosbagUtils.get_robot_state_as_dict_from_message(msg)
-            assert robot_state_by_skill_dict[skill_desc].get(
-                    robot_state['time_since_skill_started']) is None, \
-                            "Cannot have two states at same time"
+            '''
+            if len(skill_desc) > 5:
+                if robot_state_by_skill_dict[skill_desc].get(
+                        robot_state['time_since_skill_started']) is not None:
+                    print("Found state for skill: {} at same time: {}".format(
+                        skill_desc, 
+                        robot_state['time_since_skill_started']))
+                    continue
+            '''
 
             skill_dict = robot_state_by_skill_dict[skill_desc]
             skill_dict[robot_state['time_since_skill_started']] = {}
@@ -131,23 +99,26 @@ class RosbagUtils(object):
                     'secs': msg.header.stamp.secs,
                     'nsecs': msg.header.stamp.nsecs
             }
-
+        return robot_state_by_skill_dict
 
 
 def main(args):
-    parser = argparse.ArgumentParser(description='Reorder a bagfile based on header timestamps.')
-    parser.add_argument('--bagfile', nargs=1, help='input bag file')
+    parser = argparse.ArgumentParser(
+            description='Get Robot state and images from bagfile.')
+    parser.add_argument('--bagfile', type=str, required=True,
+                        help='input bag file')
     args = parser.parse_args()
 
     # Get bag duration
+    bagfile = args.bagfile
 
-    bagfile = args.bagfile[0]
+    rosbag_utils = RosbagUtils(bagfile)
+    rosbag_info_dict = rosbag_utils.get_rosbag_info()
+    pprint.pprint(rosbag_info_dict)
 
-    info_dict = yaml.load(subprocess.Popen(
-        ['rosbag', 'info', '--yaml', bagfile],
-        stdout=subprocess.PIPE).communicate()[0])
-    duration = info_dict['duration']
-    start_time = info_dict['start']
+    robot_state_by_skill_dict = rosbag_utils.get_robot_state_indexed_by_skill()
+
+    pdb.set_trace()
 
     images_list, images_time__list = [], []
     for topic, msg, t in rosbag.Bag(bagfile).read_messages(
