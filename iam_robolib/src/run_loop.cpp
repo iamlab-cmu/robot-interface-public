@@ -404,6 +404,7 @@ void run_loop::setup_current_robot_state_io_thread() {
 
                   double_val = robot_state_data_->log_control_time_0_.back();
                   current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
+                  std::cout << "robot state time: " << static_cast<float>(double_val) << "\n";
 
                   if (robot_state_data_->log_gripper_width_0_.size() > 0) {
                     double_val = robot_state_data_->log_gripper_width_0_.back();
@@ -476,7 +477,7 @@ void run_loop::setup_current_robot_state_io_thread() {
 
                   double_val = robot_state_data_->log_control_time_1_.back();
                   current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
-                  std::cout << "robot state time: " << static_cast<float>(double_val);
+                  std::cout << "robot state time: " << static_cast<float>(double_val) << "\n";
 
                   if (robot_state_data_->log_gripper_width_1_.size() > 0) {
                     double_val = robot_state_data_->log_gripper_width_1_.back();

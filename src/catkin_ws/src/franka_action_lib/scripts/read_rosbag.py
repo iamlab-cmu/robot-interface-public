@@ -65,6 +65,17 @@ class RosbagUtils(object):
 
         return robot_state_dict
 
+    def get_time_for_all_skills(self):
+        skill_time_by_desc_dict = {}
+        for topic, msg, t in rosbag.Bag(self._rosbag_path).read_messages(
+            skill_desc = msg.skill_description
+            skill_time = msg.time_since_skill_started
+            if skill_time_by_desc_dict.get(skill_desc) is None:
+                skill_time_by_desc_dict[skill_desc] = []
+            skill_time_by_desc_dict[skill_desc].append(skill_time)
+        return skill_time_by_desc_dict
+
+
     def get_robot_state_indexed_by_skill(self):
         '''Get the robot state indexed by skill.'''
         robot_state_by_skill_dict = {}
@@ -85,7 +96,7 @@ class RosbagUtils(object):
                 if robot_state_by_skill_dict[skill_desc].get(
                         robot_state['time_since_skill_started']) is not None:
                     print("Found state for skill: {} at same time: {}".format(
-                        skill_desc, 
+                        skill_desc,
                         robot_state['time_since_skill_started']))
                     continue
             '''
@@ -115,6 +126,9 @@ def main(args):
     rosbag_utils = RosbagUtils(bagfile)
     rosbag_info_dict = rosbag_utils.get_rosbag_info()
     pprint.pprint(rosbag_info_dict)
+
+    skill_time_by_desc_dict = rosbag_utils.get_time_for_all_skills()
+    pprint.pprint(skill_time_by_desc_dict.keys())
 
     robot_state_by_skill_dict = rosbag_utils.get_robot_state_indexed_by_skill()
 
