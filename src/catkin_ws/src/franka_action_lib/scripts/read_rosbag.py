@@ -23,6 +23,11 @@ CLOCK_TOPIC = '/clock'
 
 TARGET_SKILL_DESC = 'random_exploration_after_cut_slice_2_z_2_pos_0.010_time_0.200 type: ArmRelativeMotionToContactWithDefaultSensorSkill,  id: 129'
 
+TARGET_SKILL_DESC = 'random_exploration_next_to_cucumber_x_0_pos_0.003_time_0.200 type: ArmRelativeMotionToContactWithDefaultSensorSkill,  id: 12'
+
+TARGET_SKILL_DESC = 'move_left_to_contact_cucumber type: ArmMoveToGoalContactWithDefaultSensorSkill,  id: 12'
+
+
 def status(length, percent):
   sys.stdout.write('\x1B[2K') # Erase entire current line
   sys.stdout.write('\x1B[0E') # Move to the beginning of the current line
@@ -68,6 +73,7 @@ class RosbagUtils(object):
     def get_time_for_all_skills(self):
         skill_time_by_desc_dict = {}
         for topic, msg, t in rosbag.Bag(self._rosbag_path).read_messages(
+                topics=[ROBOT_STATE_TOPIC]):
             skill_desc = msg.skill_description
             skill_time = msg.time_since_skill_started
             if skill_time_by_desc_dict.get(skill_desc) is None:
@@ -79,6 +85,7 @@ class RosbagUtils(object):
     def get_robot_state_indexed_by_skill(self):
         '''Get the robot state indexed by skill.'''
         robot_state_by_skill_dict = {}
+	skill_name_dict = {}
         for topic, msg, t in rosbag.Bag(self._rosbag_path).read_messages(
                 topics=[ROBOT_STATE_TOPIC]):
             skill_desc = msg.skill_description
@@ -87,9 +94,10 @@ class RosbagUtils(object):
                 robot_state_by_skill_dict[skill_desc] = {}
 
             if skill_desc == TARGET_SKILL_DESC:
-                print("Got target skill: {}".format(robot_state['time_since_skill_started']))
+                print("Got target skill: {} at t: {}".format(robot_state['time_since_skill_started'], t))
 
             # Append robot_state
+            # print(skill_desc)
             robot_state = RosbagUtils.get_robot_state_as_dict_from_message(msg)
             '''
             if len(skill_desc) > 5:
@@ -131,6 +139,7 @@ def main(args):
     pprint.pprint(skill_time_by_desc_dict.keys())
 
     robot_state_by_skill_dict = rosbag_utils.get_robot_state_indexed_by_skill()
+    print("Done")
 
     pdb.set_trace()
 
