@@ -601,7 +601,9 @@ void run_loop::run_on_franka() {
       auto finish = std::chrono::high_resolution_clock::now();
       // Wait for start + milli - finish
       auto elapsed = start + milli - finish;
-      // std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      // TODO(Mohit): We need to sleep for now because the ROS client side sends messasges sequentially
+      // and hence we have skills being repeated because the new skill arrives with a delay.
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
   } catch (const franka::Exception& ex) {
     std::cout << "Franka exception occurred during control loop. Will exit." << std::endl;
