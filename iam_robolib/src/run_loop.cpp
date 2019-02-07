@@ -564,8 +564,13 @@ void run_loop::setup_data_loggers() {
 }
 
 void run_loop::log_skill_info(BaseSkill* skill) {
-  std::string log_desc = string_format("Will execute skill: %d, meta_skill: %d, ",
-                                       skill->get_skill_id(), skill->get_meta_skill_id());
+  std::chrono::seconds start_time_skill = std::chrono::duration_cast<std::chrono::seconds>(
+      std::chrono::system_clock::now().time_since_epoch());
+  std::string log_desc = string_format("Will execute skill: %d, meta_skill: %d, curr_time: %d, ",
+                                       skill->get_skill_id(), skill->get_meta_skill_id(),
+                                       start_time_skill);
+  // As convention ALWAYS keep desc: <skill> part in the end. We use parsers to parse skills automatically using
+  // this convention.
   log_desc += ("desc: " + skill->get_description());
   robot_state_data_->log_skill_info(log_desc);
   std::cout << log_desc << "\n" << std::endl;
