@@ -338,7 +338,20 @@ if __name__ == '__main__':
         # ==== End ====
 	
 	# Move onto cucumber_again
-        cut_cucumber_skill.execute_skill(move_onto_cucumber_skill, client)
+        move_onto_cucumber_again_skill = \
+                cut_cucumber_skill.create_skill_for_class(
+                        ArmRelativeMotionToContactWithDefaultSensorSkill,
+                'move_onto_cucumber_again_to_cut_{}'.format(slice_idx))
+        move_onto_cucumber_again_skill.add_initial_sensor_values(
+                [1, 3, 5, 7, 8])  # random
+        move_onto_cucumber_again_skill.add_traj_params_with_quaternion(
+                1.0,
+                [0., 0., -CutCucumberSkill.RELATIVE_MOTION_TO_CONTACT_FOR_CUTTING],
+                CutCucumberSkill.IDENTITY_QUATERNION)
+        move_onto_cucumber_again_skill.add_controller_stiffness_params(600, 50)
+        move_onto_cucumber_again_skill.add_contact_termination_params(
+                1.0, [5.0] * 6, [5.0] * 6)
+        cut_cucumber_skill.execute_skill(move_onto_cucumber_again_skill, client)
 
         # Start DMP cutting for 3 times
         skill = cut_cucumber_skill.create_skill_for_class(
