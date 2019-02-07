@@ -38,6 +38,8 @@ namespace franka_action_lib
 
       void setSkillPreemptedFlagInSharedMemory(bool skill_preempted_flag);
 
+      void setNewSkillDescriptionInSharedMemory(std::string description);
+
       franka_action_lib::ExecuteSkillFeedback getSkillFeedback();
 
       franka_action_lib::ExecuteSkillResult getSkillResult(int skill_id);

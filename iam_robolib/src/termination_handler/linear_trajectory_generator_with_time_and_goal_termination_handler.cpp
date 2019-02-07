@@ -68,7 +68,7 @@ void LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::initialize_hand
   // pass
 }
 
-void LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::initialize_handler(franka::Robot *robot) {
+void LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::initialize_handler_on_franka(FrankaRobot *robot) {
   // pass
 }
 
@@ -126,7 +126,7 @@ bool LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::should_terminat
 }
 
 
-bool LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *trajectory_generator) {
+bool LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::should_terminate_on_franka(const franka::RobotState &robot_state, TrajectoryGenerator *trajectory_generator) {
   check_terminate_preempt();
 
   if(!done_){

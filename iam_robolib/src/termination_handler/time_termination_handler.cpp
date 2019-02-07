@@ -25,7 +25,7 @@ void TimeTerminationHandler::initialize_handler() {
   // pass
 }
 
-void TimeTerminationHandler::initialize_handler(franka::Robot *robot) {
+void TimeTerminationHandler::initialize_handler_on_franka(FrankaRobot *robot) {
   // pass
 }
 
@@ -42,7 +42,7 @@ bool TimeTerminationHandler::should_terminate(TrajectoryGenerator *trajectory_ge
   return done_;
 }
 
-bool TimeTerminationHandler::should_terminate(const franka::RobotState &robot_state, TrajectoryGenerator *trajectory_generator) {
+bool TimeTerminationHandler::should_terminate_on_franka(const franka::RobotState &robot_state, TrajectoryGenerator *trajectory_generator) {
   check_terminate_preempt();
   
   if(!done_) {
