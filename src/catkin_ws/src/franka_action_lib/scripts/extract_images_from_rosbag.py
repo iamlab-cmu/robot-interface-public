@@ -145,7 +145,7 @@ def main(args):
             if new_num_images == prev_num_images:
                 print("No new images added to topic: {}. Will save and exit!".format(
                     any_topic))
-                # ic.save_images_as_jpeg('/home/mohit/temp_images')
+                ic.save_images_as_jpeg('/home/mohit/temp_images')
                 break
             else:
                 print("Still adding images")
