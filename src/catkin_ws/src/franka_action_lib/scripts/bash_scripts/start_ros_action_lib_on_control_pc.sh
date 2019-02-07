@@ -8,6 +8,10 @@ control_pc_robot_lib_path=$5
 
 rosmaster_path="/src/catkin_ws/src/franka_action_lib/scripts/bash_scripts/set_rosmaster.sh"
 
+echo $control_pc_uname
+echo $control_pc_ip_address
+echo $control_pc_robot_lib_path
+
 if [ "$control_pc_use_passwd" = "0" ]; then
 ssh -T $control_pc_uname@$control_pc_ip_address << EOSSH
 source $control_pc_robot_lib_path$rosmaster_path $control_pc_ip_address $workstation_ip_address

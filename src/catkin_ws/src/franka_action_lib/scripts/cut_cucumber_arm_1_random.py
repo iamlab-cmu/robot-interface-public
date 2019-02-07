@@ -350,7 +350,7 @@ if __name__ == '__main__':
                 CutCucumberSkill.IDENTITY_QUATERNION)
         move_onto_cucumber_again_skill.add_controller_stiffness_params(600, 50)
         move_onto_cucumber_again_skill.add_contact_termination_params(
-                1.0, [5.0] * 6, [5.0] * 6)
+                1.0, [2.0] * 6, [2.0] * 6)
         cut_cucumber_skill.execute_skill(move_onto_cucumber_again_skill, client)
 
         # Start DMP cutting for 3 times
