@@ -45,6 +45,7 @@ done
 shift $((OPTIND - 1))
 
 workstation_ip_address="`hostname -I`"
+workstation_uname="iam-lab"
 
 # Notify the IP addresses being used.
 echo "Control PC IP uname/address: "$control_pc_uname", "$control_pc_ip_address
@@ -57,6 +58,14 @@ fi
 
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# ssh to the control pc and sync the computer times in a new gnome-terminal
+set_date_on_control_pc_path="$DIR/set_date_on_control_pc.sh"
+echo "Will ssh to control PC and sync the time with the workstation..."$set_date_on_control_pc_path
+gnome-terminal -e "bash $set_date_on_control_pc_path $control_pc_uname $control_pc_ip_address $workstation_uname $workstation_ip_address $control_pc_use_passwd"
+echo "Done"
+
+sleep 1
 
 # Start rosmaster in a new gnome-terminal
 start_rosmaster_path="$DIR/start_rosmaster.sh"
