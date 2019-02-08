@@ -564,9 +564,9 @@ void run_loop::setup_data_loggers() {
 }
 
 void run_loop::log_skill_info(BaseSkill* skill) {
-  std::chrono::seconds start_time_skill = std::chrono::duration_cast<std::chrono::seconds>(
+  std::chrono::milliseconds start_time_skill = std::chrono::duration_cast<std::chrono::milliseconds>(
       std::chrono::system_clock::now().time_since_epoch());
-  std::string log_desc = string_format("Will execute skill: %d, meta_skill: %d, curr_time: %d, ",
+  std::string log_desc = string_format("Will execute skill: %d, meta_skill: %d, curr_time: %lld, ",
                                        skill->get_skill_id(), skill->get_meta_skill_id(),
                                        start_time_skill);
   // As convention ALWAYS keep desc: <skill> part in the end. We use parsers to parse skills automatically using
