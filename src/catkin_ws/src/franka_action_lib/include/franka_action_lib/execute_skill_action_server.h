@@ -8,6 +8,7 @@
 #include <vector>
 #include <ros/ros.h>
 #include <franka_action_lib/ExecuteSkillAction.h> // Note: "Action" is appended
+#include <franka_action_lib/RobolibStatus.h>
 #include <actionlib/server/simple_action_server.h>
 
 #include "franka_action_lib/shared_memory_handler.h"
@@ -29,6 +30,7 @@ namespace franka_action_lib
       franka_action_lib::ExecuteSkillResult result_;
 
       franka_action_lib::SharedMemoryHandler shared_memory_handler_;
+      franka_action_lib::RobolibStatus robolib_status_;
 
     public:
 

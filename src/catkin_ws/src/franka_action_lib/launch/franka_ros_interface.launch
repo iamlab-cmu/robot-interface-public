@@ -7,5 +7,9 @@
   <node pkg="franka_action_lib" type="robot_state_publisher_node" name="robot_state_publisher_node" output="screen">
     <param name="publish_frequency" value="100" />
   </node>
-
+  
+  <node pkg="franka_action_lib" type="robolib_status_publisher_node" name="robolib_status_publisher_node" output="screen">
+    <param name="publish_frequency" value="100" />
+  </node>
+  
 </launch>

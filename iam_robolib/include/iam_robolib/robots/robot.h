@@ -16,6 +16,8 @@ class Robot
 
   virtual ~Robot() = default;
 
+  virtual void automaticErrorRecovery() = 0;
+
   std::string robot_ip_;
   RobotType robot_type_;
 

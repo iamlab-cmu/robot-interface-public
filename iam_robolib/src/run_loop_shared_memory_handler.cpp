@@ -77,6 +77,44 @@ SharedBuffer RunLoopSharedMemoryHandler::getCurrentRobotStateBuffer() {
     return current_robot_state_buffer_;
 }
 
+void RunLoopSharedMemoryHandler::clearAllBuffers() {
+    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> shared_memory_0_lock(*shared_memory_mutex_0_);
+    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> shared_memory_1_lock(*shared_memory_mutex_1_);
+    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> shared_sensor_data_0_lock(*shared_sensor_data_mutex_0_);
+    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> shared_sensor_data_1_lock(*shared_sensor_data_mutex_1_);
+    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> shared_execution_result_0_lock(*shared_execution_result_mutex_0_);
+    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> shared_execution_result_1_lock(*shared_execution_result_mutex_1_);
+    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> shared_current_robot_state_lock(*shared_current_robot_state_mutex_);
+
+    memset(traj_gen_buffer_0_, 0.f, shared_memory_info_.getSizeForTrajectoryParameters() * sizeof(float));
+    memset(feedback_controller_buffer_0_, 0.f, shared_memory_info_.getSizeForFeedbackControllerParameters() * sizeof(float));
+    memset(termination_buffer_0_, 0.f, shared_memory_info_.getSizeForTerminationParameters() * sizeof(float));
+    memset(timer_buffer_0_, 0.f, shared_memory_info_.getSizeForTimerParameters() * sizeof(float));
+
+    memset(traj_gen_buffer_1_, 0.f, shared_memory_info_.getSizeForTrajectoryParameters() * sizeof(float));
+    memset(feedback_controller_buffer_1_, 0.f, shared_memory_info_.getSizeForFeedbackControllerParameters() * sizeof(float));
+    memset(termination_buffer_1_, 0.f, shared_memory_info_.getSizeForTerminationParameters() * sizeof(float));
+    memset(timer_buffer_1_, 0.f, shared_memory_info_.getSizeForTimerParameters() * sizeof(float));
+
+    memset(traj_gen_sensor_buffer_0_, 0.f, shared_memory_info_.getSizeForTrajectorySensorData() * sizeof(float));
+    memset(feedback_controller_sensor_buffer_0_, 0.f, shared_memory_info_.getSizeForFeedbackControllerSensorData() * sizeof(float));
+    memset(termination_sensor_buffer_0_, 0.f, shared_memory_info_.getSizeForTerminationSensorData() * sizeof(float));
+    memset(timer_sensor_buffer_0_, 0.f, shared_memory_info_.getSizeForTimerSensorData() * sizeof(float));
+
+    memset(traj_gen_sensor_buffer_1_, 0.f, shared_memory_info_.getSizeForTrajectorySensorData() * sizeof(float));
+    memset(feedback_controller_sensor_buffer_1_, 0.f, shared_memory_info_.getSizeForFeedbackControllerSensorData() * sizeof(float));
+    memset(termination_sensor_buffer_1_, 0.f, shared_memory_info_.getSizeForTerminationSensorData() * sizeof(float));
+    memset(timer_sensor_buffer_1_, 0.f, shared_memory_info_.getSizeForTimerSensorData() * sizeof(float));
+
+    memset(execution_result_buffer_0_, 0.f, shared_memory_info_.getSizeForExecutionResultData() * sizeof(float));
+    memset(execution_feedback_buffer_0_, 0.f, shared_memory_info_.getSizeForExecutionFeedbackData() * sizeof(float));
+
+    memset(execution_result_buffer_1_, 0.f, shared_memory_info_.getSizeForExecutionResultData() * sizeof(float));
+    memset(execution_feedback_buffer_1_, 0.f, shared_memory_info_.getSizeForExecutionFeedbackData() * sizeof(float));
+
+    memset(current_robot_state_buffer_, 0.f, shared_memory_info_.getSizeForCurrentRobotState() * sizeof(float));
+}
+
 void RunLoopSharedMemoryHandler::start() {
   // Start processing, might want to do some pre-processing
   std::cout << "start run loop.\n";
@@ -329,8 +367,8 @@ void RunLoopSharedMemoryHandler::start() {
   region_execution_result_buffer_0_ = boost::interprocess::mapped_region(
       shared_execution_result_0_,
       boost::interprocess::read_write,
-      shared_memory_info_.getOffsetForExecutionReturnData(),
-      shared_memory_info_.getSizeForExecutionReturnData()
+      shared_memory_info_.getOffsetForExecutionResultData(),
+      shared_memory_info_.getSizeForExecutionResultData()
   );
   execution_result_buffer_0_ = reinterpret_cast<SharedBuffer>(region_execution_result_buffer_0_.get_address());
 
@@ -355,8 +393,8 @@ void RunLoopSharedMemoryHandler::start() {
   region_execution_result_buffer_1_ = boost::interprocess::mapped_region(
       shared_execution_result_1_,
       boost::interprocess::read_write,
-      shared_memory_info_.getOffsetForExecutionReturnData(),
-      shared_memory_info_.getSizeForExecutionReturnData()
+      shared_memory_info_.getOffsetForExecutionResultData(),
+      shared_memory_info_.getSizeForExecutionResultData()
   );
   execution_result_buffer_1_ = reinterpret_cast<SharedBuffer>(region_execution_result_buffer_1_.get_address());
 

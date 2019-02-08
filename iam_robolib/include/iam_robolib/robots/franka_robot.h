@@ -34,6 +34,10 @@ class FrankaRobot : public Robot
 
   franka::Robot robot_;
   franka::Gripper gripper_;
+
+  void automaticErrorRecovery() {
+    robot_.automaticErrorRecovery();
+  }
 };
 
 #endif  // IAM_ROBOLIB_ROBOTS_FRANKA_ROBOT_H_

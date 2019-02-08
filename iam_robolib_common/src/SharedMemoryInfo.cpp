@@ -117,7 +117,7 @@ int SharedMemoryInfo::getObjectMemorySize() {
 }
 
 int SharedMemoryInfo::getExecutionResponseMemorySize() {
-  return execution_response_feedback_size_ + execution_response_return_size_;
+  return execution_response_feedback_size_ + execution_response_result_size_;
 }
 
 int SharedMemoryInfo::getCurrentRobotStateMemorySize() {
@@ -211,11 +211,11 @@ int SharedMemoryInfo::getOffsetForExecutionFeedbackData() {
   return 0;
 }
 
-int SharedMemoryInfo::getSizeForExecutionReturnData() {
-  return execution_response_return_size_;
+int SharedMemoryInfo::getSizeForExecutionResultData() {
+  return execution_response_result_size_;
 }
 
-int SharedMemoryInfo::getOffsetForExecutionReturnData() {
+int SharedMemoryInfo::getOffsetForExecutionResultData() {
   return execution_response_feedback_size_;
 }
 

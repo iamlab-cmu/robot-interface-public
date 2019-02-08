@@ -144,6 +144,20 @@ class RunLoopProcessInfo {
   */
   void set_result_skill_id(int result_skill_id);
 
+  bool get_is_ready();
+  void set_is_ready(bool is_ready);
+
+  int get_watchdog_counter();
+  void reset_watchdog_counter(); // to be used by robolib
+  void increment_watchdog_counter(); // to be used by franka_actionlib
+
+  std::string get_error_description();
+  void set_error_description(std::string description); // to be used by robolib
+  void clear_error_description(); // to be used by franka_actionlib
+
+  // reset internal variables about skills to their default values. used by robolib for error recovery
+  void reset_skill_vars();
+
  private:
   bool new_skill_available_{false};
   int new_skill_type_{0};
@@ -152,17 +166,22 @@ class RunLoopProcessInfo {
   bool is_running_skill_{false};
   bool skill_preempted_{false};
 
-  int current_memory_region_{1};
+  int current_memory_region_{1}; 
   int current_sensor_region_{1};
   int current_feedback_region_{1};
-  int current_skill_id_{-1};
+  int current_skill_id_{-1}; 
   int new_skill_id_{-1};
   int done_skill_id_{-1};
   int result_skill_id_{-1};
   char new_skill_description_[1000];
-  size_t new_skill_description_len_=1;
+  size_t new_skill_description_len_=0;
 
   int current_meta_skill_id_{-1};
   int new_meta_skill_id_{-1};
+
+  bool is_ready_{false};
+  int watchdog_counter_{0};
+  char error_description_[1000];
+  size_t error_description_len_=0;
 };
 

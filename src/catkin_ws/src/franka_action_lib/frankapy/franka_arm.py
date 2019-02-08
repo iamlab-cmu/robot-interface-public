@@ -1,4 +1,10 @@
 import sys, signal
+from time import time, sleep
+from multiprocessing import Queue
+try:
+    from Queue import Empty
+except:
+    from queue import Empty
 import numpy as np
 from autolab_core import RigidTransform
 
@@ -6,7 +12,7 @@ import roslib
 roslib.load_manifest('franka_action_lib')
 import rospy
 import actionlib
-from franka_action_lib.msg import ExecuteSkillAction
+from franka_action_lib.msg import ExecuteSkillAction, RobolibStatus
 
 from .skill_list import *
 from .exceptions import *
@@ -16,7 +22,7 @@ from .franka_constants import FrankaConstants as FC
 class FrankaArm:
 
     def __init__(self, rosnode_name='franka_arm_client'):
-        self._connected = False
+        self._connected = False 
         self._in_skill = False
 
         # set signal handler to handle ctrl+c and kill sigs
@@ -24,14 +30,38 @@ class FrankaArm:
 
         # init ROS
         rospy.init_node(rosnode_name, disable_signals=True)
+
+        self._robolib_status_q = Queue(maxsize=1)
+        def robolib_status_callback(robolib_status):
+            if self._robolib_status_q.full():
+                try:
+                    self._robolib_status_q.get_nowait()
+                except Empty:
+                    pass
+            self._robolib_status_q.put(robolib_status)
+        rospy.Subscriber(FC.ROS_ROBOLIB_STATUS_PUBLISHER_NAME, RobolibStatus, robolib_status_callback)
+
         self._sub = FrankaArmSubscriber(new_ros_node=False)
-        self._client = actionlib.SimpleActionClient('/execute_skill_action_server_node/execute_skill', ExecuteSkillAction)
+        self._client = actionlib.SimpleActionClient(FC.ROS_EXECUTE_SKILL_ACTION_SERVER_NAME, ExecuteSkillAction)
         self._client.wait_for_server()
-        self._current_goal_handle = None
+        self.wait_for_robolib()
+        
+        # done init ROS
         self._connected = True
 
         # set default identity tool delta pose
         self._tool_delta_pose = RigidTransform(from_frame='franka_tool', to_frame='franka_tool_base')
+
+    def wait_for_robolib(self, timeout=None):
+        '''Blocks execution until robolib gives ready signal.    
+        '''
+        timeout = FC.DEFAULT_ROBOLIB_TIMEOUT if timeout is None else timeout
+        try:
+            robolib_status = self._robolib_status_q.get(block=True, timeout=timeout)
+        except Empty:
+            raise FrankaArmCommException('could not get status after {}s'.format(timeout))
+        if not robolib_status.is_ready:
+            raise FrankaArmRobolibNotReadyException()
 
     def _sigint_handler_gen(self):
         def sigint_handler(sig, frame):
@@ -45,12 +75,27 @@ class FrankaArm:
         '''
         Raises:
             FrankaArmCommException if a timeout is reached
+            FrankaArmException if robolib gives an error
+            FrankaArmRobolibNotReadyException if robolib is not ready
         '''
-        # TODO(jacky): institute a timeout check
-
         self._client.send_goal(goal, feedback_cb=cb)
         self._in_skill = True
-        self._client.wait_for_result()
+
+        done = False
+        while not done:
+            try:
+                robolib_status = self._robolib_status_q.get(block=True, timeout=FC.DEFAULT_ROBOLIB_TIMEOUT)
+            except Empty:
+                raise FrankaArmCommException('timeout reached after {}s'.format(FC.DEFAULT_ROBOLIB_TIMEOUT))
+
+            if rospy.is_shutdown():
+                raise RuntimeError('rospy is down!')
+            elif robolib_status.error_description:
+                raise FrankaArmException(robolib_status.error_description)
+            elif not robolib_status.is_ready:
+                raise FrankaArmRobolibNotReadyException()
+            done = self._client.wait_for_result(rospy.Duration.from_sec(FC.ACTION_WAIT_LOOP_TIME))            
+
         self._in_skill = False
         return self._client.get_result()
 

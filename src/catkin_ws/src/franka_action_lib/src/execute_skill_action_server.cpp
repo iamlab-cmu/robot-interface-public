@@ -21,6 +21,13 @@ namespace franka_action_lib
 
     ROS_INFO("New Skill received: %s", goal->skill_description.c_str());
 
+    robolib_status_ = shared_memory_handler_.getRobolibStatus();
+    if (!robolib_status_.is_ready) {
+      ROS_ERROR("Robolib is not ready yet!");
+      as_.setAborted();
+      return;
+    }
+
     // Load skill parameters into shared memory and returns the skill_id
     int skill_id = shared_memory_handler_.loadSkillParametersIntoSharedMemory(goal);
 
@@ -35,17 +42,23 @@ namespace franka_action_lib
     // Loop until skill is complete from shared memory or is preempted
     int done_skill_id = shared_memory_handler_.getDoneSkillIdInSharedMemory();
 
+    ROS_INFO("Done getting done_skill_id");
+
     // Ensure preempted flag is set to false
     shared_memory_handler_.setSkillPreemptedFlagInSharedMemory(false);
     while (done_skill_id < skill_id) {
+      robolib_status_ = shared_memory_handler_.getRobolibStatus();
+      if (!robolib_status_.is_ready) {
+        as_.setAborted();
+        break;
+      }
+
       // check that preempt has not been requested by the client
       if (as_.isPreemptRequested() || !ros::ok()) {
         ROS_INFO("%s: Preempted", action_name_.c_str());
         // set the action state to preempted
         as_.setPreempted();
-
         shared_memory_handler_.setSkillPreemptedFlagInSharedMemory(true);
-
         break;
       }
 
@@ -68,8 +81,7 @@ namespace franka_action_lib
     ROS_INFO("Skill terminated id = %d", skill_id);
 
     shared_memory_handler_.setNewSkillDescriptionInSharedMemory("");
-
-    if (done_skill_id == skill_id || done_skill_id == skill_id + 1) {
+    if (done_skill_id != -1 && (done_skill_id == skill_id || done_skill_id == skill_id + 1)) {
       // Get execution result from shared memory
       result_ = shared_memory_handler_.getSkillResult(skill_id);
       ROS_INFO("%s: Succeeded", action_name_.c_str());
