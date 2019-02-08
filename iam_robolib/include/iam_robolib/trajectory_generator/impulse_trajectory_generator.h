@@ -15,6 +15,11 @@ class ImpulseTrajectoryGenerator : public TrajectoryGenerator {
 
   void get_next_step() override;
 
+ private:
+  double t_ = 0.;
+  double acc_time_ = 0.;
+  std::array<double, 6> force_torque_target_{};
+
 };
 
 #endif	// IAM_ROBOLIB_TRAJECTORY_GENERATOR_IMPULSE_TRAJECTORY_GENERATOR_H_

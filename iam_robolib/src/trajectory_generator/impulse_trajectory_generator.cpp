@@ -12,11 +12,13 @@ void ImpulseTrajectoryGenerator::parse_parameters() {
   // First parameter is reserved for the type
 
   int num_params = static_cast<int>(params_[1]);
-  if (num_params == 7) {
-    run_time_ = static_cast<double>(params_[2]);
-    for (int i = 0; i < force_torque_desired_.size(); i++) {
-      force_torque_desired_[i] = static_cast<double>(params_[i + 3]);
+  if (num_params == 9) {
+    run_time_ = static_cast<double>(params_[3]);
+    acc_time_ = static_cast<double>(params_[4]);
+    for (int i = 0; i < force_torque_target_.size(); i++) {
+      force_torque_target_[i] = static_cast<double>(params_[i + 5]);
     }
+
   } else {
     std::cout << "Incorrect number of params given: " << num_params << std::endl;
   }
@@ -31,6 +33,21 @@ void ImpulseTrajectoryGenerator::initialize_trajectory(const franka::RobotState 
 }
 
 void ImpulseTrajectoryGenerator::get_next_step() {
-  // pass
+  t_ = time_;
+
+  double coef;
+  if (t_ >= 0 && t_ < acc_time_) {
+    coef = t_/acc_time_;
+  } else if (t_ >= acc_time_ && t_ < run_time_ - acc_time_) {
+    coef = 1.;
+  } else if (t_ >= run_time_ - acc_time_ && t_ < run_time_) {
+    coef = (run_time_ - t_)/acc_time_;
+  } else {
+    coef = 0.;
+  }
+
+  for (int i = 0; i < force_torque_target_.size(); i++) {
+      force_torque_desired_[i] = coef * force_torque_target_[i];
+  }
 }
   
