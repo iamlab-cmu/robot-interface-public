@@ -501,7 +501,7 @@ void run_loop::setup_current_robot_state_io_thread() {
 }
 
 void run_loop::setup_watchdog_thread() {
-  int io_rate = 100;
+  int io_rate = 50;
   watchdog_thread_ = std::thread([&, io_rate]() {
       while (true) {
         std::this_thread::sleep_for(
@@ -649,9 +649,6 @@ void run_loop::run_on_franka() {
       std::cerr << error_description << std::endl;
       robot_state_data_->writeCurrentBufferData();
       robot_state_data_->printGlobalData(50);
-      logger_.print_error_log();
-      logger_.print_warning_log();
-      logger_.print_info_log();
 
       // Clear buffers and reset stateful variables about skills
       RunLoopProcessInfo* run_loop_info = shared_memory_handler_->getRunLoopProcessInfo();

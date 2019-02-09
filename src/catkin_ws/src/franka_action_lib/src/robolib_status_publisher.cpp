@@ -3,11 +3,12 @@
 namespace franka_action_lib
 {
   RobolibStatusPublisher::RobolibStatusPublisher(std::string name) :  nh_("~"),
-                                                                topic_name_(name),
-                                                                shared_memory_handler_()
+                                                                topic_name_(name)
   {
     nh_.param("publish_frequency", publish_frequency_, (double) 100.0);
     robolib_status_pub_ = nh_.advertise<franka_action_lib::RobolibStatus>(topic_name_, 100);
+
+    shared_memory_handler_ = new franka_action_lib::SharedMemoryHandler();
 
     ROS_INFO("Robolib Status Publisher Started");
 
@@ -15,7 +16,7 @@ namespace franka_action_lib
     while (ros::ok())
     {
         // get robolib
-        RobolibStatus robolib_status_ = shared_memory_handler_.getRobolibStatus();
+        RobolibStatus robolib_status_ = shared_memory_handler_->getRobolibStatus();
 
         if (robolib_status_.is_fresh) {
           last_robolib_status_ = robolib_status_;
@@ -40,7 +41,7 @@ namespace franka_action_lib
           robolib_status_pub_.publish(robolib_status_);
 
           // increment watchdog counter
-          shared_memory_handler_.incrementWatchdogCounter();
+          shared_memory_handler_->incrementWatchdogCounter();
         }
 
         ros::spinOnce();

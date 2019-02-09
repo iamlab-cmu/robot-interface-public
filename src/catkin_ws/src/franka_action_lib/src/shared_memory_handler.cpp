@@ -544,8 +544,8 @@ namespace franka_action_lib
     robolib_status.header.stamp = ros::Time::now();
 
     if (run_loop_info_lock.try_lock()) {
-      // TODO(jacky): 10 roughly equates to 100ms of disconnect from the robolib. This should be placed in a global config file.
-      if (run_loop_process_info_->get_watchdog_counter() > 10) {
+      // TODO(jacky): 25 roughly equates to 500ms of disconnect from the robolib. This should be placed in a global config file.
+      if (run_loop_process_info_->get_watchdog_counter() > 25) {
         robolib_status.is_ready = false;
       } else {
         robolib_status.is_ready = run_loop_process_info_->get_is_ready();

@@ -174,7 +174,7 @@ class RunLoopProcessInfo {
   int done_skill_id_{-1};
   int result_skill_id_{-1};
   char new_skill_description_[1000];
-  size_t new_skill_description_len_=0;
+  size_t new_skill_description_len_=1;
 
   int current_meta_skill_id_{-1};
   int new_meta_skill_id_{-1};

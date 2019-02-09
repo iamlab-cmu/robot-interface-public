@@ -26,7 +26,7 @@ namespace franka_action_lib
       int stale_count = 0;
 
       double publish_frequency_;
-      franka_action_lib::SharedMemoryHandler shared_memory_handler_;
+      franka_action_lib::SharedMemoryHandler *shared_memory_handler_;
 
     public:
 
