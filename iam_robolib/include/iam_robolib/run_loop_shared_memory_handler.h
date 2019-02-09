@@ -50,6 +50,8 @@ class RunLoopSharedMemoryHandler {
 
   SharedBuffer getCurrentRobotStateBuffer();
 
+  void clearAllBuffers();
+
  private:
   SharedMemoryInfo shared_memory_info_=SharedMemoryInfo();
 

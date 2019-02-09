@@ -82,6 +82,11 @@ class UR5eRobot : public Robot
 
   std::unique_ptr<URCommander> rt_commander_;
 
+  void automaticErrorRecovery() {
+    // TODO(jacky) this hasn't been implemented on UR5e
+    throw "Automatic Error Recovery hasn't been implemented on UR5e!";
+  }
+
  private:
   const int UR_RT_TRANSMIT_PORT_ = 30003;
   const int UR_RT_RECEIVE_PORT_ = 30013;

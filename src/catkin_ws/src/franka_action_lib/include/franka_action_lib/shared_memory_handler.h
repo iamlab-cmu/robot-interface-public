@@ -3,6 +3,7 @@
 
 #include <franka_action_lib/ExecuteSkillAction.h> // Note: "Action" is appended
 #include <franka_action_lib/RobotState.h>
+#include <franka_action_lib/RobolibStatus.h>
 
 #include "ros/ros.h" // For ROS::ERROR messages
 
@@ -45,10 +46,14 @@ namespace franka_action_lib
       franka_action_lib::ExecuteSkillResult getSkillResult(int skill_id);
 
       franka_action_lib::RobotState getRobotState();
+
+      franka_action_lib::RobolibStatus getRobolibStatus();
       
       bool getNewSkillAvailableFlagInSharedMemory();
 
       int getNewSkillIdInSharedMemory();
+
+      void incrementWatchdogCounter();
 
     private:
 
@@ -150,7 +155,6 @@ namespace franka_action_lib
       void loadFeedbackControllerParamsUnprotected(const franka_action_lib::ExecuteSkillGoalConstPtr &goal, int current_free_shared_memory_index);
       void loadTerminationParamsUnprotected(const franka_action_lib::ExecuteSkillGoalConstPtr &goal, int current_free_shared_memory_index);
       void loadTimerParamsUnprotected(const franka_action_lib::ExecuteSkillGoalConstPtr &goal, int current_free_shared_memory_index);
-      
   };
 }
 

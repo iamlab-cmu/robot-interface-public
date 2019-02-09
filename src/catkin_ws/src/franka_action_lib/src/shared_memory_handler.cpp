@@ -231,8 +231,8 @@ namespace franka_action_lib
     execution_result_region_0_ = boost::interprocess::mapped_region(
         shared_execution_result_0_,
         boost::interprocess::read_write,
-        shared_memory_info_.getOffsetForExecutionReturnData(),
-        shared_memory_info_.getSizeForExecutionReturnData()
+        shared_memory_info_.getOffsetForExecutionResultData(),
+        shared_memory_info_.getSizeForExecutionResultData()
         );
     execution_result_buffer_0_ = reinterpret_cast<float *>(execution_result_region_0_.get_address());
 
@@ -262,8 +262,8 @@ namespace franka_action_lib
     execution_result_region_1_ = boost::interprocess::mapped_region(
         shared_execution_result_1_,
         boost::interprocess::read_write,
-        shared_memory_info_.getOffsetForExecutionReturnData(),
-        shared_memory_info_.getSizeForExecutionReturnData()
+        shared_memory_info_.getOffsetForExecutionResultData(),
+        shared_memory_info_.getSizeForExecutionResultData()
     );
     execution_result_buffer_1_ = reinterpret_cast<float *>(execution_result_region_1_.get_address());
 
@@ -534,6 +534,37 @@ namespace franka_action_lib
     robot_state.skill_description = run_loop_process_info_->get_new_skill_description();
 
     return robot_state;
+  }
+
+  franka_action_lib::RobolibStatus SharedMemoryHandler::getRobolibStatus()
+  {
+    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> run_loop_info_lock(*run_loop_info_mutex_, boost::interprocess::defer_lock);
+
+    franka_action_lib::RobolibStatus robolib_status;
+    robolib_status.header.stamp = ros::Time::now();
+
+    if (run_loop_info_lock.try_lock()) {
+      // TODO(jacky): 25 roughly equates to 500ms of disconnect from the robolib. This should be placed in a global config file.
+      if (run_loop_process_info_->get_watchdog_counter() > 25) {
+        robolib_status.is_ready = false;
+      } else {
+        robolib_status.is_ready = run_loop_process_info_->get_is_ready();
+      }
+      robolib_status.error_description = run_loop_process_info_->get_error_description();
+      robolib_status.is_fresh = true;
+    } else {
+      robolib_status.is_fresh = false;
+    }
+    
+    return robolib_status;
+  }
+
+  void SharedMemoryHandler::incrementWatchdogCounter()
+  {
+    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> run_loop_info_lock(*run_loop_info_mutex_, boost::interprocess::defer_lock);
+    if (run_loop_info_lock.try_lock()) {
+      run_loop_process_info_->increment_watchdog_counter();
+    }
   }
   
   bool SharedMemoryHandler::getNewSkillAvailableFlagInSharedMemory()

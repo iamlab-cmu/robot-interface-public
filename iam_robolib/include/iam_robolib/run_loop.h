@@ -58,7 +58,7 @@ class run_loop {
         robot_ = new UR5eRobot(robot_ip, robot_type);
         break;
       default:
-        robot_ = new Robot(robot_ip, robot_type);
+        throw "Unrecognized Robot Type!";
     }
 
   };
@@ -134,20 +134,19 @@ class run_loop {
   // TODO(jacky): this isn't actually being used. should implement this properly by introducing exit conditions on threads.
   static std::atomic<bool> running_skills_;
 
-  bool start_time;
-
  private:
 
   Robot *robot_;
 
   std::thread print_thread_{};
   std::thread current_robot_state_io_thread_{};
+  std::thread watchdog_thread_{};
 
   RunLoopSharedMemoryHandler* shared_memory_handler_ = nullptr;
   SkillInfoManager skill_manager_{};
   RunLoopLogger logger_;
   // This logs the robot state data by using robot readState and within control loops.
-  RobotStateData *robot_state_data_=nullptr;
+  RobotStateData *robot_state_data_ = nullptr;
 
   // If this flag is true at every loop we will try to get the lock and update process info.
   bool process_info_requires_update_;
@@ -159,6 +158,8 @@ class run_loop {
   TrajectoryGeneratorFactory traj_gen_factory_={};
   FeedbackControllerFactory feedback_controller_factory_={};
   TerminationHandlerFactory termination_handler_factory_={};
+
+  void set_robolib_status(bool is_ready, std::string error_message);
 
   /**
    * Check if new skill should be started or not. Starting a new skill
@@ -186,6 +187,11 @@ class run_loop {
    * Setup thread to save current robot state data to shared memory buffer.
    */
   void setup_current_robot_state_io_thread();
+
+  /**
+   * Setup thread to reset watchdog counter.
+   */
+  void setup_watchdog_thread();
 
   /**
    * Setup default collision behavior for robot.

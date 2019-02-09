@@ -131,6 +131,31 @@ void RobotStateData::writeBufferData_1() {
     // std::cout << "Did save buffer 1\n";
 };
 
+void RobotStateData::clearAllBuffers() {
+  std::lock_guard<std::mutex> lock_0(buffer_0_mutex_);
+  std::lock_guard<std::mutex> lock_1(buffer_1_mutex_);
+  
+  log_skill_info_0_.clear();
+  log_pose_desired_0_.clear();
+  log_robot_state_0_.clear();
+  log_tau_j_0_.clear();
+  log_d_tau_j_0_.clear();
+  log_q_0_.clear();
+  log_q_d_0_.clear();
+  log_dq_0_.clear();
+  log_control_time_0_.clear();
+
+  log_skill_info_1_.clear();
+  log_pose_desired_1_.clear();
+  log_robot_state_1_.clear();
+  log_tau_j_1_.clear();
+  log_d_tau_j_1_.clear();
+  log_q_1_.clear();
+  log_q_d_1_.clear();
+  log_dq_1_.clear();
+  log_control_time_1_.clear();
+}
+
 void RobotStateData::startFileLoggerThread() {
     file_logger_thread_ = std::thread([&]() {
       // Sleep to achieve the desired print rate.

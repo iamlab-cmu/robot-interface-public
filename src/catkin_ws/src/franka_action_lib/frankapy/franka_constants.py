@@ -26,3 +26,9 @@ class FrankaConstants:
 
     MAX_FORCE_NORM = 20
     MAX_TORQUE_NORM = 2
+
+    ROS_ROBOLIB_STATUS_PUBLISHER_NAME = '/robolib_status_publisher_node/robolib_status'
+    ROS_EXECUTE_SKILL_ACTION_SERVER_NAME = '/execute_skill_action_server_node/execute_skill'
+
+    DEFAULT_ROBOLIB_TIMEOUT = 5 # in seconds
+    ACTION_WAIT_LOOP_TIME = 0.001

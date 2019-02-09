@@ -22,61 +22,48 @@ void JointPoseWithTorqueControlSkill::execute_skill() {
 
 void JointPoseWithTorqueControlSkill::execute_skill_on_franka(FrankaRobot* robot,
                                                               RobotStateData *robot_state_data) {
+  double time = 0.0;
+  int log_counter = 0;
 
-  try {
-    double time = 0.0;
-    int log_counter = 0;
+  std::cout << "Will run the control loop\n";
 
-    std::cout << "Will run the control loop\n";
+  franka::Model model = robot->getModel();
 
-    franka::Model model = robot->getModel();
+  std::function<franka::JointPositions(const franka::RobotState&, franka::Duration)>
+      joint_pose_callback = [=, &time, &log_counter](
+      const franka::RobotState& robot_state,
+      franka::Duration period) -> franka::JointPositions {
+    if (time == 0.0) {
+      traj_generator_->initialize_trajectory(robot_state);
+    }
+    time += period.toSec();
+    traj_generator_->time_ = time;
+    traj_generator_->dt_ = period.toSec();
+    traj_generator_->get_next_step();
 
-    std::function<franka::JointPositions(const franka::RobotState&, franka::Duration)>
-        joint_pose_callback = [=, &time, &log_counter](
-        const franka::RobotState& robot_state,
-        franka::Duration period) -> franka::JointPositions {
-      if (time == 0.0) {
-        traj_generator_->initialize_trajectory(robot_state);
-      }
-      time += period.toSec();
-      traj_generator_->time_ = time;
-      traj_generator_->dt_ = period.toSec();
-      traj_generator_->get_next_step();
+    bool done = termination_handler_->should_terminate(traj_generator_);
+    franka::JointPositions joint_desired(traj_generator_->joint_desired_);
 
-      bool done = termination_handler_->should_terminate(traj_generator_);
-      franka::JointPositions joint_desired(traj_generator_->joint_desired_);
+    log_counter += 1;
+    if (log_counter % 1 == 0) {
+      robot_state_data->log_pose_desired(traj_generator_->pose_desired_);
+      robot_state_data->log_robot_state(robot_state, time);
+    }
 
-      log_counter += 1;
-      if (log_counter % 1 == 0) {
-        robot_state_data->log_pose_desired(traj_generator_->pose_desired_);
-        robot_state_data->log_robot_state(robot_state, time);
-      }
+    if(done or time >= traj_generator_->run_time_) {
+      return franka::MotionFinished(joint_desired);
+    }
+    return joint_desired;
+  };
 
-      if(done or time >= traj_generator_->run_time_) {
-        return franka::MotionFinished(joint_desired);
-      }
-      return joint_desired;
-    };
+  std::function<franka::Torques(const franka::RobotState&,
+      franka::Duration)> impedance_control_callback = [&](
+        const franka::RobotState& state, franka::Duration) -> franka::Torques {
+        feedback_controller_->get_next_step();
+        return feedback_controller_->tau_d_array_;
+      };
 
-    std::function<franka::Torques(const franka::RobotState&,
-        franka::Duration)> impedance_control_callback = [&](
-          const franka::RobotState& state, franka::Duration) -> franka::Torques {
-          feedback_controller_->get_next_step();
-          return feedback_controller_->tau_d_array_;
-        };
-
-    robot->robot_.control(impedance_control_callback, joint_pose_callback);
-
-  } catch (const franka::Exception& ex) {
-    run_loop::running_skills_ = false;
-    std::cerr << ex.what() << std::endl;
-    // Make sure we don't lose data.
-    robot_state_data->writeCurrentBufferData();
-
-    // print last 50 values
-    robot_state_data->printGlobalData(50);
-    robot_state_data->file_logger_thread_.join();
-  }
+  robot->robot_.control(impedance_control_callback, joint_pose_callback);
 }
 
 void JointPoseWithTorqueControlSkill::execute_meta_skill_on_franka(FrankaRobot *robot,

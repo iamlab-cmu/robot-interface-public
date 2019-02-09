@@ -165,6 +165,7 @@ void run_loop::update_process_info() {
                 boost::interprocess::defer_lock);
     try {
       if (lock.try_lock()) {
+        run_loop_info->reset_watchdog_counter();
         run_loop_info->set_is_running_skill(is_executing_skill);
 
         // We have a skill that we have finished. Make sure we update this in RunLoopProcessInfo.
@@ -339,8 +340,6 @@ void run_loop::setup_save_robot_state_thread() {
 void run_loop::setup_current_robot_state_io_thread() {
   int io_rate = 100;
   current_robot_state_io_thread_ = std::thread([&, io_rate]() {
-      std::chrono::steady_clock::time_point start_time = std::chrono::steady_clock::now();
-
       while (running_skills_) {
         std::this_thread::sleep_for(
             std::chrono::milliseconds(static_cast<int>((1.0 / io_rate * 1000.0))));
@@ -501,22 +500,41 @@ void run_loop::setup_current_robot_state_io_thread() {
   });
 }
 
+void run_loop::setup_watchdog_thread() {
+  int io_rate = 50;
+  watchdog_thread_ = std::thread([&, io_rate]() {
+      while (true) {
+        std::this_thread::sleep_for(
+            std::chrono::milliseconds(static_cast<int>((1.0 / io_rate * 1000.0))));
+          RunLoopProcessInfo* run_loop_info = shared_memory_handler_->getRunLoopProcessInfo();
+          boost::interprocess::scoped_lock<
+                  boost::interprocess::interprocess_mutex> lock(
+                      *(shared_memory_handler_->getRunLoopProcessInfoMutex()),
+                      boost::interprocess::defer_lock);
+          if (lock.try_lock()) {
+            run_loop_info->reset_watchdog_counter();
+          } 
+      }
+  });
+}
+
 void run_loop::setup_robot_default_behavior() {
   switch(robot_->robot_type_)
   {
     case RobotType::FRANKA: {
         // Set additional parameters always before the control loop, NEVER in the control loop!
         // Set collision behavior.
-        /*robot_->robot_.setCollisionBehavior(
-            {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}},
-            {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}},
-            {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}},
-            {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}});*/
         dynamic_cast<FrankaRobot* >(robot_)->robot_.setCollisionBehavior(
             {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{120.0, 120.0, 118.0, 118.0, 116.0, 114.0, 112.0}},
             {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{120.0, 120.0, 118.0, 118.0, 116.0, 114.0, 112.0}},
             {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{120.0, 120.0, 120.0, 125.0, 125.0, 125.0}},
             {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{120.0, 120.0, 120.0, 125.0, 125.0, 125.0}});
+        // TODO(jacky): Use these parameters to make robot super sensitive to collisions. Useful for testing collision error handling.
+        // dynamic_cast<FrankaRobot* >(robot_)->robot_.setCollisionBehavior(
+        //     {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}},
+        //     {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}},
+        //     {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}},
+        //     {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}});
 
         dynamic_cast<FrankaRobot* >(robot_)->robot_.setJointImpedance({{3000, 3000, 3000, 2500, 2500, 2000, 2000}});
         dynamic_cast<FrankaRobot* >(robot_)->robot_.setCartesianImpedance({{3000, 3000, 3000, 300, 300, 300}});
@@ -548,6 +566,15 @@ void run_loop::log_skill_info(BaseSkill* skill) {
   std::cout << log_desc << "\n" << std::endl;
 };
 
+void run_loop::set_robolib_status(bool is_ready, std::string error_message) {
+  RunLoopProcessInfo* run_loop_info = shared_memory_handler_->getRunLoopProcessInfo();
+    boost::interprocess::scoped_lock<
+            boost::interprocess::interprocess_mutex> lock(
+                *(shared_memory_handler_->getRunLoopProcessInfoMutex()));
+  run_loop_info->set_is_ready(is_ready);
+  run_loop_info->set_error_description(error_message);
+}
+
 void run_loop::run_on_franka() {
   // Wait for sometime to let the client add data to the buffer
   std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -556,61 +583,90 @@ void run_loop::run_on_franka() {
   auto milli = std::chrono::milliseconds(1);
 
   setup_robot_default_behavior();
+  setup_watchdog_thread();
+  setup_data_loggers();
+  setup_current_robot_state_io_thread();
+  
+  // TODO(Mohit): This causes a weird race condition between reading the robot state and 
+  // running the control loop. It prevents iam_robolib from running when robot is in guide mode.
+  // setup_save_robot_state_thread();
 
-  try {
-    running_skills_ = true;
-    setup_data_loggers();
-    setup_current_robot_state_io_thread();
-    // TODO(Mohit): This causes a weird race condition between reading the robot state and 
-    // running the control loop. It prevents iam_robolib from running when robot is in guide mode.
-    // setup_save_robot_state_thread();
+  while (true) {
+    try {
+      running_skills_ = true;
+      set_robolib_status(true, "");
 
-    while (1) {
-      start = std::chrono::high_resolution_clock::now();
+      while (true) {
+        start = std::chrono::high_resolution_clock::now();
 
-      // Execute the current skill (traj_generator, FBC are here)
-      BaseSkill* skill = skill_manager_.get_current_skill();
-      BaseMetaSkill *meta_skill = skill_manager_.get_current_meta_skill();
+        // Execute the current skill (traj_generator, FBC are here)
+        BaseSkill* skill = skill_manager_.get_current_skill();
+        BaseMetaSkill *meta_skill = skill_manager_.get_current_meta_skill();
 
-      // NOTE: We keep on running the last skill even if it is finished!!
-      if (skill != nullptr && meta_skill != nullptr) {
-        if (!meta_skill->isComposableSkill() && !skill->get_termination_handler()->done_) {
-          // Execute skill.
-          log_skill_info(skill);
-          meta_skill->execute_skill_on_franka(this, dynamic_cast<FrankaRobot* >(robot_), robot_state_data_);
-        } else if (meta_skill->isComposableSkill()) {
-          log_skill_info(skill);
-          meta_skill->execute_skill_on_franka(this, dynamic_cast<FrankaRobot* >(robot_), robot_state_data_);
-        } else {
-          finish_current_skill(skill);
-          std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        // NOTE: We keep on running the last skill even if it is finished!!
+        if (skill != nullptr && meta_skill != nullptr) {
+          if (!meta_skill->isComposableSkill() && !skill->get_termination_handler()->done_) {
+            // Execute skill.
+            log_skill_info(skill);
+            meta_skill->execute_skill_on_franka(this, dynamic_cast<FrankaRobot* >(robot_), robot_state_data_);
+          } else if (meta_skill->isComposableSkill()) {
+            log_skill_info(skill);
+            meta_skill->execute_skill_on_franka(this, dynamic_cast<FrankaRobot* >(robot_), robot_state_data_);
+          } else {
+            finish_current_skill(skill);
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+          }
         }
+
+        // Complete old skills and acquire new skills
+        update_process_info();
+
+        // Start new skill, if possible
+        BaseSkill* new_skill = skill_manager_.get_current_skill();
+        if (should_start_new_skill(skill, new_skill)) {
+          std::cout << "Will start skill\n";
+          start_new_skill(new_skill);
+        }
+
+        // Sleep to maintain 1Khz frequency, not sure if this is required or not.
+        auto finish = std::chrono::high_resolution_clock::now();
+        // Wait for start + milli - finish
+        auto elapsed = start + milli - finish;
+        // TODO(Mohit): We need to sleep for now because the ROS client side sends messasges sequentially
+        // and hence we have skills being repeated because the new skill arrives with a delay.
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
       }
+    } catch (const franka::Exception& ex) {
+      std::cout << "Caught Franka Exception\n";
+      running_skills_ = false;
 
-      // Complete old skills and acquire new skills
-      update_process_info();
+      // // Alert franka_action_lib that an exception has occurred      
+      std::string error_description = ex.what();
+      set_robolib_status(false, error_description);
 
-      // Start new skill, if possible
-      BaseSkill* new_skill = skill_manager_.get_current_skill();
-      if (should_start_new_skill(skill, new_skill)) {
-        std::cout << "Will start skill\n";
-        start_new_skill(new_skill);
-      }
+      // Log data
+      std::cout << "Franka exception occurred during control loop. Will reset." << std::endl;
+      std::cerr << error_description << std::endl;
+      robot_state_data_->writeCurrentBufferData();
+      robot_state_data_->printGlobalData(50);
 
-      // Sleep to maintain 1Khz frequency, not sure if this is required or not.
-      auto finish = std::chrono::high_resolution_clock::now();
-      // Wait for start + milli - finish
-      auto elapsed = start + milli - finish;
-      // TODO(Mohit): We need to sleep for now because the ROS client side sends messasges sequentially
-      // and hence we have skills being repeated because the new skill arrives with a delay.
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      // Clear buffers and reset stateful variables about skills
+      RunLoopProcessInfo* run_loop_info = shared_memory_handler_->getRunLoopProcessInfo();
+      boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> run_loop_info_lock(
+          *(shared_memory_handler_->getRunLoopProcessInfoMutex())
+        );
+      run_loop_info->reset_skill_vars();
+
+      skill_manager_.clear_skill_and_meta_skill_list();
+      shared_memory_handler_->clearAllBuffers();
+      robot_state_data_->clearAllBuffers();
+
+      // Perform error recovery
+      robot_->automaticErrorRecovery();
+
+      std::cout << "Error recovery finished\n";
+      continue;
     }
-  } catch (const franka::Exception& ex) {
-    std::cout << "Franka exception occurred during control loop. Will exit." << std::endl;
-    std::cerr << ex.what() << std::endl;
-    logger_.print_error_log();
-    logger_.print_warning_log();
-    logger_.print_info_log();
   }
 
   if (print_thread_.joinable()) {

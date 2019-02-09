@@ -75,8 +75,8 @@ class SharedMemoryInfo {
    */
   int getSizeForExecutionFeedbackData();
   int getOffsetForExecutionFeedbackData();
-  int getSizeForExecutionReturnData();
-  int getOffsetForExecutionReturnData();
+  int getSizeForExecutionResultData();
+  int getOffsetForExecutionResultData();
 
 
  private:
@@ -120,7 +120,7 @@ class SharedMemoryInfo {
   const int extra_sensor_data_buffer_size_ = 1024 * sizeof(float);
 
   const int execution_response_feedback_size_= 1024 * sizeof(float);
-  const int execution_response_return_size_= 1024 * sizeof(float);
+  const int execution_response_result_size_= 1024 * sizeof(float);
 
   const int current_robot_state_size_= 300 * sizeof(float);
 

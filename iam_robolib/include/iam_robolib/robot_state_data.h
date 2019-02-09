@@ -104,6 +104,8 @@ class RobotStateData {
   void log_gripper_state(franka::GripperState gripper_state);
   void log_skill_info(std::string info);
 
+  void clearAllBuffers();
+
  private:
   FileStreamLogger *file_logger_ = nullptr;
 
