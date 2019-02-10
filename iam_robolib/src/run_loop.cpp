@@ -302,36 +302,41 @@ void run_loop::run() {
 }
 
 void run_loop::setup_save_robot_state_thread() {
-  int print_rate = 100;   // The below thread will print at 10 FPS.
-  print_thread_ = std::thread([&, print_rate]() {
+  int io_rate = 100;   // The below thread will print at 10 FPS.
+  robot_state_read_thread_ = std::thread([&, io_rate]() {
       // Sleep to achieve the desired print rate.
       std::chrono::steady_clock::time_point start_time = std::chrono::steady_clock::now();
-      while (running_skills_) {
+      while (true) {
         std::this_thread::sleep_for(
-            std::chrono::milliseconds(static_cast<int>((1.0 / print_rate * 1000.0))));
+            std::chrono::milliseconds(static_cast<int>((1.0 / io_rate * 1000.0))));
+
+        if (!running_skills_) {
+          continue;
+        }
+
         // Try to lock data to avoid read write collisions.
         try {
           switch(robot_->robot_type_)
           {
             case RobotType::FRANKA: {
-                franka::RobotState robot_state = dynamic_cast<FrankaRobot* >(robot_)->getRobotState();
-                // franka::GripperState gripper_state = gripper_.readOnce();
-                // TODO(jacky): is this duration still needed?
+                FrankaRobot* franka_robot = dynamic_cast<FrankaRobot* >(robot_);
+                franka::RobotState robot_state = franka_robot->getRobotState();
+                franka::GripperState gripper_state = franka_robot->getGripperState();
+
                 double duration = std::chrono::duration_cast<std::chrono::milliseconds>(
                     std::chrono::steady_clock::now() - start_time).count();
+
                 robot_state_data_->log_pose_desired(robot_state.O_T_EE_d); // Fictitious call to log pose desired so pose_desired buffer length matches during non-skill execution
                 robot_state_data_->log_robot_state(robot_state, duration / 1000.0);
-                // robot_state_data_->log_gripper_state(gripper_state);
-                // std::cout << duration / 1000.0 << "\n";
+                robot_state_data_->log_gripper_state(gripper_state);
               }
               break;
             case RobotType::UR5E:
               break;
           }
-          
         } catch (const franka::InvalidOperationException& ex) {
-          // Some other control thread is running let's wait and try again.
-          std::cerr << "Cannot read robot state for logging. Will continue. " << ex.what() << std::endl;
+          // Control loops should be handling logging when they're running.
+          continue;
         }
       }
   });
@@ -340,15 +345,13 @@ void run_loop::setup_save_robot_state_thread() {
 void run_loop::setup_current_robot_state_io_thread() {
   int io_rate = 100;
   current_robot_state_io_thread_ = std::thread([&, io_rate]() {
-      while (running_skills_) {
+      while (true) {
         std::this_thread::sleep_for(
             std::chrono::milliseconds(static_cast<int>((1.0 / io_rate * 1000.0))));
 
-          if (robot_state_data_ == nullptr) {
+          if (!running_skills_ || robot_state_data_ == nullptr) {
             continue;
           }
-          // Try to lock data to avoid read write collisions.
-          std::cout << "Log robot state will try to get lock\n";
           
           if (robot_state_data_->use_buffer_0) {
             if (robot_state_data_->log_robot_state_0_.size() > 0 && robot_state_data_->buffer_0_mutex_.try_lock()) {
@@ -403,7 +406,6 @@ void run_loop::setup_current_robot_state_io_thread() {
 
                   double_val = robot_state_data_->log_control_time_0_.back();
                   current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
-                  std::cout << "robot state time: " << static_cast<float>(double_val) << "\n";
 
                   if (robot_state_data_->log_gripper_width_0_.size() > 0) {
                     double_val = robot_state_data_->log_gripper_width_0_.back();
@@ -586,10 +588,7 @@ void run_loop::run_on_franka() {
   setup_watchdog_thread();
   setup_data_loggers();
   setup_current_robot_state_io_thread();
-  
-  // TODO(Mohit): This causes a weird race condition between reading the robot state and 
-  // running the control loop. It prevents iam_robolib from running when robot is in guide mode.
-  // setup_save_robot_state_thread();
+  setup_save_robot_state_thread();
 
   while (true) {
     try {
@@ -669,8 +668,8 @@ void run_loop::run_on_franka() {
     }
   }
 
-  if (print_thread_.joinable()) {
-    print_thread_.join();
+  if (robot_state_read_thread_.joinable()) {
+    robot_state_read_thread_.join();
   }
   if (current_robot_state_io_thread_.joinable()) {
     current_robot_state_io_thread_.join();

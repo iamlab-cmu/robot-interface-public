@@ -138,7 +138,7 @@ class run_loop {
 
   Robot *robot_;
 
-  std::thread print_thread_{};
+  std::thread robot_state_read_thread_{};
   std::thread current_robot_state_io_thread_{};
   std::thread watchdog_thread_{};
 
