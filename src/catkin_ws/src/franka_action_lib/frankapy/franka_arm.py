@@ -113,7 +113,7 @@ class FrankaArm:
         Raises:
             FrankaArmCollisionException if a collision is detected
         '''
-        if pose.from_frame != 'franka_tool' or pose.to_frame != 'world':
+        if tool_pose.from_frame != 'franka_tool' or tool_pose.to_frame != 'world':
             raise ValueError('pose has invalid frame names! Make sure pose has from_frame=franka_tool and to_frame=world')
 
         tool_base_pose = tool_pose * self._tool_delta_pose.inverse()
