@@ -1,5 +1,7 @@
 import logging
 import math
+import numpy as np
+from autolab_core import RigidTransform
 
 class FrankaConstants:
 
@@ -14,6 +16,12 @@ class FrankaConstants:
     DEFAULT_TERM_PARAMS = [1]
 
     HOME_JOINTS = [0, -math.pi / 4, 0, -3 * math.pi / 4, 0, math.pi / 2, math.pi / 4]
+    HOME_POSE = RigidTransform(rotation=np.array([
+            [1, 0, 0],
+            [0, -1, 0],
+            [0, 0, -1],
+        ]), translation=np.array([0.3069, 0, 0.4867]),
+        from_frame='franka_tool', to_frame='world')
 
     # See https://frankaemika.github.io/docs/control_parameters.html
     JOINT_LIMITS_MIN = [-2.8973, -1.7628, -2.8973, -3.0718, -2.8973, -0.0175, -2.8973]

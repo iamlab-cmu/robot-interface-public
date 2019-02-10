@@ -351,11 +351,13 @@ class FrankaArm:
     '''
     def reset_joints(self):
         '''Commands Arm to goto hardcoded home joint configuration
-
-        Raises:
-            FrankaArmCollisionException if a collision is detected
         '''
         self.goto_joints(FC.HOME_JOINTS, duration=5)
+
+    def reset_pose(self):
+        '''Commands Arm to goto hardcoded home pose
+        '''
+        self.goto_pose(FC.HOME_POSE, duration=5)
 
     def is_joints_reachable(self, joints):
         '''
