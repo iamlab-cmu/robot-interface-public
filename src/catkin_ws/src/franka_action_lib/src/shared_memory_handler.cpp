@@ -498,40 +498,46 @@ namespace franka_action_lib
   franka_action_lib::RobotState SharedMemoryHandler::getRobotState() {
     franka_action_lib::RobotState robot_state;
 
-    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> current_robot_state_lock(*shared_current_robot_state_mutex_);
-    robot_state.header.stamp = ros::Time::now();
+    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> current_robot_state_lock(*shared_current_robot_state_mutex_, boost::interprocess::defer_lock);
+    if (current_robot_state_lock.try_lock()) {
+      robot_state.header.stamp = ros::Time::now();
 
-    size_t offset = 0;
-    memcpy(&robot_state.pose_desired, &current_robot_state_buffer_[offset], robot_state.pose_desired.size() * sizeof(float));
-    offset += robot_state.pose_desired.size();
+      size_t offset = 0;
+      memcpy(&robot_state.pose_desired, &current_robot_state_buffer_[offset], robot_state.pose_desired.size() * sizeof(float));
+      offset += robot_state.pose_desired.size();
 
-    memcpy(&robot_state.pose, &current_robot_state_buffer_[offset], robot_state.pose.size() * sizeof(float));
-    offset += robot_state.pose.size();
-    
-    memcpy(&robot_state.joint_torques, &current_robot_state_buffer_[offset], robot_state.joint_torques.size() * sizeof(float));
-    offset += robot_state.joint_torques.size();
+      memcpy(&robot_state.pose, &current_robot_state_buffer_[offset], robot_state.pose.size() * sizeof(float));
+      offset += robot_state.pose.size();
+      
+      memcpy(&robot_state.joint_torques, &current_robot_state_buffer_[offset], robot_state.joint_torques.size() * sizeof(float));
+      offset += robot_state.joint_torques.size();
 
-    memcpy(&robot_state.joint_torques_derivative, &current_robot_state_buffer_[offset], robot_state.joint_torques_derivative.size() * sizeof(float));
-    offset += robot_state.joint_torques_derivative.size();
-    
-    memcpy(&robot_state.joints, &current_robot_state_buffer_[offset], robot_state.joints.size() * sizeof(float));
-    offset += robot_state.joints.size();
-    
-    memcpy(&robot_state.joints_desired, &current_robot_state_buffer_[offset], robot_state.joints_desired.size() * sizeof(float));
-    offset += robot_state.joints_desired.size();
-    
-    memcpy(&robot_state.joint_velocities, &current_robot_state_buffer_[offset], robot_state.joint_velocities.size() * sizeof(float));
-    offset += robot_state.joint_velocities.size();
-    
-    robot_state.time_since_skill_started = current_robot_state_buffer_[offset++];
+      memcpy(&robot_state.joint_torques_derivative, &current_robot_state_buffer_[offset], robot_state.joint_torques_derivative.size() * sizeof(float));
+      offset += robot_state.joint_torques_derivative.size();
+      
+      memcpy(&robot_state.joints, &current_robot_state_buffer_[offset], robot_state.joints.size() * sizeof(float));
+      offset += robot_state.joints.size();
+      
+      memcpy(&robot_state.joints_desired, &current_robot_state_buffer_[offset], robot_state.joints_desired.size() * sizeof(float));
+      offset += robot_state.joints_desired.size();
+      
+      memcpy(&robot_state.joint_velocities, &current_robot_state_buffer_[offset], robot_state.joint_velocities.size() * sizeof(float));
+      offset += robot_state.joint_velocities.size();
+      
+      robot_state.time_since_skill_started = current_robot_state_buffer_[offset++];
 
-    robot_state.gripper_width = current_robot_state_buffer_[offset++];
+      robot_state.gripper_width = current_robot_state_buffer_[offset++];
 
-    robot_state.gripper_is_grasped = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.gripper_is_grasped = current_robot_state_buffer_[offset++] == 1 ? true : false;
 
-    // Grab the lock of the run_loop_info_mutex_
-    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> run_loop_info_lock(*run_loop_info_mutex_);
-    robot_state.skill_description = run_loop_process_info_->get_new_skill_description();
+      // Grab the lock of the run_loop_info_mutex_
+      boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> run_loop_info_lock(*run_loop_info_mutex_);
+      robot_state.skill_description = run_loop_process_info_->get_new_skill_description();
+
+      robot_state.is_fresh = true;
+    } else {
+      robot_state.is_fresh = false;
+    }
 
     return robot_state;
   }
