@@ -23,6 +23,9 @@ namespace franka_action_lib
 
       double publish_frequency_;
       franka_action_lib::SharedMemoryHandler shared_memory_handler_;
+      
+      bool has_seen_one_robot_state_;
+      franka_action_lib::RobotState last_robot_state_;
 
     public:
 

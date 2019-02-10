@@ -15,7 +15,18 @@ namespace franka_action_lib
     while (ros::ok())
     {
         franka_action_lib::RobotState robot_state_ = shared_memory_handler_.getRobotState();
-        robot_state_pub_.publish(robot_state_);
+
+        if (robot_state_.is_fresh) {
+          robot_state_pub_.publish(robot_state_);
+
+          has_seen_one_robot_state_ = true;
+          last_robot_state_ = robot_state_;
+          last_robot_state_.is_fresh = false;
+        } else {
+          if (has_seen_one_robot_state_) {
+            robot_state_pub_.publish(last_robot_state_);
+          }
+        }
 
         ros::spinOnce();
         loop_rate.sleep();
