@@ -11,3 +11,4 @@ float32 time_since_skill_started
 float32 gripper_width
 bool gripper_is_grasped
 string skill_description
+bool is_fresh
