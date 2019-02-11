@@ -639,13 +639,12 @@ void run_loop::run_on_franka() {
       std::cout << "Caught Franka Exception\n";
       running_skills_ = false;
 
-      // // Alert franka_action_lib that an exception has occurred      
+      // Alert franka_action_lib that an exception has occurred      
       std::string error_description = ex.what();
       set_robolib_status(false, error_description);
+      std::cerr << error_description << std::endl;
 
       // Log data
-      std::cout << "Franka exception occurred during control loop. Will reset." << std::endl;
-      std::cerr << error_description << std::endl;
       robot_state_data_->writeCurrentBufferData();
       robot_state_data_->printGlobalData(50);
 
