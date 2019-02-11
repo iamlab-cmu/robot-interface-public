@@ -22,6 +22,12 @@ class FrankaConstants:
             [0, 0, -1],
         ]), translation=np.array([0.3069, 0, 0.4867]),
         from_frame='franka_tool', to_frame='world')
+    READY_POSE = RigidTransform(rotation=np.array([
+            [1, 0, 0],
+            [0, -1, 0],
+            [0, 0, -1],
+        ]), translation=np.array([0.3069, 0, 0.2867]),
+        from_frame='franka_tool', to_frame='world')
 
     # See https://frankaemika.github.io/docs/control_parameters.html
     JOINT_LIMITS_MIN = [-2.8973, -1.7628, -2.8973, -3.0718, -2.8973, -0.0175, -2.8973]
