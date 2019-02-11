@@ -44,8 +44,7 @@ while getopts ':h:a:u:p:' option; do
 done
 shift $((OPTIND - 1))
 
-workstation_ip_address="`hostname -I`"
-workstation_uname="iam-lab"
+workstation_ip_address="`hostname`"
 
 # Notify the IP addresses being used.
 echo "Control PC IP uname/address: "$control_pc_uname", "$control_pc_ip_address
