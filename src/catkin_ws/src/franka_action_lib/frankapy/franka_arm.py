@@ -188,32 +188,37 @@ class FrankaArm:
         '''
         pass
 
-    def apply_effector_forces_torques(self, duration, forces=None, torques=None):
+    def apply_effector_forces_torques(self, run_duration, acc_duration, forces=None, torques=None):
         '''Applies the given end-effector forces and torques in N and Nm
 
         Args:
-            duration (float): A float in the unit of seconds
+            run_duration (float): A float in the unit of seconds
+            acc_duration (float): A float in the unit of seconds. How long to acc/de-acc to achieve desired force. 
             forces (list): Optional (defaults to None). 
                 A list of 3 numbers that correspond to end-effector forces in 3 directions
             torques (list): Optional (defaults to None).
                 A list of 3 numbers that correspond to end-effector torques in 3 axes
 
         Raises:
+            ValueError if acc_duration > 0.5*run_duration, or if forces are too large
             FrankaArmCollisionException if a collision is detected
         '''
+        if acc_duration > 0.5 * run_duration:
+            raise ValueError('acc_duration must be smaller than half of run_duration!')
+            
         forces = [0, 0, 0] if forces is None else np.array(forces).tolist()
         torques = [0, 0, 0] if torques is None else np.array(torques).tolist()
 
-        if np.linalg.norm(forces) > FC.MAX_FORCE_NORM:
-            raise ValueError('Force magnitude exceeds safety threshold of {}'.format(FC.MAX_FORCE_NORM))
-        if np.linalg.norm(torques) > FC.MAX_TORQUE_NORM:
-            raise ValueError('Torque magnitude exceeds safety threshold of {}'.format(FC.MAX_TORQUE_NORM))
+        if np.linalg.norm(forces) * run_duration > FC.MAX_LIN_MOMENTUM:
+            raise ValueError('Linear momentum magnitude exceeds safety threshold of {}'.format(FC.MAX_LIN_MOMENTUM))
+        if np.linalg.norm(torques) * run_duration > FC.MAX_ANG_MOMENTUM:
+            raise ValueError('Angular momentum magnitude exceeds safety threshold of {}'.format(FC.MAX_ANG_MOMENTUM))
 
         skill = ForceTorqueSkill()
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
-        skill.add_termination_params([duration])
+        skill.add_termination_params([0])
 
-        skill.add_trajectory_params([0] + forces + torques)
+        skill.add_trajectory_params([run_duration, acc_duration] + forces + torques)
         goal = skill.create_goal()
         
         self._send_goal(goal, cb=lambda x: skill.feedback_callback(x))
