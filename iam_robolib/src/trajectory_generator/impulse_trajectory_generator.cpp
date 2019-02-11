@@ -12,13 +12,12 @@ void ImpulseTrajectoryGenerator::parse_parameters() {
   // First parameter is reserved for the type
 
   int num_params = static_cast<int>(params_[1]);
-  if (num_params == 9) {
-    run_time_ = static_cast<double>(params_[3]);
-    acc_time_ = static_cast<double>(params_[4]);
+  if (num_params == 8) {
+    run_time_ = static_cast<double>(params_[2]);
+    acc_time_ = static_cast<double>(params_[3]);
     for (int i = 0; i < force_torque_target_.size(); i++) {
-      force_torque_target_[i] = static_cast<double>(params_[i + 5]);
+      force_torque_target_[i] = static_cast<double>(params_[i + 4]);
     }
-
   } else {
     std::cout << "Incorrect number of params given: " << num_params << std::endl;
   }
