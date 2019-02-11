@@ -8,10 +8,11 @@
 #include "iam_robolib/skills/base_skill.h"
 #include "iam_robolib/trajectory_generator/dmp_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/gripper_open_trajectory_generator.h"
-#include "iam_robolib/trajectory_generator/linear_joint_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/counter_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/linear_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/linear_trajectory_generator_with_time_and_goal.h"
+#include "iam_robolib/trajectory_generator/linear_joint_trajectory_generator.h"
+#include "iam_robolib/trajectory_generator/min_jerk_joint_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/relative_linear_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/stay_in_initial_position_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/impulse_trajectory_generator.h"
@@ -42,6 +43,8 @@ TrajectoryGenerator* TrajectoryGeneratorFactory::getTrajectoryGeneratorForSkill(
     traj_generator = new RelativeLinearTrajectoryGenerator(buffer);
   } else if (traj_gen_id == 9) {
     traj_generator = new ImpulseTrajectoryGenerator(buffer);
+  } else if (traj_gen_id == 10) {
+    traj_generator = new MinJerkJointTrajectoryGenerator(buffer);
   } else {
     // Cannot create Trajectory generator for this skill. Throw error
     std::cout << "Cannot create TrajectoryGenerator with class_id:" << traj_gen_id << "\n";
