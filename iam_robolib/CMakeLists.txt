@@ -60,6 +60,7 @@ add_library(iam_robolib SHARED
   src/trajectory_generator/linear_joint_trajectory_generator.cpp
   src/trajectory_generator/linear_trajectory_generator.cpp
   src/trajectory_generator/linear_trajectory_generator_with_time_and_goal.cpp
+  src/trajectory_generator/min_jerk_joint_trajectory_generator.cpp
   src/trajectory_generator/relative_linear_trajectory_generator.cpp
   src/trajectory_generator/stay_in_initial_position_trajectory_generator.cpp
   src/trajectory_generator/trajectory_generator.cpp

@@ -178,7 +178,7 @@ class FrankaArm:
         if not self.is_joints_reachable(joints):
             raise ValueError('Joints not reachable!')
 
-        skill = JointPoseWithDefaultSensorSkill()
+        skill = JointPoseMinJerkWithDefaultSensorSkill()
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_termination_params(FC.DEFAULT_TERM_PARAMS)
 
