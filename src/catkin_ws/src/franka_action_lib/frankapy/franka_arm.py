@@ -21,7 +21,7 @@ from .franka_constants import FrankaConstants as FC
 
 class FrankaArm:
 
-    def __init__(self, rosnode_name='franka_arm_client'):
+    def __init__(self, rosnode_name='franka_arm_client', ros_log_level=rospy.INFO):
         self._connected = False 
         self._in_skill = False
 
@@ -29,7 +29,7 @@ class FrankaArm:
         signal.signal(signal.SIGINT, self._sigint_handler_gen())
 
         # init ROS
-        rospy.init_node(rosnode_name, disable_signals=True)
+        rospy.init_node(rosnode_name, disable_signals=True, log_level=ros_log_level)
 
         self._robolib_status_q = Queue(maxsize=1)
         def robolib_status_callback(robolib_status):
@@ -99,13 +99,14 @@ class FrankaArm:
 
             if e is not None:
                 if retry:
-                    logging.warning('Got error: {}. Waiting and retrying...'.format(e))
+                    logging.warn('Got error: {}. Waiting and retrying...'.format(e))
                     self.wait_for_robolib()
+                    self._client.send_goal(goal, feedback_cb=cb)
                     continue
                 else:
                     raise e
 
-            done = self._client.wait_for_result(rospy.Duration.from_sec(FC.ACTION_WAIT_LOOP_TIME))            
+            done = self._client.wait_for_result(rospy.Duration.from_sec(FC.ACTION_WAIT_LOOP_TIME))
 
         self._in_skill = False
         return self._client.get_result()
