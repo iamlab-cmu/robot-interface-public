@@ -18,6 +18,7 @@ void ImpulseTrajectoryGenerator::parse_parameters() {
     for (int i = 0; i < force_torque_target_.size(); i++) {
       force_torque_target_[i] = static_cast<double>(params_[i + 4]);
     }
+
   } else {
     std::cout << "Incorrect number of params given: " << num_params << std::endl;
   }

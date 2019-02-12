@@ -1,4 +1,4 @@
-import sys, signal
+import sys, signal, logging
 from time import time, sleep
 from multiprocessing import Queue
 try:
@@ -56,12 +56,13 @@ class FrankaArm:
         '''Blocks execution until robolib gives ready signal.    
         '''
         timeout = FC.DEFAULT_ROBOLIB_TIMEOUT if timeout is None else timeout
-        try:
-            robolib_status = self._robolib_status_q.get(block=True, timeout=timeout)
-        except Empty:
-            raise FrankaArmCommException('could not get status after {}s'.format(timeout))
-        if not robolib_status.is_ready:
-            raise FrankaArmRobolibNotReadyException()
+        while True:
+            try:
+                robolib_status = self._robolib_status_q.get(block=True, timeout=timeout)
+            except Empty:
+                raise FrankaArmCommException('Could not get status after {}s'.format(timeout))
+            if robolib_status.is_ready:
+                break
 
     def _sigint_handler_gen(self):
         def sigint_handler(sig, frame):
@@ -71,7 +72,7 @@ class FrankaArm:
 
         return sigint_handler
 
-    def _send_goal(self, goal, cb):
+    def _send_goal(self, goal, cb, retry=True):
         '''
         Raises:
             FrankaArmCommException if a timeout is reached
@@ -88,12 +89,22 @@ class FrankaArm:
             except Empty:
                 raise FrankaArmCommException('timeout reached after {}s'.format(FC.DEFAULT_ROBOLIB_TIMEOUT))
 
+            e = None
             if rospy.is_shutdown():
                 raise RuntimeError('rospy is down!')
             elif robolib_status.error_description:
-                raise FrankaArmException(robolib_status.error_description)
+                e = FrankaArmException(robolib_status.error_description)
             elif not robolib_status.is_ready:
-                raise FrankaArmRobolibNotReadyException()
+                e = FrankaArmRobolibNotReadyException()
+
+            if e is not None:
+                if retry:
+                    logging.warning('Got error: {}. Waiting and retrying...'.format(e))
+                    self.wait_for_robolib()
+                    continue
+                else:
+                    raise e
+
             done = self._client.wait_for_result(rospy.Duration.from_sec(FC.ACTION_WAIT_LOOP_TIME))            
 
         self._in_skill = False
@@ -103,7 +114,7 @@ class FrankaArm:
     Controls
     '''
 
-    def goto_pose(self, tool_pose, duration=3):
+    def goto_pose(self, tool_pose, duration=3, retry=True):
         '''Commands Arm to the given pose via linear interpolation
 
         Args:
@@ -126,9 +137,9 @@ class FrankaArm:
         skill.add_trajectory_params([duration] + tool_base_pose.matrix.T.flatten().tolist())
         goal = skill.create_goal()
         
-        self._send_goal(goal, cb=lambda x: skill.feedback_callback(x))
+        self._send_goal(goal, cb=lambda x: skill.feedback_callback(x), retry=retry)
 
-    def goto_pose_delta(self, delta_tool_pose, duration=3):
+    def goto_pose_delta(self, delta_tool_pose, duration=3, retry=True):
         '''Commands Arm to the given delta pose via linear interpolation
 
         Args:
@@ -151,9 +162,9 @@ class FrankaArm:
         skill.add_trajectory_params([duration] + delta_tool_base_pose.translation.tolist() + delta_tool_base_pose.quaternion.tolist())
         goal = skill.create_goal()
         
-        self._send_goal(goal, cb=lambda x: skill.feedback_callback(x))
+        self._send_goal(goal, cb=lambda x: skill.feedback_callback(x), retry=retry)
         
-    def goto_joints(self, joints, duration=3):
+    def goto_joints(self, joints, duration=3, retry=True):
         '''Commands Arm to the given joint configuration
 
         Args:
@@ -174,9 +185,9 @@ class FrankaArm:
         skill.add_trajectory_params([duration] + np.array(joints).tolist())
         goal = skill.create_goal()
         
-        self._send_goal(goal, cb=lambda x: skill.feedback_callback(x))
+        self._send_goal(goal, cb=lambda x: skill.feedback_callback(x), retry=retry)
     
-    def apply_joint_torques(self, torques, duration):
+    def apply_joint_torques(self, torques, duration, retry=True):
         '''Commands Arm to apply given joint torques for duration seconds
 
         Args:
@@ -188,7 +199,7 @@ class FrankaArm:
         '''
         pass
 
-    def apply_effector_forces_torques(self, run_duration, acc_duration, forces=None, torques=None):
+    def apply_effector_forces_torques(self, run_duration, acc_duration, forces=None, torques=None, retry=True):
         '''Applies the given end-effector forces and torques in N and Nm
 
         Args:
@@ -221,9 +232,9 @@ class FrankaArm:
         skill.add_trajectory_params([run_duration, acc_duration] + forces + torques)
         goal = skill.create_goal()
         
-        self._send_goal(goal, cb=lambda x: skill.feedback_callback(x))
+        self._send_goal(goal, cb=lambda x: skill.feedback_callback(x), retry=retry)
 
-    def goto_gripper(self, width, speed=0.04, force=None):
+    def goto_gripper(self, width, speed=0.04, force=None, retry=True):
         '''Commands gripper to goto a certain width, applying up to the given (default is max) force if needed
 
         Args:
@@ -245,7 +256,7 @@ class FrankaArm:
             
         goal = skill.create_goal()
 
-        self._send_goal(goal, cb=lambda x: skill.feedback_callback(x))
+        self._send_goal(goal, cb=lambda x: skill.feedback_callback(x), retry=retry)
 
     def open_gripper(self):
         '''Opens gripper to maximum width
