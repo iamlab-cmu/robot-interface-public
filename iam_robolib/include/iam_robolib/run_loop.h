@@ -131,8 +131,8 @@ class run_loop {
    */
   void finish_current_skill(BaseSkill* skill);
 
-  // TODO(jacky): this isn't actually being used. should implement this properly by introducing exit conditions on threads.
-  static std::atomic<bool> running_skills_;
+  static std::atomic<bool> run_loop_ok_;
+  static std::atomic<bool> running_skill_;
 
  private:
 
