@@ -49,6 +49,7 @@ namespace franka_action_lib
     while (done_skill_id < skill_id) {
       robolib_status_ = shared_memory_handler_.getRobolibStatus();
       if (!robolib_status_.is_ready) {
+        ROS_INFO("robolib status is not ready\n");
         as_.setAborted();
         break;
       }
@@ -81,17 +82,16 @@ namespace franka_action_lib
     ROS_INFO("Skill terminated id = %d", skill_id);
 
     shared_memory_handler_.setNewSkillDescriptionInSharedMemory("");
+    result_ = shared_memory_handler_.getSkillResult(skill_id);
     if (done_skill_id != -1 && (done_skill_id == skill_id || done_skill_id == skill_id + 1)) {
       // Get execution result from shared memory
-      result_ = shared_memory_handler_.getSkillResult(skill_id);
       ROS_INFO("%s: Succeeded", action_name_.c_str());
       // set the action state to succeeded
       as_.setSucceeded(result_);
     } else if (as_.isPreemptRequested()) {
       ROS_INFO("Skill was preempted. skill_id = %d", skill_id);
-      result_ = shared_memory_handler_.getSkillResult(skill_id);
     } else {
-      ROS_ERROR("done_skill_id error: done_skill_id = %d, skill_id = %d", done_skill_id, skill_id);
+      ROS_WARN("done_skill_id error: done_skill_id = %d, skill_id = %d", done_skill_id, skill_id);
     }
   }
 }

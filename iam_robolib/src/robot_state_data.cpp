@@ -159,9 +159,14 @@ void RobotStateData::clearAllBuffers() {
 void RobotStateData::startFileLoggerThread() {
     file_logger_thread_ = std::thread([&]() {
       // Sleep to achieve the desired print rate.
-      while (run_loop::running_skills_) {
+      while (true) {
           std::this_thread::sleep_for(
               std::chrono::milliseconds(static_cast<int>((1.0 / log_rate_ * 1000.0))));
+
+          if (!run_loop::run_loop_ok_) {
+            continue;
+          }
+          
           // Try to lock data to avoid read write collisions.
           bool did_write_to_buffer_0 = false;
 

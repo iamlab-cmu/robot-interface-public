@@ -35,6 +35,7 @@ namespace franka_action_lib
           // TODO(jacky): MAGIC NUMBER - Signal not ok if 10 consecutive robolib statuses have been stale. Roughly 100 ms
           if (stale_count > 10) {
             robolib_status_.is_ready = false;
+            robolib_status_.is_fresh = false;
           }
 
           // publish

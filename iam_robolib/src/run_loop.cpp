@@ -26,7 +26,8 @@
 #include "iam_robolib/skills/save_trajectory_skill.h"
 #include "iam_robolib/skills/force_torque_skill.h"
 
-std::atomic<bool> run_loop::running_skills_{false};
+std::atomic<bool> run_loop::run_loop_ok_{false};
+std::atomic<bool> run_loop::running_skill_{false};
 
 template<typename ... Args>
 std::string string_format(const std::string& format, Args ... args )
@@ -310,33 +311,29 @@ void run_loop::setup_save_robot_state_thread() {
         std::this_thread::sleep_for(
             std::chrono::milliseconds(static_cast<int>((1.0 / io_rate * 1000.0))));
 
-        if (!running_skills_) {
+        // don't record data if a skill is running - the skill's control loop will handle that.
+        if (!run_loop_ok_ || running_skill_) {
           continue;
         }
 
         // Try to lock data to avoid read write collisions.
-        try {
-          switch(robot_->robot_type_)
-          {
-            case RobotType::FRANKA: {
-                FrankaRobot* franka_robot = dynamic_cast<FrankaRobot* >(robot_);
-                franka::RobotState robot_state = franka_robot->getRobotState();
-                franka::GripperState gripper_state = franka_robot->getGripperState();
+        switch(robot_->robot_type_)
+        {
+          case RobotType::FRANKA: {
+              FrankaRobot* franka_robot = dynamic_cast<FrankaRobot* >(robot_);
+              franka::RobotState robot_state = franka_robot->getRobotState();
+              franka::GripperState gripper_state = franka_robot->getGripperState();
 
-                double duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-                    std::chrono::steady_clock::now() - start_time).count();
+              double duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+                  std::chrono::steady_clock::now() - start_time).count();
 
-                robot_state_data_->log_pose_desired(robot_state.O_T_EE_d); // Fictitious call to log pose desired so pose_desired buffer length matches during non-skill execution
-                robot_state_data_->log_robot_state(robot_state, duration / 1000.0);
-                robot_state_data_->log_gripper_state(gripper_state);
-              }
-              break;
-            case RobotType::UR5E:
-              break;
-          }
-        } catch (const franka::InvalidOperationException& ex) {
-          // Control loops should be handling logging when they're running.
-          continue;
+              robot_state_data_->log_pose_desired(robot_state.O_T_EE_d); // Fictitious call to log pose desired so pose_desired buffer length matches during non-skill execution
+              robot_state_data_->log_robot_state(robot_state, duration / 1000.0);
+              robot_state_data_->log_gripper_state(gripper_state);
+            }
+            break;
+          case RobotType::UR5E:
+            break;
         }
       }
   });
@@ -349,7 +346,7 @@ void run_loop::setup_current_robot_state_io_thread() {
         std::this_thread::sleep_for(
             std::chrono::milliseconds(static_cast<int>((1.0 / io_rate * 1000.0))));
 
-          if (!running_skills_ || robot_state_data_ == nullptr) {
+          if (!run_loop_ok_ || robot_state_data_ == nullptr) {
             continue;
           }
           
@@ -592,7 +589,7 @@ void run_loop::run_on_franka() {
 
   while (true) {
     try {
-      running_skills_ = true;
+      run_loop_ok_ = true;
       set_robolib_status(true, "");
 
       while (true) {
@@ -624,6 +621,7 @@ void run_loop::run_on_franka() {
         BaseSkill* new_skill = skill_manager_.get_current_skill();
         if (should_start_new_skill(skill, new_skill)) {
           std::cout << "Will start skill\n";
+          running_skill_ = true;
           start_new_skill(new_skill);
         }
 
@@ -637,7 +635,8 @@ void run_loop::run_on_franka() {
       }
     } catch (const franka::Exception& ex) {
       std::cout << "Caught Franka Exception\n";
-      running_skills_ = false;
+      run_loop_ok_ = false;
+      running_skill_ = false;
 
       // Alert franka_action_lib that an exception has occurred      
       std::string error_description = ex.what();
