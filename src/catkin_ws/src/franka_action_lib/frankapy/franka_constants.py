@@ -22,6 +22,7 @@ class FrankaConstants:
             [0, 0, -1],
         ]), translation=np.array([0.3069, 0, 0.4867]),
         from_frame='franka_tool', to_frame='world')
+    READY_JOINTS = [0, -math.pi/4, 0, -2.85496998, 0, 2.09382820,  math.pi/4]
     READY_POSE = RigidTransform(rotation=np.array([
             [1, 0, 0],
             [0, -1, 0],
