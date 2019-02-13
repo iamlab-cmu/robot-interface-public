@@ -64,12 +64,12 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Start rosmaster in a new gnome-terminal
 if ! pgrep -x "roscore" > /dev/null
+then
     start_rosmaster_path="$DIR/start_rosmaster.sh"
     echo "Will start ROS master in new terminal."$start_rosmaster_path
     gnome-terminal -e "bash $start_rosmaster_path"
     echo "Did start ROS master in new terminal."
-    sleep 2
-then
+else
     echo "roscore: Running"
 fi
 
@@ -88,14 +88,14 @@ fi
 #fi
 
 # ssh to the control pc and start ROS action server in a new gnome-terminal
+sleep 1
 start_ros_action_lib_on_control_pc_path="$DIR/start_ros_action_lib_on_control_pc.sh"
 echo "Will ssh to control PC and start ROS action server..."$start_ros_action_lib_on_control_pc_path
 gnome-terminal -e "bash $start_ros_action_lib_on_control_pc_path $control_pc_uname $control_pc_ip_address $workstation_ip_address $control_pc_use_passwd $control_pc_robot_lib_path"
 echo "Done"
 
-sleep 2
-
 if [ "$start_realsense" -eq 1 ]; then
+  sleep 1
   echo "Will start realsense camera on workstation..."
   # Start realsense camera on the workstation pc in a new gnome-terminal
   start_realsense_on_workstation_path="$DIR/start_realsense_on_workstation.sh"
