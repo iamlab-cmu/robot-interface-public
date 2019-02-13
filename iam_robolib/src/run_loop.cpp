@@ -603,12 +603,17 @@ void run_loop::run_on_franka() {
           if (!meta_skill->isComposableSkill() && !skill->get_termination_handler()->done_) {
             // Execute skill.
             log_skill_info(skill);
+            running_skill_ = true;
             meta_skill->execute_skill_on_franka(this, dynamic_cast<FrankaRobot* >(robot_), robot_state_data_);
+            running_skill_ = false;
           } else if (meta_skill->isComposableSkill()) {
             log_skill_info(skill);
+            running_skill_ = true;
             meta_skill->execute_skill_on_franka(this, dynamic_cast<FrankaRobot* >(robot_), robot_state_data_);
+            running_skill_ = false;
           } else {
             finish_current_skill(skill);
+            running_skill_ = false;
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
           }
         }
@@ -622,6 +627,7 @@ void run_loop::run_on_franka() {
           std::cout << "Will start skill\n";
           running_skill_ = true;
           start_new_skill(new_skill);
+          running_skill_ = false;
         }
 
         // Sleep to maintain 1Khz frequency, not sure if this is required or not.
