@@ -63,12 +63,15 @@ fi
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Start rosmaster in a new gnome-terminal
-start_rosmaster_path="$DIR/start_rosmaster.sh"
-echo "Will start ROS master in new terminal."$start_rosmaster_path
-gnome-terminal -e "bash $start_rosmaster_path"
-echo "Did start ROS master in new terminal."
-
-sleep 2
+if ! pgrep -x "roscore" > /dev/null
+    start_rosmaster_path="$DIR/start_rosmaster.sh"
+    echo "Will start ROS master in new terminal."$start_rosmaster_path
+    gnome-terminal -e "bash $start_rosmaster_path"
+    echo "Did start ROS master in new terminal."
+    sleep 2
+then
+    echo "roscore: Running"
+fi
 
 #echo "Should start iam_robolib? Enter [0/1]"
 ## read should_start_iam_robolib
