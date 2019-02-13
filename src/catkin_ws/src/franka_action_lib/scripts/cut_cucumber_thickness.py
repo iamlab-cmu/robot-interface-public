@@ -274,7 +274,8 @@ if __name__ == '__main__':
         # Move up above the cucumber
         move_up_above_cucumber_skill = cut_cucumber_skill.create_skill_for_class(
             ArmRelativeMotionWithDefaultSensorSkill,
-            'move_up_above_cucumber_{}'.format(slice_idx))
+            'move_up_above_cucumber_{}_above_{:.3f}'.format(
+                slice_idx, CutCucumberSkill.RELATIVE_MOTION_TO_CONTACT_FOR_CUTTING))
         move_up_above_cucumber_skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
         move_up_above_cucumber_skill.add_relative_motion_with_quaternion(
                 1.0,
@@ -335,14 +336,16 @@ if __name__ == '__main__':
         skill.set_meta_skill_id(slice_idx+1)
         skill.set_meta_skill_type(1)
         skill.add_termination_params([1.0])
-        num_of_dmps_to_run = 3
+        num_of_dmps_to_run = 5
         for dmp_idx in range(num_of_dmps_to_run):
             cut_cucumber_skill.execute_skill(skill, client)
 
         # Move cut cucumber piece away from the main cucumber
+        move_cut_piece_away_dist = 0.08
         skill = cut_cucumber_skill.get_move_left_skill(
-                0.8, 
-                desc='move_to_separate_cut_slice_{}'.format(slice_idx))
+                move_cut_piece_away_dist, 
+                desc='move_to_separate_cut_slice_{}_dist_{:.3f}'.format(
+                    slice_idx, move_cut_piece_away_dist))
         cut_cucumber_skill.execute_skill(skill, client)
 
         # Move back to cucumber
