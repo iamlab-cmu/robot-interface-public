@@ -132,11 +132,11 @@ class run_loop {
   void finish_current_skill(BaseSkill* skill);
 
   static std::atomic<bool> run_loop_ok_;
-  static std::atomic<bool> running_skill_;
 
  private:
 
   Robot *robot_;
+  static std::mutex robot_access_mutex_;
 
   std::thread robot_state_read_thread_{};
   std::thread current_robot_state_io_thread_{};
