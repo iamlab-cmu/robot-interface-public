@@ -74,7 +74,7 @@ class BaseSkill {
   virtual void execute_skill_on_franka(FrankaRobot *robot,
                                        RobotStateData *robot_state_data) = 0;
 
-  virtual bool should_terminate();
+  virtual bool should_terminate(Robot* robot);
 
   virtual void write_result_to_shared_memory(float *result_buffer);
   virtual void write_result_to_shared_memory(float *result_buffer, FrankaRobot *robot);

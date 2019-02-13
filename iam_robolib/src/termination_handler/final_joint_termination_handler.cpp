@@ -48,31 +48,15 @@ bool FinalJointTerminationHandler::should_terminate(TrajectoryGenerator *traject
         return false;
       }
     }
+
+    done_ = true;
   }
+  
   return done_;
 }
 
 bool FinalJointTerminationHandler::should_terminate_on_franka(const franka::RobotState &_, 
                                                               TrajectoryGenerator *trajectory_generator) {
-  check_terminate_preempt();
-  
-  if(!done_)
-  {
-    LinearJointTrajectoryGenerator *linear_joint_traj_generator =
-        static_cast<LinearJointTrajectoryGenerator *>(trajectory_generator);
-
-    if(linear_joint_traj_generator->time_ > linear_joint_traj_generator->run_time_ + buffer_time_)
-    {
-      done_ = true;
-      return true;
-    }
-
-    for(size_t i = 0; i < linear_joint_traj_generator->joint_goal_.size(); i++) {
-      if(fabs(linear_joint_traj_generator->joint_goal_[i] - linear_joint_traj_generator->joint_desired_[i]) > 0.0001) {
-        return false;
-      }
-    }
-  }
-  return done_;
+  return should_terminate(trajectory_generator);
 }
 

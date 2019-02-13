@@ -356,10 +356,6 @@ void SkillInfo::execute_skill_on_franka_temp(FrankaRobot* robot,
   robot->robot_.control(impedance_control_callback);
 }
 
-bool SkillInfo::should_terminate() {
-  return termination_handler_->should_terminate(traj_generator_);
-}
-
 void SkillInfo::write_result_to_shared_memory(float *result_buffer) {
   std::cout << "Should write result to shared memory\n";
 }

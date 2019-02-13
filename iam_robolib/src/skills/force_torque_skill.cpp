@@ -14,6 +14,7 @@
 #include <franka/exception.h>
 
 #include "iam_robolib/termination_handler/termination_handler.h"
+#include "iam_robolib/trajectory_generator/impulse_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/trajectory_generator.h"
 #include "iam_robolib/run_loop.h"
 #include "iam_robolib/robot_state_data.h"
@@ -44,12 +45,14 @@ void ForceTorqueSkill::execute_skill_on_franka(FrankaRobot* robot,
     if (time == 0.0) {
       traj_generator_->initialize_trajectory(robot_state);
     }
+    dynamic_cast<ImpulseTrajectoryGenerator*>(traj_generator_)->check_displacement_cap(robot_state);
     time += period.toSec();
     traj_generator_->time_ = time;
     traj_generator_->dt_ = period.toSec();
+
     traj_generator_->get_next_step();
 
-    bool done = termination_handler_->should_terminate(traj_generator_);
+    bool done = termination_handler_->should_terminate_on_franka(robot_state, traj_generator_);
     double* force_torque_desired_ptr = &(traj_generator_->force_torque_desired_[0]);
     Eigen::Map<Eigen::VectorXd> desired_force_torque(force_torque_desired_ptr, 6);
 
@@ -69,13 +72,13 @@ void ForceTorqueSkill::execute_skill_on_franka(FrankaRobot* robot,
     tau_d << jacobian.transpose() * desired_force_torque;
 
     std::array<double, 7> tau_d_array{};
-    Eigen::VectorXd::Map(&tau_d_array[0], 7) = tau_d;
-
     if (done) {
       franka::Torques torques(tau_d_array);
+      // return 0 torques to finish
       return franka::MotionFinished(torques);
     }
 
+    Eigen::VectorXd::Map(&tau_d_array[0], 7) = tau_d;
     return tau_d_array;
   };
 

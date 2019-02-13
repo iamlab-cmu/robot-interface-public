@@ -31,8 +31,6 @@ class SkillInfo : public BaseSkill {
 
   void execute_skill_on_franka_joint_base(FrankaRobot* robot, RobotStateData *robot_state_data);
 
-  bool should_terminate() override;
-
   /**
    * Write result to the shared memory after skill is done.
    * @param result_buffer

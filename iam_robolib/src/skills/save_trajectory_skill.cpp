@@ -43,7 +43,7 @@ void SaveTrajectorySkill::execute_skill_on_franka(FrankaRobot *robot,
   }
 }
 
-bool SaveTrajectorySkill::should_terminate() {
+bool SaveTrajectorySkill::should_terminate(Robot* robot) {
   bool should_terminate = termination_handler_->should_terminate(traj_generator_);
   if (should_terminate) {
     running_skill_ = false;

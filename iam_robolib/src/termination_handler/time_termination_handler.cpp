@@ -42,15 +42,6 @@ bool TimeTerminationHandler::should_terminate(TrajectoryGenerator *trajectory_ge
   return done_;
 }
 
-bool TimeTerminationHandler::should_terminate_on_franka(const franka::RobotState &robot_state, TrajectoryGenerator *trajectory_generator) {
-  check_terminate_preempt();
-  
-  if(!done_) {
-    // Terminate if the skill time_ has exceeded the provided run_time_ + buffer_time_
-    if(trajectory_generator->time_ > trajectory_generator->run_time_ + buffer_time_) {
-      done_= true;
-    }
-  }
-  
-  return done_;
+bool TimeTerminationHandler::should_terminate_on_franka(const franka::RobotState &_, TrajectoryGenerator *trajectory_generator) {
+  return should_terminate(trajectory_generator);
 }

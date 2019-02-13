@@ -66,8 +66,19 @@ void BaseSkill::start_skill(Robot* robot,
   }
 }
 
-bool BaseSkill::should_terminate() {
-  return termination_handler_->should_terminate(traj_generator_);
+bool BaseSkill::should_terminate(Robot* robot) {
+  bool should_terminate;
+  switch(robot->robot_type_)
+  {
+    case RobotType::FRANKA:
+      should_terminate = termination_handler_->should_terminate_on_franka(dynamic_cast<FrankaRobot *>(robot)->getRobotState(), traj_generator_);
+      break;
+    case RobotType::UR5E:
+      break;
+    default:
+      should_terminate = termination_handler_->should_terminate(traj_generator_);
+  }
+  return should_terminate;
 }
 
 void BaseSkill::write_result_to_shared_memory(float *result_buffer) {

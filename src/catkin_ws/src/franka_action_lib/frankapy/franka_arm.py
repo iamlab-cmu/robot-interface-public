@@ -133,7 +133,7 @@ class FrankaArm:
         skill = ArmMoveToGoalWithDefaultSensorSkill()
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_feedback_controller_params(FC.DEFAULT_TORQUE_CONTROLLER_PARAMS)
-        skill.add_termination_params(FC.DEFAULT_TERM_PARAMS) 
+        skill.add_termination_params(FC.DEFAULT_TERM_PARAMS)
 
         skill.add_trajectory_params([duration] + tool_base_pose.matrix.T.flatten().tolist())
         goal = skill.create_goal()
@@ -200,7 +200,8 @@ class FrankaArm:
         '''
         pass
 
-    def apply_effector_forces_torques(self, run_duration, acc_duration, forces=None, torques=None, retry=True):
+    def apply_effector_forces_torques(self, run_duration, acc_duration, max_translation, max_rotation, 
+                                    forces=None, torques=None, retry=True):
         '''Applies the given end-effector forces and torques in N and Nm
 
         Args:
@@ -228,9 +229,9 @@ class FrankaArm:
 
         skill = ForceTorqueSkill()
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
-        skill.add_termination_params([0])
+        skill.add_termination_params([0.1])
 
-        skill.add_trajectory_params([run_duration, acc_duration] + forces + torques)
+        skill.add_trajectory_params([run_duration, acc_duration, max_translation, max_rotation] + forces + torques)
         goal = skill.create_goal()
         
         self._send_goal(goal, cb=lambda x: skill.feedback_callback(x), retry=retry)
