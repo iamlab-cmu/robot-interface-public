@@ -40,7 +40,6 @@ class FrankaArmSubscriber:
         ros_data = self._data_q.get(block=True)
 
         data = {
-            'pose_desired': franka_pose_to_rigid_transform(ros_data.pose_desired),
             'pose': franka_pose_to_rigid_transform(ros_data.pose),
             'joint_torques': np.array(ros_data.joint_torques),
             'joint_torques_derivative': np.array(ros_data.joint_torques_derivative),
