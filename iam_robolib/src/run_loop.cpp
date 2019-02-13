@@ -318,11 +318,9 @@ void run_loop::setup_save_robot_state_thread() {
 
         // Try to lock data to avoid read write collisions.
         if (robot_access_mutex_.try_lock()) {
-          switch(robot_->robot_type_)
-          {
+          switch (robot_->robot_type_) {
             case RobotType::FRANKA: {
                 try {
-                  printf("save thread: getting, saving robot data\n");
                   FrankaRobot* franka_robot = dynamic_cast<FrankaRobot* >(robot_);
                   franka::RobotState robot_state = franka_robot->getRobotState();
                   franka::GripperState gripper_state = franka_robot->getGripperState();
@@ -337,8 +335,8 @@ void run_loop::setup_save_robot_state_thread() {
                   robot_access_mutex_.unlock();
                   std::cerr << "Robot state save thread encountered Franka exception. Will not log for now.\n";
                 }
+                break;
               }
-              break;
             case RobotType::UR5E:
               break;
           }
