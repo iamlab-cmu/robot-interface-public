@@ -212,8 +212,19 @@ if __name__ == '__main__':
     client.wait_for_server()
 
     parser = argparse.ArgumentParser(description='Joint DMP Skill Example')
-    parser.add_argument('--filename', required=True, help='filename with dmp weights')
+    parser.add_argument('--filename', required=True, 
+                        help='filename with dmp weights')
+    parser.add_argument('--thickness', type=float, default=0.01,
+                        help='Thickness for cut slices')
+    parser.add_argument('--num_dmps', type=int, default=4,
+                        help='Number of DMPs to run continously to cut 1 slice.')
+    parser.add_argument('--move_in_air', type=int, default=0,
+                        help='Do not slide on the cutting board.')
     args = parser.parse_args()
+
+    # Set desired thickness for cucumber slices. 
+    CutCucumberSkill.SLICE_THICKNESS = args.thickness
+    CutCucumberSkill.FIRST_SLICE_THICKNESS = args.thickness
 
     file = open(args.filename,"rb")
     dmp_info = pickle.load(file)
@@ -244,7 +255,7 @@ if __name__ == '__main__':
 
     # Move down to contact cutting board
     skill = cut_cucumber_skill.create_skill_for_class(
-            ArmMoveToGoalWithDefaultSensorSkill,
+            ArmMoveToGoalContactWithDefaultSensorSkill,
             'move_onto_cutting_board')
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
     skill.add_trajectory_params(
@@ -252,7 +263,7 @@ if __name__ == '__main__':
     skill.add_feedback_controller_params([600, 50])
     skill.add_buffer_time_for_termination(1.0)
     cut_cucumber_skill.execute_skill(skill, client)
-
+    
     # Move left to contact cucumber
     skill = cut_cucumber_skill.create_skill_for_class(
              ArmMoveToGoalContactWithDefaultSensorSkill,
@@ -313,10 +324,13 @@ if __name__ == '__main__':
                 [0., 0., -CutCucumberSkill.RELATIVE_MOTION_TO_CONTACT_FOR_CUTTING],
                 CutCucumberSkill.IDENTITY_QUATERNION)
         move_onto_cucumber_skill.add_controller_stiffness_params(600, 50)
-        move_onto_cucumber_skill.add_contact_termination_params(1.0, [5.0] * 6, [5.0] * 6)
+        move_onto_cucumber_skill.add_contact_termination_params(
+                1.0, 
+                [10., 10., 5., 10., 10., 10.],
+                [10., 10., 5., 10., 10., 10.])
         cut_cucumber_skill.execute_skill(move_onto_cucumber_skill, client)
 	
-        # Start DMP cutting for 3 times
+        # Start DMP cutting for n times
         skill = cut_cucumber_skill.create_skill_for_class(
                 JointPoseDMPWithDefaultSensorSkill,
                 'cut_dmp')
@@ -336,7 +350,7 @@ if __name__ == '__main__':
         skill.set_meta_skill_id(slice_idx+1)
         skill.set_meta_skill_type(1)
         skill.add_termination_params([1.0])
-        num_of_dmps_to_run = 5
+        num_of_dmps_to_run = args.num_dmps
         for dmp_idx in range(num_of_dmps_to_run):
             cut_cucumber_skill.execute_skill(skill, client)
 
