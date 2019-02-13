@@ -321,16 +321,22 @@ void run_loop::setup_save_robot_state_thread() {
           switch(robot_->robot_type_)
           {
             case RobotType::FRANKA: {
-                FrankaRobot* franka_robot = dynamic_cast<FrankaRobot* >(robot_);
-                franka::RobotState robot_state = franka_robot->getRobotState();
-                franka::GripperState gripper_state = franka_robot->getGripperState();
+                try {
+                  printf("save thread: getting, saving robot data\n");
+                  FrankaRobot* franka_robot = dynamic_cast<FrankaRobot* >(robot_);
+                  franka::RobotState robot_state = franka_robot->getRobotState();
+                  franka::GripperState gripper_state = franka_robot->getGripperState();
 
-                double duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-                    std::chrono::steady_clock::now() - start_time).count();
+                  double duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+                      std::chrono::steady_clock::now() - start_time).count();
 
-                robot_state_data_->log_pose_desired(robot_state.O_T_EE_d); // Fictitious call to log pose desired so pose_desired buffer length matches during non-skill execution
-                robot_state_data_->log_robot_state(robot_state, duration / 1000.0);
-                robot_state_data_->log_gripper_state(gripper_state);
+                  robot_state_data_->log_pose_desired(robot_state.O_T_EE_d); // Fictitious call to log pose desired so pose_desired buffer length matches during non-skill execution
+                  robot_state_data_->log_robot_state(robot_state, duration / 1000.0);
+                  robot_state_data_->log_gripper_state(gripper_state);
+                } catch (const franka::Exception& ex) {
+                  robot_access_mutex_.unlock();
+                  std::cerr << "Robot state save thread encountered Franka exception. Will not log for now.\n";
+                }
               }
               break;
             case RobotType::UR5E:
@@ -664,8 +670,10 @@ void run_loop::run_on_franka() {
 
       // Perform error recovery
       robot_->automaticErrorRecovery();
+      robot_access_mutex_.unlock();
 
       std::cout << "Error recovery finished\n";
+      
       continue;
     }
   }
