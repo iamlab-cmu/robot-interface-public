@@ -12,14 +12,14 @@ class FrankaRobot : public Robot
  public:
   FrankaRobot(std::string &robot_ip, RobotType robot_type) : Robot(robot_ip, robot_type),
                                                              robot_(robot_ip),
-                                                             gripper_(robot_ip)
+                                                             gripper_(robot_ip),
+                                                             model_(robot_.loadModel())
   {
-
   }
 
-  franka::Model getModel()
+  franka::Model* getModel()
   {
-    return robot_.loadModel();
+    return &model_;
   }
 
   franka::RobotState getRobotState()
@@ -34,6 +34,7 @@ class FrankaRobot : public Robot
 
   franka::Robot robot_;
   franka::Gripper gripper_;
+  franka::Model model_;
 
   void automaticErrorRecovery() {
     robot_.automaticErrorRecovery();

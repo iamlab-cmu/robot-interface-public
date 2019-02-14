@@ -165,7 +165,7 @@ class FrankaArm:
         
         self._send_goal(goal, cb=lambda x: skill.feedback_callback(x), retry=retry)
         
-    def goto_joints(self, joints, duration=3, retry=True):
+    def goto_joints(self, joints, duration=5, retry=True):
         '''Commands Arm to the given joint configuration
 
         Args:
@@ -236,6 +236,40 @@ class FrankaArm:
         
         self._send_goal(goal, cb=lambda x: skill.feedback_callback(x), retry=retry)
 
+    def apply_effector_forces_along_axis(self, run_duration, acc_duration, max_translation, 
+                                    forces, retry=True):
+        '''Applies the given end-effector forces and torques in N and Nm
+
+        Args:
+            run_duration (float): A float in the unit of seconds
+            acc_duration (float): A float in the unit of seconds. How long to acc/de-acc to achieve desired force. 
+            forces (list): Optional (defaults to None). 
+                A list of 3 numbers that correspond to end-effector forces in 3 directions
+            torques (list): Optional (defaults to None).
+                A list of 3 numbers that correspond to end-effector torques in 3 axes
+
+        Raises:
+            ValueError if acc_duration > 0.5*run_duration, or if forces are too large
+            FrankaArmCollisionException if a collision is detected
+        '''
+        if acc_duration > 0.5 * run_duration:
+            raise ValueError('acc_duration must be smaller than half of run_duration!')
+        if np.linalg.norm(forces) * run_duration > FC.MAX_LIN_MOMENTUM_CONSTRAINED:
+            raise ValueError('Linear momentum magnitude exceeds safety threshold of {}'.format(FC.MAX_LIN_MOMENTUM_CONSTRAINED))
+
+        forces = np.array(forces)
+        force_axis = forces / np.linalg.norm(forces)
+
+        skill = ForceAlongAxisSkill()
+        skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
+        skill.add_termination_params([0.1])
+        skill.add_feedback_controller_params(FC.DEFAULT_FORCE_AXIS_CONTROLLER_PARAMS + force_axis.tolist())
+
+        skill.add_trajectory_params([run_duration, acc_duration, max_translation, 0] + forces.tolist() + [0, 0, 0])
+        goal = skill.create_goal()
+        
+        self._send_goal(goal, cb=lambda x: skill.feedback_callback(x), retry=retry)
+
     def goto_gripper(self, width, speed=0.04, force=None, retry=True):
         '''Commands gripper to goto a certain width, applying up to the given (default is max) force if needed
 
@@ -271,6 +305,9 @@ class FrankaArm:
         '''Closes the gripper as much as possible
         '''
         self.goto_gripper(FC.GRIPPER_WIDTH_MIN, force=FC.GRIPPER_MAX_FORCE if grasp else None)
+
+    def run_guide_mode(self, duration=100):
+        self.apply_effector_forces_torques(duration, 0, 0, 0)
 
     '''
     Reads

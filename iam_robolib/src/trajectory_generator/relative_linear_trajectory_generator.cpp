@@ -76,9 +76,7 @@ void RelativeLinearTrajectoryGenerator::initialize_trajectory() {
 }
 
 void RelativeLinearTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
-  Eigen::Affine3d initial_transform(Eigen::Matrix4d::Map(robot_state.O_T_EE.data()));
-  initial_position_ = Eigen::Vector3d(initial_transform.translation());
-  initial_orientation_ = Eigen::Quaterniond(initial_transform.linear());
+  TrajectoryGenerator::initialize_initial_states(robot_state);
   goal_position_ = initial_position_ + relative_position_;
   goal_orientation_ = initial_orientation_ * relative_orientation_;
   

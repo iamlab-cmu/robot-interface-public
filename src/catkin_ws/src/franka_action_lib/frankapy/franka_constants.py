@@ -14,6 +14,7 @@ class FrankaConstants:
 
     # translational stiffness, rotational stiffness
     DEFAULT_TORQUE_CONTROLLER_PARAMS = [600, 50]
+    DEFAULT_FORCE_AXIS_CONTROLLER_PARAMS = [600, 0]
 
     # buffer time
     DEFAULT_TERM_PARAMS = [1]
@@ -44,6 +45,7 @@ class FrankaConstants:
 
     MAX_LIN_MOMENTUM = 20
     MAX_ANG_MOMENTUM = 2
+    MAX_LIN_MOMENTUM_CONSTRAINED = 100
 
     ROS_ROBOLIB_STATUS_PUBLISHER_NAME = '/robolib_status_publisher_node/robolib_status'
     ROS_EXECUTE_SKILL_ACTION_SERVER_NAME = '/execute_skill_action_server_node/execute_skill'

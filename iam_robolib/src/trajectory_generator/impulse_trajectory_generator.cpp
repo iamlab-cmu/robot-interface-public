@@ -31,9 +31,7 @@ void ImpulseTrajectoryGenerator::initialize_trajectory() {
 }
 
 void ImpulseTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
-  Eigen::Affine3d transform(Eigen::Matrix4d::Map(robot_state.O_T_EE.data()));
-  Tr_init = transform.translation();
-  Q_init = transform.linear();
+  TrajectoryGenerator::initialize_initial_states(robot_state);
 }
 
 void ImpulseTrajectoryGenerator::get_next_step() {
@@ -63,20 +61,20 @@ void ImpulseTrajectoryGenerator::check_displacement_cap(const franka::RobotState
     Eigen::Affine3d transform(Eigen::Matrix4d::Map(robot_state.O_T_EE.data()));
     
     if (max_translation_ > 0) {
-        Tr_curr = transform.translation();
-        if ((Tr_curr - Tr_init).norm() > max_translation_) {
+        curr_position_ = transform.translation();
+        if ((curr_position_ - initial_position_).norm() > max_translation_) {
             should_deacc_ = true;
         }
     }
 
     if (max_rotation_ > 0) {
-        Q_curr = transform.linear();
-        if (Q_curr.coeffs().dot(Q_init.coeffs()) < 0.0) {
-            Q_curr.coeffs() << -Q_curr.coeffs();
+        curr_orientation_ = transform.linear();
+        if (curr_orientation_.coeffs().dot(initial_orientation_.coeffs()) < 0.0) {
+            curr_orientation_.coeffs() << -curr_orientation_.coeffs();
         }
-        Eigen::Quaterniond Q_d(Q_init * Q_curr.inverse());
-        Eigen::AngleAxisd A_d(Q_d);
-        if (A_d.angle() > max_rotation_) {
+        Eigen::Quaterniond Q_delta(initial_orientation_ * curr_orientation_.inverse());
+        Eigen::AngleAxisd A_delta(Q_delta);
+        if (A_delta.angle() > max_rotation_) {
             should_deacc_ = true;
         }
     }

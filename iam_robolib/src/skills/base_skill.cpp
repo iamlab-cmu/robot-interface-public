@@ -1,11 +1,9 @@
 //
 // Created by iamlab on 12/2/18.
 //
-
-#include "iam_robolib/skills/base_skill.h"
-
 #include <iostream>
 
+#include "iam_robolib/skills/base_skill.h"
 #include "iam_robolib/feedback_controller/feedback_controller.h"
 #include "iam_robolib/termination_handler/termination_handler.h"
 #include "iam_robolib/trajectory_generator/trajectory_generator.h"
@@ -52,16 +50,17 @@ void BaseSkill::start_skill(Robot* robot,
   traj_generator_ = traj_generator;
   traj_generator_->initialize_trajectory();
   feedback_controller_ = feedback_controller;
-  feedback_controller_->initialize_controller();
   termination_handler_ = termination_handler;
   switch(robot->robot_type_)
   {
     case RobotType::FRANKA:
       termination_handler_->initialize_handler_on_franka(dynamic_cast<FrankaRobot *>(robot));
+      feedback_controller_->initialize_controller(dynamic_cast<FrankaRobot *>(robot)->getModel());
       break;
     case RobotType::UR5E:
       break;
     default:
+      feedback_controller_->initialize_controller();
       termination_handler_->initialize_handler();
   }
 }

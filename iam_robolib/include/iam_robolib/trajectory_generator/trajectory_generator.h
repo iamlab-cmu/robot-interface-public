@@ -25,6 +25,11 @@ class TrajectoryGenerator {
   virtual void initialize_trajectory(const franka::RobotState &robot_state) = 0;
 
   /**
+   * Initialize initial position and orientation
+   */
+  void initialize_initial_states(const franka::RobotState &robot_state);
+
+  /**
    *  Get next trajectory step.
    */
   virtual void get_next_step() = 0;
@@ -34,6 +39,8 @@ class TrajectoryGenerator {
   std::array<double, 6> force_torque_desired_{};
   Eigen::Vector3d desired_position_;
   Eigen::Quaterniond desired_orientation_;
+  Eigen::Vector3d initial_position_;
+  Eigen::Quaterniond initial_orientation_;
 
   const double acceleration_time_ = 5.0;
   double run_time_ = 0.0;

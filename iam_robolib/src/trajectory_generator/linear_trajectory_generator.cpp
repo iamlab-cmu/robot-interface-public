@@ -24,6 +24,7 @@ void LinearTrajectoryGenerator::initialize_trajectory() {
 }
 
 void LinearTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
+  TrajectoryGenerator::initialize_initial_states(robot_state);
   pose_desired_ = robot_state.O_T_EE;
 }
 

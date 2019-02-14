@@ -10,7 +10,6 @@
 #include <array>
 
 #include <franka/robot.h>
-#include <franka/model.h>
 #include <franka/exception.h>
 
 #include "iam_robolib/run_loop.h"
@@ -37,7 +36,6 @@ void JointPoseContinuousSkill::execute_skill_on_franka(run_loop *run_loop, Frank
 
   std::cout << "Will run JointPoseContinuousSkill control loop\n";
 
-  franka::Model model = robot->getModel();
   franka::RobotState initial_robot_state = robot->getRobotState();
   std::array<double, 7> last_dmp_q = initial_robot_state.q;
   std::array<double, 7> last_dmp_dq = initial_robot_state.dq;

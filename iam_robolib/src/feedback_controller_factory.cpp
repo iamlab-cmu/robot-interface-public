@@ -7,7 +7,9 @@
 #include <iostream>
 
 #include "iam_robolib/feedback_controller/custom_gain_torque_controller.h"
+#include "iam_robolib/feedback_controller/force_axis_impedence_feedback_controller.h"
 #include "iam_robolib/feedback_controller/noop_feedback_controller.h"
+#include "iam_robolib/feedback_controller/pass_through_feedback_controller.h"
 #include "iam_robolib/feedback_controller/torque_feedback_controller.h"
 
 FeedbackController* FeedbackControllerFactory::getFeedbackControllerForSkill(SharedBuffer buffer){
@@ -24,6 +26,10 @@ FeedbackController* FeedbackControllerFactory::getFeedbackControllerForSkill(Sha
     feedback_controller = new TorqueFeedbackController(buffer);
   } else if (feedback_controller_id == 3) {
     feedback_controller = new CustomGainTorqueController(buffer);
+  } else if (feedback_controller_id == 4) {
+    feedback_controller = new ForceAxisImpedenceFeedbackController(buffer);
+  } else if (feedback_controller_id == 5) {
+    feedback_controller = new PassThroughFeedbackController(buffer);
   } else {
     std::cout << "Cannot create feedback_controller with class_id: " << feedback_controller_id
       << "\n";

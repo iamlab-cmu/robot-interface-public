@@ -35,8 +35,6 @@ void SkillInfo::execute_skill_on_franka(FrankaRobot* robot,
 
   std::cout << "Will run the control loop\n";
 
-  franka::Model model = robot->getModel();
-
   // define callback for the torque control loop
   std::function<franka::Torques(const franka::RobotState&, franka::Duration)>
       impedance_control_callback = [&, &time](const franka::RobotState& robot_state,
@@ -44,7 +42,6 @@ void SkillInfo::execute_skill_on_franka(FrankaRobot* robot,
 
     if (time == 0.0) {
       traj_generator_->initialize_trajectory(robot_state);
-      feedback_controller_->initialize_controller(&model);
     }
 
     if (robot_state_data->mutex_.try_lock()) {
@@ -94,7 +91,7 @@ void SkillInfo::execute_skill_on_franka_joint_base(FrankaRobot* robot,
 
   std::cout << "Will run the control loop\n";
 
-  franka::Model model = robot->getModel();
+  franka::Model *model = robot->getModel();
 
   // define callback for the torque control loop
   std::function<franka::Torques(const franka::RobotState&, franka::Duration)>
@@ -103,7 +100,7 @@ void SkillInfo::execute_skill_on_franka_joint_base(FrankaRobot* robot,
 
     if (time == 0.0) {
       traj_generator_->initialize_trajectory(robot_state);
-      feedback_controller_->initialize_controller(&model);
+      feedback_controller_->initialize_controller(model);
     }
 
     if (robot_state_data->mutex_.try_lock()) {
@@ -159,7 +156,7 @@ void SkillInfo::execute_skill_on_franka_temp2(FrankaRobot* robot,
 
   std::cout << "Will run the control loop\n";
 
-  franka::Model model = robot->getModel();
+  franka::Model *model = robot->getModel();
 
   // define callback for the torque control loop
   std::function<franka::Torques(const franka::RobotState&, franka::Duration)>
@@ -196,9 +193,9 @@ void SkillInfo::execute_skill_on_franka_temp2(FrankaRobot* robot,
     Eigen::Quaterniond orientation_d(initial_transform.linear());
 
     // get state variables
-    std::array<double, 7> coriolis_array = model.coriolis(robot_state);
+    std::array<double, 7> coriolis_array = model->coriolis(robot_state);
     std::array<double, 42> jacobian_array =
-        model.zeroJacobian(franka::Frame::kEndEffector, robot_state);
+        model->zeroJacobian(franka::Frame::kEndEffector, robot_state);
 
     // convert to Eigen
     Eigen::Map<const Eigen::Matrix<double, 7, 1> > coriolis(coriolis_array.data());
@@ -310,14 +307,14 @@ void SkillInfo::execute_skill_on_franka_temp(FrankaRobot* robot,
     return joint_desired;
   };
 
-  franka::Model model = robot->getModel();
+  franka::Model *model = robot->getModel();
 
   std::array<double, 7> q_goal = {{0, -M_PI_4, 0, -3 * M_PI_4, 0, M_PI_2, M_PI_4}};
   std::function<franka::Torques(const franka::RobotState&, franka::Duration)> impedance_control_callback =
-      [=, &model, &q_goal](
+      [=, model, &q_goal](
           const franka::RobotState& state, franka::Duration /*period*/) -> franka::Torques {
         // Read current coriolis terms from model.
-        std::array<double, 7> coriolis = model.coriolis(state);
+        std::array<double, 7> coriolis = model->coriolis(state);
 
         // Compute torque command from joint impedance control law.
         // Note: The answer to our Cartesian pose inverse kinematics is always in state.q_d with one

@@ -10,7 +10,6 @@
 #include <array>
 
 #include <franka/robot.h>
-#include <franka/model.h>
 #include <franka/exception.h>
 
 #include "iam_robolib/run_loop.h"
@@ -28,8 +27,6 @@ void JointPoseSkill::execute_skill_on_franka(FrankaRobot* robot,
   int log_counter = 0;
 
   std::cout << "Will run the control loop\n";
-
-  franka::Model model = robot->getModel();
 
   std::function<franka::JointPositions(const franka::RobotState&, franka::Duration)>
       joint_pose_callback = [=, &time, &log_counter](
