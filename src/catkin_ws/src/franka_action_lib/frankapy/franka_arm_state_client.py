@@ -1,35 +1,20 @@
 import sys, logging
-from multiprocessing import Queue
-try:
-    from Queue import Empty
-except:
-    from queue import Empty
 from time import sleep
 
 import numpy as np
 import rospy
-from franka_action_lib.msg import RobotState
+from franka_action_lib.srv import GetCurrentRobotStateCmd
 
-from .franka_constants import FrankaConstants as FC
 from .utils import franka_pose_to_rigid_transform
 
-class FrankaArmSubscriber:
+class FrankaArmStateClient:
 
-    def __init__(self, new_ros_node=True, topic_name='/robot_state_publisher_node/robot_state'):
-        self._data_q = Queue(maxsize=1)
-
-        def callback(data):
-            if self._data_q.full():
-                try:
-                    self._data_q.get_nowait()
-                except Empty:
-                    pass
-            self._data_q.put(data)
-
+    def __init__(self, new_ros_node=True, server_name='/get_current_robot_state_server_node/get_current_robot_state_server'):
         if new_ros_node:
-            rospy.init_node('FrankaArmSubscriber', anonymous=True)
+            rospy.init_node('FrankaArmStateClient', anonymous=True)
 
-        rospy.Subscriber(topic_name, RobotState, callback)
+        rospy.wait_for_service(server_name)
+        self._get_current_robot_state = rospy.ServiceProxy(server_name, GetCurrentRobotStateCmd)
 
     def get_data(self):
         '''Get all fields of current robot data in a dict.
@@ -37,7 +22,7 @@ class FrankaArmSubscriber:
         Returns:
             dict of robot state
         '''
-        ros_data = self._data_q.get(block=True)
+        ros_data = self._get_current_robot_state().robot_state
 
         data = {
             'pose': franka_pose_to_rigid_transform(ros_data.pose),

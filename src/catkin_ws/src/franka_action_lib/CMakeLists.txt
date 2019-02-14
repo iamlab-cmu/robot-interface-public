@@ -69,11 +69,10 @@ add_message_files(
 )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES
+  GetCurrentRobotStateCmd.srv
+)
 
 ## Generate actions in the 'action' folder
 add_action_files(DIRECTORY action
@@ -152,6 +151,7 @@ add_executable(example_execute_skill_action_client_node src/example_execute_skil
 add_executable(execute_skill_action_server_node src/execute_skill_action_server.cpp src/execute_skill_action_server_node.cpp)
 add_executable(robot_state_publisher_node src/robot_state_publisher.cpp src/robot_state_publisher_node.cpp)
 add_executable(robolib_status_publisher_node src/robolib_status_publisher.cpp src/robolib_status_publisher_node.cpp)
+add_executable(get_current_robot_state_server_node src/get_current_robot_state_server.cpp src/get_current_robot_state_server_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -165,6 +165,9 @@ add_dependencies( example_execute_skill_action_client_node
 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 add_dependencies( execute_skill_action_server_node
+${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+add_dependencies( get_current_robot_state_server_node
 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
@@ -197,6 +200,14 @@ target_link_libraries(
   ${catkin_LIBRARIES}
   rt
   iam_robolib_common
+  ${PROJECT_NAME}
+)
+target_link_libraries(
+  get_current_robot_state_server_node
+  Threads::Threads
+  ${Boost_LIBRARIES}
+  ${catkin_LIBRARIES}
+  rt
   ${PROJECT_NAME}
 )
 
