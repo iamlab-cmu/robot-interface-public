@@ -4,6 +4,9 @@ import numpy as np
 from autolab_core import RigidTransform
 
 class FrankaConstants:
+    '''
+    All units are SI. 
+    '''
 
     LOGGING_LEVEL = logging.INFO
 
@@ -45,5 +48,7 @@ class FrankaConstants:
     ROS_ROBOLIB_STATUS_PUBLISHER_NAME = '/robolib_status_publisher_node/robolib_status'
     ROS_EXECUTE_SKILL_ACTION_SERVER_NAME = '/execute_skill_action_server_node/execute_skill'
 
-    DEFAULT_ROBOLIB_TIMEOUT = 5 # in seconds
+    DEFAULT_ROBOLIB_TIMEOUT = 5 
     ACTION_WAIT_LOOP_TIME = 0.001
+
+    GRIPPER_CMD_SLEEP_TIME = 0.2

@@ -259,6 +259,8 @@ class FrankaArm:
         goal = skill.create_goal()
 
         self._send_goal(goal, cb=lambda x: skill.feedback_callback(x), retry=retry)
+        # this is so the gripper state can be updated, which happens with a small lag
+        sleep(FC.GRIPPER_CMD_SLEEP_TIME)
 
     def open_gripper(self):
         '''Opens gripper to maximum width
