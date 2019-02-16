@@ -26,11 +26,11 @@ namespace franka_action_lib
 
   bool GetCurrentRobotStateServer::get_current_robot_state(GetCurrentRobotStateCmd::Request &req, GetCurrentRobotStateCmd::Response &res)
   {
-    ROS_INFO("Get Current Robot State Server request received.");
+    ROS_DEBUG("Get Current Robot State Server request received.");
     robot_state_buffer_mutex_.lock();
     res.robot_state = robot_state_buffer_.back();
     robot_state_buffer_mutex_.unlock();
-    ROS_INFO("Get Current Robot State Servier request processed.");
+    ROS_DEBUG("Get Current Robot State Servier request processed.");
     
     return true;
   }

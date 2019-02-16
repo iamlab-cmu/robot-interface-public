@@ -671,7 +671,10 @@ void run_loop::run_on_franka() {
       robot_access_mutex_.unlock();
 
       std::cout << "Error recovery finished\n";
-      
+
+      // Giving franka_action_lib some time to react
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
       continue;
     }
   }
