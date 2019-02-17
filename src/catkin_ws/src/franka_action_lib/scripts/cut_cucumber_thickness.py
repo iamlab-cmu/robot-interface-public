@@ -12,6 +12,8 @@ from franka_action_lib.msg import ExecuteSkillAction, ExecuteSkillGoal
 
 from frankapy.skill_list import *
 
+from autolab_core import transformations
+
 def feedback_callback(feedback):
     print(feedback)
 
@@ -50,6 +52,7 @@ class CutCucumberSkill(object):
 
     def execute_skill(self, skill, client):
         goal = skill.create_goal()
+        print ("==== Begin goal ====")
         print(goal)
         client.send_goal(goal, feedback_cb=lambda x: skill.feedback_callback(x))
         done = client.wait_for_result(rospy.Duration.from_sec(5.0))
@@ -61,10 +64,8 @@ class CutCucumberSkill(object):
 
     def create_skill_for_class(self, klass, description):
         skill = klass(
-                skill_description=
-                description 
-                + ' type: {}, '.format(klass.__name__)
-                + ' id: {}'.format(self.skill_id))
+                skill_description=description + 
+                ' type: {}, id: {}'.format(klass.__name__, self.skill_id))
         return skill
 
     def get_move_left_skill(self, distance_in_m, desc=''):
@@ -95,10 +96,22 @@ class CutCucumberSkill(object):
                 [10.0] + [3.0] + [10.0] * 4)
         return skill
 
-    def add_random_exploration(
+    def create_skill_to_move_to_air(self, time, dist, quaternion, desc):
+        '''Skill that moves the EE pose above in z-axis.'''
+        skill = self.move_to_relative_position_and_orientation(
+                time,
+                [0., 0., dist],
+                quaternion,
+                [10.0] * 6,
+                [10.0] * 6,
+                desc)
+        return skill
+
+    def move_to_relative_position_and_orientation(
             self,
             time,
             position_delta,
+            quaternion,
             lower_force_thresholds_accel=[3.0] * 6,
             lower_force_thresholds_nominal=[3.0] * 6,
             description=''):
@@ -109,13 +122,29 @@ class CutCucumberSkill(object):
         skill.add_traj_params_with_quaternion(
                 time,
                 position_delta,
-                CutCucumberSkill.IDENTITY_QUATERNION)
+                quaternion)
+        # assert skill._num_trajectory_generator_params == 8, "WTF"
         skill.add_controller_stiffness_params(600, 50)
         skill.add_contact_termination_params(
                 1.0,
                 lower_force_thresholds_accel,
                 lower_force_thresholds_nominal)
         return skill
+
+    def add_random_exploration(
+            self,
+            time,
+            position_delta,
+            lower_force_thresholds_accel=[3.0] * 6,
+            lower_force_thresholds_nominal=[3.0] * 6,
+            description=''):
+        return self.move_to_relative_position_and_orientation(
+                time,
+                position_delta,
+                CutCucumberSkill.IDENTITY_QUATERNION,
+                lower_force_thresholds_accel,
+                lower_force_thresholds_nominal,
+                description)
 
     def add_random_x_exploration(
             self,
@@ -150,7 +179,7 @@ class CutCucumberSkill(object):
             time,
             z_delta,
             lower_force_thresholds_accel=[10.0, 10., 3., 10., 10., 10.],
-            lower_force_thresholds_nominal=[10.0, 3., 3., 10., 10., 10.],
+            lower_force_thresholds_nominal=[10.0, 10.0, 3., 10., 10., 10.],
             description=''):
         return self.add_random_exploration(
                 time,
@@ -205,11 +234,16 @@ class CutCucumberSkill(object):
 
 
 if __name__ == '__main__':
-    rospy.init_node('example_execute_skill_action_client')
+    rospy.init_node('example_execute_skill_action_client', 
+                    log_level=rospy.DEBUG)
+    time_now = rospy.Time.now()
+    print("Time now: {:.6f}".format(time_now.to_sec()))
     client = actionlib.SimpleActionClient(
             '/execute_skill_action_server_node/execute_skill',
             ExecuteSkillAction)
     client.wait_for_server()
+
+    rospy.loginfo("Will start server")
 
     parser = argparse.ArgumentParser(description='Joint DMP Skill Example')
     parser.add_argument('--filename', required=True, 
@@ -236,7 +270,7 @@ if __name__ == '__main__':
             'move_to_initial_position')
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
     # Run Time (1) and Desired End Effector Pose(16)
-    skill.add_trajectory_params([3.0] + CutCucumberSkill.INITIAL_POSITION)
+    skill.add_trajectory_params([2.0] + CutCucumberSkill.INITIAL_POSITION)
     # translational stiffness, rotational stiffness
     skill.add_feedback_controller_params([600, 50])
     skill.add_buffer_time_for_termination(1.0)
@@ -248,7 +282,7 @@ if __name__ == '__main__':
             'move_above_cutting_board')
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
     skill.add_trajectory_params(
-            [3.0] + CutCucumberSkill.POSITION_ABOVE_CUTTING_BOARD)
+            [2.0] + CutCucumberSkill.POSITION_ABOVE_CUTTING_BOARD)
     skill.add_feedback_controller_params([600, 50])
     skill.add_buffer_time_for_termination(1.0)
     cut_cucumber_skill.execute_skill(skill, client)
@@ -259,10 +293,21 @@ if __name__ == '__main__':
             'move_onto_cutting_board')
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
     skill.add_trajectory_params(
-            [3.0] + CutCucumberSkill.MOVE_TO_CUTTING_BOARD_POSITION)
+            [2.0] + CutCucumberSkill.MOVE_TO_CUTTING_BOARD_POSITION)
     skill.add_feedback_controller_params([600, 50])
     skill.add_buffer_time_for_termination(1.0)
     cut_cucumber_skill.execute_skill(skill, client)
+
+    orig_quaternion_position = np.array(
+        CutCucumberSkill.MOVE_TO_CUTTING_BOARD_POSITION).reshape(4, 4)
+
+    if args.move_in_air:
+        move_air_dist = 0.02
+        move_to_air_skill = cut_cucumber_skill.create_skill_to_move_to_air(
+                1.0, move_air_dist,
+                CutCucumberSkill.IDENTITY_QUATERNION,
+                "move_to_air_to_avoid_rubbing_board_0")
+        cut_cucumber_skill.execute_skill(move_to_air_skill, client)
     
     # Move left to contact cucumber
     skill = cut_cucumber_skill.create_skill_for_class(
@@ -354,8 +399,19 @@ if __name__ == '__main__':
         for dmp_idx in range(num_of_dmps_to_run):
             cut_cucumber_skill.execute_skill(skill, client)
 
+        '''
+        if args.move_in_air:
+            move_air_dist = 0.1
+            skill = cut_cucumber_skill.create_skill_to_move_to_air(
+                    1.0, move_air_dist, CutCucumberSkill.IDENTITY_QUATERNION,
+                    "move_to_air_to_avoid_rubbing_board_slice_{}".format(
+                        slice_idx))
+            cut_cucumber_skill.execute_skill(skill, client)
+        '''
+
         # Move cut cucumber piece away from the main cucumber
-        move_cut_piece_away_dist = 0.08
+        '''
+        move_cut_piece_away_dist = 0.02
         skill = cut_cucumber_skill.get_move_left_skill(
                 move_cut_piece_away_dist, 
                 desc='move_to_separate_cut_slice_{}_dist_{:.3f}'.format(
@@ -366,3 +422,4 @@ if __name__ == '__main__':
         skill = cut_cucumber_skill.create_skill_to_move_to_cucumber(
                 desc='move_left_to_contact_cucumber_after_slice_{}'.format(slice_idx))
         cut_cucumber_skill.execute_skill(skill, client)
+        '''

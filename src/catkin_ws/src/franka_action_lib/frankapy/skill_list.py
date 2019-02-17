@@ -59,6 +59,8 @@ class BaseSkill(object):
         self._sensor_value_sizes = [len(values)]
 
     def add_trajectory_params(self, params):
+        assert type(params) is list, \
+                "Invalid type of params provided {}".format(params)
         self._trajectory_generator_params = params
         self._num_trajectory_generator_params = len(params)
 
@@ -346,6 +348,8 @@ class ArmRelativeMotionToContactWithDefaultSensorSkill(BaseSkill):
         '''
         assert len(position) == 3, "Incorrect position given"
         assert len(quaternion) == 4, "Incorrect quaternion representation"
+        assert type(position) is list, "Incorrect position type"
+        assert type(quaternion) is list, "Incorrect quaternion type"
         self.add_trajectory_params([time] + position + quaternion)
 
     def add_collision_termination_params(self, buffer_time,
