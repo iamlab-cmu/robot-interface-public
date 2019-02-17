@@ -62,6 +62,7 @@ void DmpTrajectoryGenerator::initialize_trajectory() {
 }
 
 void DmpTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
+  TrajectoryGenerator::initialize_initial_states(robot_state);
   // TODO: Should we use desired joint values here?
   for (size_t i = 0; i < y0_.size(); i++) {
     y0_[i] = static_cast<float>(robot_state.q_d[i]);

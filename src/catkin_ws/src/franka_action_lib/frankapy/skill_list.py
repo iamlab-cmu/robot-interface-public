@@ -513,12 +513,35 @@ class ForceTorqueSkill(BaseSkill):
                 meta_skill_type=0,
                 meta_skill_id=0,
                 trajectory_generator_type=9,
-                feedback_controller_type=1,
+                feedback_controller_type=5,
                 termination_type=6,
                 timer_type=1):
         if len(skill_description) == 0:
             skill_description = ForceTorqueSkill.__name__
         super(ForceTorqueSkill, self).__init__(
+              skill_type,
+              skill_description,
+              meta_skill_type,
+              meta_skill_id,
+              ['/franka_robot/camera'],
+              trajectory_generator_type,
+              feedback_controller_type,
+              termination_type,
+              timer_type)
+
+class ForceAlongAxisSkill(BaseSkill):
+    def __init__(self, 
+                skill_type=4,
+                skill_description='',
+                meta_skill_type=0,
+                meta_skill_id=0,
+                trajectory_generator_type=9,
+                feedback_controller_type=4,
+                termination_type=6,
+                timer_type=1):
+        if len(skill_description) == 0:
+            skill_description = ForceTorqueSkill.__name__
+        super(ForceAlongAxisSkill, self).__init__(
               skill_type,
               skill_description,
               meta_skill_type,

@@ -25,8 +25,6 @@ class LinearTrajectoryGeneratorWithTimeAndGoal : public TrajectoryGenerator {
   Eigen::Quaterniond goal_orientation_;
 
  private:
-  Eigen::Vector3d initial_position_;
-  Eigen::Quaterniond initial_orientation_;
   double t_ = 0.0;
 };
 

@@ -25,10 +25,8 @@ class ImpulseTrajectoryGenerator : public TrajectoryGenerator {
 
   double max_translation_{0.};
   double max_rotation_{0.}; 
-  Eigen::Vector3d Tr_init;
-  Eigen::Quaterniond Q_init;
-  Eigen::Vector3d Tr_curr;
-  Eigen::Quaterniond Q_curr;
+  Eigen::Vector3d curr_position_;
+  Eigen::Quaterniond curr_orientation_;
 };
 
 #endif	// IAM_ROBOLIB_TRAJECTORY_GENERATOR_IMPULSE_TRAJECTORY_GENERATOR_H_

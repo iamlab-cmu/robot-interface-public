@@ -30,6 +30,7 @@ void MinJerkJointTrajectoryGenerator::initialize_trajectory() {
 }
 
 void MinJerkJointTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
+  TrajectoryGenerator::initialize_initial_states(robot_state);
   joint_desired_ = robot_state.q;
   joint_initial_ = robot_state.q;
 }
