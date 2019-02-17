@@ -7,6 +7,7 @@ import actionlib
 import pickle
 import argparse
 import numpy as np
+import os
 
 from franka_action_lib.msg import ExecuteSkillAction, ExecuteSkillGoal
 from frankapy.skill_list import *
@@ -17,7 +18,7 @@ import pyrealsense2 as rs
 import cv2
 
 def feedback_callback(feedback):
-    print(feedback)
+    print(feedback) 
 
 def enumerate_connected_devices(context):
     """
@@ -74,6 +75,10 @@ class CutCucumberSkill(object):
     def __init__(self, cutting_knife_location_x, image_dir):
         self.image_dir = image_dir
         self.camera_dirs = ['camera1_color_image_raw', 'camera2_color_image_raw']
+        for camera_dir in self.camera_dirs:
+            if not os.path.exists(os.path.join(image_dir, camera_dir)):
+                os.makedirs(os.path.join(image_dir, camera_dir))
+
         self.images_by_camera = {self.camera_dirs[0]: {},
                                  self.camera_dirs[1]: {}}
         self.image_idx_by_camera = {self.camera_dirs[0]: 0,
@@ -121,27 +126,28 @@ class CutCucumberSkill(object):
             img_path = os.path.join(self.image_dir,
                                     camera_dir,
                                     'frame_{:05d}.jpg'.format(img_idx))
+            print("keys: {}".format(frames.keys()))
             cv2.imwrite(img_path, frames[self.available_devices[i]])
             print("Did save image: {}".format(img_path))
 
             if self.images_by_camera[camera_dir].get(dmp_idx) is None:
                 assert before_dmp, "Cannot have after dmp image without before"
-                self.images_by_camera[camera_dir][dmp_idx] = {}
-                self.images_by_camera[camera_dir][dmp_idx]['before'] = [img_idx]
+                self.images_by_camera[camera_dir][dmp_idx] = {
+                        'before': [], 'after': []
+                        }
             
             if before_dmp:
                 self.images_by_camera[camera_dir][dmp_idx]['before'].append(
                         img_idx)
             else:
-                if self.images_by_camera[camera_dir][dmp_idx].get('after') is None:
-                    self.images_by_camera[camera_dir][dmp_idx]['after'] = \
-                            img_idx
+                self.images_by_camera[camera_dir][dmp_idx]['after'].append(
+                        img_idx)
             self.image_idx_by_camera[camera_dir] += 1 
 
         # Now save the pickle file
         pkl_path = os.path.join(self.image_dir, 'images_info.pkl')
         with open(pkl_path, 'wb') as pkl_f:
-            pickle.dump((self.images_by_camera), pkl_path, protocol=2)
+            pickle.dump((self.images_by_camera), pkl_f, protocol=2)
             print("Did save image info pickle: {}".format(pkl_path))
 
     def ms_get_frames(self):
@@ -157,9 +163,7 @@ class CutCucumberSkill(object):
         """
         Poll for frames from the enabled Intel RealSense devices.  If temporal
         post processing is enabled, the depth stream is averaged over a certain
-        amount of frames
-        Parameters:
-        -----------
+        amount of frames Parameters: -----------
         """
         frames = {}
         for (serial, device) in self._enabled_devices.items():
@@ -199,13 +203,13 @@ class CutCucumberSkill(object):
                 ' type: {}, id: {}'.format(klass.__name__, self.skill_id))
         return skill
 
-    def get_move_left_skill(self, distance_in_m, desc=''):
+    def get_move_left_skill(self, distance_in_m, time=3.0, desc=''):
         skill = self.create_skill_for_class(
                 ArmRelativeMotionWithDefaultSensorSkill,
                 desc)
         skill.add_initial_sensor_values([1, 3, 5, 7, 8])
         skill.add_relative_motion_with_quaternion(
-                3.0,
+                time,
                 [0., -distance_in_m, 0.],
                 CutCucumberSkill.IDENTITY_QUATERNION)
         skill.add_feedback_controller_params([600, 50])
@@ -403,10 +407,12 @@ if __name__ == '__main__':
     for i in range(args.num_cameras):
         device_id = cut_cucumber_skill.available_devices[i]
         cut_cucumber_skill.enable_device(device_id, False)
+        print("Did enable device: {}".format(device_id))
 
     # Buffer some images initially since realsense changes lighting
     for k in range(100):
         frames = cut_cucumber_skill.ms_get_frames()
+        assert len(frames.keys()) != 0, "Did not get any camera images" 
 
     # Set desired thickness for cucumber slices. 
     CutCucumberSkill.SLICE_THICKNESS = args.thickness
@@ -578,10 +584,11 @@ if __name__ == '__main__':
             cut_cucumber_skill.execute_skill(skill, client)
         '''
 
-        # Move cut cucumber piece away from the main cucumber
-        move_cut_piece_away_dist = 0.02
+        # Move cut cucumber piece away from the main cucumber (Stay in place)
+        move_cut_piece_away_dist = 0.0
         skill = cut_cucumber_skill.get_move_left_skill(
                 move_cut_piece_away_dist, 
+                time=5.0,
                 desc='move_to_separate_cut_slice_{}_dist_{:.3f}'.format(
                     slice_idx, move_cut_piece_away_dist))
         cut_cucumber_skill.execute_skill(skill, client)
@@ -593,3 +600,15 @@ if __name__ == '__main__':
         skill = cut_cucumber_skill.create_skill_to_move_to_cucumber(
                 desc='move_left_to_contact_cucumber_after_slice_{}'.format(slice_idx))
         cut_cucumber_skill.execute_skill(skill, client)
+
+    # Finally move to position above cutting board
+    # Move to designated position above the cutting board
+    skill = cut_cucumber_skill.create_skill_for_class(
+            ArmMoveToGoalWithDefaultSensorSkill,
+            'move_above_cutting_board_final')
+    skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
+    skill.add_trajectory_params(
+            [3.0] + CutCucumberSkill.POSITION_ABOVE_CUTTING_BOARD)
+    skill.add_feedback_controller_params([600, 50])
+    skill.add_buffer_time_for_termination(1.0)
+    cut_cucumber_skill.execute_skill(skill, client)
