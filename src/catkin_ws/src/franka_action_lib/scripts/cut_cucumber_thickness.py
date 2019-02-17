@@ -15,7 +15,6 @@ from autolab_core import transformations
 
 import pyrealsense2 as rs
 import cv2
-import h5py
 
 def feedback_callback(feedback):
     print(feedback)
@@ -72,7 +71,13 @@ class CutCucumberSkill(object):
     # Time helpers
     RANDOM_EXPLORATION_TIME = 1.0
 
-    def __init__(self, cutting_knife_location_x):
+    def __init__(self, cutting_knife_location_x, image_dir):
+        self.image_dir = image_dir
+        self.camera_dirs = ['camera1_color_image_raw', 'camera2_color_image_raw']
+        self.images_by_camera = {self.camera_dirs[0]: {},
+                                 self.camera_dirs[1]: {}}
+        self.image_idx_by_camera = {self.camera_dirs[0]: 0,
+                                    self.camera_dirs[1]: 0}
         self.cutting_knife_location_x = cutting_knife_location_x
         self.skill_id = 0
 
@@ -108,6 +113,36 @@ class CutCucumberSkill(object):
         # sensor.set_option(rs.option.emitter_enabled, 1 if enable_ir_emitter else 0)
 
         self._enabled_devices[device_serial] = (Device(pipeline, pipeline_profile))
+
+    def save_current_images(self, dmp_idx, before_dmp):
+        frames = self.ms_get_frames()
+        for i, camera_dir in enumerate(self.camera_dirs):
+            img_idx = self.image_idx_by_camera[camera_dir]
+            img_path = os.path.join(self.image_dir,
+                                    camera_dir,
+                                    'frame_{:05d}.jpg'.format(img_idx))
+            cv2.imwrite(img_path, frames[self.available_devices[i]])
+            print("Did save image: {}".format(img_path))
+
+            if self.images_by_camera[camera_dir].get(dmp_idx) is None:
+                assert before_dmp, "Cannot have after dmp image without before"
+                self.images_by_camera[camera_dir][dmp_idx] = {}
+                self.images_by_camera[camera_dir][dmp_idx]['before'] = [img_idx]
+            
+            if before_dmp:
+                self.images_by_camera[camera_dir][dmp_idx]['before'].append(
+                        img_idx)
+            else:
+                if self.images_by_camera[camera_dir][dmp_idx].get('after') is None:
+                    self.images_by_camera[camera_dir][dmp_idx]['after'] = \
+                            img_idx
+            self.image_idx_by_camera[camera_dir] += 1 
+
+        # Now save the pickle file
+        pkl_path = os.path.join(self.image_dir, 'images_info.pkl')
+        with open(pkl_path, 'wb') as pkl_f:
+            pickle.dump((self.images_by_camera), pkl_path, protocol=2)
+            print("Did save image info pickle: {}".format(pkl_path))
 
     def ms_get_frames(self):
         image_by_device_dict = {}
@@ -353,10 +388,17 @@ if __name__ == '__main__':
                         help='Do not slide on the cutting board.')
     parser.add_argument('--num_cameras', type=int, default=3,
                         help='Number of cameras to record')
+    parser.add_argument('--image_dir', type=str, 
+                        default='/tmp/cut_cucumber_thickness',
+                        help='Directory to store h5 file with images.')
     args = parser.parse_args()
 
+    if not os.path.exists(args.image_dir):
+        os.makedirs(args.image_dir)
+
     cutting_knife_location_x = 0.5232
-    cut_cucumber_skill = CutCucumberSkill(cutting_knife_location_x)
+    cut_cucumber_skill = CutCucumberSkill(cutting_knife_location_x, 
+                                          args.image_dir)
     # Enable camera devices
     for i in range(args.num_cameras):
         device_id = cut_cucumber_skill.available_devices[i]
@@ -407,6 +449,9 @@ if __name__ == '__main__':
     cut_cucumber_skill.execute_skill(skill, client)
 
 
+    # Save image initially
+    cut_cucumber_skill.save_current_images(0, True)
+
     orig_quaternion_position = np.array(
         CutCucumberSkill.MOVE_TO_CUTTING_BOARD_POSITION).reshape(4, 4)
 
@@ -433,6 +478,9 @@ if __name__ == '__main__':
             [10.0,3.0,10.0,10.0,10.0,3.0])
     cut_cucumber_skill.execute_skill(skill, client)
 
+    # Save image initially
+    cut_cucumber_skill.save_current_images(0, True)
+
     num_slices_to_cut = 4
 
     for slice_idx in range(num_slices_to_cut):
@@ -451,6 +499,9 @@ if __name__ == '__main__':
         move_up_above_cucumber_skill.add_termination_params([1.0])
         cut_cucumber_skill.execute_skill(move_up_above_cucumber_skill, client)
 
+        # Save image after moving up above cucumber
+        cut_cucumber_skill.save_current_images(slice_idx, True)
+
         slice_thickness = CutCucumberSkill.SLICE_THICKNESS \
                 if slice_idx > 0 else CutCucumberSkill.FIRST_SLICE_THICKNESS
         # Move left above the cucumber
@@ -468,6 +519,9 @@ if __name__ == '__main__':
         skill.add_termination_params([1.0])
         cut_cucumber_skill.execute_skill(skill, client)
 
+        # Save image after moving left still on top of cucumber
+        cut_cucumber_skill.save_current_images(slice_idx, True)
+
         # Move to contact
         move_onto_cucumber_skill = cut_cucumber_skill.create_skill_for_class(
                 ArmRelativeMotionToContactWithDefaultSensorSkill,
@@ -483,6 +537,9 @@ if __name__ == '__main__':
                 [10., 10., 5., 10., 10., 10.],
                 [10., 10., 5., 10., 10., 10.])
         cut_cucumber_skill.execute_skill(move_onto_cucumber_skill, client)
+
+        # Save image after making contact with cucumber 
+        cut_cucumber_skill.save_current_images(slice_idx, True)
         
         # Start DMP cutting for n times
         skill = cut_cucumber_skill.create_skill_for_class(
@@ -508,6 +565,9 @@ if __name__ == '__main__':
         for dmp_idx in range(num_of_dmps_to_run):
             cut_cucumber_skill.execute_skill(skill, client)
 
+        # Save image after making contact with cucumber 
+        cut_cucumber_skill.save_current_images(slice_idx, False)
+
         '''
         if args.move_in_air:
             move_air_dist = 0.1
@@ -519,7 +579,6 @@ if __name__ == '__main__':
         '''
 
         # Move cut cucumber piece away from the main cucumber
-        '''
         move_cut_piece_away_dist = 0.02
         skill = cut_cucumber_skill.get_move_left_skill(
                 move_cut_piece_away_dist, 
@@ -527,8 +586,10 @@ if __name__ == '__main__':
                     slice_idx, move_cut_piece_away_dist))
         cut_cucumber_skill.execute_skill(skill, client)
 
+        # Save image after moving knife away from cucumber 
+        cut_cucumber_skill.save_current_images(slice_idx, False)
+
         # Move back to cucumber
         skill = cut_cucumber_skill.create_skill_to_move_to_cucumber(
                 desc='move_left_to_contact_cucumber_after_slice_{}'.format(slice_idx))
         cut_cucumber_skill.execute_skill(skill, client)
-        '''
