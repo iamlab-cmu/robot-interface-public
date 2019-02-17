@@ -16,7 +16,7 @@ from franka_action_lib.msg import ExecuteSkillAction, RobolibStatus
 
 from .skill_list import *
 from .exceptions import *
-from .franka_arm_subscriber import FrankaArmSubscriber
+from .franka_arm_state_client import FrankaArmStateClient
 from .franka_constants import FrankaConstants as FC
 
 class FrankaArm:
@@ -41,7 +41,7 @@ class FrankaArm:
             self._robolib_status_q.put(robolib_status)
         rospy.Subscriber(FC.ROS_ROBOLIB_STATUS_PUBLISHER_NAME, RobolibStatus, robolib_status_callback)
 
-        self._sub = FrankaArmSubscriber(new_ros_node=False)
+        self._state_client = FrankaArmStateClient(new_ros_node=False)
         self._client = actionlib.SimpleActionClient(FC.ROS_EXECUTE_SKILL_ACTION_SERVER_NAME, ExecuteSkillAction)
         self._client.wait_for_server()
         self.wait_for_robolib()
@@ -318,14 +318,14 @@ class FrankaArm:
         Returns:
             dict of full robot state data
         '''
-        return self._sub.get_data()
+        return self._state_client.get_data()
 
     def get_pose(self):
         '''
         Returns:
             pose (RigidTransform) of the current end-effector
         '''
-        tool_base_pose = self._sub.get_pose()
+        tool_base_pose = self._state_client.get_pose()
 
         tool_pose = tool_base_pose * self._tool_delta_pose
 
@@ -336,35 +336,35 @@ class FrankaArm:
         Returns:
             ndarray of shape (7,) of joint angles in radians
         '''
-        return self._sub.get_joints()
+        return self._state_client.get_joints()
 
     def get_joint_torques(self):
         '''
         Returns:
             ndarray of shape (7,) of joint torques in Nm
         '''
-        return self._sub.get_joint_torques()
+        return self._state_client.get_joint_torques()
 
     def get_joint_velocities(self):
         '''
         Returns:
             ndarray of shape (7,) of joint velocities in rads/s
         '''
-        return self._sub.get_joint_velocities()
+        return self._state_client.get_joint_velocities()
 
     def get_gripper_width(self):
         '''
         Returns:
             float of gripper width in meters
         '''
-        return self._sub.get_gripper_width()
+        return self._state_client.get_gripper_width()
 
     def get_gripper_is_grasped(self):
         '''
         Returns:
             True if gripper is grasping something. False otherwise
         '''
-        return self._sub.get_gripper_is_grasped()
+        return self._state_client.get_gripper_is_grasped()
 
     def get_speed(self, speed):
         '''
