@@ -165,6 +165,7 @@ void run_loop::update_process_info() {
                 *(shared_memory_handler_->getRunLoopProcessInfoMutex()),
                 boost::interprocess::defer_lock);
     try {
+      std::cout << "Will try to get lock to update process info\n";
       if (lock.try_lock()) {
         run_loop_info->reset_watchdog_counter();
         run_loop_info->set_is_running_skill(is_executing_skill);
@@ -250,6 +251,8 @@ void run_loop::update_process_info() {
         } else {          
           // std::cout << "Did not get new skill\n";
         }
+      } else {
+        std::cout << "Failed to get lock to update process info\n";
       }
     } catch (boost::interprocess::lock_exception) {
       // TODO(Mohit): Do something better here.
@@ -586,9 +589,18 @@ void run_loop::set_robolib_status(bool is_ready, std::string error_message) {
   RunLoopProcessInfo* run_loop_info = shared_memory_handler_->getRunLoopProcessInfo();
     boost::interprocess::scoped_lock<
             boost::interprocess::interprocess_mutex> lock(
-                *(shared_memory_handler_->getRunLoopProcessInfoMutex()));
-  run_loop_info->set_is_ready(is_ready);
-  run_loop_info->set_error_description(error_message);
+                *(shared_memory_handler_->getRunLoopProcessInfoMutex()),
+                boost::interprocess::defer_lock);
+  try {
+    std::cout << "Will try to acquire lock while setting robolib status\n";
+    if (lock.try_lock()) {
+      run_loop_info->set_is_ready(is_ready);
+      run_loop_info->set_error_description(error_message);
+    }
+  } catch (boost::interprocess::lock_exception) {
+    // TODO(Mohit): Do something better here.
+    std::cout << "Cannot acquire lock while setting robolib status\n";
+  }
 }
 
 void run_loop::run_on_franka() {
