@@ -27,7 +27,7 @@
 #include "iam_robolib/skills/force_torque_skill.h"
 
 std::atomic<bool> run_loop::run_loop_ok_{false};
-std::atomic<bool> run_loop::running_skill_{false};
+std::mutex run_loop::robot_access_mutex_;
 
 template<typename ... Args>
 std::string string_format(const std::string& format, Args ... args )
@@ -303,7 +303,7 @@ void run_loop::run() {
 }
 
 void run_loop::setup_save_robot_state_thread() {
-  int io_rate = 100;   // The below thread will print at 10 FPS.
+  int io_rate = 100;   // The below thread will print at 100 FPS.
   robot_state_read_thread_ = std::thread([&, io_rate]() {
       // Sleep to achieve the desired print rate.
       std::chrono::steady_clock::time_point start_time = std::chrono::steady_clock::now();
@@ -311,29 +311,36 @@ void run_loop::setup_save_robot_state_thread() {
         std::this_thread::sleep_for(
             std::chrono::milliseconds(static_cast<int>((1.0 / io_rate * 1000.0))));
 
-        // don't record data if a skill is running - the skill's control loop will handle that.
-        if (!run_loop_ok_ || running_skill_) {
+        // don't record data if run loop is not ready
+        if (!run_loop_ok_) {
           continue;
         }
 
         // Try to lock data to avoid read write collisions.
-        switch(robot_->robot_type_)
-        {
-          case RobotType::FRANKA: {
-              FrankaRobot* franka_robot = dynamic_cast<FrankaRobot* >(robot_);
-              franka::RobotState robot_state = franka_robot->getRobotState();
-              franka::GripperState gripper_state = franka_robot->getGripperState();
+        if (robot_access_mutex_.try_lock()) {
+          switch (robot_->robot_type_) {
+            case RobotType::FRANKA: {
+                try {
+                  FrankaRobot* franka_robot = dynamic_cast<FrankaRobot* >(robot_);
+                  franka::RobotState robot_state = franka_robot->getRobotState();
+                  franka::GripperState gripper_state = franka_robot->getGripperState();
 
-              double duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-                  std::chrono::steady_clock::now() - start_time).count();
+                  double duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+                      std::chrono::steady_clock::now() - start_time).count();
 
-              robot_state_data_->log_pose_desired(robot_state.O_T_EE_d); // Fictitious call to log pose desired so pose_desired buffer length matches during non-skill execution
-              robot_state_data_->log_robot_state(robot_state, duration / 1000.0);
-              robot_state_data_->log_gripper_state(gripper_state);
-            }
-            break;
-          case RobotType::UR5E:
-            break;
+                  robot_state_data_->log_pose_desired(robot_state.O_T_EE_d); // Fictitious call to log pose desired so pose_desired buffer length matches during non-skill execution
+                  robot_state_data_->log_robot_state(robot_state, duration / 1000.0);
+                  robot_state_data_->log_gripper_state(gripper_state);
+                } catch (const franka::Exception& ex) {
+                  robot_access_mutex_.unlock();
+                  std::cerr << "Robot state save thread encountered Franka exception. Will not log for now.\n";
+                }
+                break;
+              }
+            case RobotType::UR5E:
+              break;
+          }
+          robot_access_mutex_.unlock();
         }
       }
   });
@@ -600,6 +607,7 @@ void run_loop::run_on_franka() {
 
         // NOTE: We keep on running the last skill even if it is finished!!
         if (skill != nullptr && meta_skill != nullptr) {
+          robot_access_mutex_.lock();
           if (!meta_skill->isComposableSkill() && !skill->get_termination_handler()->done_) {
             // Execute skill.
             log_skill_info(skill);
@@ -611,6 +619,7 @@ void run_loop::run_on_franka() {
             finish_current_skill(skill);
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
           }
+          robot_access_mutex_.unlock();
         }
 
         // Complete old skills and acquire new skills
@@ -620,8 +629,9 @@ void run_loop::run_on_franka() {
         BaseSkill* new_skill = skill_manager_.get_current_skill();
         if (should_start_new_skill(skill, new_skill)) {
           std::cout << "Will start skill\n";
-          running_skill_ = true;
+          robot_access_mutex_.lock();
           start_new_skill(new_skill);
+          robot_access_mutex_.unlock();
         }
 
         // Sleep to maintain 1Khz frequency, not sure if this is required or not.
@@ -635,7 +645,6 @@ void run_loop::run_on_franka() {
     } catch (const franka::Exception& ex) {
       std::cout << "Caught Franka Exception\n";
       run_loop_ok_ = false;
-      running_skill_ = false;
 
       // Alert franka_action_lib that an exception has occurred      
       std::string error_description = ex.what();
@@ -659,8 +668,10 @@ void run_loop::run_on_franka() {
 
       // Perform error recovery
       robot_->automaticErrorRecovery();
+      robot_access_mutex_.unlock();
 
       std::cout << "Error recovery finished\n";
+      
       continue;
     }
   }
