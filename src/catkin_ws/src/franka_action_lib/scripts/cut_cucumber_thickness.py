@@ -9,13 +9,39 @@ import argparse
 import numpy as np
 
 from franka_action_lib.msg import ExecuteSkillAction, ExecuteSkillGoal
-
 from frankapy.skill_list import *
 
 from autolab_core import transformations
 
+import pyrealsense2 as rs
+import cv2
+import h5py
+
 def feedback_callback(feedback):
     print(feedback)
+
+def enumerate_connected_devices(context):
+    """
+    Enumerate the connected Intel RealSense devices
+    Parameters:
+    -----------
+    context               : rs.context()
+                         The context created for using the realsense library
+    Return:
+    -----------
+    connect_device : array
+                       Array of enumerated devices which are connected to the PC
+    """
+    connect_device = []
+    for d in context.devices:
+        if d.get_info(rs.camera_info.name).lower() != 'platform camera':
+            connect_device.append(d.get_info(rs.camera_info.serial_number))
+    return connect_device
+
+class Device:
+    def __init__(self, pipeline, pipeline_profile):
+        self.pipeline = pipeline
+        self.pipeline_profile = pipeline_profile
 
 
 class CutCucumberSkill(object):
@@ -50,6 +76,76 @@ class CutCucumberSkill(object):
         self.cutting_knife_location_x = cutting_knife_location_x
         self.skill_id = 0
 
+        # Configure depth and color streams
+        self._config = rs.config()
+        self._config.enable_stream(rs.stream.color, 1280, 720, rs.format.rgb8, 6)
+        self._context = rs.context()
+        # self.config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+        self._config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+
+        self.available_devices = enumerate_connected_devices(self._context)
+        print("Available devices: {}".format(self.available_devices))
+        self._enabled_devices = {}
+
+    def enable_device(self, device_serial, enable_ir_emitter):
+        """
+        Enable an Intel RealSense Device
+        Parameters:
+        -----------
+        device_serial        : string
+                             Serial number of the realsense device
+        enable_ir_emitter : bool
+                            Enable/Disable the IR-Emitter of the device
+        """
+        pipeline = rs.pipeline()
+
+        # Enable the device
+        self._config.enable_device(device_serial)
+        pipeline_profile = pipeline.start(self._config)
+
+        # Set the acquisition parameters
+        # sensor = pipeline_profile.get_device().first_depth_sensor()
+        # sensor.set_option(rs.option.emitter_enabled, 1 if enable_ir_emitter else 0)
+
+        self._enabled_devices[device_serial] = (Device(pipeline, pipeline_profile))
+
+    def ms_get_frames(self):
+        image_by_device_dict = {}
+        for (serial, device) in self._enabled_devices.items():
+            frames = device.pipeline.wait_for_frames()
+            color_frame = frames.get_color_frame()
+            color_image = np.asanyarray(color_frame.get_data())
+            image_by_device_dict[serial] = color_image
+        return image_by_device_dict
+
+    def poll_frames(self):
+        """
+        Poll for frames from the enabled Intel RealSense devices.  If temporal
+        post processing is enabled, the depth stream is averaged over a certain
+        amount of frames
+        Parameters:
+        -----------
+        """
+        frames = {}
+        for (serial, device) in self._enabled_devices.items():
+            streams = device.pipeline_profile.get_streams()
+            print(streams)
+            # frameset = rs.composite_frame(rs.frame())
+            frameset = rs.frame()
+            device.pipeline.poll_for_frames(frameset)
+            if frameset.size() == len(streams):
+                frames[serial] = {}
+                for stream in streams:
+                    if (rs.stream.infrared == stream.stream_type()):
+                        frame = frameset.get_infrared_frame(stream.stream_index())
+                        key_ = (stream.stream_type(), stream.stream_index())
+                    else:
+                        frame = frameset.first_or_default(stream.stream_type())
+                        key_ = stream.stream_type()
+                    frames[serial][key_] = frame
+
+        return frames
+
     def execute_skill(self, skill, client):
         goal = skill.create_goal()
         print ("==== Begin goal ====")
@@ -83,9 +179,9 @@ class CutCucumberSkill(object):
 
     def create_skill_to_move_to_cucumber(self, desc=''):
         ''' Move left to contact cucumber '''
-	skill = self.create_skill_for_class(
-		ArmMoveToGoalContactWithDefaultSensorSkill,
-		desc)
+        skill = self.create_skill_for_class(
+                ArmMoveToGoalContactWithDefaultSensorSkill,
+                desc)
         skill.add_initial_sensor_values([1, 3, 5, 7, 8])
         skill.add_trajectory_params(
                 [3.0] + CutCucumberSkill.MOVE_TO_CUCUMBER_POSITION)
@@ -234,6 +330,7 @@ class CutCucumberSkill(object):
 
 
 if __name__ == '__main__':
+
     rospy.init_node('example_execute_skill_action_client', 
                     log_level=rospy.DEBUG)
     time_now = rospy.Time.now()
@@ -254,7 +351,20 @@ if __name__ == '__main__':
                         help='Number of DMPs to run continously to cut 1 slice.')
     parser.add_argument('--move_in_air', type=int, default=0,
                         help='Do not slide on the cutting board.')
+    parser.add_argument('--num_cameras', type=int, default=3,
+                        help='Number of cameras to record')
     args = parser.parse_args()
+
+    cutting_knife_location_x = 0.5232
+    cut_cucumber_skill = CutCucumberSkill(cutting_knife_location_x)
+    # Enable camera devices
+    for i in range(args.num_cameras):
+        device_id = cut_cucumber_skill.available_devices[i]
+        cut_cucumber_skill.enable_device(device_id, False)
+
+    # Buffer some images initially since realsense changes lighting
+    for k in range(100):
+        frames = cut_cucumber_skill.ms_get_frames()
 
     # Set desired thickness for cucumber slices. 
     CutCucumberSkill.SLICE_THICKNESS = args.thickness
@@ -262,8 +372,6 @@ if __name__ == '__main__':
 
     file = open(args.filename,"rb")
     dmp_info = pickle.load(file)
-    cutting_knife_location_x = 0.5232
-    cut_cucumber_skill = CutCucumberSkill(cutting_knife_location_x)
 
     skill = cut_cucumber_skill.create_skill_for_class(
             ArmMoveToGoalWithDefaultSensorSkill,
@@ -297,6 +405,7 @@ if __name__ == '__main__':
     skill.add_feedback_controller_params([600, 50])
     skill.add_buffer_time_for_termination(1.0)
     cut_cucumber_skill.execute_skill(skill, client)
+
 
     orig_quaternion_position = np.array(
         CutCucumberSkill.MOVE_TO_CUTTING_BOARD_POSITION).reshape(4, 4)
@@ -374,7 +483,7 @@ if __name__ == '__main__':
                 [10., 10., 5., 10., 10., 10.],
                 [10., 10., 5., 10., 10., 10.])
         cut_cucumber_skill.execute_skill(move_onto_cucumber_skill, client)
-	
+        
         # Start DMP cutting for n times
         skill = cut_cucumber_skill.create_skill_for_class(
                 JointPoseDMPWithDefaultSensorSkill,
