@@ -72,6 +72,7 @@ add_message_files(
 add_service_files(
   FILES
   GetCurrentRobotStateCmd.srv
+  GetCurrentRobolibStatusCmd.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -152,6 +153,7 @@ add_executable(execute_skill_action_server_node src/execute_skill_action_server.
 add_executable(robot_state_publisher_node src/robot_state_publisher.cpp src/robot_state_publisher_node.cpp)
 add_executable(robolib_status_publisher_node src/robolib_status_publisher.cpp src/robolib_status_publisher_node.cpp)
 add_executable(get_current_robot_state_server_node src/get_current_robot_state_server.cpp src/get_current_robot_state_server_node.cpp)
+add_executable(get_current_robolib_status_server_node src/get_current_robolib_status_server.cpp src/get_current_robolib_status_server_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -204,6 +206,14 @@ target_link_libraries(
 )
 target_link_libraries(
   get_current_robot_state_server_node
+  Threads::Threads
+  ${Boost_LIBRARIES}
+  ${catkin_LIBRARIES}
+  rt
+  ${PROJECT_NAME}
+)
+target_link_libraries(
+  get_current_robolib_status_server_node
   Threads::Threads
   ${Boost_LIBRARIES}
   ${catkin_LIBRARIES}

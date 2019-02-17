@@ -47,7 +47,13 @@ namespace franka_action_lib
     // Ensure preempted flag is set to false
     shared_memory_handler_.setSkillPreemptedFlagInSharedMemory(false);
     while (done_skill_id < skill_id) {
+      // this sleep is not necessary, the execution_feedback is computed at 10 Hz for demonstration purposes
+      r.sleep();
+
+      ROS_DEBUG("getting robolib status");
       robolib_status_ = shared_memory_handler_.getRobolibStatus();
+      ROS_DEBUG("getting robolib status done");
+
       if (!robolib_status_.is_ready) {
         ROS_INFO("robolib status is not ready\n");
         as_.setAborted();
@@ -63,19 +69,24 @@ namespace franka_action_lib
         break;
       }
 
-      ROS_DEBUG("get_new_skill_available = %d", shared_memory_handler_.getNewSkillAvailableFlagInSharedMemory());
-      ROS_DEBUG("get_done_skill_id = %d", shared_memory_handler_.getDoneSkillIdInSharedMemory());
-      ROS_DEBUG("get_new_skill_id = %d", shared_memory_handler_.getNewSkillIdInSharedMemory());
+      // TODO(jacky): uncomment these once we separate their values from run_loop_info
+      // ROS_DEBUG("getting skill available");
+      // ROS_DEBUG("get_new_skill_available = %d", shared_memory_handler_.getNewSkillAvailableFlagInSharedMemory());
+      // ROS_DEBUG("getting done skill available");
+      // ROS_DEBUG("get_done_skill_id = %d", shared_memory_handler_.getDoneSkillIdInSharedMemory());
+      // ROS_DEBUG("getting new skill available");
+      // ROS_DEBUG("get_new_skill_id = %d", shared_memory_handler_.getNewSkillIdInSharedMemory());
 
       // TODO fill in execution_feedback from shared memory
+      ROS_DEBUG("getting skill feedback");
       feedback_ = shared_memory_handler_.getSkillFeedback();
+      // TODO(jacky) remove this check (and the logic in shared mem handler) once run_loop_info is no longer used
+      if (feedback_.num_execution_feedback == -1) continue;
 
       // publish the feedback
       as_.publishFeedback(feedback_);
-
-      // this sleep is not necessary, the execution_feedback is computed at 10 Hz for demonstration purposes
-      r.sleep();
-
+      
+      ROS_DEBUG("getting done skill id");
       done_skill_id = shared_memory_handler_.getDoneSkillIdInSharedMemory();
       ROS_DEBUG("done skill id = %d", done_skill_id);
     }

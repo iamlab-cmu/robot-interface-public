@@ -384,10 +384,13 @@ namespace franka_action_lib
   int SharedMemoryHandler::getDoneSkillIdInSharedMemory()
   {
     // Grab the lock of the run_loop_info_mutex_
-    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> run_loop_info_lock(*run_loop_info_mutex_);
-
-    // Return the done_skill_id
-    return getDoneSkillIdInSharedMemoryUnprotected();
+    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> run_loop_info_lock(*run_loop_info_mutex_, boost::interprocess::defer_lock);
+    if (run_loop_info_lock.try_lock()) {
+      // Return the done_skill_id
+      return getDoneSkillIdInSharedMemoryUnprotected();
+    } else {
+      return -1;
+    }
 
     // The lock of the run_loop_info_mutex_ should be released automatically
   }
@@ -418,37 +421,42 @@ namespace franka_action_lib
     franka_action_lib::ExecuteSkillFeedback feedback;
 
     // Grab the lock of the run_loop_info_mutex_
-    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> run_loop_info_lock(*run_loop_info_mutex_);
+    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> run_loop_info_lock(*run_loop_info_mutex_, boost::interprocess::defer_lock);
 
-    int current_free_shared_feedback_index = run_loop_process_info_->get_current_free_shared_feedback_index();
+    if (run_loop_info_lock.try_lock()) {
 
-    if(current_free_shared_feedback_index == 0)
-    {
-      // Grab lock of shared_execution_response_0_mutex_ to make sure no one else can modify 0
-      boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> shared_execution_response_0_lock(*shared_execution_response_0_mutex_);
+      int current_free_shared_feedback_index = run_loop_process_info_->get_current_free_shared_feedback_index();
 
-      int num_execution_feedback = static_cast<int>(execution_feedback_buffer_0_[0]);
+      if(current_free_shared_feedback_index == 0)
+      {
+        // Grab lock of shared_execution_response_0_mutex_ to make sure no one else can modify 0
+        boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> shared_execution_response_0_lock(*shared_execution_response_0_mutex_);
 
-      std::vector<float> execution_feedback(execution_feedback_buffer_0_ + 1, execution_feedback_buffer_0_ + num_execution_feedback + 1);
+        int num_execution_feedback = static_cast<int>(execution_feedback_buffer_0_[0]);
 
-      feedback.num_execution_feedback = num_execution_feedback;
-      feedback.execution_feedback = execution_feedback;
+        std::vector<float> execution_feedback(execution_feedback_buffer_0_ + 1, execution_feedback_buffer_0_ + num_execution_feedback + 1);
 
-      // The lock of the shared_execution_response_0_mutex_ should be released automatically
-    }
-    else if(current_free_shared_feedback_index == 1)
-    {
-      // Grab lock of shared_execution_response_1_mutex_ to make sure no one else can modify 1
-      boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> shared_execution_response_1_lock(*shared_execution_response_1_mutex_);
+        feedback.num_execution_feedback = num_execution_feedback;
+        feedback.execution_feedback = execution_feedback;
 
-      int num_execution_feedback = static_cast<int>(execution_feedback_buffer_1_[0]);
+        // The lock of the shared_execution_response_0_mutex_ should be released automatically
+      }
+      else if(current_free_shared_feedback_index == 1)
+      {
+        // Grab lock of shared_execution_response_1_mutex_ to make sure no one else can modify 1
+        boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> shared_execution_response_1_lock(*shared_execution_response_1_mutex_);
 
-      std::vector<float> execution_feedback(execution_feedback_buffer_1_ + 1, execution_feedback_buffer_1_ + num_execution_feedback + 1);
+        int num_execution_feedback = static_cast<int>(execution_feedback_buffer_1_[0]);
 
-      feedback.num_execution_feedback = num_execution_feedback;
-      feedback.execution_feedback = execution_feedback;
+        std::vector<float> execution_feedback(execution_feedback_buffer_1_ + 1, execution_feedback_buffer_1_ + num_execution_feedback + 1);
 
-      // The lock of the shared_execution_response_1_mutex_ should be released automatically
+        feedback.num_execution_feedback = num_execution_feedback;
+        feedback.execution_feedback = execution_feedback;
+
+        // The lock of the shared_execution_response_1_mutex_ should be released automatically
+      }
+    } else {
+      feedback.num_execution_feedback = -1;
     }
 
     return feedback;
@@ -531,8 +539,10 @@ namespace franka_action_lib
       robot_state.gripper_is_grasped = current_robot_state_buffer_[offset++] == 1 ? true : false;
 
       // Grab the lock of the run_loop_info_mutex_
-      boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> run_loop_info_lock(*run_loop_info_mutex_);
-      robot_state.skill_description = run_loop_process_info_->get_new_skill_description();
+      boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> run_loop_info_lock(*run_loop_info_mutex_, boost::interprocess::defer_lock);
+      if (run_loop_info_lock.try_lock()) {
+        robot_state.skill_description = run_loop_process_info_->get_new_skill_description();
+      }      
 
       robot_state.is_fresh = true;
     } else {
