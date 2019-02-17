@@ -95,6 +95,24 @@ if __name__ == '__main__':
     while not rospy.is_shutdown() and done != True:
         done = client.wait_for_result(rospy.Duration.from_sec(5.0))
 
+    # Correct your pose while in the initial position
+    correct_pose_skill = JointPoseMinJerkWithDefaultSensorSkill()
+    correct_pose_skill.add_initial_sensor_values([1,3,5,7,8])
+    correct_pose_skill.add_trajectory_params(
+            [2.0, -0.0790, -0.633, 0.0394, -2.360, -0.0202, 1.726, 0.7104])
+    correct_pose_skill.add_feedback_controller_params([600, 50])
+    correct_pose_skill.add_termination_params([1.0])
+    goal = correct_pose_skill.create_goal()
+    print(goal)
+    client.send_goal(
+            goal,
+            feedback_cb=lambda x: correct_pose_skill.feedback_callback(x))
+    done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+    while not rospy.is_shutdown() and done != True:
+        done = client.wait_for_result(rospy.Duration.from_sec(5.0))
+
+
     robot_state = load_result_into_robot_state_msg(client.get_result())
     pub.publish(robot_state)
 
