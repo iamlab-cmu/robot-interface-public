@@ -171,8 +171,8 @@ if __name__ == '__main__':
         skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
         skill.add_trajectory_params([3.0, 0.0174699,0.816579,-0.576953,0,0.98671,
                                      -0.107281,-0.121961,0,-0.161491,-0.567166,
-                                     -0.807616,0,0.651099,-0.336885,0.161649,1]
-        skill.add_feedback_controller_params([600, 50]) # translational stiffness, rotational stiffness
+                                     -0.807616,0,0.651099,-0.336885,0.161649,1])
+        skill.add_feedback_controller_params([600, 50])
         skill.add_termination_params([1.0]) # buffer time
         goal = skill.create_goal()
         print(goal)
@@ -192,9 +192,8 @@ if __name__ == '__main__':
     skill = ArmMoveToGoalContactWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
     skill.add_trajectory_params(
-        [3.0, 0.00497605,0.754413,-0.656366,0,0.999977,-0.00450945,
-         0.00239798,0,-0.0011508,-0.656376,-0.754433,0,0.637414,
-         -0.373751,0.185472,1])
+        [3.0, -0.037932,0.90127,-0.431572,0,0.999113,0.0265265,-0.0324184,
+         0,-0.01777,-0.432427,-0.901494,0,0.636109,-0.376334,0.215696,1])
     skill.add_feedback_controller_params([600, 50])
     skill.add_termination_params([1.0]) # buffer time
     goal = skill.create_goal()
