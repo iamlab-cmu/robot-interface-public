@@ -1,9 +1,10 @@
 //
 // Created by iamlab on 12/2/18.
 //
+#include "iam_robolib/skills/base_skill.h"
+
 #include <iostream>
 
-#include "iam_robolib/skills/base_skill.h"
 #include "iam_robolib/feedback_controller/feedback_controller.h"
 #include "iam_robolib/termination_handler/termination_handler.h"
 #include "iam_robolib/trajectory_generator/trajectory_generator.h"
@@ -65,19 +66,8 @@ void BaseSkill::start_skill(Robot* robot,
   }
 }
 
-bool BaseSkill::should_terminate(Robot* robot) {
-  bool should_terminate;
-  switch(robot->robot_type_)
-  {
-    case RobotType::FRANKA:
-      should_terminate = termination_handler_->should_terminate_on_franka(dynamic_cast<FrankaRobot *>(robot)->getRobotState(), traj_generator_);
-      break;
-    case RobotType::UR5E:
-      break;
-    default:
-      should_terminate = termination_handler_->should_terminate(traj_generator_);
-  }
-  return should_terminate;
+bool BaseSkill::has_terminated(Robot* robot) {
+  return termination_handler_->has_terminated();
 }
 
 void BaseSkill::write_result_to_shared_memory(float *result_buffer) {

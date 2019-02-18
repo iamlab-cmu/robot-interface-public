@@ -15,7 +15,7 @@ class SaveTrajectorySkill : public BaseSkill {
   void execute_skill_on_franka(FrankaRobot* robot, 
                                RobotStateData *robot_state_data) override;
 
-  bool should_terminate(Robot* robot) override;
+  bool has_terminated(Robot* robot) override;
 
  private:
   bool return_status_{false};

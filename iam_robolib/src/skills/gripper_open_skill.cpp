@@ -43,7 +43,7 @@ void GripperOpenSkill::execute_skill_on_franka(FrankaRobot *robot,
       wait_time));
 }
 
-bool GripperOpenSkill::should_terminate(Robot* robot) {
+bool GripperOpenSkill::has_terminated(Robot *robot){
   // Wait for some time before terminating this skill.
   return true;
 }

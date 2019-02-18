@@ -37,6 +37,12 @@ class TerminationHandler {
   virtual bool should_terminate_on_franka(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) = 0;
 
   /**
+   * Check if skill terminated previously. By default check the done_ flag and return it.
+   * @return  True if skill has terminated previously else False.
+   */
+  virtual bool has_terminated();
+
+  /**
    * Sets done_ to true if preempt flag is true.
    */
   void check_terminate_preempt();

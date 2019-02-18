@@ -5,7 +5,11 @@
 #include "iam_robolib/termination_handler/termination_handler.h"
 
 void TerminationHandler::check_terminate_preempt() {
-    if (!done_) {
-      done_ = run_loop_info_->get_skill_preempted();
-    }
+  if (!done_) {
+    done_ = run_loop_info_->get_skill_preempted();
+  }
 };
+
+bool TerminationHandler::has_terminated() {
+  return done_;
+}
