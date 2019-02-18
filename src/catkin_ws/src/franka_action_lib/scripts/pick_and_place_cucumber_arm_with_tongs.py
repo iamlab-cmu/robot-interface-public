@@ -210,8 +210,8 @@ if __name__ == '__main__':
     skill = ArmMoveToGoalContactWithDefaultSensorSkill()
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
     skill.add_trajectory_params(
-        [3.0, -0.037932,0.90127,-0.431572,0,0.999113,0.0265265,-0.0324184,
-         0,-0.01777,-0.432427,-0.901494,0,0.636109,-0.376334,0.215696,1])
+        [3.0, 0.0118088,0.9389,-0.343959,0,0.999755,-0.0173455,-0.0130241,0,
+         -0.0181949,-0.343728,-0.938893,0,0.669835,-0.417931,0.221996,1])
     skill.add_feedback_controller_params([600, 50])
     skill.add_termination_params([1.0]) # buffer time
     goal = skill.create_goal()
