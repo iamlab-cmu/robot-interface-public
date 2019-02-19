@@ -54,7 +54,6 @@ class FrankaArm:
         t_start = time()
         while time() - t_start < timeout:
             robolib_status = self._get_current_robolib_status().robolib_status
-            print(robolib_status.is_ready)
             if robolib_status.is_ready:
                 return
             sleep(1e-2)
