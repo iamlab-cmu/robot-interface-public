@@ -550,7 +550,7 @@ void run_loop::setup_robot_default_behavior() {
   	  //   std::array<double, 3> F_x_Cload{0.03, 0.03, -0.12};
 	    // std::array<double, 9> I_load{1, 0, 0, 0, 1, 0, 0, 0, 1};
 	    // dynamic_cast<FrankaRobot* >(robot_)->robot_.setLoad(m_load, F_x_Cload, I_load);
-      // }
+      }
       break;
     case RobotType::UR5E:
       break;
