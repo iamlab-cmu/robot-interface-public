@@ -74,24 +74,31 @@ class CutCucumberSkill(object):
 
     def __init__(self, cutting_knife_location_x, image_dir):
         self.image_dir = image_dir
-        self.camera_dirs = ['camera1_color_image_raw', 'camera2_color_image_raw']
-        for camera_dir in self.camera_dirs:
+        self.camera_dirs_to_device = {
+                'camera1_color_image_raw': 0,
+                'camera2_color_image_raw': 1,
+                'camera1_depth_image': 0,
+                'camera2_depth_image': 1}
+        for camera_dir in self.camera_dirs_to_device.keys():
             if not os.path.exists(os.path.join(image_dir, camera_dir)):
                 os.makedirs(os.path.join(image_dir, camera_dir))
 
-        self.images_by_camera = {self.camera_dirs[0]: {},
-                                 self.camera_dirs[1]: {}}
-        self.image_idx_by_camera = {self.camera_dirs[0]: 0,
-                                    self.camera_dirs[1]: 0}
+        self.images_by_camera, self.image_idx_by_camera = {}, {}
+        for k in self.camera_dirs_to_device.keys():
+            self.images_by_camera[k] = {}
+            self.image_idx_by_camera[k] = 0
+
         self.cutting_knife_location_x = cutting_knife_location_x
         self.skill_id = 0
 
         # Configure depth and color streams
         self._config = rs.config()
         self._config.enable_stream(rs.stream.color, 1280, 720, rs.format.rgb8, 6)
+        self._config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 6)
         self._context = rs.context()
         # self.config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
-        self._config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+        self._config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 6)
+        self._config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 6)
 
         self.available_devices = enumerate_connected_devices(self._context)
         print("Available devices: {}".format(self.available_devices))
@@ -121,13 +128,17 @@ class CutCucumberSkill(object):
 
     def save_current_images(self, dmp_idx, before_dmp):
         frames = self.ms_get_frames()
-        for i, camera_dir in enumerate(self.camera_dirs):
+        for camera_dir in self.camera_dirs_to_device.keys():
+            device_idx = self.camera_dirs_to_device[camera_dir]
             img_idx = self.image_idx_by_camera[camera_dir]
-            img_path = os.path.join(self.image_dir,
-                                    camera_dir,
+            img_path = os.path.join(self.image_dir, camera_dir,
                                     'frame_{:05d}.jpg'.format(img_idx))
             print("keys: {}".format(frames.keys()))
-            cv2.imwrite(img_path, frames[self.available_devices[i]])
+            if 'depth' in camera_dir:
+                cv2.imwrite(img_path, frames[self.available_devices[device_idx]]['depth'])
+            else:
+                cv2.imwrite(img_path, frames[self.available_devices[device_idx]]['color'])
+
             print("Did save image: {}".format(img_path))
 
             if self.images_by_camera[camera_dir].get(dmp_idx) is None:
@@ -155,8 +166,18 @@ class CutCucumberSkill(object):
         for (serial, device) in self._enabled_devices.items():
             frames = device.pipeline.wait_for_frames()
             color_frame = frames.get_color_frame()
+            depth_frame = frames.get_depth_frame()
             color_image = np.asanyarray(color_frame.get_data())
-            image_by_device_dict[serial] = color_image
+
+            # Colorize depth frame to jet colormap
+            depth_color_frame = rs.colorizer().colorize(depth_frame)
+            # Convert depth_frame to numpy array to render image in opencv
+            depth_color_image = np.asanyarray(depth_color_frame.get_data())
+
+            image_by_device_dict[serial] = {
+                    'color': color_image,
+                    'depth': depth_color_image,
+            }
         return image_by_device_dict
 
     def poll_frames(self):
@@ -507,6 +528,23 @@ if __name__ == '__main__':
 
         # Save image after moving up above cucumber
         cut_cucumber_skill.save_current_images(slice_idx, True)
+
+        if slice_idx > 0:
+            # Wait when you go above cucumber
+            move_up_above_cucumber_skill = cut_cucumber_skill.create_skill_for_class(
+                ArmRelativeMotionWithDefaultSensorSkill,
+                'move_up_above_again_cucumber_{}_above_{:.3f}'.format(
+                slice_idx, 0))
+            move_up_above_cucumber_skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
+            move_up_above_cucumber_skill.add_relative_motion_with_quaternion(
+                3.0, [0., 0., 0.], CutCucumberSkill.IDENTITY_QUATERNION)
+
+            move_up_above_cucumber_skill.add_feedback_controller_params([600, 50])
+            move_up_above_cucumber_skill.add_termination_params([1.0])
+            cut_cucumber_skill.execute_skill(move_up_above_cucumber_skill, client)
+
+            # Save image after moving up above cucumber
+            cut_cucumber_skill.save_current_images(slice_idx, True)
 
         slice_thickness = CutCucumberSkill.SLICE_THICKNESS \
                 if slice_idx > 0 else CutCucumberSkill.FIRST_SLICE_THICKNESS
