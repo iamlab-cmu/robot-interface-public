@@ -105,12 +105,15 @@ class FrankaArm:
     Controls
     '''
 
-    def goto_pose(self, tool_pose, duration=3, ignore_errors=True):
+    def goto_pose(self, tool_pose, duration=3, stop_on_contact_forces=None, ignore_errors=True):
         '''Commands Arm to the given pose via linear interpolation
 
         Args:
             tool_pose (RigidTransform) : End-effector pose in tool frame
             duration (float) : How much time this robot motion should take
+            stop_on_contact_forces (list): List of 6 floats corresponding to force limits on
+                                            translation (xyz) and rotation about (xyz) axes. 
+                                            Default is None. If None then will not stop on contact.
 
         Raises:
             FrankaArmCollisionException if a collision is detected
@@ -120,10 +123,20 @@ class FrankaArm:
 
         tool_base_pose = tool_pose * self._tool_delta_pose.inverse()
 
-        skill = ArmMoveToGoalWithDefaultSensorSkill()
+        if stop_on_contact_forces is None:
+            skill = ArmMoveToGoalWithDefaultSensorSkill()
+        else:
+            skill = ArmMoveToGoalContactWithDefaultSensorSkill()
+            force_thresholds = np.array(stop_on_contact_forces).tolist()
+            skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
+                                                force_thresholds,
+                                                force_thresholds
+                                            )
+
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_feedback_controller_params(FC.DEFAULT_TORQUE_CONTROLLER_PARAMS)
-        skill.add_termination_params(FC.DEFAULT_TERM_PARAMS)
+        if stop_on_contact_forces is None:
+            skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
 
         skill.add_trajectory_params([duration] + tool_base_pose.matrix.T.flatten().tolist())
         goal = skill.create_goal()
@@ -148,7 +161,7 @@ class FrankaArm:
         skill = ArmRelativeMotionWithDefaultSensorSkill()
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_feedback_controller_params(FC.DEFAULT_TORQUE_CONTROLLER_PARAMS) 
-        skill.add_termination_params(FC.DEFAULT_TERM_PARAMS)
+        skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
 
         skill.add_trajectory_params([duration] + delta_tool_base_pose.translation.tolist() + delta_tool_base_pose.quaternion.tolist())
         goal = skill.create_goal()
@@ -171,7 +184,7 @@ class FrankaArm:
 
         skill = JointPoseMinJerkWithDefaultSensorSkill()
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
-        skill.add_termination_params(FC.DEFAULT_TERM_PARAMS)
+        skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
 
         skill.add_trajectory_params([duration] + np.array(joints).tolist())
         goal = skill.create_goal()

@@ -14,10 +14,10 @@ class FrankaConstants:
 
     # translational stiffness, rotational stiffness
     DEFAULT_TORQUE_CONTROLLER_PARAMS = [600, 50]
-    DEFAULT_FORCE_AXIS_CONTROLLER_PARAMS = [600, 0]
+    DEFAULT_FORCE_AXIS_CONTROLLER_PARAMS = [400, 0]
 
     # buffer time
-    DEFAULT_TERM_PARAMS = [1]
+    DEFAULT_TERM_BUFFER_TIME = 1
 
     HOME_JOINTS = [0, -math.pi / 4, 0, -3 * math.pi / 4, 0, math.pi / 2, math.pi / 4]
     HOME_POSE = RigidTransform(rotation=np.array([
@@ -41,7 +41,7 @@ class FrankaConstants:
     GRIPPER_WIDTH_MAX = 0.08
     GRIPPER_WIDTH_MIN = 0
     GRIPPER_WAIT_TIME = 0
-    GRIPPER_MAX_FORCE = 80
+    GRIPPER_MAX_FORCE = 60
 
     MAX_LIN_MOMENTUM = 20
     MAX_ANG_MOMENTUM = 2
@@ -50,7 +50,7 @@ class FrankaConstants:
     ROS_ROBOLIB_STATUS_PUBLISHER_NAME = '/robolib_status_publisher_node/robolib_status'
     ROS_EXECUTE_SKILL_ACTION_SERVER_NAME = '/execute_skill_action_server_node/execute_skill'
 
-    DEFAULT_ROBOLIB_TIMEOUT = 5 
+    DEFAULT_ROBOLIB_TIMEOUT = 10
     ACTION_WAIT_LOOP_TIME = 0.001
 
     GRIPPER_CMD_SLEEP_TIME = 0.2
