@@ -530,26 +530,26 @@ void run_loop::setup_robot_default_behavior() {
   switch(robot_->robot_type_)
   {
     case RobotType::FRANKA: {
-        // Set additional parameters always before the control loop, NEVER in the control loop!
-        // Set collision behavior.
-        dynamic_cast<FrankaRobot* >(robot_)->robot_.setCollisionBehavior(
-            {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{120.0, 120.0, 118.0, 118.0, 116.0, 114.0, 112.0}},
-            {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{120.0, 120.0, 118.0, 118.0, 116.0, 114.0, 112.0}},
-            {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{120.0, 120.0, 120.0, 125.0, 125.0, 125.0}},
-            {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{120.0, 120.0, 120.0, 125.0, 125.0, 125.0}});
-        // TODO(jacky): Use these parameters to make robot super sensitive to collisions. Useful for testing collision error handling.
-        // dynamic_cast<FrankaRobot* >(robot_)->robot_.setCollisionBehavior(
-        //     {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}},
-        //     {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}},
-        //     {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}},
-        //     {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}});
+      // Set additional parameters always before the control loop, NEVER in the control loop!
+      // Set collision behavior.
+      dynamic_cast<FrankaRobot* >(robot_)->robot_.setCollisionBehavior(
+          {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{120.0, 120.0, 118.0, 118.0, 116.0, 114.0, 112.0}},
+          {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{120.0, 120.0, 118.0, 118.0, 116.0, 114.0, 112.0}},
+          {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{120.0, 120.0, 120.0, 125.0, 125.0, 125.0}},
+          {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{120.0, 120.0, 120.0, 125.0, 125.0, 125.0}});
+      // TODO(jacky): Use these parameters to make robot super sensitive to collisions. Useful for testing collision error handling.
+      // dynamic_cast<FrankaRobot* >(robot_)->robot_.setCollisionBehavior(
+      //     {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}},
+      //     {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}}, {{20.0, 20.0, 18.0, 18.0, 16.0, 14.0, 12.0}},
+      //     {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}},
+      //     {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}}, {{20.0, 20.0, 20.0, 25.0, 25.0, 25.0}});
 
-        dynamic_cast<FrankaRobot* >(robot_)->robot_.setJointImpedance({{3000, 3000, 3000, 2500, 2500, 2000, 2000}});
-        dynamic_cast<FrankaRobot* >(robot_)->robot_.setCartesianImpedance({{3000, 3000, 3000, 300, 300, 300}});
-	    double m_load = 0.1;
-  	    std::array<double, 3> F_x_Cload{0.03, 0.03, -0.12};
-	    std::array<double, 9> I_load{1, 0, 0, 0, 1, 0, 0, 0, 1};
-	    dynamic_cast<FrankaRobot* >(robot_)->robot_.setLoad(m_load, F_x_Cload, I_load);
+      dynamic_cast<FrankaRobot* >(robot_)->robot_.setJointImpedance({{3000, 3000, 3000, 2500, 2500, 2000, 2000}});
+      dynamic_cast<FrankaRobot* >(robot_)->robot_.setCartesianImpedance({{3000, 3000, 3000, 300, 300, 300}});
+	    // double m_load = 0.1;
+  	  //   std::array<double, 3> F_x_Cload{0.03, 0.03, -0.12};
+	    // std::array<double, 9> I_load{1, 0, 0, 0, 1, 0, 0, 0, 1};
+	    // dynamic_cast<FrankaRobot* >(robot_)->robot_.setLoad(m_load, F_x_Cload, I_load);
       }
       break;
     case RobotType::UR5E:
@@ -688,6 +688,7 @@ void run_loop::run_on_franka() {
       robot_state_data_->clearAllBuffers();
 
       // Perform error recovery
+      std::cout << "Performing automatic error recovery\n";
       robot_->automaticErrorRecovery();
       robot_access_mutex_.unlock();
 
