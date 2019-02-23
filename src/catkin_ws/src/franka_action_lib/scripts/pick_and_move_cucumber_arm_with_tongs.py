@@ -33,6 +33,9 @@ class PickAndMoveCucumberSkill(object):
                              0, -0.0182, -0.3437, -0.9388, 0, 0.6698, -0.417,
                              0.222, 1]
 
+    # Quaternion helpers
+    IDENTITY_QUATERNION = [1., 0., 0., 0.]
+
     def __init__(self, args):
         self.grasping_force = args.grasping_force
         self.hold_time = args.hold_time
@@ -98,6 +101,96 @@ class PickAndMoveCucumberSkill(object):
         skill.add_feedback_controller_params([600, 50])
         skill.add_termination_params([buffer_time])
         return skill
+
+    def move_to_relative_position_and_orientation(
+            self,
+            time,
+            position_delta,
+            quaternion,
+            lower_force_thresholds_accel=[3.0] * 6,
+            lower_force_thresholds_nominal=[3.0] * 6,
+            description=''):
+        skill = self.create_skill_for_class(
+            ArmRelativeMotionToContactWithDefaultSensorSkill,
+            description)
+        skill.add_initial_sensor_values([1, 3, 5, 7, 8])
+        skill.add_traj_params_with_quaternion(
+                time,
+                position_delta,
+                quaternion)
+        # assert skill._num_trajectory_generator_params == 8, "WTF"
+        skill.add_controller_stiffness_params(600, 50)
+        skill.add_contact_termination_params(
+                1.0,
+                lower_force_thresholds_accel,
+                lower_force_thresholds_nominal)
+        return skill
+
+    def add_random_exploration(
+            self,
+            time,
+            position_delta,
+            lower_force_thresholds_accel=[3.0] * 6,
+            lower_force_thresholds_nominal=[3.0] * 6,
+            description=''):
+        return self.move_to_relative_position_and_orientation(
+                time,
+                position_delta,
+                PickAndMoveCucumberSkill.IDENTITY_QUATERNION,
+                lower_force_thresholds_accel,
+                lower_force_thresholds_nominal,
+                description)
+
+    def add_random_x_exploration(
+            self,
+            time,
+            x_delta,
+            lower_force_thresholds_accel=[3.0, 10., 10., 10., 10., 10.],
+            lower_force_thresholds_nominal=[3.0, 10., 10., 10., 10., 10.],
+            description=''):
+        return self.add_random_exploration(
+                time,
+                [x_delta, 0., 0.],
+                lower_force_thresholds_accel,
+                lower_force_thresholds_nominal,
+                description=description)
+
+    def add_random_y_exploration(
+            self,
+            time,
+            y_delta,
+            lower_force_thresholds_accel=[10.0, 3., 10., 10., 10., 10.],
+            lower_force_thresholds_nominal=[10.0, 3., 10., 10., 10., 10.],
+            description=''):
+        return self.add_random_exploration(
+                time,
+                [0., y_delta, 0.],
+                lower_force_thresholds_accel,
+                lower_force_thresholds_nominal,
+                description=description)
+
+    def add_random_z_exploration(
+            self,
+            time,
+            z_delta,
+            lower_force_thresholds_accel=[10.0, 10., 3., 10., 10., 10.],
+            lower_force_thresholds_nominal=[10.0, 10.0, 3., 10., 10., 10.],
+            description=''):
+        return self.add_random_exploration(
+                time,
+                [0., 0., z_delta],
+                lower_force_thresholds_accel,
+                lower_force_thresholds_nominal,
+                description=description)
+    
+    def create_stay_in_position_skill(self, time):
+        # Stay in the position for a certain amount of time
+        skill = StayInPositionWithDefaultSensorSkill()
+        skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
+        skill.add_trajectory_params([time])  # Run Time 
+        skill.add_feedback_controller_params([800, 50])
+        return skill
+    
 
 def load_result_into_robot_state_msg(result):
     robot_state = RobotState()
@@ -193,6 +286,30 @@ if __name__ == '__main__':
 
     skill = pick_and_move_skill.create_contact_move_to_EE_position(
             PickAndMoveCucumberSkill.CONTACT_GOAL_POSITION, 3.0)
+    pick_and_move_skill.execute_skill(skill, client)
+
+
+    skill = pick_and_move_skill.add_random_y_exploration(1.0, -0.05)
+    pick_and_move_skill.execute_skill(skill, client)
+    skill = pick_and_move_skill.create_stay_in_position_skill(1.0)
+    pick_and_move_skill.execute_skill(skill, client)
+
+    skill = pick_and_move_skill.add_random_y_exploration(1.0, 0.04)
+    pick_and_move_skill.execute_skill(skill, client)
+    skill = pick_and_move_skill.create_stay_in_position_skill(1.0)
+    pick_and_move_skill.execute_skill(skill, client)
+
+    skill = pick_and_move_skill.add_random_x_exploration(1.0, -0.04)
+    pick_and_move_skill.execute_skill(skill, client)
+    skill = pick_and_move_skill.create_stay_in_position_skill(1.0)
+    pick_and_move_skill.execute_skill(skill, client)
+
+    skill = pick_and_move_skill.add_random_y_exploration(1.0, -0.04)
+    pick_and_move_skill.execute_skill(skill, client)
+    skill = pick_and_move_skill.create_stay_in_position_skill(1.0)
+    pick_and_move_skill.execute_skill(skill, client)
+
+    skill = pick_and_move_skill.add_random_x_exploration(1.0, 0.04)
     pick_and_move_skill.execute_skill(skill, client)
 
     print ('===== ')
