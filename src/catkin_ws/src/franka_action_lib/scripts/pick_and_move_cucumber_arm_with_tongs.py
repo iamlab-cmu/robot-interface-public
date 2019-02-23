@@ -17,7 +17,7 @@ def feedback_callback(feedback):
 
 class PickAndMoveCucumberSkill(object):
 
-    INITIAL_PICK_POSITION = [0.1, 0.0376, -0.0007 , 0, 0.0376 , -1.0, 
+    INITIAL_POSITION = [0.1, 0.0376, -0.0007 , 0, 0.0376 , -1.0, 
                              0.029, 0, 0.00034, -0.0293, -1.0 , 0, 0.363,
                              -0.0216, 0.450, 1]
     INITIAL_CORRECT_POSE = [-0.0790, -0.633, 0.0394, -2.360, -0.0202, 1.726, 0.7104]
@@ -34,7 +34,7 @@ class PickAndMoveCucumberSkill(object):
                              0.222, 1]
 
     def __init__(self, args):
-        self.grasping_foce = args.grasping_force
+        self.grasping_force = args.grasping_force
         self.hold_time = args.hold_time
 
         self.skill_id = 0
@@ -84,7 +84,7 @@ class PickAndMoveCucumberSkill(object):
         skill = self.create_skill_for_class(
                 ArmMoveToGoalContactWithDefaultSensorSkill, desc)
         skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
-        skill.add_trajectory_params(pos + [time])
+        skill.add_trajectory_params([time] + pos)
         skill.add_feedback_controller_params([600, 50])
         skill.add_termination_params([buffer_time]) # buffer time
         return skill
@@ -129,17 +129,17 @@ def load_result_into_robot_state_msg(result):
 
 if __name__ == '__main__':
     rospy.init_node('example_execute_skill_action_client')
-    client = actionlib.SimpleActionClient('/execute_skill_action_server_node/execute_skill', ExecuteSkillAction)
+    client = actionlib.SimpleActionClient(
+            '/execute_skill_action_server_node/execute_skill',
+            ExecuteSkillAction)
+
     client.wait_for_server()
-    pub = rospy.Publisher('Arm_2_robot_state', RobotState, queue_size=10)
     
     parser = argparse.ArgumentParser(description="Grasp cucumber with tongs.")
     parser.add_argument('--hold_time', type=float, default=1000.0,
                         help='Time to hold the cucumber for cutting (in seconds)')
     parser.add_argument('--grasping_force', type=float, default=10.0,
                         help='Force used to grasp the cucumber')
-    parser.add_argument('--use_secondary_intermediate', type=int, default=0, help='Use two intermediate positions to place the ' \
-                             'cucumber. Useful when we use boxes.')
     args = parser.parse_args()
 
     pick_and_move_skill = PickAndMoveCucumberSkill(args)
@@ -149,7 +149,7 @@ if __name__ == '__main__':
 
     # Open the gripper
     skill = pick_and_move_skill.create_open_gripper_skill(0.07, 0.025, 1100)
-    pick_and_move_skill.execute_skill(skill)
+    pick_and_move_skill.execute_skill(skill, client)
 
     print("====")
     print("Move to inital position")
@@ -157,13 +157,13 @@ if __name__ == '__main__':
     # Move to Initial Position
     move_to_initial_position_skill = pick_and_move_skill.create_move_to_EE_position(
             PickAndMoveCucumberSkill.INITIAL_POSITION, 3.0, 1.0)
-    pick_and_move_skill.execute_skill(move_to_initial_position_skill)
+    pick_and_move_skill.execute_skill(move_to_initial_position_skill, client)
 
 
     # Correct your pose while in the initial position
     correct_pose_skill = pick_and_move_skill.create_go_to_pose_skill(
             PickAndMoveCucumberSkill.INITIAL_CORRECT_POSE, 2.0)
-    pick_and_move_skill.execute_skill(pick_and_move_skill)
+    pick_and_move_skill.execute_skill(correct_pose_skill, client)
 
     print ('===== ')
     print("Moving to the cucumber position.")
@@ -171,14 +171,14 @@ if __name__ == '__main__':
     # Move to Picking Position
     pick_position_skill = pick_and_move_skill.create_move_to_EE_position(
             PickAndMoveCucumberSkill.PICKING_POSITION, 3.0)
-    pick_and_move_skill.execute_skill(pick_position_skill)
+    pick_and_move_skill.execute_skill(pick_position_skill, client)
 
     print ('===== ')
     print("Closing the gripper and grasping.")
 
     skill = pick_and_move_skill.create_open_gripper_skill(
-            0.05, 0.025, 1100, grasping_foce=args.grasping_force)
-    pick_and_move_skill.execute_skill(skill)
+            0.05, 0.025, 1100, grasping_force=args.grasping_force)
+    pick_and_move_skill.execute_skill(skill, client)
 
     print ('===== ')
     print("Moving to intermediate position.")
@@ -186,14 +186,14 @@ if __name__ == '__main__':
     # Move to intermediate Position
     pick_position_skill = pick_and_move_skill.create_move_to_EE_position(
             PickAndMoveCucumberSkill.FIRST_INTERMEDIATE_POSITION, 3.0)
-    pick_and_move_skill.execute_skill(pick_position_skill)
+    pick_and_move_skill.execute_skill(pick_position_skill, client)
 
     print ('===== ')
     print("Moving to contact goal position")
 
     skill = pick_and_move_skill.create_contact_move_to_EE_position(
             PickAndMoveCucumberSkill.CONTACT_GOAL_POSITION, 3.0)
-    pick_and_move_skill.execute_skill(skill)
+    pick_and_move_skill.execute_skill(skill, client)
 
     print ('===== ')
     print("Stay in Position")
@@ -203,7 +203,7 @@ if __name__ == '__main__':
     skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
     skill.add_trajectory_params([args.hold_time])  # Run Time 
     skill.add_feedback_controller_params([800, 50])
-    pick_and_move_skill.execute_skill(skill)
+    pick_and_move_skill.execute_skill(skill, client)
 
     # Now move to another location 
     print ('===== ')
@@ -212,7 +212,7 @@ if __name__ == '__main__':
     # Open the gripper
     skill = pick_and_move_skill.create_open_gripper_skill(
             0.05, 0.025, 1100)
-    pick_and_move_skill.execute_skill(skill)
+    pick_and_move_skill.execute_skill(skill, client)
 
     print ('===== ')
     print("Moving to the original position.")
@@ -220,4 +220,4 @@ if __name__ == '__main__':
     # Move to original position
     move_to_initial_position_skill = pick_and_move_skill.create_move_to_EE_position(
             PickAndMoveCucumberSkill.INITIAL_POSITION, 3.0, 1.0)
-    pick_and_move_skill.execute_skill(move_to_initial_position_skill)
+    pick_and_move_skill.execute_skill(move_to_initial_position_skill, client)
