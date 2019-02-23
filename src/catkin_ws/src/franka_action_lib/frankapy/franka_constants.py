@@ -14,7 +14,7 @@ class FrankaConstants:
 
     # translational stiffness, rotational stiffness
     DEFAULT_TORQUE_CONTROLLER_PARAMS = [600, 50]
-    DEFAULT_FORCE_AXIS_CONTROLLER_PARAMS = [600, 0]
+    DEFAULT_FORCE_AXIS_CONTROLLER_PARAMS = [600, 20]
 
     # buffer time
     DEFAULT_TERM_BUFFER_TIME = 1
