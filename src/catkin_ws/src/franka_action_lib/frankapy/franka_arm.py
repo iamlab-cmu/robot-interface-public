@@ -246,10 +246,9 @@ class FrankaArm:
         Args:
             run_duration (float): A float in the unit of seconds
             acc_duration (float): A float in the unit of seconds. How long to acc/de-acc to achieve desired force. 
+            max_translation (float): Max translation before the robot deaccelerates.
             forces (list): Optional (defaults to None). 
                 A list of 3 numbers that correspond to end-effector forces in 3 directions
-            torques (list): Optional (defaults to None).
-                A list of 3 numbers that correspond to end-effector torques in 3 axes
 
         Raises:
             ValueError if acc_duration > 0.5*run_duration, or if forces are too large
