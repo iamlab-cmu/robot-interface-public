@@ -72,13 +72,17 @@ class CutCucumberSkill(object):
     # Time helpers
     RANDOM_EXPLORATION_TIME = 1.0
 
-    def __init__(self, cutting_knife_location_x, image_dir):
+    def __init__(self, cutting_knife_location_x, image_dir, save_depth=False):
         self.image_dir = image_dir
         self.camera_dirs_to_device = {
                 'camera1_color_image_raw': 0,
                 'camera2_color_image_raw': 1,
-                'camera1_depth_image': 0,
-                'camera2_depth_image': 1}
+        }
+        self.save_depth = save_depth
+        if save_depth:
+            self.camera_dirs_to_device['camera1_depth_image'] = 0
+            self.camera_dirs_to_device['camera2_depth_image'] = 1
+
         for camera_dir in self.camera_dirs_to_device.keys():
             if not os.path.exists(os.path.join(image_dir, camera_dir)):
                 os.makedirs(os.path.join(image_dir, camera_dir))
@@ -94,11 +98,13 @@ class CutCucumberSkill(object):
         # Configure depth and color streams
         self._config = rs.config()
         self._config.enable_stream(rs.stream.color, 1280, 720, rs.format.rgb8, 6)
-        self._config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 6)
+        if self.save_depth:
+            self._config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 6)
         self._context = rs.context()
         # self.config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
         self._config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 6)
-        self._config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 6)
+        if self.save_depth:
+            self._config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 6)
 
         self.available_devices = enumerate_connected_devices(self._context)
         print("Available devices: {}".format(self.available_devices))
@@ -134,7 +140,8 @@ class CutCucumberSkill(object):
             img_path = os.path.join(self.image_dir, camera_dir,
                                     'frame_{:05d}.jpg'.format(img_idx))
             print("keys: {}".format(frames.keys()))
-            if 'depth' in camera_dir:
+            if 'depth' in camera_dir and \
+                frames[self.available_devices[device_idx]]['depth'] is not None:
                 cv2.imwrite(img_path, frames[self.available_devices[device_idx]]['depth'])
             else:
                 cv2.imwrite(img_path, frames[self.available_devices[device_idx]]['color'])
@@ -166,13 +173,17 @@ class CutCucumberSkill(object):
         for (serial, device) in self._enabled_devices.items():
             frames = device.pipeline.wait_for_frames()
             color_frame = frames.get_color_frame()
-            depth_frame = frames.get_depth_frame()
+            if self.save_depth:
+                depth_frame = frames.get_depth_frame()
             color_image = np.asanyarray(color_frame.get_data())
 
-            # Colorize depth frame to jet colormap
-            depth_color_frame = rs.colorizer().colorize(depth_frame)
-            # Convert depth_frame to numpy array to render image in opencv
-            depth_color_image = np.asanyarray(depth_color_frame.get_data())
+            if self.save_depth: 
+                # Colorize depth frame to jet colormap
+                depth_color_frame = rs.colorizer().colorize(depth_frame)
+                # Convert depth_frame to numpy array to render image in opencv
+                depth_color_image = np.asanyarray(depth_color_frame.get_data())
+            else:
+                depth_color_image = None
 
             image_by_device_dict[serial] = {
                     'color': color_image,
@@ -413,6 +424,8 @@ if __name__ == '__main__':
                         help='Do not slide on the cutting board.')
     parser.add_argument('--num_cameras', type=int, default=3,
                         help='Number of cameras to record')
+    parser.add_argument('--save_depth', type=int, default=0,
+                        help='Save depth images as well')
     parser.add_argument('--image_dir', type=str, 
                         default='/tmp/cut_cucumber_thickness',
                         help='Directory to store h5 file with images.')
@@ -423,7 +436,8 @@ if __name__ == '__main__':
 
     cutting_knife_location_x = 0.5232
     cut_cucumber_skill = CutCucumberSkill(cutting_knife_location_x, 
-                                          args.image_dir)
+                                          args.image_dir,
+                                          args.save_depth)
     # Enable camera devices
     for i in range(args.num_cameras):
         device_id = cut_cucumber_skill.available_devices[i]
