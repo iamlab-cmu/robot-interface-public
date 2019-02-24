@@ -64,7 +64,8 @@ class CutCucumberSkill(object):
     SLICE_THICKNESS = 0.025
     FIRST_SLICE_THICKNESS = 0.025
 
-    RELATIVE_MOTION_TO_CONTACT_FOR_CUTTING = 0.08
+    RELATIVE_MOTION_TO_CONTACT_FOR_CUTTING = 0.2
+    RELATIVE_HEIGHT_ABOVE_CUCUMBER = 0.1
 
     # Quaternion helpers
     IDENTITY_QUATERNION = [1., 0., 0., 0.]
@@ -416,7 +417,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Joint DMP Skill Example')
     parser.add_argument('--filename', required=True, 
                         help='filename with dmp weights')
-    parser.add_argument('--thickness', type=float, default=0.01,
+    parser.add_argument('--thickness', nargs='+', type=float, default=0.01,
                         help='Thickness for cut slices')
     parser.add_argument('--num_dmps', type=int, default=4,
                         help='Number of DMPs to run continously to cut 1 slice.')
@@ -449,9 +450,6 @@ if __name__ == '__main__':
         frames = cut_cucumber_skill.ms_get_frames()
         assert len(frames.keys()) != 0, "Did not get any camera images" 
 
-    # Set desired thickness for cucumber slices. 
-    CutCucumberSkill.SLICE_THICKNESS = args.thickness
-    CutCucumberSkill.FIRST_SLICE_THICKNESS = args.thickness
 
     file = open(args.filename,"rb")
     dmp_info = pickle.load(file)
@@ -522,7 +520,7 @@ if __name__ == '__main__':
     # Save image initially
     cut_cucumber_skill.save_current_images(0, True)
 
-    num_slices_to_cut = 4
+    num_slices_to_cut = len(args.thickness)
 
     for slice_idx in range(num_slices_to_cut):
         # Move up above the cucumber
@@ -532,7 +530,7 @@ if __name__ == '__main__':
                 slice_idx, CutCucumberSkill.RELATIVE_MOTION_TO_CONTACT_FOR_CUTTING))
         move_up_above_cucumber_skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
         move_up_above_cucumber_skill.add_relative_motion_with_quaternion(
-                1.0,
+                2.0,
                 [0., 0., CutCucumberSkill.RELATIVE_MOTION_TO_CONTACT_FOR_CUTTING],
                 CutCucumberSkill.IDENTITY_QUATERNION)
 
@@ -560,8 +558,7 @@ if __name__ == '__main__':
             # Save image after moving up above cucumber
             cut_cucumber_skill.save_current_images(slice_idx, True)
 
-        slice_thickness = CutCucumberSkill.SLICE_THICKNESS \
-                if slice_idx > 0 else CutCucumberSkill.FIRST_SLICE_THICKNESS
+        slice_thickness = args.thickness[slice_idx] 
         # Move left above the cucumber
         skill = cut_cucumber_skill.create_skill_for_class(
             ArmRelativeMotionWithDefaultSensorSkill,
@@ -579,6 +576,23 @@ if __name__ == '__main__':
 
         # Save image after moving left still on top of cucumber
         cut_cucumber_skill.save_current_images(slice_idx, True)
+
+        # Move to slightly above the cucumber
+        move_onto_cucumber_skill = cut_cucumber_skill.create_skill_for_class(
+                ArmRelativeMotionToContactWithDefaultSensorSkill,
+                'move_onto_cucumber_to_cut_{}'.format(slice_idx))
+        move_onto_cucumber_skill.add_initial_sensor_values([1, 3, 5, 7, 8])  # random
+        move_onto_cucumber_skill.add_traj_params_with_quaternion(
+                2.0,
+                [0., 0., -CutCucumberSkill.RELATIVE_MOTION_TO_CONTACT_FOR_CUTTING \
+                    + CutCucumberSkill.RELATIVE_HEIGHT_ABOVE_CUCUMBER],
+                CutCucumberSkill.IDENTITY_QUATERNION)
+        move_onto_cucumber_skill.add_controller_stiffness_params(600, 50)
+        move_onto_cucumber_skill.add_contact_termination_params(
+                1.0, 
+                [10., 10., 5., 10., 10., 10.],
+                [10., 10., 5., 10., 10., 10.])
+        cut_cucumber_skill.execute_skill(move_onto_cucumber_skill, client)
 
         # Move to contact
         move_onto_cucumber_skill = cut_cucumber_skill.create_skill_for_class(
