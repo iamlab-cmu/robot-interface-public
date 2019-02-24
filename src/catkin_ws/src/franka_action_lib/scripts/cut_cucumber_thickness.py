@@ -678,3 +678,5 @@ if __name__ == '__main__':
     skill.add_feedback_controller_params([600, 50])
     skill.add_buffer_time_for_termination(1.0)
     cut_cucumber_skill.execute_skill(skill, client)
+    # Save image after moving knife away from cucumber 
+    cut_cucumber_skill.save_current_images(slice_idx, False)
