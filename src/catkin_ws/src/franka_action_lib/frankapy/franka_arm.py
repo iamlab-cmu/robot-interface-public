@@ -15,7 +15,7 @@ import actionlib
 from franka_action_lib.msg import ExecuteSkillAction, RobolibStatus
 from franka_action_lib.srv import GetCurrentRobolibStatusCmd
 
-from .skill_list import *
+from .skill_list import ForceAlongAxisSkill, ForceTorqueSkill, GripperWithDefaultSensorSkill, ArmMoveToGoalContactWithDefaultSensorSkill, ArmMoveToGoalWithDefaultSensorSkill, ArmRelativeMotionWithDefaultSensorSkill, JointPoseMinJerkWithDefaultSensorSkill
 from .exceptions import *
 from .franka_arm_state_client import FrankaArmStateClient
 from .franka_constants import FrankaConstants as FC
@@ -73,7 +73,7 @@ class FrankaArm:
             FrankaArmCommException if a timeout is reached
             FrankaArmException if robolib gives an error
             FrankaArmRobolibNotReadyException if robolib is not ready
-        '''
+        ''' 
         self._in_skill = True
         self._client.send_goal(goal, feedback_cb=cb)
 
@@ -83,7 +83,7 @@ class FrankaArm:
 
             e = None
             if rospy.is_shutdown():
-                raise RuntimeError('rospy is down!')
+                e = RuntimeError('rospy is down!')
             elif robolib_status.error_description:
                 e = FrankaArmException(robolib_status.error_description)
             elif not robolib_status.is_ready:
@@ -114,9 +114,6 @@ class FrankaArm:
             stop_on_contact_forces (list): List of 6 floats corresponding to force limits on
                                             translation (xyz) and rotation about (xyz) axes. 
                                             Default is None. If None then will not stop on contact.
-
-        Raises:
-            FrankaArmCollisionException if a collision is detected
         '''
         if tool_pose.from_frame != 'franka_tool' or tool_pose.to_frame != 'world':
             raise ValueError('pose has invalid frame names! Make sure pose has from_frame=franka_tool and to_frame=world')
@@ -149,9 +146,6 @@ class FrankaArm:
         Args:
             delta_tool_pose (RigidTransform) : Delta pose in tool frame
             duration (float) : How much time this robot motion should take
-
-        Raises:
-            FrankaArmCollisionException if a collision is detected
         '''
         if delta_tool_pose.from_frame != 'franka_tool' or delta_tool_pose.to_frame != 'franka_tool':
             raise ValueError('delta_pose has invalid frame names! Make sure delta_pose has from_frame=franka_tool and to_frame=franka_tool')
@@ -177,7 +171,6 @@ class FrankaArm:
 
         Raises:
             ValueError: If is_joints_reachable(joints) returns False
-            FrankaArmCollisionException if a collision is detected
         '''
         if not self.is_joints_reachable(joints):
             raise ValueError('Joints not reachable!')
@@ -197,9 +190,6 @@ class FrankaArm:
         Args:
             torques (list): A list of 7 numbers that correspond to torques in Nm
             duration (float): A float in the unit of seconds
-
-        Raises:
-            FrankaArmCollisionException if a collision is detected
         '''
         pass
 
@@ -217,7 +207,6 @@ class FrankaArm:
 
         Raises:
             ValueError if acc_duration > 0.5*run_duration, or if forces are too large
-            FrankaArmCollisionException if a collision is detected
         '''
         if acc_duration > 0.5 * run_duration:
             raise ValueError('acc_duration must be smaller than half of run_duration!')
@@ -252,7 +241,6 @@ class FrankaArm:
 
         Raises:
             ValueError if acc_duration > 0.5*run_duration, or if forces are too large
-            FrankaArmCollisionException if a collision is detected
         '''
         if acc_duration > 0.5 * run_duration:
             raise ValueError('acc_duration must be smaller than half of run_duration!')

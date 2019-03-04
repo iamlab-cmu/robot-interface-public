@@ -18,17 +18,6 @@ class FrankaArmRobolibNotReadyException(Exception):
     def __str__(self):
         return 'Robolib was not ready!'
 
-class FrankaArmCollisionException(Exception):
-    ''' Failure of control, typically due to a kinematically unreachable pose.
-    '''
-
-    def __init__(self, cmd, *args, **kwargs):
-        Exception.__init__(self, *args, **kwargs)
-        self.cmd = cmd
-
-    def __str__(self):
-        return "Command resulted in a collision! Got params {}".format(self.cmd)
-
 class FrankaArmException(Exception):
     ''' Failure of control, typically due to a kinematically unreachable pose.
     '''
