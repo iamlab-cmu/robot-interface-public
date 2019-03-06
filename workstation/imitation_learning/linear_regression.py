@@ -123,6 +123,59 @@ class DMPTrajectory(object):
         # X^T\beta = y (where we have to find \beta)
         return {'X': X, 'y': y}
         
+    def convert_EE_position_to_dmp_format_train_better(self, data_dict):
+        time = data_dict['time']
+        dt = time[1:] - time[:-1]
+        assert np.min(dt) > 0.0 and np.max(dt) < 1.0, "Recorded time is far off"
+        pos = data_dict['robot_state'][:, -4:-1]
+
+        # Get velocity and acceleration.
+        d_pos = (pos[1:, :] - pos[:-1, :]) / dt
+        # Repeat the last x to get equal length array.
+        d_pos = np.vstack([d_pos, d_pos[-1:, :]])
+        dd_pos = (d_pos[1:, :] - d_pos[:-1, :]) / dt
+        # Repeat the last x to get equal length array.
+        dd_pos = np.vstack([dd_pos, dd_pos[-1:, :]])
+        print("dd_pos: max: {:.3f}, min: {:.3f}, mean: {:.3f}".format(
+            dd_pos.min(), dd_pos.max(), np.mean(dd_pos)))
+
+        y0 = d_pos[0]
+        force_val = (self.tau**2)*dd_pos - self.alpha*(self.beta*(y0-pos) \
+                - self.tau*d_pos)
+
+        # Get the x values
+        x_arr = self.get_x_values(dt)
+        # Repeat the last x to get equal length array. Shape (T)
+        x_arr = np.hstack([x_arr, x_arr[-1:]])
+        # x_arr will be of shape (T, N, M, K)
+        for _, axis_size in enumerate(
+                [self.num_dims, self.num_sensors, self.num_basis]):
+            x_arr = np.repeat(x_arr[..., None], axis_size, axis=-1)
+        assert x_arr.shape == \
+                (time.shape[0], self.num_dims, self.num_sensors, self.num_basis)
+        psi_tijk = np.exp(-self.h_all * (x_arr - self.mu_all)**2)
+        psi_tij_sum = np.sum(psi_tijk, axis=-1, keepdims=True)
+        feat_tijk = (psi_tijk * x_arr) / (psi_tij_sum + 1e-6)
+
+        # Get the minimum jerk features
+        min_jerk_t = np.minimum(-np.log(x_arr[:,:,:,0:1])/self.tau,
+                                        np.ones(x_arr[:,:,:,0:1].shape))
+        feat_min_jerk_tij = (min_jerk_t**3)*(6*(min_jerk_t**2)-15*min_jerk_t+10)
+        
+        # Concatenate the basis function features and min jerk fetures
+        feat_tijk = self.alpha*self.beta*np.concatenate(
+                [feat_min_jerk_tij, feat_tijk], axis=-1)
+
+        # This reshape happens according to "C" order, i.e., last axis change
+        # first, this means that 1400 parameters are laid according to each
+        # dim.
+        X = feat_tijk.copy().reshape(time.shape[0], self.num_dims, -1)
+        y = force_val.copy()
+        assert X.shape[0] == y.shape[0], "X, y n_samples do not match"
+        assert X.shape[1] == y.shape[1], "X, y n_dims do not match"
+
+        # X^T\beta = y (where we have to find \beta)
+        return {'X': X, 'y': y}
 
     def convert_data_to_dmp_train_format(self, data_dict):
         time = data_dict['time']
@@ -285,15 +338,23 @@ def train1(dmp_traj, h5_path):
 
     return weights
 
-def train2(dmp_traj, h5_path):
+def train2(dmp_traj, h5_path, train_type):
     expert_data = load_data(h5_path)
     truncated_expert_data = truncate_expert_data(expert_data)
+
     X, y = [], []
     for k in sorted(truncated_expert_data.keys()):
         if k == '3':
             continue
-        data = dmp_traj.convert_data_to_dmp_train_better(
-                truncated_expert_data[k])
+        if train_type == 'joint':
+            data = dmp_traj.convert_data_to_dmp_train_better(
+                    truncated_expert_data[k])
+        elif train_type == 'position':
+            data = dmp_traj.convert_EE_position_to_dmp_format_train_better(
+                    truncated_expert_data[k])
+        else:
+            raise ValueError("Invalid train_type for DMP: {}".format(train_type))
+
         assert type(data['X']) is np.ndarray \
             and type(data['y']) is np.ndarray, "Incorrect data type returned"
             
@@ -332,7 +393,7 @@ def main(args):
     num_dims, num_basis, num_sensors = 7, 19, 10
     dmp_traj = DMPTrajectory(num_dims, num_basis, num_sensors)
     # weights = train1(dmp_traj, args.h5_path)
-    weights = train2(dmp_traj, args.h5_path)
+    weights = train2(dmp_traj, args.h5_path, args.train_type)
     y, dy = dmp_traj.run_dmp_with_weights(weights,
                                           np.zeros((dmp_traj.num_dims)),
                                           0.05,
@@ -344,6 +405,8 @@ if __name__ == '__main__':
             description='Convert data with csvs into h5 file')
     parser.add_argument('--h5_path', type=str, required=True,
                         help='Path to h5 file.')
+    parser.add_argument('--train_type', type=str, choices=['joint', 'position'],
+                        default='joint', help='Format to train DMPs in.')
     args = parser.parse_args()
     import time
     np.random.seed(int(time.time()))
