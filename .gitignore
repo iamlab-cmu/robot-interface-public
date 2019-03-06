@@ -72,3 +72,7 @@ iam_robolib_common/build
 
 # Ipython notebook ignore
 notebooks/.ipynb_checkpoints
+
+*cmake-build-debug
+*imgui.ini
+*egg-info
