@@ -7,7 +7,7 @@
 
 class TrajectoryGenerator {
  public:
-  explicit TrajectoryGenerator(float *p) : params_{p} {};
+  explicit TrajectoryGenerator(double *p) : params_{p} {};
 
   /**
    * Parse parameters from memory.
@@ -44,11 +44,11 @@ class TrajectoryGenerator {
 
   const double acceleration_time_ = 5.0;
   double run_time_ = 0.0;
-  float dt_ = 0.001f;
+  double dt_ = 0.001;
   double time_ = 0.0;
 
  protected:
-  float *params_=0;
+  double *params_=0;
 
 };
 

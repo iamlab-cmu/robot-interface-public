@@ -60,6 +60,14 @@ std::string SharedMemoryInfo::getRunLoopInfoMutexName() {
   return run_loop_info_mutex_name_;
 }
 
+std::string SharedMemoryInfo::getSkillStateInfoObjectName() {
+  return skill_state_info_name_;
+}
+
+std::string SharedMemoryInfo::getSkillStateInfoMutexName() {
+  return skill_state_info_mutex_name_;
+}
+
 std::string SharedMemoryInfo::getParameterMemoryMutexName(int index) {
   if (index == 0) {
     return params_memory_mutex_name_0_;

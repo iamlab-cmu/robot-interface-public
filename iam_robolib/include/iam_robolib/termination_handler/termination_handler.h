@@ -9,7 +9,7 @@
 
 class TerminationHandler {
  public:
-  explicit TerminationHandler(float *p, RunLoopProcessInfo *r) : params_{p}, run_loop_info_{r} {};
+  explicit TerminationHandler(double *p, RunLoopProcessInfo *r) : params_{p}, run_loop_info_{r} {};
 
   /**
    * Parse parameters from memory.
@@ -49,7 +49,7 @@ class TerminationHandler {
 
   bool done_ = false;
  protected:
-  float *params_ = 0;
+  double *params_ = 0;
   RunLoopProcessInfo *run_loop_info_ = nullptr;
 };
 

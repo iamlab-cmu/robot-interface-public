@@ -76,11 +76,11 @@ class BaseSkill {
 
   virtual bool has_terminated(Robot* robot);
 
-  virtual void write_result_to_shared_memory(float *result_buffer);
-  virtual void write_result_to_shared_memory(float *result_buffer, FrankaRobot *robot);
-  virtual void write_result_to_shared_memory(float *result_buffer, Robot *robot);
+  virtual void write_result_to_shared_memory(double *result_buffer);
+  virtual void write_result_to_shared_memory(double *result_buffer, FrankaRobot *robot);
+  virtual void write_result_to_shared_memory(double *result_buffer, Robot *robot);
 
-  virtual void write_feedback_to_shared_memory(float *feedback_buffer);
+  virtual void write_feedback_to_shared_memory(double *feedback_buffer);
 
  protected:
   int skill_idx_;

@@ -23,12 +23,15 @@ class SharedMemoryInfo {
 
   std::string getRunLoopInfoObjectName();
 
+  std::string getSkillStateInfoObjectName();
+
   std::string getSharedMemoryNameForCurrentRobotState();
 
   /**
    * Declare mutex names.
    */
   std::string getRunLoopInfoMutexName();
+  std::string getSkillStateInfoMutexName();
   std::string getParameterMemoryMutexName(int index);
   std::string getSensorDataMutexName(int index);
   std::string getExecutionResponseMutexName(int index);
@@ -92,6 +95,8 @@ class SharedMemoryInfo {
   // Object names
   const std::string run_loop_info_name_ = "run_loop_info";
   const std::string run_loop_info_mutex_name_ = "run_loop_info_mutex";
+  const std::string skill_state_info_name_ = "skill_info";
+  const std::string skill_state_info_mutex_name_ = "skill_info_mutex";
 
   // Declare mutexes
   const std::string params_memory_mutex_name_0_ = "run_loop_shared_obj_0_mutex";
@@ -103,26 +108,26 @@ class SharedMemoryInfo {
   const std::string current_robot_state_mutex_name_ = "current_robot_state_mutex";
 
   // Declare sizes
-  const int params_memory_size_0_ = 4 * 1024 * sizeof(float);
-  const int params_memory_size_1_ = 4 * 1024 * sizeof(float);
-  const int objects_memory_size_ = 1024 * sizeof(float);
-  const int sensor_buffer_size_ = 5 * 1024 * sizeof(float);
+  const int params_memory_size_0_ = 4 * 1024 * sizeof(double);
+  const int params_memory_size_1_ = 4 * 1024 * sizeof(double);
+  const int objects_memory_size_ = 2 * 1024 * sizeof(double);
+  const int sensor_buffer_size_ = 5 * 1024 * sizeof(double);
 
-  const int trajectory_params_buffer_size_= 1024 * sizeof(float);
-  const int feedback_controller_params_buffer_size_= 1024 * sizeof(float);
-  const int termination_params_buffer_size_= 1024 * sizeof(float);
-  const int timer_params_buffer_size_= 1024 * sizeof(float);
+  const int trajectory_params_buffer_size_= 1024 * sizeof(double);
+  const int feedback_controller_params_buffer_size_= 1024 * sizeof(double);
+  const int termination_params_buffer_size_= 1024 * sizeof(double);
+  const int timer_params_buffer_size_= 1024 * sizeof(double);
 
-  const int trajectory_sensor_data_buffer_size_= 1024 * sizeof(float);
-  const int feedback_controller_sensor_data_buffer_size_= 1024 * sizeof(float);
-  const int termination_sensor_data_buffer_size_= 1024 * sizeof(float);
-  const int timer_sensor_data_buffer_size_ = 1024 * sizeof(float);
-  const int extra_sensor_data_buffer_size_ = 1024 * sizeof(float);
+  const int trajectory_sensor_data_buffer_size_= 1024 * sizeof(double);
+  const int feedback_controller_sensor_data_buffer_size_= 1024 * sizeof(double);
+  const int termination_sensor_data_buffer_size_= 1024 * sizeof(double);
+  const int timer_sensor_data_buffer_size_ = 1024 * sizeof(double);
+  const int extra_sensor_data_buffer_size_ = 1024 * sizeof(double);
 
-  const int execution_response_feedback_size_= 1024 * sizeof(float);
-  const int execution_response_result_size_= 1024 * sizeof(float);
+  const int execution_response_feedback_size_= 1024 * sizeof(double);
+  const int execution_response_result_size_= 1024 * sizeof(double);
 
-  const int current_robot_state_size_= 300 * sizeof(float);
+  const int current_robot_state_size_= 1024 * sizeof(double);
 
 };
 

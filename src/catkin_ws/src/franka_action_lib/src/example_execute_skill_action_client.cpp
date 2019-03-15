@@ -14,11 +14,11 @@ int main(int argc, char** argv)
   franka_action_lib::ExecuteSkillGoal goal;
 
   // Fill in goal here
-  std::vector<float> initial_sensor_values{ 1,3,5,7,9 };
-  std::vector<float> traj_gen_params{ 1,1,1,3,3,3 };
-  std::vector<float> feedback_controller_params{ 0.1 };
-  std::vector<float> termination_params{ 3,3,3 };
-  std::vector<float> timer_params{ 1,2,3,4,5 };
+  std::vector<double> initial_sensor_values{ 1,3,5,7,9 };
+  std::vector<double> traj_gen_params{ 1,1,1,3,3,3 };
+  std::vector<double> feedback_controller_params{ 0.1 };
+  std::vector<double> termination_params{ 3,3,3 };
+  std::vector<double> timer_params{ 1,2,3,4,5 };
 
   goal.sensor_topics.push_back("/franka_robot/camera/");
   goal.sensor_value_sizes.push_back(initial_sensor_values.size());

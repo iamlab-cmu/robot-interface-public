@@ -23,6 +23,21 @@ namespace franka_action_lib
     run_loop_info_mutex_ = run_loop_info_mutex_pair.first;
     assert(run_loop_info_mutex_ != 0);
 
+    // Get SkillStateInfo from the the shared memory segment.
+    std::pair<SkillStateInfo*, std::size_t> skill_state_info_pair = \
+        managed_shared_memory_.find<SkillStateInfo> (shared_memory_info_.getSkillStateInfoObjectName().c_str());
+    skill_state_info_ = skill_state_info_pair.first;
+
+    // Make sure the process info object can be found in memory.
+    assert(skill_state_info_ != 0);
+
+    // Get mutex for ProcessInfo from the shared memory segment.
+    std::pair<boost::interprocess::interprocess_mutex *, std::size_t> skill_state_info_mutex_pair = \
+                                managed_shared_memory_.find<boost::interprocess::interprocess_mutex>
+                                (shared_memory_info_.getSkillStateInfoMutexName().c_str());
+    skill_state_info_mutex_ = skill_state_info_mutex_pair.first;
+    assert(skill_state_info_mutex_ != 0);
+
     // Get mutex for buffer 0 from the shared memory segment.
     std::pair<boost::interprocess::interprocess_mutex *, std::size_t> shared_memory_object_0_mutex_pair = \
                                 managed_shared_memory_.find<boost::interprocess::interprocess_mutex>
@@ -46,28 +61,28 @@ namespace franka_action_lib
         shared_memory_info_.getOffsetForTrajectoryParameters(),
         shared_memory_info_.getSizeForTrajectoryParameters()
         );
-    traj_gen_buffer_0_ = reinterpret_cast<float *>(region_traj_params_0_.get_address());
+    traj_gen_buffer_0_ = reinterpret_cast<double *>(region_traj_params_0_.get_address());
     region_feedback_controller_params_0_ = boost::interprocess::mapped_region(
         shared_memory_object_0_,
         boost::interprocess::read_write,
         shared_memory_info_.getOffsetForFeedbackControllerParameters(),
         shared_memory_info_.getSizeForFeedbackControllerParameters()
         );
-    feedback_controller_buffer_0_ = reinterpret_cast<float *>(region_feedback_controller_params_0_.get_address());
+    feedback_controller_buffer_0_ = reinterpret_cast<double *>(region_feedback_controller_params_0_.get_address());
     region_termination_params_0_ = boost::interprocess::mapped_region(
         shared_memory_object_0_,
         boost::interprocess::read_write,
         shared_memory_info_.getOffsetForTerminationParameters(),
         shared_memory_info_.getSizeForTerminationParameters()
     );
-    termination_buffer_0_ = reinterpret_cast<float *>(region_termination_params_0_.get_address());
+    termination_buffer_0_ = reinterpret_cast<double *>(region_termination_params_0_.get_address());
     region_timer_params_0_ = boost::interprocess::mapped_region(
         shared_memory_object_0_,
         boost::interprocess::read_write,
         shared_memory_info_.getOffsetForTimerParameters(),
         shared_memory_info_.getSizeForTimerParameters()
     );
-    timer_buffer_0_ = reinterpret_cast<float *>(region_timer_params_0_.get_address());
+    timer_buffer_0_ = reinterpret_cast<double *>(region_timer_params_0_.get_address());
 
     // Get mutex for buffer 1 from the shared memory segment.
     std::pair<boost::interprocess::interprocess_mutex *, std::size_t> shared_memory_object_1_mutex_pair = \
@@ -90,30 +105,30 @@ namespace franka_action_lib
         shared_memory_object_1_,
         boost::interprocess::read_write,
         shared_memory_info_.getOffsetForTrajectoryParameters(),
-        sizeof(float) * shared_memory_info_.getSizeForTrajectoryParameters()
+        sizeof(double) * shared_memory_info_.getSizeForTrajectoryParameters()
         );
-    traj_gen_buffer_1_ = reinterpret_cast<float *>(region_traj_params_1_.get_address());
+    traj_gen_buffer_1_ = reinterpret_cast<double *>(region_traj_params_1_.get_address());
     region_feedback_controller_params_1_ = boost::interprocess::mapped_region(
         shared_memory_object_1_,
         boost::interprocess::read_write,
         shared_memory_info_.getOffsetForFeedbackControllerParameters(),
         shared_memory_info_.getSizeForFeedbackControllerParameters()
         );
-    feedback_controller_buffer_1_ = reinterpret_cast<float *>(region_feedback_controller_params_1_.get_address());
+    feedback_controller_buffer_1_ = reinterpret_cast<double *>(region_feedback_controller_params_1_.get_address());
     region_termination_params_1_ = boost::interprocess::mapped_region(
         shared_memory_object_1_,
         boost::interprocess::read_write,
         shared_memory_info_.getOffsetForTerminationParameters(),
         shared_memory_info_.getSizeForTerminationParameters()
         );
-    termination_buffer_1_ = reinterpret_cast<float *>(region_termination_params_1_.get_address());
+    termination_buffer_1_ = reinterpret_cast<double *>(region_termination_params_1_.get_address());
     region_timer_params_1_ = boost::interprocess::mapped_region(
         shared_memory_object_1_,
         boost::interprocess::read_write,
         shared_memory_info_.getOffsetForTimerParameters(),
         shared_memory_info_.getSizeForTimerParameters()
         );
-    timer_buffer_1_ = reinterpret_cast<float *>(region_timer_params_1_.get_address());
+    timer_buffer_1_ = reinterpret_cast<double *>(region_timer_params_1_.get_address());
 
     // Get mutex for sensor data buffer 0 from the shared memory segment.
     std::pair<boost::interprocess::interprocess_mutex *, std::size_t> shared_sensor_data_0_mutex_pair = \
@@ -137,28 +152,28 @@ namespace franka_action_lib
         shared_memory_info_.getOffsetForTrajectorySensorData(),
         shared_memory_info_.getSizeForTrajectorySensorData()
     );
-    traj_gen_sensor_buffer_0_ = reinterpret_cast<float *>(region_traj_sensor_data_0_.get_address());
+    traj_gen_sensor_buffer_0_ = reinterpret_cast<double *>(region_traj_sensor_data_0_.get_address());
     region_feedback_controller_sensor_data_0_= boost::interprocess::mapped_region(
         shared_sensor_data_0_,
         boost::interprocess::read_write,
         shared_memory_info_.getOffsetForFeedbackControllerSensorData(),
         shared_memory_info_.getSizeForFeedbackControllerSensorData()
     );
-    feedback_controller_sensor_buffer_0_ = reinterpret_cast<float *>(region_feedback_controller_sensor_data_0_.get_address());
+    feedback_controller_sensor_buffer_0_ = reinterpret_cast<double *>(region_feedback_controller_sensor_data_0_.get_address());
     region_termination_sensor_data_0_ = boost::interprocess::mapped_region(
         shared_sensor_data_0_,
         boost::interprocess::read_write,
         shared_memory_info_.getOffsetForTerminationSensorData(),
         shared_memory_info_.getSizeForTerminationSensorData()
     );
-    termination_sensor_buffer_0_ = reinterpret_cast<float *>(region_termination_sensor_data_0_.get_address());
+    termination_sensor_buffer_0_ = reinterpret_cast<double *>(region_termination_sensor_data_0_.get_address());
     region_timer_sensor_data_0_= boost::interprocess::mapped_region(
         shared_sensor_data_0_,
         boost::interprocess::read_write,
         shared_memory_info_.getOffsetForTimerParameters(),
         shared_memory_info_.getSizeForTimerParameters()
     );
-    timer_sensor_buffer_0_ = reinterpret_cast<float *>(region_timer_sensor_data_0_.get_address());
+    timer_sensor_buffer_0_ = reinterpret_cast<double *>(region_timer_sensor_data_0_.get_address());
 
     // Get mutex for sensor data buffer 0 from the shared memory segment.
     std::pair<boost::interprocess::interprocess_mutex *, std::size_t> shared_sensor_data_1_mutex_pair = \
@@ -182,28 +197,28 @@ namespace franka_action_lib
         shared_memory_info_.getOffsetForTrajectorySensorData(),
         shared_memory_info_.getSizeForTrajectorySensorData()
     );
-    traj_gen_sensor_buffer_1_ = reinterpret_cast<float *>(region_traj_sensor_data_1_.get_address());
+    traj_gen_sensor_buffer_1_ = reinterpret_cast<double *>(region_traj_sensor_data_1_.get_address());
     region_feedback_controller_sensor_data_1_= boost::interprocess::mapped_region(
         shared_sensor_data_1_,
         boost::interprocess::read_write,
         shared_memory_info_.getOffsetForFeedbackControllerSensorData(),
         shared_memory_info_.getSizeForFeedbackControllerSensorData()
     );
-    feedback_controller_sensor_buffer_1_ = reinterpret_cast<float *>(region_feedback_controller_sensor_data_1_.get_address());
+    feedback_controller_sensor_buffer_1_ = reinterpret_cast<double *>(region_feedback_controller_sensor_data_1_.get_address());
     region_termination_sensor_data_1_ = boost::interprocess::mapped_region(
         shared_sensor_data_1_,
         boost::interprocess::read_write,
         shared_memory_info_.getOffsetForTerminationSensorData(),
         shared_memory_info_.getSizeForTerminationSensorData()
     );
-    termination_sensor_buffer_1_ = reinterpret_cast<float *>(region_termination_sensor_data_1_.get_address());
+    termination_sensor_buffer_1_ = reinterpret_cast<double *>(region_termination_sensor_data_1_.get_address());
     region_timer_sensor_data_1_= boost::interprocess::mapped_region(
         shared_sensor_data_1_,
         boost::interprocess::read_write,
         shared_memory_info_.getOffsetForTimerParameters(),
         shared_memory_info_.getSizeForTimerParameters()
     );
-    timer_sensor_buffer_1_ = reinterpret_cast<float *>(region_timer_sensor_data_1_.get_address());
+    timer_sensor_buffer_1_ = reinterpret_cast<double *>(region_timer_sensor_data_1_.get_address());
 
     // Get mutex for execution response buffer 0 from the shared memory segment.
     std::pair<boost::interprocess::interprocess_mutex *, std::size_t> shared_execution_response_0_mutex_pair = \
@@ -227,14 +242,14 @@ namespace franka_action_lib
         shared_memory_info_.getOffsetForExecutionFeedbackData(),
         shared_memory_info_.getSizeForExecutionFeedbackData()
     );
-    execution_feedback_buffer_0_ = reinterpret_cast<float *>(execution_feedback_region_0_.get_address());
+    execution_feedback_buffer_0_ = reinterpret_cast<double *>(execution_feedback_region_0_.get_address());
     execution_result_region_0_ = boost::interprocess::mapped_region(
         shared_execution_result_0_,
         boost::interprocess::read_write,
         shared_memory_info_.getOffsetForExecutionResultData(),
         shared_memory_info_.getSizeForExecutionResultData()
         );
-    execution_result_buffer_0_ = reinterpret_cast<float *>(execution_result_region_0_.get_address());
+    execution_result_buffer_0_ = reinterpret_cast<double *>(execution_result_region_0_.get_address());
 
     // Get mutex for execution response buffer 1 from the shared memory segment.
     std::pair<boost::interprocess::interprocess_mutex *, std::size_t> shared_execution_response_1_mutex_pair = \
@@ -258,14 +273,14 @@ namespace franka_action_lib
         shared_memory_info_.getOffsetForExecutionFeedbackData(),
         shared_memory_info_.getSizeForExecutionFeedbackData()
     );
-    execution_feedback_buffer_1_ = reinterpret_cast<float *>(execution_feedback_region_1_.get_address());
+    execution_feedback_buffer_1_ = reinterpret_cast<double *>(execution_feedback_region_1_.get_address());
     execution_result_region_1_ = boost::interprocess::mapped_region(
         shared_execution_result_1_,
         boost::interprocess::read_write,
         shared_memory_info_.getOffsetForExecutionResultData(),
         shared_memory_info_.getSizeForExecutionResultData()
     );
-    execution_result_buffer_1_ = reinterpret_cast<float *>(execution_result_region_1_.get_address());
+    execution_result_buffer_1_ = reinterpret_cast<double *>(execution_result_region_1_.get_address());
 
     // Get mutex for current robot state buffer
     std::pair<boost::interprocess::interprocess_mutex *, std::size_t> shared_current_robot_state_mutex_pair = \
@@ -289,7 +304,7 @@ namespace franka_action_lib
         shared_memory_info_.getOffsetForExecutionFeedbackData(),
         shared_memory_info_.getSizeForExecutionFeedbackData()
     );
-    current_robot_state_buffer_ = reinterpret_cast<float *>(shared_current_robot_region_.get_address());
+    current_robot_state_buffer_ = reinterpret_cast<double *>(shared_current_robot_region_.get_address());
 
   }
 
@@ -434,7 +449,7 @@ namespace franka_action_lib
 
         int num_execution_feedback = static_cast<int>(execution_feedback_buffer_0_[0]);
 
-        std::vector<float> execution_feedback(execution_feedback_buffer_0_ + 1, execution_feedback_buffer_0_ + num_execution_feedback + 1);
+        std::vector<double> execution_feedback(execution_feedback_buffer_0_ + 1, execution_feedback_buffer_0_ + num_execution_feedback + 1);
 
         feedback.num_execution_feedback = num_execution_feedback;
         feedback.execution_feedback = execution_feedback;
@@ -448,7 +463,7 @@ namespace franka_action_lib
 
         int num_execution_feedback = static_cast<int>(execution_feedback_buffer_1_[0]);
 
-        std::vector<float> execution_feedback(execution_feedback_buffer_1_ + 1, execution_feedback_buffer_1_ + num_execution_feedback + 1);
+        std::vector<double> execution_feedback(execution_feedback_buffer_1_ + 1, execution_feedback_buffer_1_ + num_execution_feedback + 1);
 
         feedback.num_execution_feedback = num_execution_feedback;
         feedback.execution_feedback = execution_feedback;
@@ -477,7 +492,7 @@ namespace franka_action_lib
     {
       int num_execution_result = static_cast<int>(execution_result_buffer_0_[0]);
 
-      std::vector<float> execution_result(execution_result_buffer_0_ + 1, execution_result_buffer_0_ + num_execution_result + 1);
+      std::vector<double> execution_result(execution_result_buffer_0_ + 1, execution_result_buffer_0_ + num_execution_result + 1);
 
       result.num_execution_result = num_execution_result;
       result.execution_result = execution_result;
@@ -488,7 +503,7 @@ namespace franka_action_lib
     {
       int num_execution_result = static_cast<int>(execution_result_buffer_1_[0]);
 
-      std::vector<float> execution_result(execution_result_buffer_1_ + 1, execution_result_buffer_1_ + num_execution_result + 1);
+      std::vector<double> execution_result(execution_result_buffer_1_ + 1, execution_result_buffer_1_ + num_execution_result + 1);
 
       result.num_execution_result = num_execution_result;
       result.execution_result = execution_result;
@@ -511,38 +526,205 @@ namespace franka_action_lib
       robot_state.header.stamp = ros::Time::now();
 
       size_t offset = 0;
-      memcpy(&robot_state.pose_desired, &current_robot_state_buffer_[offset], robot_state.pose_desired.size() * sizeof(float));
-      offset += robot_state.pose_desired.size();
+      memcpy(&robot_state.O_T_EE, &current_robot_state_buffer_[offset], robot_state.O_T_EE.size() * sizeof(double));
+      offset += robot_state.O_T_EE.size();
 
-      memcpy(&robot_state.pose, &current_robot_state_buffer_[offset], robot_state.pose.size() * sizeof(float));
-      offset += robot_state.pose.size();
+      memcpy(&robot_state.O_T_EE_d, &current_robot_state_buffer_[offset], robot_state.O_T_EE_d.size() * sizeof(double));
+      offset += robot_state.O_T_EE_d.size();
       
-      memcpy(&robot_state.joint_torques, &current_robot_state_buffer_[offset], robot_state.joint_torques.size() * sizeof(float));
-      offset += robot_state.joint_torques.size();
+      memcpy(&robot_state.F_T_EE, &current_robot_state_buffer_[offset], robot_state.F_T_EE.size() * sizeof(double));
+      offset += robot_state.F_T_EE.size();
 
-      memcpy(&robot_state.joint_torques_derivative, &current_robot_state_buffer_[offset], robot_state.joint_torques_derivative.size() * sizeof(float));
-      offset += robot_state.joint_torques_derivative.size();
+      memcpy(&robot_state.EE_T_K, &current_robot_state_buffer_[offset], robot_state.EE_T_K.size() * sizeof(double));
+      offset += robot_state.EE_T_K.size();
       
-      memcpy(&robot_state.joints, &current_robot_state_buffer_[offset], robot_state.joints.size() * sizeof(float));
-      offset += robot_state.joints.size();
+      robot_state.m_ee = current_robot_state_buffer_[offset++];
+
+      memcpy(&robot_state.I_ee, &current_robot_state_buffer_[offset], robot_state.I_ee.size() * sizeof(double));
+      offset += robot_state.I_ee.size();
+
+      memcpy(&robot_state.F_x_Cee, &current_robot_state_buffer_[offset], robot_state.F_x_Cee.size() * sizeof(double));
+      offset += robot_state.F_x_Cee.size();
+
+      robot_state.m_load = current_robot_state_buffer_[offset++];
+
+      memcpy(&robot_state.I_load, &current_robot_state_buffer_[offset], robot_state.I_load.size() * sizeof(double));
+      offset += robot_state.I_load.size();
+
+      memcpy(&robot_state.F_x_Cload, &current_robot_state_buffer_[offset], robot_state.F_x_Cload.size() * sizeof(double));
+      offset += robot_state.F_x_Cload.size();
+
+      robot_state.m_total = current_robot_state_buffer_[offset++];
+
+      memcpy(&robot_state.I_total, &current_robot_state_buffer_[offset], robot_state.I_total.size() * sizeof(double));
+      offset += robot_state.I_total.size();
+
+      memcpy(&robot_state.F_x_Ctotal, &current_robot_state_buffer_[offset], robot_state.F_x_Ctotal.size() * sizeof(double));
+      offset += robot_state.F_x_Ctotal.size();
       
-      memcpy(&robot_state.joints_desired, &current_robot_state_buffer_[offset], robot_state.joints_desired.size() * sizeof(float));
-      offset += robot_state.joints_desired.size();
+      memcpy(&robot_state.elbow, &current_robot_state_buffer_[offset], robot_state.elbow.size() * sizeof(double));
+      offset += robot_state.elbow.size();
+
+      memcpy(&robot_state.elbow_d, &current_robot_state_buffer_[offset], robot_state.elbow_d.size() * sizeof(double));
+      offset += robot_state.elbow_d.size();
+
+      memcpy(&robot_state.elbow_c, &current_robot_state_buffer_[offset], robot_state.elbow_c.size() * sizeof(double));
+      offset += robot_state.elbow_c.size();
+
+      memcpy(&robot_state.delbow_c, &current_robot_state_buffer_[offset], robot_state.delbow_c.size() * sizeof(double));
+      offset += robot_state.delbow_c.size();
+
+      memcpy(&robot_state.ddelbow_c, &current_robot_state_buffer_[offset], robot_state.ddelbow_c.size() * sizeof(double));
+      offset += robot_state.ddelbow_c.size();
       
-      memcpy(&robot_state.joint_velocities, &current_robot_state_buffer_[offset], robot_state.joint_velocities.size() * sizeof(float));
-      offset += robot_state.joint_velocities.size();
+      memcpy(&robot_state.tau_J, &current_robot_state_buffer_[offset], robot_state.tau_J.size() * sizeof(double));
+      offset += robot_state.tau_J.size();
+
+      memcpy(&robot_state.tau_J_d, &current_robot_state_buffer_[offset], robot_state.tau_J_d.size() * sizeof(double));
+      offset += robot_state.tau_J_d.size();
+
+      memcpy(&robot_state.dtau_J, &current_robot_state_buffer_[offset], robot_state.dtau_J.size() * sizeof(double));
+      offset += robot_state.dtau_J.size();
+
+      memcpy(&robot_state.q, &current_robot_state_buffer_[offset], robot_state.q.size() * sizeof(double));
+      offset += robot_state.q.size();
+
+      memcpy(&robot_state.q_d, &current_robot_state_buffer_[offset], robot_state.q_d.size() * sizeof(double));
+      offset += robot_state.q_d.size();
+
+      memcpy(&robot_state.dq, &current_robot_state_buffer_[offset], robot_state.dq.size() * sizeof(double));
+      offset += robot_state.dq.size();
+
+      memcpy(&robot_state.dq_d, &current_robot_state_buffer_[offset], robot_state.dq_d.size() * sizeof(double));
+      offset += robot_state.dq_d.size();
+
+      memcpy(&robot_state.ddq_d, &current_robot_state_buffer_[offset], robot_state.ddq_d.size() * sizeof(double));
+      offset += robot_state.ddq_d.size();
+
+      memcpy(&robot_state.joint_contact, &current_robot_state_buffer_[offset], robot_state.joint_contact.size() * sizeof(double));
+      offset += robot_state.joint_contact.size();
+
+      memcpy(&robot_state.cartesian_contact, &current_robot_state_buffer_[offset], robot_state.cartesian_contact.size() * sizeof(double));
+      offset += robot_state.cartesian_contact.size();
+
+      memcpy(&robot_state.joint_collision, &current_robot_state_buffer_[offset], robot_state.joint_collision.size() * sizeof(double));
+      offset += robot_state.joint_collision.size();
+
+      memcpy(&robot_state.cartesian_collision, &current_robot_state_buffer_[offset], robot_state.cartesian_collision.size() * sizeof(double));
+      offset += robot_state.cartesian_collision.size();
+
+      memcpy(&robot_state.tau_ext_hat_filtered, &current_robot_state_buffer_[offset], robot_state.tau_ext_hat_filtered.size() * sizeof(double));
+      offset += robot_state.tau_ext_hat_filtered.size();
+
+      memcpy(&robot_state.O_F_ext_hat_K, &current_robot_state_buffer_[offset], robot_state.O_F_ext_hat_K.size() * sizeof(double));
+      offset += robot_state.O_F_ext_hat_K.size();
+
+      memcpy(&robot_state.K_F_ext_hat_K, &current_robot_state_buffer_[offset], robot_state.K_F_ext_hat_K.size() * sizeof(double));
+      offset += robot_state.K_F_ext_hat_K.size();
+
+      memcpy(&robot_state.O_dP_EE_d, &current_robot_state_buffer_[offset], robot_state.O_dP_EE_d.size() * sizeof(double));
+      offset += robot_state.O_dP_EE_d.size();
+
+      memcpy(&robot_state.O_T_EE_c, &current_robot_state_buffer_[offset], robot_state.O_T_EE_c.size() * sizeof(double));
+      offset += robot_state.O_T_EE_c.size();
+
+      memcpy(&robot_state.O_dP_EE_c, &current_robot_state_buffer_[offset], robot_state.O_dP_EE_c.size() * sizeof(double));
+      offset += robot_state.O_dP_EE_c.size();
+
+      memcpy(&robot_state.O_ddP_EE_c, &current_robot_state_buffer_[offset], robot_state.O_ddP_EE_c.size() * sizeof(double));
+      offset += robot_state.O_ddP_EE_c.size();
+
+      memcpy(&robot_state.theta, &current_robot_state_buffer_[offset], robot_state.theta.size() * sizeof(double));
+      offset += robot_state.theta.size();
+
+      memcpy(&robot_state.dtheta, &current_robot_state_buffer_[offset], robot_state.dtheta.size() * sizeof(double));
+      offset += robot_state.dtheta.size();
+
+      robot_state.current_errors.joint_position_limits_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.cartesian_position_limits_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.self_collision_avoidance_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.joint_velocity_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.cartesian_velocity_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.force_control_safety_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.joint_reflex = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.cartesian_reflex = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.max_goal_pose_deviation_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.max_path_pose_deviation_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.cartesian_velocity_profile_safety_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.joint_position_motion_generator_start_pose_invalid = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.joint_motion_generator_position_limits_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.joint_motion_generator_velocity_limits_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.joint_motion_generator_velocity_discontinuity = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.joint_motion_generator_acceleration_discontinuity = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.cartesian_position_motion_generator_start_pose_invalid = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.cartesian_motion_generator_elbow_limit_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.cartesian_motion_generator_velocity_limits_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.cartesian_motion_generator_velocity_discontinuity = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.cartesian_motion_generator_acceleration_discontinuity = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.cartesian_motion_generator_elbow_sign_inconsistent = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.cartesian_motion_generator_start_elbow_invalid = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.cartesian_motion_generator_joint_position_limits_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.cartesian_motion_generator_joint_velocity_limits_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.cartesian_motion_generator_joint_velocity_discontinuity = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.cartesian_motion_generator_joint_acceleration_discontinuity = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.cartesian_position_motion_generator_invalid_frame = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.force_controller_desired_force_tolerance_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.controller_torque_discontinuity = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.start_elbow_sign_inconsistent = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.communication_constraints_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.power_limit_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.joint_p2p_insufficient_torque_for_planning = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.tau_j_range_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.instability_detected = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.current_errors.joint_move_in_wrong_direction = current_robot_state_buffer_[offset++] == 1 ? true : false;
+
+      robot_state.last_motion_errors.joint_position_limits_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.cartesian_position_limits_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.self_collision_avoidance_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.joint_velocity_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.cartesian_velocity_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.force_control_safety_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.joint_reflex = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.cartesian_reflex = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.max_goal_pose_deviation_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.max_path_pose_deviation_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.cartesian_velocity_profile_safety_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.joint_position_motion_generator_start_pose_invalid = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.joint_motion_generator_position_limits_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.joint_motion_generator_velocity_limits_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.joint_motion_generator_velocity_discontinuity = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.joint_motion_generator_acceleration_discontinuity = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.cartesian_position_motion_generator_start_pose_invalid = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.cartesian_motion_generator_elbow_limit_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.cartesian_motion_generator_velocity_limits_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.cartesian_motion_generator_velocity_discontinuity = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.cartesian_motion_generator_acceleration_discontinuity = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.cartesian_motion_generator_elbow_sign_inconsistent = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.cartesian_motion_generator_start_elbow_invalid = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.cartesian_motion_generator_joint_position_limits_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.cartesian_motion_generator_joint_velocity_limits_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.cartesian_motion_generator_joint_velocity_discontinuity = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.cartesian_motion_generator_joint_acceleration_discontinuity = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.cartesian_position_motion_generator_invalid_frame = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.force_controller_desired_force_tolerance_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.controller_torque_discontinuity = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.start_elbow_sign_inconsistent = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.communication_constraints_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.power_limit_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.joint_p2p_insufficient_torque_for_planning = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.tau_j_range_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.instability_detected = current_robot_state_buffer_[offset++] == 1 ? true : false;
+      robot_state.last_motion_errors.joint_move_in_wrong_direction = current_robot_state_buffer_[offset++] == 1 ? true : false;
       
-      robot_state.time_since_skill_started = current_robot_state_buffer_[offset++];
+      robot_state.control_command_success_rate = current_robot_state_buffer_[offset++];
+
+      robot_state.robot_mode = static_cast<uint8_t>(current_robot_state_buffer_[offset++]);
+
+      robot_state.time = current_robot_state_buffer_[offset++];
 
       robot_state.gripper_width = current_robot_state_buffer_[offset++];
 
       robot_state.gripper_is_grasped = current_robot_state_buffer_[offset++] == 1 ? true : false;
-
-      // Grab the lock of the run_loop_info_mutex_
-      boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> run_loop_info_lock(*run_loop_info_mutex_, boost::interprocess::defer_lock);
-      if (run_loop_info_lock.try_lock()) {
-        robot_state.skill_description = run_loop_process_info_->get_new_skill_description();
-      }      
 
       robot_state.is_fresh = true;
     } else {
@@ -573,6 +755,31 @@ namespace franka_action_lib
     }
     
     return robolib_status;
+  }
+
+  franka_action_lib::SkillState SharedMemoryHandler::getSkillState()
+  {
+    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> skill_state_info_lock(*skill_state_info_mutex_, boost::interprocess::defer_lock);
+
+    franka_action_lib::SkillState skill_state;
+    skill_state.header.stamp = ros::Time::now();
+
+    if (skill_state_info_lock.try_lock()) {
+      skill_state.skill_id = skill_state_info_->get_skill_id();
+      skill_state.meta_skill_id = skill_state_info_->get_meta_skill_id();
+      skill_state.skill_type = skill_state_info_->get_skill_type();
+      skill_state.meta_skill_type = skill_state_info_->get_meta_skill_type();
+      skill_state.skill_description = skill_state_info_->get_skill_description();
+      skill_state.time_since_skill_started = skill_state_info_->get_time_since_skill_started();
+      skill_state.skill_running = skill_state_info_->get_skill_running();
+      skill_state.skill_preempted = skill_state_info_->get_skill_preempted();
+      
+      skill_state.is_fresh = true;
+    } else {
+      skill_state.is_fresh = false;
+    }
+    
+    return skill_state;
   }
 
   void SharedMemoryHandler::incrementWatchdogCounter()
@@ -693,14 +900,14 @@ namespace franka_action_lib
     if(current_free_shared_memory_index == 0)
     {
       // Currently ignoring sensor names and putting everything into the traj_gen_sensor_buffer
-      traj_gen_sensor_buffer_0_[0] = static_cast<float>(goal->sensor_value_sizes[0]);
-      memcpy(traj_gen_sensor_buffer_0_ + 1, &goal->initial_sensor_values[0], goal->sensor_value_sizes[0] * sizeof(float));
+      traj_gen_sensor_buffer_0_[0] = static_cast<double>(goal->sensor_value_sizes[0]);
+      memcpy(traj_gen_sensor_buffer_0_ + 1, &goal->initial_sensor_values[0], goal->sensor_value_sizes[0] * sizeof(double));
     }
     else if(current_free_shared_memory_index == 1)
     {
       // Currently ignoring sensor names and putting everything into the traj_gen_sensor_buffer
-      traj_gen_sensor_buffer_1_[0] = static_cast<float>(goal->sensor_value_sizes[0]);
-      memcpy(traj_gen_sensor_buffer_1_ + 1, &goal->initial_sensor_values[0], goal->sensor_value_sizes[0] * sizeof(float));
+      traj_gen_sensor_buffer_1_[0] = static_cast<double>(goal->sensor_value_sizes[0]);
+      memcpy(traj_gen_sensor_buffer_1_ + 1, &goal->initial_sensor_values[0], goal->sensor_value_sizes[0] * sizeof(double));
     }
   }
 
@@ -711,15 +918,15 @@ namespace franka_action_lib
   {
     if(current_free_shared_memory_index == 0)
     {
-      traj_gen_buffer_0_[0] = static_cast<float>(goal->traj_gen_type);
-      traj_gen_buffer_0_[1] = static_cast<float>(goal->num_traj_gen_params);
-      memcpy(traj_gen_buffer_0_ + 2, &goal->traj_gen_params[0], goal->num_traj_gen_params * sizeof(float));
+      traj_gen_buffer_0_[0] = static_cast<double>(goal->traj_gen_type);
+      traj_gen_buffer_0_[1] = static_cast<double>(goal->num_traj_gen_params);
+      memcpy(traj_gen_buffer_0_ + 2, &goal->traj_gen_params[0], goal->num_traj_gen_params * sizeof(double));
     }
     else if(current_free_shared_memory_index == 1)
     {
-      traj_gen_buffer_1_[0] = static_cast<float>(goal->traj_gen_type);
-      traj_gen_buffer_1_[1] = static_cast<float>(goal->num_traj_gen_params);
-      memcpy(traj_gen_buffer_1_ + 2, &goal->traj_gen_params[0], goal->num_traj_gen_params * sizeof(float));
+      traj_gen_buffer_1_[0] = static_cast<double>(goal->traj_gen_type);
+      traj_gen_buffer_1_[1] = static_cast<double>(goal->num_traj_gen_params);
+      memcpy(traj_gen_buffer_1_ + 2, &goal->traj_gen_params[0], goal->num_traj_gen_params * sizeof(double));
     }
   }
 
@@ -730,19 +937,19 @@ namespace franka_action_lib
   {
     if(current_free_shared_memory_index == 0)
     {
-      feedback_controller_buffer_0_[0] = static_cast<float>(goal->feedback_controller_type);
-      feedback_controller_buffer_0_[1] = static_cast<float>(goal->num_feedback_controller_params);
+      feedback_controller_buffer_0_[0] = static_cast<double>(goal->feedback_controller_type);
+      feedback_controller_buffer_0_[1] = static_cast<double>(goal->num_feedback_controller_params);
       memcpy(feedback_controller_buffer_0_ + 2,
           &goal->feedback_controller_params[0],
-          goal->num_feedback_controller_params * sizeof(float));
+          goal->num_feedback_controller_params * sizeof(double));
     }
     else if(current_free_shared_memory_index == 1)
     {
-      feedback_controller_buffer_1_[0] = static_cast<float>(goal->feedback_controller_type);
-      feedback_controller_buffer_1_[1] = static_cast<float>(goal->num_feedback_controller_params);
+      feedback_controller_buffer_1_[0] = static_cast<double>(goal->feedback_controller_type);
+      feedback_controller_buffer_1_[1] = static_cast<double>(goal->num_feedback_controller_params);
       memcpy(feedback_controller_buffer_1_ + 2,
           &goal->feedback_controller_params[0],
-          goal->num_feedback_controller_params * sizeof(float));
+          goal->num_feedback_controller_params * sizeof(double));
     }
   }
 
@@ -753,15 +960,15 @@ namespace franka_action_lib
   {
     if(current_free_shared_memory_index == 0)
     {
-      termination_buffer_0_[0] = static_cast<float>(goal->termination_type);
-      termination_buffer_0_[1] = static_cast<float>(goal->num_termination_params);
-      memcpy(termination_buffer_0_ + 2, &goal->termination_params[0], goal->num_termination_params * sizeof(float));
+      termination_buffer_0_[0] = static_cast<double>(goal->termination_type);
+      termination_buffer_0_[1] = static_cast<double>(goal->num_termination_params);
+      memcpy(termination_buffer_0_ + 2, &goal->termination_params[0], goal->num_termination_params * sizeof(double));
     }
     else if(current_free_shared_memory_index == 1)
     {
-      termination_buffer_1_[0] = static_cast<float>(goal->termination_type);
-      termination_buffer_1_[1] = static_cast<float>(goal->num_termination_params);
-      memcpy(termination_buffer_1_ + 2, &goal->termination_params[0], goal->num_termination_params * sizeof(float));
+      termination_buffer_1_[0] = static_cast<double>(goal->termination_type);
+      termination_buffer_1_[1] = static_cast<double>(goal->num_termination_params);
+      memcpy(termination_buffer_1_ + 2, &goal->termination_params[0], goal->num_termination_params * sizeof(double));
     }
   }
 
@@ -772,15 +979,15 @@ namespace franka_action_lib
   {
     if(current_free_shared_memory_index == 0)
     {
-      timer_buffer_0_[0] = static_cast<float>(goal->timer_type);
-      timer_buffer_0_[1] = static_cast<float>(goal->num_timer_params);
-      memcpy(timer_buffer_0_ + 2, &goal->timer_params[0], goal->num_timer_params * sizeof(float));
+      timer_buffer_0_[0] = static_cast<double>(goal->timer_type);
+      timer_buffer_0_[1] = static_cast<double>(goal->num_timer_params);
+      memcpy(timer_buffer_0_ + 2, &goal->timer_params[0], goal->num_timer_params * sizeof(double));
     }
     else if(current_free_shared_memory_index == 1)
     {
-      timer_buffer_1_[0] = static_cast<float>(goal->timer_type);
-      timer_buffer_1_[1] = static_cast<float>(goal->num_timer_params);
-      memcpy(timer_buffer_1_ + 2, &goal->timer_params[0], goal->num_timer_params * sizeof(float));
+      timer_buffer_1_[0] = static_cast<double>(goal->timer_type);
+      timer_buffer_1_[1] = static_cast<double>(goal->num_timer_params);
+      memcpy(timer_buffer_1_ + 2, &goal->timer_params[0], goal->num_timer_params * sizeof(double));
     }
   }
 

@@ -35,26 +35,26 @@ class SkillInfo : public BaseSkill {
    * Write result to the shared memory after skill is done.
    * @param result_buffer
    */
-  void write_result_to_shared_memory(float *result_buffer) override;
+  void write_result_to_shared_memory(double *result_buffer) override;
 
   /**
    * Write result to the shared memory after skill is done.
    * @param result_buffer
    */
-  void write_result_to_shared_memory(float *result_buffer, FrankaRobot *robot) override;
+  void write_result_to_shared_memory(double *result_buffer, FrankaRobot *robot) override;
 
   /**
    * Write result to the shared memory after skill is done.
    * @param result_buffer
    */
-  void write_result_to_shared_memory(float *result_buffer, Robot *robot) override;
+  void write_result_to_shared_memory(double *result_buffer, Robot *robot) override;
 
 
   /**
    * Write feedback result to the shared memory as feedback for a skill.
    * @param feedback_buffer
    */
-  void write_feedback_to_shared_memory(float *feedback_buffer) override;
+  void write_feedback_to_shared_memory(double *feedback_buffer) override;
 
  protected:
   const std::array<double, 7> k_gains_ = {{600.0, 600.0, 600.0, 600.0, 250.0, 150.0, 50.0}};

@@ -4,6 +4,7 @@
 #include <franka_action_lib/ExecuteSkillAction.h> // Note: "Action" is appended
 #include <franka_action_lib/RobotState.h>
 #include <franka_action_lib/RobolibStatus.h>
+#include <franka_action_lib/SkillState.h>
 
 #include "ros/ros.h" // For ROS::ERROR messages
 
@@ -20,6 +21,7 @@
 
 #include <iam_robolib_common/SharedMemoryInfo.h>
 #include <iam_robolib_common/run_loop_process_info.h>
+#include <iam_robolib_common/skill_state_info.h>
 
 namespace franka_action_lib
 {
@@ -48,6 +50,8 @@ namespace franka_action_lib
       franka_action_lib::RobotState getRobotState();
 
       franka_action_lib::RobolibStatus getRobolibStatus();
+
+      franka_action_lib::SkillState getSkillState();
       
       bool getNewSkillAvailableFlagInSharedMemory();
 
@@ -63,6 +67,9 @@ namespace franka_action_lib
 
       RunLoopProcessInfo *run_loop_process_info_;
       boost::interprocess::interprocess_mutex *run_loop_info_mutex_;
+
+      SkillStateInfo *skill_state_info_;
+      boost::interprocess::interprocess_mutex *skill_state_info_mutex_;
 
       boost::interprocess::interprocess_mutex *shared_memory_object_0_mutex_;
       boost::interprocess::interprocess_mutex *shared_memory_object_1_mutex_;
@@ -110,31 +117,31 @@ namespace franka_action_lib
 
       boost::interprocess::mapped_region shared_current_robot_region_;
 
-      float *traj_gen_buffer_0_;
-      float *feedback_controller_buffer_0_;
-      float *termination_buffer_0_;
-      float *timer_buffer_0_;
-      float *traj_gen_buffer_1_;
-      float *feedback_controller_buffer_1_;
-      float *termination_buffer_1_;
-      float *timer_buffer_1_;
+      double *traj_gen_buffer_0_;
+      double *feedback_controller_buffer_0_;
+      double *termination_buffer_0_;
+      double *timer_buffer_0_;
+      double *traj_gen_buffer_1_;
+      double *feedback_controller_buffer_1_;
+      double *termination_buffer_1_;
+      double *timer_buffer_1_;
 
-      float *traj_gen_sensor_buffer_0_;
-      float *feedback_controller_sensor_buffer_0_;
-      float *termination_sensor_buffer_0_;
-      float *timer_sensor_buffer_0_;
+      double *traj_gen_sensor_buffer_0_;
+      double *feedback_controller_sensor_buffer_0_;
+      double *termination_sensor_buffer_0_;
+      double *timer_sensor_buffer_0_;
 
-      float *traj_gen_sensor_buffer_1_;
-      float *feedback_controller_sensor_buffer_1_;
-      float *termination_sensor_buffer_1_;
-      float *timer_sensor_buffer_1_;
+      double *traj_gen_sensor_buffer_1_;
+      double *feedback_controller_sensor_buffer_1_;
+      double *termination_sensor_buffer_1_;
+      double *timer_sensor_buffer_1_;
 
-      float *execution_feedback_buffer_0_;
-      float *execution_result_buffer_0_;
-      float *execution_feedback_buffer_1_;
-      float *execution_result_buffer_1_;
+      double *execution_feedback_buffer_0_;
+      double *execution_result_buffer_0_;
+      double *execution_feedback_buffer_1_;
+      double *execution_result_buffer_1_;
 
-      float *current_robot_state_buffer_;
+      double *current_robot_state_buffer_;
 
       int getCurrentFreeSharedMemoryIndexInSharedMemoryUnprotected();
       int getCurrentSkillIdInSharedMemoryUnprotected();

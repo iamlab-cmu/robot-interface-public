@@ -15,7 +15,7 @@ void LinearTrajectoryGenerator::parse_parameters() {
     std::cout << "Incorrect number of params given: " << num_params << std::endl;
   }
 
-  memcpy(deltas_, &params_[2], 16 * sizeof(float));
+  memcpy(deltas_, &params_[2], 16 * sizeof(double));
   assert(deltas_[13] < 5.0 && deltas_[14] < 5.0);
 }
 

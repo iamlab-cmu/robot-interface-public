@@ -18,11 +18,11 @@ class LinearTrajectoryGenerator : public TrajectoryGenerator {
 
   void get_next_step() override;
 
-  const float vel_max_ = 0.25;
-  float deltas_[16]={};
+  const double vel_max_ = 0.25;
+  double deltas_[16]={};
 
  private:
-  float velocity_ = 0.0;
+  double velocity_ = 0.0;
 };
 
 #endif	// IAM_ROBOLIB_TRAJECTORY_GENERATOR_LINEAR_TRAJECTORY_GENERATOR_H_

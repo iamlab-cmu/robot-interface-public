@@ -13,6 +13,7 @@
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 
 #include <iam_robolib_common/run_loop_process_info.h>
+#include <iam_robolib_common/skill_state_info.h>
 #include <iam_robolib_common/SharedMemoryInfo.h>
 
 #include <franka/robot.h>
@@ -33,6 +34,8 @@ class RunLoopSharedMemoryHandler {
   void start();
 
   RunLoopProcessInfo* getRunLoopProcessInfo();
+
+  SkillStateInfo* getSkillStateInfo();
 
   boost::interprocess::interprocess_mutex* getRunLoopProcessInfoMutex();
 
@@ -57,6 +60,9 @@ class RunLoopSharedMemoryHandler {
 
   boost::interprocess::interprocess_mutex* run_loop_info_mutex_= nullptr;
   RunLoopProcessInfo* run_loop_info_= nullptr;
+
+  boost::interprocess::interprocess_mutex* skill_state_info_mutex_= nullptr;
+  SkillStateInfo* skill_state_info_= nullptr;
 
   // Managed memory segments
   boost::interprocess::managed_shared_memory managed_shared_memory_{};

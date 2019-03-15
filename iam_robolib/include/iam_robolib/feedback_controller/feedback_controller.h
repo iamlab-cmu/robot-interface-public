@@ -9,7 +9,7 @@
 
 class FeedbackController {
  public:
-  explicit FeedbackController(float *p) : params_{p} {};
+  explicit FeedbackController(double *p) : params_{p} {};
 
   /**
    * Parse parameters from memory.
@@ -39,7 +39,7 @@ class FeedbackController {
   std::array<double, 7> tau_d_array_{};
 
  protected:
-  float *params_=0;
+  double *params_=0;
 };
 
 #endif  // IAM_ROBOLIB_FEEDBACK_CONTROLLER_FEEDBACK_CONTROLLER_H_

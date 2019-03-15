@@ -10,6 +10,10 @@ RunLoopProcessInfo* RunLoopSharedMemoryHandler::getRunLoopProcessInfo() {
   return run_loop_info_;
 }
 
+SkillStateInfo* RunLoopSharedMemoryHandler::getSkillStateInfo() {
+  return skill_state_info_;
+}
+
 boost::interprocess::interprocess_mutex* RunLoopSharedMemoryHandler::getRunLoopProcessInfoMutex() {
   return run_loop_info_mutex_;
 }
@@ -86,33 +90,33 @@ void RunLoopSharedMemoryHandler::clearAllBuffers() {
     boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> shared_execution_result_1_lock(*shared_execution_result_mutex_1_);
     boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> shared_current_robot_state_lock(*shared_current_robot_state_mutex_);
 
-    memset(traj_gen_buffer_0_, 0.f, shared_memory_info_.getSizeForTrajectoryParameters() * sizeof(float));
-    memset(feedback_controller_buffer_0_, 0.f, shared_memory_info_.getSizeForFeedbackControllerParameters() * sizeof(float));
-    memset(termination_buffer_0_, 0.f, shared_memory_info_.getSizeForTerminationParameters() * sizeof(float));
-    memset(timer_buffer_0_, 0.f, shared_memory_info_.getSizeForTimerParameters() * sizeof(float));
+    memset(traj_gen_buffer_0_, 0.f, shared_memory_info_.getSizeForTrajectoryParameters() * sizeof(double));
+    memset(feedback_controller_buffer_0_, 0.f, shared_memory_info_.getSizeForFeedbackControllerParameters() * sizeof(double));
+    memset(termination_buffer_0_, 0.f, shared_memory_info_.getSizeForTerminationParameters() * sizeof(double));
+    memset(timer_buffer_0_, 0.f, shared_memory_info_.getSizeForTimerParameters() * sizeof(double));
 
-    memset(traj_gen_buffer_1_, 0.f, shared_memory_info_.getSizeForTrajectoryParameters() * sizeof(float));
-    memset(feedback_controller_buffer_1_, 0.f, shared_memory_info_.getSizeForFeedbackControllerParameters() * sizeof(float));
-    memset(termination_buffer_1_, 0.f, shared_memory_info_.getSizeForTerminationParameters() * sizeof(float));
-    memset(timer_buffer_1_, 0.f, shared_memory_info_.getSizeForTimerParameters() * sizeof(float));
+    memset(traj_gen_buffer_1_, 0.f, shared_memory_info_.getSizeForTrajectoryParameters() * sizeof(double));
+    memset(feedback_controller_buffer_1_, 0.f, shared_memory_info_.getSizeForFeedbackControllerParameters() * sizeof(double));
+    memset(termination_buffer_1_, 0.f, shared_memory_info_.getSizeForTerminationParameters() * sizeof(double));
+    memset(timer_buffer_1_, 0.f, shared_memory_info_.getSizeForTimerParameters() * sizeof(double));
 
-    memset(traj_gen_sensor_buffer_0_, 0.f, shared_memory_info_.getSizeForTrajectorySensorData() * sizeof(float));
-    memset(feedback_controller_sensor_buffer_0_, 0.f, shared_memory_info_.getSizeForFeedbackControllerSensorData() * sizeof(float));
-    memset(termination_sensor_buffer_0_, 0.f, shared_memory_info_.getSizeForTerminationSensorData() * sizeof(float));
-    memset(timer_sensor_buffer_0_, 0.f, shared_memory_info_.getSizeForTimerSensorData() * sizeof(float));
+    memset(traj_gen_sensor_buffer_0_, 0.f, shared_memory_info_.getSizeForTrajectorySensorData() * sizeof(double));
+    memset(feedback_controller_sensor_buffer_0_, 0.f, shared_memory_info_.getSizeForFeedbackControllerSensorData() * sizeof(double));
+    memset(termination_sensor_buffer_0_, 0.f, shared_memory_info_.getSizeForTerminationSensorData() * sizeof(double));
+    memset(timer_sensor_buffer_0_, 0.f, shared_memory_info_.getSizeForTimerSensorData() * sizeof(double));
 
-    memset(traj_gen_sensor_buffer_1_, 0.f, shared_memory_info_.getSizeForTrajectorySensorData() * sizeof(float));
-    memset(feedback_controller_sensor_buffer_1_, 0.f, shared_memory_info_.getSizeForFeedbackControllerSensorData() * sizeof(float));
-    memset(termination_sensor_buffer_1_, 0.f, shared_memory_info_.getSizeForTerminationSensorData() * sizeof(float));
-    memset(timer_sensor_buffer_1_, 0.f, shared_memory_info_.getSizeForTimerSensorData() * sizeof(float));
+    memset(traj_gen_sensor_buffer_1_, 0.f, shared_memory_info_.getSizeForTrajectorySensorData() * sizeof(double));
+    memset(feedback_controller_sensor_buffer_1_, 0.f, shared_memory_info_.getSizeForFeedbackControllerSensorData() * sizeof(double));
+    memset(termination_sensor_buffer_1_, 0.f, shared_memory_info_.getSizeForTerminationSensorData() * sizeof(double));
+    memset(timer_sensor_buffer_1_, 0.f, shared_memory_info_.getSizeForTimerSensorData() * sizeof(double));
 
-    memset(execution_result_buffer_0_, 0.f, shared_memory_info_.getSizeForExecutionResultData() * sizeof(float));
-    memset(execution_feedback_buffer_0_, 0.f, shared_memory_info_.getSizeForExecutionFeedbackData() * sizeof(float));
+    memset(execution_result_buffer_0_, 0.f, shared_memory_info_.getSizeForExecutionResultData() * sizeof(double));
+    memset(execution_feedback_buffer_0_, 0.f, shared_memory_info_.getSizeForExecutionFeedbackData() * sizeof(double));
 
-    memset(execution_result_buffer_1_, 0.f, shared_memory_info_.getSizeForExecutionResultData() * sizeof(float));
-    memset(execution_feedback_buffer_1_, 0.f, shared_memory_info_.getSizeForExecutionFeedbackData() * sizeof(float));
+    memset(execution_result_buffer_1_, 0.f, shared_memory_info_.getSizeForExecutionResultData() * sizeof(double));
+    memset(execution_feedback_buffer_1_, 0.f, shared_memory_info_.getSizeForExecutionFeedbackData() * sizeof(double));
 
-    memset(current_robot_state_buffer_, 0.f, shared_memory_info_.getSizeForCurrentRobotState() * sizeof(float));
+    memset(current_robot_state_buffer_, 0.f, shared_memory_info_.getSizeForCurrentRobotState() * sizeof(double));
 }
 
 void RunLoopSharedMemoryHandler::start() {
@@ -138,6 +142,17 @@ void RunLoopSharedMemoryHandler::start() {
       (shared_memory_info_.getRunLoopInfoMutexName().c_str())
       ();
 
+  // Add skill info to the main loop.
+  skill_state_info_ = managed_shared_memory_.construct<SkillStateInfo>
+      (shared_memory_info_.getSkillStateInfoObjectName().c_str())
+      ();
+
+  // Add the inter-process mutex into memory. We will grab this each
+  // time we want to update anything in the memory.
+  skill_state_info_mutex_ = managed_shared_memory_.construct<
+      boost::interprocess::interprocess_mutex>
+      (shared_memory_info_.getSkillStateInfoMutexName().c_str())
+      ();
 
   /**
    * Create shared memory region for buffer 0.

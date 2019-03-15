@@ -2,7 +2,7 @@
 #define IAM_ROBOLIB_DEFINITIONS_H_
 
 // SharedBuffer type to share memory (Change size later)
-typedef float* SharedBuffer;
+typedef double* SharedBuffer;
 
 // Enum for Robot Types
 enum class RobotType {

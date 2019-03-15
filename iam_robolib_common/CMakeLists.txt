@@ -22,6 +22,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 ## Library
 add_library(iam_robolib_common SHARED
   src/run_loop_process_info.cpp
+  src/skill_state_info.cpp
   src/SharedMemoryInfo.cpp
 )
 

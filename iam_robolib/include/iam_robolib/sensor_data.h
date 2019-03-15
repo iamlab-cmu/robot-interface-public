@@ -3,7 +3,7 @@
 
 class SensorData {
  public:
-  explicit SensorData(float *v) : values_{v} {};
+  explicit SensorData(double *v) : values_{v} {};
 
   /**
    * Parse data from memory.
@@ -21,7 +21,7 @@ class SensorData {
   virtual bool update_data() = 0;
 
  protected:
-  float *values_=0;
+  double *values_=0;
 };
 
 #endif  // IAM_ROBOLIB_SENSOR_DATA_H_

@@ -25,13 +25,12 @@ class FrankaArmStateClient:
         ros_data = self._get_current_robot_state().robot_state
 
         data = {
-            'pose': franka_pose_to_rigid_transform(ros_data.pose),
-            'joint_torques': np.array(ros_data.joint_torques),
-            'joint_torques_derivative': np.array(ros_data.joint_torques_derivative),
-            'joints': np.array(ros_data.joints),
-            'joints_desired': np.array(ros_data.joints_desired),
-            'joint_velocities': np.array(ros_data.joint_velocities),
-            'time_since_skill_started': ros_data.time_since_skill_started,
+            'pose': franka_pose_to_rigid_transform(ros_data.O_T_EE),
+            'joint_torques': np.array(ros_data.tau_J),
+            'joint_torques_derivative': np.array(ros_data.dtau_J),
+            'joints': np.array(ros_data.q),
+            'joints_desired': np.array(ros_data.q_d),
+            'joint_velocities': np.array(ros_data.dq),
             'gripper_width': ros_data.gripper_width,
             'gripper_is_grasped': ros_data.gripper_is_grasped       
         }
