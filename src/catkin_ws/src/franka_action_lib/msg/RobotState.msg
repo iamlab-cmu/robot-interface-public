@@ -44,6 +44,13 @@ float64[7] dtheta
 Errors current_errors
 Errors last_motion_errors
 float64 control_command_success_rate
+uint8 ROBOT_MODE_OTHER=0
+uint8 ROBOT_MODE_IDLE=1
+uint8 ROBOT_MODE_MOVE=2
+uint8 ROBOT_MODE_GUIDING=3
+uint8 ROBOT_MODE_REFLEX=4
+uint8 ROBOT_MODE_USER_STOPPED=5
+uint8 ROBOT_MODE_AUTOMATIC_ERROR_RECOVERY=6
 uint8 robot_mode
 float64 robot_time
 float64 gripper_width

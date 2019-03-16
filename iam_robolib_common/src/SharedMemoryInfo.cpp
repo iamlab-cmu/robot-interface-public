@@ -68,6 +68,14 @@ std::string SharedMemoryInfo::getSkillStateInfoMutexName() {
   return skill_state_info_mutex_name_;
 }
 
+std::string SharedMemoryInfo::getIAMRobolibStateInfoObjectName() {
+  return iam_robolib_state_info_name_;
+}
+
+std::string SharedMemoryInfo::getIAMRobolibStateInfoMutexName() {
+  return iam_robolib_state_info_mutex_name_;
+}
+
 std::string SharedMemoryInfo::getParameterMemoryMutexName(int index) {
   if (index == 0) {
     return params_memory_mutex_name_0_;

@@ -28,15 +28,30 @@ namespace franka_action_lib
         managed_shared_memory_.find<SkillStateInfo> (shared_memory_info_.getSkillStateInfoObjectName().c_str());
     skill_state_info_ = skill_state_info_pair.first;
 
-    // Make sure the process info object can be found in memory.
+    // Make sure the skill state info object can be found in memory.
     assert(skill_state_info_ != 0);
 
-    // Get mutex for ProcessInfo from the shared memory segment.
+    // Get mutex for SkillStateInfo from the shared memory segment.
     std::pair<boost::interprocess::interprocess_mutex *, std::size_t> skill_state_info_mutex_pair = \
                                 managed_shared_memory_.find<boost::interprocess::interprocess_mutex>
                                 (shared_memory_info_.getSkillStateInfoMutexName().c_str());
     skill_state_info_mutex_ = skill_state_info_mutex_pair.first;
     assert(skill_state_info_mutex_ != 0);
+
+    // Get IAMRobolibStateInfo from the the shared memory segment.
+    std::pair<IAMRobolibStateInfo*, std::size_t> iam_robolib_state_info_pair = \
+        managed_shared_memory_.find<IAMRobolibStateInfo> (shared_memory_info_.getIAMRobolibStateInfoObjectName().c_str());
+    iam_robolib_state_info_ = iam_robolib_state_info_pair.first;
+
+    // Make sure the process info object can be found in memory.
+    assert(iam_robolib_state_info_ != 0);
+
+    // Get mutex for ProcessInfo from the shared memory segment.
+    std::pair<boost::interprocess::interprocess_mutex *, std::size_t> iam_robolib_state_info_mutex_pair = \
+                                managed_shared_memory_.find<boost::interprocess::interprocess_mutex>
+                                (shared_memory_info_.getIAMRobolibStateInfoMutexName().c_str());
+    iam_robolib_state_info_mutex_ = iam_robolib_state_info_mutex_pair.first;
+    assert(iam_robolib_state_info_mutex_ != 0);
 
     // Get mutex for buffer 0 from the shared memory segment.
     std::pair<boost::interprocess::interprocess_mutex *, std::size_t> shared_memory_object_0_mutex_pair = \
@@ -745,19 +760,19 @@ namespace franka_action_lib
 
   franka_action_lib::RobolibStatus SharedMemoryHandler::getRobolibStatus()
   {
-    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> run_loop_info_lock(*run_loop_info_mutex_, boost::interprocess::defer_lock);
+    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> iam_robolib_state_info_lock(*iam_robolib_state_info_mutex_, boost::interprocess::defer_lock);
 
     franka_action_lib::RobolibStatus robolib_status;
     robolib_status.header.stamp = ros::Time::now();
 
-    if (run_loop_info_lock.try_lock()) {
+    if (iam_robolib_state_info_lock.try_lock()) {
       // TODO(jacky): 25 roughly equates to 500ms of disconnect from the robolib. This should be placed in a global config file.
-      if (run_loop_process_info_->get_watchdog_counter() > 25) {
+      if (iam_robolib_state_info_->get_watchdog_counter() > 25) {
         robolib_status.is_ready = false;
       } else {
-        robolib_status.is_ready = run_loop_process_info_->get_is_ready();
+        robolib_status.is_ready = iam_robolib_state_info_->get_is_ready();
       }
-      robolib_status.error_description = run_loop_process_info_->get_error_description();
+      robolib_status.error_description = iam_robolib_state_info_->get_error_description();
       robolib_status.is_fresh = true;
     } else {
       robolib_status.is_fresh = false;
@@ -780,8 +795,7 @@ namespace franka_action_lib
       skill_state.meta_skill_type = skill_state_info_->get_meta_skill_type();
       skill_state.skill_description = skill_state_info_->get_skill_description();
       skill_state.time_since_skill_started = skill_state_info_->get_time_since_skill_started();
-      skill_state.skill_running = skill_state_info_->get_skill_running();
-      skill_state.skill_preempted = skill_state_info_->get_skill_preempted();
+      skill_state.skill_status = skill_state_info_->get_skill_status();
       
       skill_state.is_fresh = true;
     } else {
@@ -793,9 +807,9 @@ namespace franka_action_lib
 
   void SharedMemoryHandler::incrementWatchdogCounter()
   {
-    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> run_loop_info_lock(*run_loop_info_mutex_, boost::interprocess::defer_lock);
-    if (run_loop_info_lock.try_lock()) {
-      run_loop_process_info_->increment_watchdog_counter();
+    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> iam_robolib_state_info_lock(*iam_robolib_state_info_mutex_, boost::interprocess::defer_lock);
+    if (iam_robolib_state_info_lock.try_lock()) {
+      iam_robolib_state_info_->increment_watchdog_counter();
     }
   }
   

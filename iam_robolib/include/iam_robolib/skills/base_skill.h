@@ -3,7 +3,12 @@
 
 #include "iam_robolib/robots/franka_robot.h"
 
-enum class SkillStatus { TO_START, RUNNING, FINISHED };  // enum class
+enum class SkillStatus : uint8_t { 
+  TO_START, 
+  RUNNING, 
+  FINISHED,
+  PREEMPTED 
+};  // enum class
 
 class RobotStateData;
 class FeedbackController;

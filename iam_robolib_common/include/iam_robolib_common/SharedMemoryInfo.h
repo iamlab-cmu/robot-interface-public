@@ -25,6 +25,8 @@ class SharedMemoryInfo {
 
   std::string getSkillStateInfoObjectName();
 
+  std::string getIAMRobolibStateInfoObjectName();
+
   std::string getSharedMemoryNameForCurrentRobotState();
 
   /**
@@ -32,6 +34,7 @@ class SharedMemoryInfo {
    */
   std::string getRunLoopInfoMutexName();
   std::string getSkillStateInfoMutexName();
+  std::string getIAMRobolibStateInfoMutexName();
   std::string getParameterMemoryMutexName(int index);
   std::string getSensorDataMutexName(int index);
   std::string getExecutionResponseMutexName(int index);
@@ -93,10 +96,12 @@ class SharedMemoryInfo {
   const std::string current_robot_state_name_ = "current_robot_state";
 
   // Object names
+  const std::string iam_robolib_state_info_name_ = "iam_robolib_state_info";
+  const std::string iam_robolib_state_info_mutex_name_ = "iam_robolib_state_info_mutex";
   const std::string run_loop_info_name_ = "run_loop_info";
   const std::string run_loop_info_mutex_name_ = "run_loop_info_mutex";
-  const std::string skill_state_info_name_ = "skill_info";
-  const std::string skill_state_info_mutex_name_ = "skill_info_mutex";
+  const std::string skill_state_info_name_ = "skill_state_info";
+  const std::string skill_state_info_mutex_name_ = "skill_state_info_mutex";
 
   // Declare mutexes
   const std::string params_memory_mutex_name_0_ = "run_loop_shared_obj_0_mutex";

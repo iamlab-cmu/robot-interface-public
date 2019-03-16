@@ -53,20 +53,12 @@ void SkillStateInfo::set_time_since_skill_started(double time_since_skill_starte
   time_since_skill_started_ = time_since_skill_started;
 }
 
-bool SkillStateInfo::get_skill_running() {
-  return skill_running_;
+uint8_t SkillStateInfo::get_skill_status() {
+  return skill_status_;
 }
 
-void SkillStateInfo::set_skill_running(bool skill_running) {
-  skill_running = skill_running_;
-}
-
-bool SkillStateInfo::get_skill_preempted() {
-  return skill_preempted_;
-}
-
-void SkillStateInfo::set_skill_preempted(bool skill_preempted) {
-  skill_preempted_ = skill_preempted;
+void SkillStateInfo::set_skill_status(uint8_t skill_status) {
+  skill_status = skill_status_;
 }
 
 void SkillStateInfo::reset_skill_info_vars() {
@@ -77,6 +69,5 @@ void SkillStateInfo::reset_skill_info_vars() {
   memset(skill_description_, 0, sizeof skill_description_);
   skill_description_len_ = 0;
   time_since_skill_started_ = 0.0;
-  skill_running_ = false;
-  skill_preempted_ = false;
+  skill_status_ = 0;
 }

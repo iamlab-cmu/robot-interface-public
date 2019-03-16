@@ -31,13 +31,9 @@ class SkillStateInfo {
 
   void set_time_since_skill_started(double time_since_skill_started);
 
-  bool get_skill_running();
+  uint8_t get_skill_status();
 
-  void set_skill_running(bool skill_running);
-
-  bool get_skill_preempted();
-
-  void set_skill_preempted(bool skill_preempted);
+  void set_skill_status(uint8_t skill_status);
 
   void reset_skill_info_vars();
 
@@ -49,7 +45,6 @@ class SkillStateInfo {
   char skill_description_[1000];
   size_t skill_description_len_{0};
   double time_since_skill_started_{0.0};
-  bool skill_running_{false};
-  bool skill_preempted_{false};
+  uint8_t skill_status_{0};
 };
 

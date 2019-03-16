@@ -14,8 +14,20 @@ SkillStateInfo* RunLoopSharedMemoryHandler::getSkillStateInfo() {
   return skill_state_info_;
 }
 
+IAMRobolibStateInfo* RunLoopSharedMemoryHandler::getIAMRobolibStateInfo() {
+  return iam_robolib_state_info_;
+}
+
 boost::interprocess::interprocess_mutex* RunLoopSharedMemoryHandler::getRunLoopProcessInfoMutex() {
   return run_loop_info_mutex_;
+}
+
+boost::interprocess::interprocess_mutex* RunLoopSharedMemoryHandler::getSkillStateInfoMutex() {
+  return skill_state_info_mutex_;
+}
+
+boost::interprocess::interprocess_mutex* RunLoopSharedMemoryHandler::getIAMRobolibStateInfoMutex() {
+  return iam_robolib_state_info_mutex_;
 }
 
 boost::interprocess::interprocess_mutex* RunLoopSharedMemoryHandler::getCurrentRobotStateBufferMutex() {
@@ -152,6 +164,18 @@ void RunLoopSharedMemoryHandler::start() {
   skill_state_info_mutex_ = managed_shared_memory_.construct<
       boost::interprocess::interprocess_mutex>
       (shared_memory_info_.getSkillStateInfoMutexName().c_str())
+      ();
+
+  // Add iam_robolib state info to the main loop.
+  iam_robolib_state_info_ = managed_shared_memory_.construct<IAMRobolibStateInfo>
+      (shared_memory_info_.getIAMRobolibStateInfoObjectName().c_str())
+      ();
+
+  // Add the inter-process mutex into memory. We will grab this each
+  // time we want to update anything in the memory.
+  iam_robolib_state_info_mutex_ = managed_shared_memory_.construct<
+      boost::interprocess::interprocess_mutex>
+      (shared_memory_info_.getIAMRobolibStateInfoMutexName().c_str())
       ();
 
   /**

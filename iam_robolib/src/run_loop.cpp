@@ -167,7 +167,6 @@ void run_loop::update_process_info() {
     try {
       std::cout << "Will try to get lock to update process info\n";
       if (lock.try_lock()) {
-        run_loop_info->reset_watchdog_counter();
         run_loop_info->set_is_running_skill(is_executing_skill);
 
         // We have a skill that we have finished. Make sure we update this in RunLoopProcessInfo.
@@ -230,7 +229,7 @@ void run_loop::update_process_info() {
 
           // Get Meta-skill
           // BaseMetaSkill* new_meta_skill = skill_manager_.get_meta_skill_with_id(new_meta_skill_id);
-           BaseMetaSkill* new_meta_skill = nullptr;
+          BaseMetaSkill* new_meta_skill = nullptr;
           if (new_meta_skill == nullptr) {
             if (new_meta_skill_type == 0) {
               new_meta_skill = new BaseMetaSkill(new_meta_skill_id);
@@ -696,13 +695,13 @@ void run_loop::setup_watchdog_thread() {
       while (true) {
         std::this_thread::sleep_for(
             std::chrono::milliseconds(static_cast<int>((1.0 / io_rate * 1000.0))));
-          RunLoopProcessInfo* run_loop_info = shared_memory_handler_->getRunLoopProcessInfo();
+          IAMRobolibStateInfo* iam_robolib_state_info = shared_memory_handler_->getIAMRobolibStateInfo();
           boost::interprocess::scoped_lock<
                   boost::interprocess::interprocess_mutex> lock(
-                      *(shared_memory_handler_->getRunLoopProcessInfoMutex()),
+                      *(shared_memory_handler_->getIAMRobolibStateInfoMutex()),
                       boost::interprocess::defer_lock);
           if (lock.try_lock()) {
-            run_loop_info->reset_watchdog_counter();
+            iam_robolib_state_info->reset_watchdog_counter();
           } 
       }
   });
@@ -766,16 +765,16 @@ void run_loop::log_skill_info(BaseSkill* skill) {
 };
 
 void run_loop::set_robolib_status(bool is_ready, std::string error_message) {
-  RunLoopProcessInfo* run_loop_info = shared_memory_handler_->getRunLoopProcessInfo();
+  IAMRobolibStateInfo* iam_robolib_state_info = shared_memory_handler_->getIAMRobolibStateInfo();
     boost::interprocess::scoped_lock<
             boost::interprocess::interprocess_mutex> lock(
-                *(shared_memory_handler_->getRunLoopProcessInfoMutex()),
+                *(shared_memory_handler_->getIAMRobolibStateInfoMutex()),
                 boost::interprocess::defer_lock);
   try {
     std::cout << "Will try to acquire lock while setting robolib status\n";
     if (lock.try_lock()) {
-      run_loop_info->set_is_ready(is_ready);
-      run_loop_info->set_error_description(error_message);
+      iam_robolib_state_info->set_is_ready(is_ready);
+      iam_robolib_state_info->set_error_description(error_message);
     }
   } catch (boost::interprocess::lock_exception) {
     // TODO(Mohit): Do something better here.

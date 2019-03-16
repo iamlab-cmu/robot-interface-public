@@ -163,41 +163,6 @@ void RunLoopProcessInfo::set_result_skill_id(int result_skill_id) {
   result_skill_id_ = result_skill_id;
 }
 
-bool RunLoopProcessInfo::get_is_ready() {
-  return is_ready_;
-}
-
-void RunLoopProcessInfo::set_is_ready(bool is_ready) {
-  is_ready_ = is_ready;
-}
-
-int RunLoopProcessInfo::get_watchdog_counter() {
-  return watchdog_counter_;
-}
-
-void RunLoopProcessInfo::reset_watchdog_counter() {
-  watchdog_counter_ = 0;
-}
-
-void RunLoopProcessInfo::increment_watchdog_counter() {
-  watchdog_counter_ ++;
-}
-
-std::string RunLoopProcessInfo::get_error_description() {
-  std::string desc(error_description_,
-                   error_description_ + sizeof(error_description_[0]) * error_description_len_);
-  return desc;
-}
-
-void RunLoopProcessInfo::set_error_description(std::string description){  
-  std::memcpy(&error_description_, description.c_str(), description.size());
-  error_description_len_  = description.size();
-}
-
-void RunLoopProcessInfo::clear_error_description() {  
-  set_error_description("");
-}
-
 void RunLoopProcessInfo::reset_skill_vars() {
   new_skill_available_ = false;
   new_skill_type_ = 0;

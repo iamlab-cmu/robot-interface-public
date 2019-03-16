@@ -19,8 +19,9 @@
 #include <boost/interprocess/sync/scoped_lock.hpp>
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 
-#include <iam_robolib_common/SharedMemoryInfo.h>
+#include <iam_robolib_common/iam_robolib_state_info.h>
 #include <iam_robolib_common/run_loop_process_info.h>
+#include <iam_robolib_common/SharedMemoryInfo.h>
 #include <iam_robolib_common/skill_state_info.h>
 
 namespace franka_action_lib
@@ -70,6 +71,9 @@ namespace franka_action_lib
 
       SkillStateInfo *skill_state_info_;
       boost::interprocess::interprocess_mutex *skill_state_info_mutex_;
+
+      IAMRobolibStateInfo *iam_robolib_state_info_;
+      boost::interprocess::interprocess_mutex *iam_robolib_state_info_mutex_;
 
       boost::interprocess::interprocess_mutex *shared_memory_object_0_mutex_;
       boost::interprocess::interprocess_mutex *shared_memory_object_1_mutex_;

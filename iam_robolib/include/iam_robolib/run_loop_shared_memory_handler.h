@@ -12,6 +12,7 @@
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 
+#include <iam_robolib_common/iam_robolib_state_info.h>
 #include <iam_robolib_common/run_loop_process_info.h>
 #include <iam_robolib_common/skill_state_info.h>
 #include <iam_robolib_common/SharedMemoryInfo.h>
@@ -37,9 +38,15 @@ class RunLoopSharedMemoryHandler {
 
   SkillStateInfo* getSkillStateInfo();
 
+  IAMRobolibStateInfo* getIAMRobolibStateInfo();
+
   boost::interprocess::interprocess_mutex* getRunLoopProcessInfoMutex();
 
   boost::interprocess::interprocess_mutex* getCurrentRobotStateBufferMutex();
+
+  boost::interprocess::interprocess_mutex* getSkillStateInfoMutex();
+
+  boost::interprocess::interprocess_mutex* getIAMRobolibStateInfoMutex();
 
   SharedBuffer getTrajectoryGeneratorBuffer(int memory_region);
 
@@ -63,6 +70,9 @@ class RunLoopSharedMemoryHandler {
 
   boost::interprocess::interprocess_mutex* skill_state_info_mutex_= nullptr;
   SkillStateInfo* skill_state_info_= nullptr;
+
+  boost::interprocess::interprocess_mutex* iam_robolib_state_info_mutex_= nullptr;
+  IAMRobolibStateInfo* iam_robolib_state_info_= nullptr;
 
   // Managed memory segments
   boost::interprocess::managed_shared_memory managed_shared_memory_{};
