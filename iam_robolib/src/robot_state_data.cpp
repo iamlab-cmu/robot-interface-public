@@ -151,7 +151,11 @@ void RobotStateData::writeBufferData_0() {
     log_robot_mode_0_.clear();
     log_robot_time_0_.clear();
     
-
+    log_gripper_width_0_.clear();
+    log_gripper_max_width_0_.clear();
+    log_gripper_is_grasped_0_.clear();
+    log_gripper_temperature_0_.clear();
+    log_gripper_time_0_.clear();
 
     // std::cout << "Did save buffer 0\n";
 };
@@ -276,6 +280,12 @@ void RobotStateData::writeBufferData_1() {
     log_robot_mode_1_.clear();
     log_robot_time_1_.clear();
 
+    log_gripper_width_1_.clear();
+    log_gripper_max_width_1_.clear();
+    log_gripper_is_grasped_1_.clear();
+    log_gripper_temperature_1_.clear();
+    log_gripper_time_1_.clear();
+
     // std::cout << "Did save buffer 1\n";
 };
 
@@ -331,12 +341,12 @@ void RobotStateData::clearAllBuffers() {
   log_control_command_success_rate_0_.clear();
   log_robot_mode_0_.clear();
   log_robot_time_0_.clear();
-  
-  log_gripper_width_0_ = -1.0;
-  log_gripper_max_width_0_ = -1.0;
-  log_gripper_is_grasped_0_ = false;
-  log_gripper_temperature_0_ = 0;
-  log_gripper_time_0_ = -1.0;
+
+  log_gripper_width_0_.clear();
+  log_gripper_max_width_0_.clear();
+  log_gripper_is_grasped_0_.clear();
+  log_gripper_temperature_0_.clear();
+  log_gripper_time_0_.clear();
 
   log_skill_info_1_.clear();
   log_pose_desired_1_.clear();
@@ -386,12 +396,18 @@ void RobotStateData::clearAllBuffers() {
   log_control_command_success_rate_1_.clear();
   log_robot_mode_1_.clear();
   log_robot_time_1_.clear();
+
+  log_gripper_width_1_.clear();
+  log_gripper_max_width_1_.clear();
+  log_gripper_is_grasped_1_.clear();
+  log_gripper_temperature_1_.clear();
+  log_gripper_time_1_.clear();
   
-  log_gripper_width_1_ = -1.0;
-  log_gripper_max_width_1_ = -1.0;
-  log_gripper_is_grasped_1_ = false;
-  log_gripper_temperature_1_ = 0;
-  log_gripper_time_1_ = -1.0;
+  current_gripper_width_ = -1.0;
+  current_gripper_max_width_ = -1.0;
+  current_gripper_is_grasped_ = false;
+  current_gripper_temperature_ = 0;
+  current_gripper_time_ = -1.0;
 }
 
 void RobotStateData::startFileLoggerThread() {
@@ -610,6 +626,12 @@ void RobotStateData::log_robot_state(franka::RobotState robot_state, double time
       log_robot_mode_0_.push_back(static_cast<uint8_t>(robot_state.robot_mode));
       log_robot_time_0_.push_back(robot_state.time.toSec());
 
+      log_gripper_width_0_.push_back(current_gripper_width_);
+      log_gripper_max_width_0_.push_back(current_gripper_max_width_);
+      log_gripper_is_grasped_0_.push_back(current_gripper_is_grasped_);
+      log_gripper_temperature_0_.push_back(current_gripper_temperature_);
+      log_gripper_time_0_.push_back(current_gripper_time_);
+
       buffer_0_mutex_.unlock();
     }
   } else {
@@ -661,31 +683,23 @@ void RobotStateData::log_robot_state(franka::RobotState robot_state, double time
       log_robot_mode_1_.push_back(static_cast<uint8_t>(robot_state.robot_mode));
       log_robot_time_1_.push_back(robot_state.time.toSec());
       
+      log_gripper_width_1_.push_back(current_gripper_width_);
+      log_gripper_max_width_1_.push_back(current_gripper_max_width_);
+      log_gripper_is_grasped_1_.push_back(current_gripper_is_grasped_);
+      log_gripper_temperature_1_.push_back(current_gripper_temperature_);
+      log_gripper_time_1_.push_back(current_gripper_time_);
+
       buffer_1_mutex_.unlock();
     }
   }
 }
 
-void RobotStateData::log_gripper_state(franka::GripperState gripper_state) {
-  if (use_buffer_0) {
-    if (buffer_0_mutex_.try_lock()) {
-      log_gripper_width_0_ = gripper_state.width;
-      log_gripper_max_width_0_ = gripper_state.max_width;
-      log_gripper_is_grasped_0_ = gripper_state.is_grasped;
-      log_gripper_temperature_0_ = gripper_state.temperature;
-      log_gripper_time_0_ = gripper_state.time.toSec();
-      buffer_0_mutex_.unlock();
-    }
-  } else {
-    if (buffer_1_mutex_.try_lock()) {
-      log_gripper_width_1_ = gripper_state.width;
-      log_gripper_max_width_1_ = gripper_state.max_width;
-      log_gripper_is_grasped_1_ = gripper_state.is_grasped;
-      log_gripper_temperature_1_ = gripper_state.temperature;
-      log_gripper_time_1_ = gripper_state.time.toSec();
-      buffer_1_mutex_.unlock();
-    }
-  }
+void RobotStateData::update_current_gripper_state(franka::GripperState gripper_state) {
+  current_gripper_width_ = gripper_state.width;
+  current_gripper_max_width_ = gripper_state.max_width;
+  current_gripper_is_grasped_ = gripper_state.is_grasped;
+  current_gripper_temperature_ = gripper_state.temperature;
+  current_gripper_time_ = gripper_state.time.toSec();
 }
 
 void RobotStateData::log_skill_info(std::string skill_info) {

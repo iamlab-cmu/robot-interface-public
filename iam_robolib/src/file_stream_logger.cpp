@@ -52,11 +52,11 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
                                  std::vector<double>& control_command_success_rate_vector,
                                  std::vector<uint8_t>& robot_mode_vector,
                                  std::vector<double>& robot_time_vector,
-                                 double gripper_width,
-                                 double gripper_max_width,
-                                 bool gripper_is_grasped,
-                                 uint16_t gripper_temperature,
-                                 double gripper_time) {
+                                 std::vector<double>& gripper_width_vector,
+                                 std::vector<double>& gripper_max_width_vector,
+                                 std::vector<bool>& gripper_is_grasped_vector,
+                                 std::vector<uint16_t>& gripper_temperature_vector,
+                                 std::vector<double>& gripper_time_vector) {
     if (!open_file_stream_.is_open()) {
         open_file_stream_ = std::ofstream(filename_, std::ofstream::out | std::ofstream::app);
     }
@@ -197,7 +197,22 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
         std::cout << "Time since skill started vector size and robot_mode vector size do not match\n";
     } else if (time_since_skill_started_vector_size != robot_time_vector.size()) {
         all_sizes_equal = false;
-        std::cout << "Time since skill started vector size and time vector size do not match\n";
+        std::cout << "Time since skill started vector size and robot time vector size do not match\n";
+    } else if (time_since_skill_started_vector_size != gripper_width_vector.size()) {
+        all_sizes_equal = false;
+        std::cout << "Time since skill started vector size and gripper width vector size do not match\n";
+    } else if (time_since_skill_started_vector_size != gripper_max_width_vector.size()) {
+        all_sizes_equal = false;
+        std::cout << "Time since skill started vector size and gripper max width vector size do not match\n";
+    } else if (time_since_skill_started_vector_size != gripper_is_grasped_vector.size()) {
+        all_sizes_equal = false;
+        std::cout << "Time since skill started vector size and gripper is grasped vector size do not match\n";
+    } else if (time_since_skill_started_vector_size != gripper_temperature_vector.size()) {
+        all_sizes_equal = false;
+        std::cout << "Time since skill started vector size and gripper temperature vector size do not match\n";
+    } else if (time_since_skill_started_vector_size != gripper_time_vector.size()) {
+        all_sizes_equal = false;
+        std::cout << "Time since skill started vector size and gripper time vector size do not match\n";
     }
 
     if (!all_sizes_equal) {
@@ -418,15 +433,15 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
 
         open_file_stream_ << robot_time_vector[i] << ",";
 
-        open_file_stream_ << gripper_width << ",";
+        open_file_stream_ << gripper_width_vector[i] << ",";
 
-        open_file_stream_ << gripper_max_width << ",";
+        open_file_stream_ << gripper_max_width_vector[i] << ",";
 
-        open_file_stream_ << gripper_is_grasped << ",";
+        open_file_stream_ << gripper_is_grasped_vector[i] << ",";
 
-        open_file_stream_ << gripper_temperature << ",";
+        open_file_stream_ << gripper_temperature_vector[i] << ",";
 
-        open_file_stream_ << gripper_time;
+        open_file_stream_ << gripper_time_vector[i];
 
         open_file_stream_ << "\n";
     }

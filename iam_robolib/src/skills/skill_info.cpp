@@ -358,8 +358,8 @@ void SkillInfo::write_result_to_shared_memory(double *result_buffer) {
 }
 
 void SkillInfo::write_result_to_shared_memory(double *result_buffer, FrankaRobot* robot) {
-  franka::RobotState robot_state = robot->getRobotState();
   franka::GripperState gripper_state = robot->getGripperState();
+  franka::RobotState robot_state = robot->getRobotState();
 
   int result_buffer_idx = 0;
 

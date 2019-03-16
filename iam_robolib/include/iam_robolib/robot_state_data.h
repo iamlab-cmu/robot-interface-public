@@ -78,12 +78,11 @@ class RobotStateData {
   std::vector<uint8_t> log_robot_mode_0_{};
   std::vector<double> log_robot_time_0_{};
 
-  double log_gripper_width_0_{-1.0};
-  double log_gripper_max_width_0_{-1.0};
-  bool log_gripper_is_grasped_0_{false};
-  uint16_t log_gripper_temperature_0_{0};
-  double log_gripper_time_0_{-1.0};
-
+  std::vector<double> log_gripper_width_0_{};
+  std::vector<double> log_gripper_max_width_0_{};
+  std::vector<bool> log_gripper_is_grasped_0_{};
+  std::vector<uint16_t> log_gripper_temperature_0_{};
+  std::vector<double> log_gripper_time_0_{};
 
   std::vector<std::array<double, 16>> log_pose_desired_1_{};
   std::vector<double> log_time_since_skill_started_1_{};
@@ -133,11 +132,17 @@ class RobotStateData {
   std::vector<uint8_t> log_robot_mode_1_{};
   std::vector<double> log_robot_time_1_{};
   
-  double log_gripper_width_1_{-1.0};
-  double log_gripper_max_width_1_{-1.0};
-  bool log_gripper_is_grasped_1_{false};
-  uint16_t log_gripper_temperature_1_{0};
-  double log_gripper_time_1_{-1.0};
+  std::vector<double> log_gripper_width_1_{};
+  std::vector<double> log_gripper_max_width_1_{};
+  std::vector<bool> log_gripper_is_grasped_1_{};
+  std::vector<uint16_t> log_gripper_temperature_1_{};
+  std::vector<double> log_gripper_time_1_{};
+
+  double current_gripper_width_{-1.0};
+  double current_gripper_max_width_{-1.0};
+  bool current_gripper_is_grasped_{false};
+  uint16_t current_gripper_temperature_{0};
+  double current_gripper_time_{-1.0};
 
   // Utils for printing
   const int print_rate_=10;
@@ -174,7 +179,7 @@ class RobotStateData {
    */
   void log_pose_desired(std::array<double, 16> pose_desired_);
   void log_robot_state(franka::RobotState robot_state, double time_since_skill_started);
-  void log_gripper_state(franka::GripperState gripper_state);
+  void update_current_gripper_state(franka::GripperState gripper_state);
   void log_skill_info(std::string skill_info);
 
   void clearAllBuffers();

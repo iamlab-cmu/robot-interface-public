@@ -58,11 +58,11 @@ class FileStreamLogger {
                  std::vector<double>& control_command_success_rate_vector,
                  std::vector<uint8_t>& robot_mode_vector,
                  std::vector<double>& robot_time_vector,
-                 double gripper_width,
-                 double gripper_max_width,
-                 bool gripper_is_grasped,
-                 uint16_t gripper_temperature,
-                 double gripper_time);
+                 std::vector<double>& gripper_width_vector,
+                 std::vector<double>& gripper_max_width_vector,
+                 std::vector<bool>& gripper_is_grasped_vector,
+                 std::vector<uint16_t>& gripper_temperature_vector,
+                 std::vector<double>& gripper_time_vector);
 
   /**
    * Write string data to logger. String data is prefixed by "info:" to allow us to easily find it in the logs.
