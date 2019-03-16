@@ -10,22 +10,22 @@ class FileStreamLogger {
   FileStreamLogger(const std::string& filename): filename_(filename),
                                                  open_file_stream_(filename, std::ofstream::out | std::ofstream::app) {};
 
-  bool write_pose_desired_=false;
-  bool write_F_T_EE_ = false;
-  bool write_m_ee_ = false;
-  bool write_I_ee = false;
-  bool write_F_x_Cee = false;
-  bool write_m_load_ = false;
-  bool write_I_load = false;
-  bool write_F_x_Cload = false;
-  bool write_m_total_ = false;
-  bool write_I_total = false;
-  bool write_F_x_Ctotal = false;
-  bool write_joint_collision_=false;
-  bool write_cartesian_collision_=false;
-  bool write_current_errors_=false;
-  bool write_last_motion_errors_=false;
-  bool write_gripper_max_width_=false;
+  bool write_pose_desired_=true;
+  bool write_F_T_EE_ = true;
+  bool write_m_ee_ = true;
+  bool write_I_ee = true;
+  bool write_F_x_Cee = true;
+  bool write_m_load_ = true;
+  bool write_I_load = true;
+  bool write_F_x_Cload = true;
+  bool write_m_total_ = true;
+  bool write_I_total = true;
+  bool write_F_x_Ctotal = true;
+  bool write_joint_collision_=true;
+  bool write_cartesian_collision_=true;
+  bool write_current_errors_=true;
+  bool write_last_motion_errors_=true;
+  bool write_gripper_max_width_=true;
 
   bool writeData(std::vector<double>& time_since_skill_started_vector,
                  std::vector<std::array<double, 16>>& pose_desired_vector,

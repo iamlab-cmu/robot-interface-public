@@ -225,31 +225,26 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
         open_file_stream_ << time_since_skill_started_vector[i] << ",";
 
         if (write_pose_desired_) {
-            std::array<double, 16> &pose_desired = pose_desired_vector[i];
-            for (const auto &e : pose_desired) {
+            for (const auto &e : pose_desired_vector[i]) {
                 open_file_stream_ << e << ",";
             }
         }
 
-        std::array<double, 16>& O_T_EE = O_T_EE_vector[i];
-        for (const auto &e : O_T_EE) {
+        for (const auto &e : O_T_EE_vector[i]) {
             open_file_stream_ << e << ",";
         }
         
-        std::array<double, 16>& O_T_EE_d = O_T_EE_d_vector[i];
-        for (const auto &e : O_T_EE_d) {
+        for (const auto &e : O_T_EE_d_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
         if(write_F_T_EE_) {
-            std::array<double, 16>& F_T_EE = F_T_EE_vector[i];
-            for (const auto &e : F_T_EE) {
+            for (const auto &e : F_T_EE_vector[i]) {
                 open_file_stream_ << e << ",";
             } 
         }
 
-        std::array<double, 16>& EE_T_K = EE_T_K_vector[i];
-        for (const auto &e : EE_T_K) {
+        for (const auto &e : EE_T_K_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
@@ -258,15 +253,13 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
         }
         
         if(write_I_ee) {
-            std::array<double, 9>& I_ee = I_ee_vector[i];
-            for (const auto &e : I_ee) {
+            for (const auto &e : I_ee_vector[i]) {
                 open_file_stream_ << e << ",";
             }
         }
     
         if(write_F_x_Cee) {
-            std::array<double, 3>& F_x_Cee = F_x_Cee_vector[i];
-            for (const auto &e : F_x_Cee) {
+            for (const auto &e : F_x_Cee_vector[i]) {
                 open_file_stream_ << e << ",";
             }
         }
@@ -276,15 +269,13 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
         }
         
         if(write_I_load) {
-            std::array<double, 9>& I_load = I_load_vector[i];
-            for (const auto &e : I_load) {
+            for (const auto &e : I_load_vector[i]) {
                 open_file_stream_ << e << ",";
             }
         }
     
         if(write_F_x_Cload) {
-            std::array<double, 3>& F_x_Cload = F_x_Cload_vector[i];
-            for (const auto &e : F_x_Cload) {
+            for (const auto &e : F_x_Cload_vector[i]) {
                 open_file_stream_ << e << ",";
             }
         }
@@ -294,163 +285,133 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
         }
         
         if(write_I_total) {
-            std::array<double, 9>& I_total = I_total_vector[i];
-            for (const auto &e : I_total) {
+            for (const auto &e : I_total_vector[i]) {
                 open_file_stream_ << e << ",";
             }
         }
     
         if(write_F_x_Ctotal) {
-            std::array<double, 3>& F_x_Ctotal = F_x_Ctotal_vector[i];
-            for (const auto &e : F_x_Ctotal) {
+            for (const auto &e : F_x_Ctotal_vector[i]) {
                 open_file_stream_ << e << ",";
             }
         }
 
-        std::array<double, 2>& elbow = elbow_vector[i];
-        for (const auto &e : elbow) {
+        for (const auto &e : elbow_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 2>& elbow_d = elbow_d_vector[i];
-        for (const auto &e : elbow_d) {
+        for (const auto &e : elbow_d_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 2>& elbow_c = elbow_c_vector[i];
-        for (const auto &e : elbow_c) {
+        for (const auto &e : elbow_c_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 2>& delbow_c = delbow_c_vector[i];
-        for (const auto &e : delbow_c) {
+        for (const auto &e : delbow_c_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 2>& ddelbow_c = ddelbow_c_vector[i];
-        for (const auto &e : ddelbow_c) {
+        for (const auto &e : ddelbow_c_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 7>& tau_J = tau_J_vector[i];
-        for (const auto &e : tau_J) {
+        for (const auto &e : tau_J_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 7>& tau_J_d = tau_J_d_vector[i];
-        for (const auto &e : tau_J_d) {
+        for (const auto &e : tau_J_d_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 7>& dtau_J = dtau_J_vector[i];
-        for (const auto &e : dtau_J) {
+        for (const auto &e : dtau_J_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 7>& q = q_vector[i];
-        for (const auto &e : q) {
+        for (const auto &e : q_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 7>& q_d = q_d_vector[i];
-        for (const auto &e : q_d) {
+        for (const auto &e : q_d_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 7>& dq = dq_vector[i];
-        for (const auto &e : dq) {
+        for (const auto &e : dq_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 7>& dq_d = dq_d_vector[i];
-        for (const auto &e : dq_d) {
+        for (const auto &e : dq_d_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 7>& ddq_d = ddq_d_vector[i];
-        for (const auto &e : ddq_d) {
+        for (const auto &e : ddq_d_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 7>& joint_contact = joint_contact_vector[i];
-        for (const auto &e : joint_contact) {
+        for (const auto &e : joint_contact_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 6>& cartesian_contact = cartesian_contact_vector[i];
-        for (const auto &e : cartesian_contact) {
+        for (const auto &e : cartesian_contact_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
         if(write_joint_collision_) {
-            std::array<double, 7>& joint_collision = joint_collision_vector[i];
-            for (const auto &e : joint_collision) {
+            for (const auto &e : joint_collision_vector[i]) {
                 open_file_stream_ << e << ",";
             } 
         }
         
         if(write_cartesian_collision_) {
-            std::array<double, 6>& cartesian_collision = cartesian_collision_vector[i];
-            for (const auto &e : cartesian_collision) {
+            for (const auto &e : cartesian_collision_vector[i]) {
                 open_file_stream_ << e << ",";
             }
         }
 
-        std::array<double, 7>& tau_ext_hat_filtered = tau_ext_hat_filtered_vector[i];
-        for (const auto &e : tau_ext_hat_filtered) {
+        for (const auto &e : tau_ext_hat_filtered_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 6>& O_F_ext_hat_K = O_F_ext_hat_K_vector[i];
-        for (const auto &e : O_F_ext_hat_K) {
+        for (const auto &e : O_F_ext_hat_K_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 6>& K_F_ext_hat_K = K_F_ext_hat_K_vector[i];
-        for (const auto &e : K_F_ext_hat_K) {
+        for (const auto &e : K_F_ext_hat_K_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 6>& O_dP_EE_d = O_dP_EE_d_vector[i];
-        for (const auto &e : O_dP_EE_d) {
+        for (const auto &e : O_dP_EE_d_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 16>& O_T_EE_c = O_T_EE_c_vector[i];
-        for (const auto &e : O_T_EE_c) {
+        for (const auto &e : O_T_EE_c_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 6>& O_dP_EE_c = O_dP_EE_c_vector[i];
-        for (const auto &e : O_dP_EE_c) {
+        for (const auto &e : O_dP_EE_c_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 6>& O_ddP_EE_c = O_ddP_EE_c_vector[i];
-        for (const auto &e : O_ddP_EE_c) {
+        for (const auto &e : O_ddP_EE_c_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 7>& theta = theta_vector[i];
-        for (const auto &e : theta) {
+        for (const auto &e : theta_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 7>& dtheta = dtheta_vector[i];
-        for (const auto &e : dtheta) {
+        for (const auto &e : dtheta_vector[i]) {
             open_file_stream_ << e << ",";
         }
 
         if(write_current_errors_) {
-            std::array<bool, 37>& current_errors = current_errors_vector[i];
-            for (const auto &e : current_errors) {
+            for (const auto &e : current_errors_vector[i]) {
                 open_file_stream_ << e << ",";
             }
         }
         
         if(write_last_motion_errors_) {
-            std::array<bool, 37>& last_motion_errors = last_motion_errors_vector[i];
-            for (const auto &e : last_motion_errors) {
+            for (const auto &e : last_motion_errors_vector[i]) {
                 open_file_stream_ << e << ",";
             }  
         }
