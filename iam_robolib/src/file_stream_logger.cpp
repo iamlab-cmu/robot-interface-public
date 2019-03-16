@@ -72,7 +72,7 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
     } else if (time_since_skill_started_vector_size != O_T_EE_d_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and O_T_EE_d vector size do not match\n";
-    } else if (time_since_skill_started_vector_size != F_T_EE_vector.size()) {
+    } else if (write_F_T_EE_ && time_since_skill_started_vector_size != F_T_EE_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and F_T_EE vector size do not match\n";
     } else if (time_since_skill_started_vector_size != EE_T_K_vector.size()) {
@@ -150,10 +150,10 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
     } else if (time_since_skill_started_vector_size != cartesian_contact_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and cartesian_contact vector size do not match\n";
-    } else if (time_since_skill_started_vector_size != joint_collision_vector.size()) {
+    } else if (write_joint_collision_ && time_since_skill_started_vector_size != joint_collision_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and joint_collision vector size do not match\n";
-    } else if (time_since_skill_started_vector_size != cartesian_collision_vector.size()) {
+    } else if (write_cartesian_collision_ && time_since_skill_started_vector_size != cartesian_collision_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and cartesian_collision vector size do not match\n";
     } else if (time_since_skill_started_vector_size != tau_ext_hat_filtered_vector.size()) {
@@ -241,9 +241,11 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 16>& F_T_EE = F_T_EE_vector[i];
-        for (const auto &e : F_T_EE) {
-            open_file_stream_ << e << ",";
+        if(write_F_T_EE_) {
+            std::array<double, 16>& F_T_EE = F_T_EE_vector[i];
+            for (const auto &e : F_T_EE) {
+                open_file_stream_ << e << ",";
+            } 
         }
 
         std::array<double, 16>& EE_T_K = EE_T_K_vector[i];
@@ -380,14 +382,18 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
             open_file_stream_ << e << ",";
         }
 
-        std::array<double, 7>& joint_collision = joint_collision_vector[i];
-        for (const auto &e : joint_collision) {
-            open_file_stream_ << e << ",";
+        if(write_joint_collision_) {
+            std::array<double, 7>& joint_collision = joint_collision_vector[i];
+            for (const auto &e : joint_collision) {
+                open_file_stream_ << e << ",";
+            } 
         }
-
-        std::array<double, 6>& cartesian_collision = cartesian_collision_vector[i];
-        for (const auto &e : cartesian_collision) {
-            open_file_stream_ << e << ",";
+        
+        if(write_cartesian_collision_) {
+            std::array<double, 6>& cartesian_collision = cartesian_collision_vector[i];
+            for (const auto &e : cartesian_collision) {
+                open_file_stream_ << e << ",";
+            }
         }
 
         std::array<double, 7>& tau_ext_hat_filtered = tau_ext_hat_filtered_vector[i];

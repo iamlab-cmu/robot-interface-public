@@ -10,7 +10,8 @@ class FileStreamLogger {
   FileStreamLogger(const std::string& filename): filename_(filename),
                                                  open_file_stream_(filename, std::ofstream::out | std::ofstream::app) {};
 
-  bool write_pose_desired_=true;
+  bool write_pose_desired_=false;
+  bool write_F_T_EE_ = false;
   bool write_m_ee_ = false;
   bool write_I_ee = false;
   bool write_F_x_Cee = false;
@@ -20,6 +21,8 @@ class FileStreamLogger {
   bool write_m_total_ = false;
   bool write_I_total = false;
   bool write_F_x_Ctotal = false;
+  bool write_joint_collision_=false;
+  bool write_cartesian_collision_=false;
   bool write_current_errors_=false;
   bool write_last_motion_errors_=false;
   bool write_gripper_max_width_=false;
