@@ -371,7 +371,9 @@ void SkillInfo::write_result_to_shared_memory(double *result_buffer, FrankaRobot
                                                            7+7+7+7+7+7+7+7+
                                                            7+6+7+6+
                                                            7+6+6+6+16+6+6+
-                                                           7+7+37+37+1+1+1); // 339
+                                                           7+7+37+37+
+                                                           1+1+1+
+                                                           1+1+1+1+1); // 344
 
   memcpy(&result_buffer[result_buffer_idx], robot_state.O_T_EE.data(), robot_state.O_T_EE.size() * sizeof(double));
   result_buffer_idx += robot_state.O_T_EE.size();
