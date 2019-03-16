@@ -78,31 +78,31 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
     } else if (time_since_skill_started_vector_size != EE_T_K_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and EE_T_K vector size do not match\n";
-    } else if (time_since_skill_started_vector_size != m_ee_vector.size()) {
+    } else if (write_m_ee_ && time_since_skill_started_vector_size != m_ee_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and m_ee vector size do not match\n";
-    } else if (time_since_skill_started_vector_size != I_ee_vector.size()) {
+    } else if (write_I_ee && time_since_skill_started_vector_size != I_ee_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and I_ee vector size do not match\n";
-    } else if (time_since_skill_started_vector_size != F_x_Cee_vector.size()) {
+    } else if (write_F_x_Cee && time_since_skill_started_vector_size != F_x_Cee_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and F_x_Cee vector size do not match\n";
-    } else if (time_since_skill_started_vector_size != m_load_vector.size()) {
+    } else if (write_m_load_ && time_since_skill_started_vector_size != m_load_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and m_load vector size do not match\n";
-    } else if (time_since_skill_started_vector_size != I_load_vector.size()) {
+    } else if (write_I_load && time_since_skill_started_vector_size != I_load_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and I_load vector size do not match\n";
-    } else if (time_since_skill_started_vector_size != F_x_Cload_vector.size()) {
+    } else if (write_F_x_Cload && time_since_skill_started_vector_size != F_x_Cload_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and F_x_Cload vector size do not match\n";
-    } else if (time_since_skill_started_vector_size != m_total_vector.size()) {
+    } else if (write_m_total_ && time_since_skill_started_vector_size != m_total_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and m_total vector size do not match\n";
-    } else if (time_since_skill_started_vector_size != I_total_vector.size()) {
+    } else if (write_I_total && time_since_skill_started_vector_size != I_total_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and I_total vector size do not match\n";
-    } else if (time_since_skill_started_vector_size != F_x_Ctotal_vector.size()) {
+    } else if (write_F_x_Ctotal && time_since_skill_started_vector_size != F_x_Ctotal_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and F_x_Ctotal vector size do not match\n";
     } else if (time_since_skill_started_vector_size != elbow_vector.size()) {
@@ -183,10 +183,10 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
     } else if (time_since_skill_started_vector_size != dtheta_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and dtheta vector size do not match\n";
-    } else if (time_since_skill_started_vector_size != current_errors_vector.size()) {
+    } else if (write_current_errors_ && time_since_skill_started_vector_size != current_errors_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and current errors vector size do not match\n";
-    } else if (time_since_skill_started_vector_size != last_motion_errors_vector.size()) {
+    } else if (write_last_motion_errors_ && time_since_skill_started_vector_size != last_motion_errors_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and last motion errors vector size do not match\n";
     } else if (time_since_skill_started_vector_size != control_command_success_rate_vector.size()) {
@@ -201,7 +201,7 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
     } else if (time_since_skill_started_vector_size != gripper_width_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and gripper width vector size do not match\n";
-    } else if (time_since_skill_started_vector_size != gripper_max_width_vector.size()) {
+    } else if (write_gripper_max_width_ && time_since_skill_started_vector_size != gripper_max_width_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and gripper max width vector size do not match\n";
     } else if (time_since_skill_started_vector_size != gripper_is_grasped_vector.size()) {
@@ -251,40 +251,58 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
             open_file_stream_ << e << ",";
         }
 
-        open_file_stream_ << m_ee_vector[i] << ",";
-
-        std::array<double, 9>& I_ee = I_ee_vector[i];
-        for (const auto &e : I_ee) {
-            open_file_stream_ << e << ",";
+        if(write_m_ee_) {
+            open_file_stream_ << m_ee_vector[i] << ",";
+        }
+        
+        if(write_I_ee) {
+            std::array<double, 9>& I_ee = I_ee_vector[i];
+            for (const auto &e : I_ee) {
+                open_file_stream_ << e << ",";
+            }
+        }
+    
+        if(write_F_x_Cee) {
+            std::array<double, 3>& F_x_Cee = F_x_Cee_vector[i];
+            for (const auto &e : F_x_Cee) {
+                open_file_stream_ << e << ",";
+            }
         }
 
-        std::array<double, 3>& F_x_Cee = F_x_Cee_vector[i];
-        for (const auto &e : F_x_Cee) {
-            open_file_stream_ << e << ",";
+        if(write_m_load_) {
+            open_file_stream_ << m_load_vector[i] << ",";
+        }
+        
+        if(write_I_load) {
+            std::array<double, 9>& I_load = I_load_vector[i];
+            for (const auto &e : I_load) {
+                open_file_stream_ << e << ",";
+            }
+        }
+    
+        if(write_F_x_Cload) {
+            std::array<double, 3>& F_x_Cload = F_x_Cload_vector[i];
+            for (const auto &e : F_x_Cload) {
+                open_file_stream_ << e << ",";
+            }
         }
 
-        open_file_stream_ << m_load_vector[i] << ",";
-
-        std::array<double, 9>& I_load = I_load_vector[i];
-        for (const auto &e : I_load) {
-            open_file_stream_ << e << ",";
+        if(write_m_total_) {
+            open_file_stream_ << m_total_vector[i] << ",";
         }
-
-        std::array<double, 3>& F_x_Cload = F_x_Cload_vector[i];
-        for (const auto &e : F_x_Cload) {
-            open_file_stream_ << e << ",";
+        
+        if(write_I_total) {
+            std::array<double, 9>& I_total = I_total_vector[i];
+            for (const auto &e : I_total) {
+                open_file_stream_ << e << ",";
+            }
         }
-
-        open_file_stream_ << m_total_vector[i] << ",";
-
-        std::array<double, 9>& I_total = I_total_vector[i];
-        for (const auto &e : I_total) {
-            open_file_stream_ << e << ",";
-        }
-
-        std::array<double, 3>& F_x_Ctotal = F_x_Ctotal_vector[i];
-        for (const auto &e : F_x_Ctotal) {
-            open_file_stream_ << e << ",";
+    
+        if(write_F_x_Ctotal) {
+            std::array<double, 3>& F_x_Ctotal = F_x_Ctotal_vector[i];
+            for (const auto &e : F_x_Ctotal) {
+                open_file_stream_ << e << ",";
+            }
         }
 
         std::array<double, 2>& elbow = elbow_vector[i];
@@ -417,25 +435,31 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
             open_file_stream_ << e << ",";
         }
 
-        std::array<bool, 37>& current_errors = current_errors_vector[i];
-        for (const auto &e : current_errors) {
-            open_file_stream_ << e << ",";
+        if(write_current_errors_) {
+            std::array<bool, 37>& current_errors = current_errors_vector[i];
+            for (const auto &e : current_errors) {
+                open_file_stream_ << e << ",";
+            }
         }
-
-        std::array<bool, 37>& last_motion_errors = last_motion_errors_vector[i];
-        for (const auto &e : last_motion_errors) {
-            open_file_stream_ << e << ",";
+        
+        if(write_last_motion_errors_) {
+            std::array<bool, 37>& last_motion_errors = last_motion_errors_vector[i];
+            for (const auto &e : last_motion_errors) {
+                open_file_stream_ << e << ",";
+            }  
         }
 
         open_file_stream_ << control_command_success_rate_vector[i] << ",";
 
-        open_file_stream_ << robot_mode_vector[i] << ",";
+        open_file_stream_ << static_cast<double>(robot_mode_vector[i]) << ",";
 
         open_file_stream_ << robot_time_vector[i] << ",";
 
         open_file_stream_ << gripper_width_vector[i] << ",";
 
-        open_file_stream_ << gripper_max_width_vector[i] << ",";
+        if(write_gripper_max_width_){
+            open_file_stream_ << gripper_max_width_vector[i] << ",";
+        }
 
         open_file_stream_ << gripper_is_grasped_vector[i] << ",";
 

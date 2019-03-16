@@ -11,6 +11,18 @@ class FileStreamLogger {
                                                  open_file_stream_(filename, std::ofstream::out | std::ofstream::app) {};
 
   bool write_pose_desired_=true;
+  bool write_m_ee_ = false;
+  bool write_I_ee = false;
+  bool write_F_x_Cee = false;
+  bool write_m_load_ = false;
+  bool write_I_load = false;
+  bool write_F_x_Cload = false;
+  bool write_m_total_ = false;
+  bool write_I_total = false;
+  bool write_F_x_Ctotal = false;
+  bool write_current_errors_=false;
+  bool write_last_motion_errors_=false;
+  bool write_gripper_max_width_=false;
 
   bool writeData(std::vector<double>& time_since_skill_started_vector,
                  std::vector<std::array<double, 16>>& pose_desired_vector,
