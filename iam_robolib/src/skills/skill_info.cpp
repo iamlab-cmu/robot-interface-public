@@ -568,7 +568,10 @@ void SkillInfo::write_result_to_shared_memory(double *result_buffer, FrankaRobot
   result_buffer[result_buffer_idx++] = robot_state.time.toSec();
 
   result_buffer[result_buffer_idx++] = gripper_state.width;
+  result_buffer[result_buffer_idx++] = gripper_state.max_width;
   result_buffer[result_buffer_idx++] = gripper_state.is_grasped ? 1.0 : 0.0;
+  result_buffer[result_buffer_idx++] = static_cast<double>(gripper_state.temperature);
+  result_buffer[result_buffer_idx++] = gripper_state.time.toSec();
 }
 
 void SkillInfo::write_result_to_shared_memory(double *result_buffer, Robot* robot) {

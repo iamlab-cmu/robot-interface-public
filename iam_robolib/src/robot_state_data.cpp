@@ -88,9 +88,12 @@ void RobotStateData::writeBufferData_0() {
                                               log_last_motion_errors_0_,
                                               log_control_command_success_rate_0_,
                                               log_robot_mode_0_,
-                                              log_time_0_,
+                                              log_robot_time_0_,
                                               log_gripper_width_0_,
-                                              log_gripper_is_grasped_0_);
+                                              log_gripper_max_width_0_,
+                                              log_gripper_is_grasped_0_,
+                                              log_gripper_temperature_0_,
+                                              log_gripper_time_0_);
         if (result) {
             std::cout << "Success: Did write data from buffer 0." << std::endl;
         } else {
@@ -101,6 +104,8 @@ void RobotStateData::writeBufferData_0() {
     // For now just clear them
     log_skill_info_0_.clear();
     log_pose_desired_0_.clear();
+    log_time_since_skill_started_0_.clear();
+
     log_O_T_EE_0_.clear();
     log_O_T_EE_d_0_.clear();
     log_F_T_EE_0_.clear();
@@ -144,10 +149,9 @@ void RobotStateData::writeBufferData_0() {
     log_last_motion_errors_0_.clear();
     log_control_command_success_rate_0_.clear();
     log_robot_mode_0_.clear();
-    log_time_0_.clear();
-    log_time_since_skill_started_0_.clear();
-    log_gripper_width_0_.clear();
-    log_gripper_is_grasped_0_.clear();
+    log_robot_time_0_.clear();
+    
+
 
     // std::cout << "Did save buffer 0\n";
 };
@@ -210,9 +214,12 @@ void RobotStateData::writeBufferData_1() {
                                               log_last_motion_errors_1_,
                                               log_control_command_success_rate_1_,
                                               log_robot_mode_1_,
-                                              log_time_1_,
+                                              log_robot_time_1_,
                                               log_gripper_width_1_,
-                                              log_gripper_is_grasped_1_);
+                                              log_gripper_max_width_1_,
+                                              log_gripper_is_grasped_1_,
+                                              log_gripper_temperature_1_,
+                                              log_gripper_time_1_);
         if (result) {
             std::cout << "Success: Did write data from buffer 1." << std::endl;
         } else {
@@ -222,6 +229,8 @@ void RobotStateData::writeBufferData_1() {
 
     log_skill_info_1_.clear();
     log_pose_desired_1_.clear();
+    log_time_since_skill_started_1_.clear();
+
     log_O_T_EE_1_.clear();
     log_O_T_EE_d_1_.clear();
     log_F_T_EE_1_.clear();
@@ -265,10 +274,7 @@ void RobotStateData::writeBufferData_1() {
     log_last_motion_errors_1_.clear();
     log_control_command_success_rate_1_.clear();
     log_robot_mode_1_.clear();
-    log_time_1_.clear();
-    log_time_since_skill_started_1_.clear();
-    log_gripper_width_1_.clear();
-    log_gripper_is_grasped_1_.clear();
+    log_robot_time_1_.clear();
 
     // std::cout << "Did save buffer 1\n";
 };
@@ -279,6 +285,8 @@ void RobotStateData::clearAllBuffers() {
   
   log_skill_info_0_.clear();
   log_pose_desired_0_.clear();
+  log_time_since_skill_started_0_.clear();
+
   log_O_T_EE_0_.clear();
   log_O_T_EE_d_0_.clear();
   log_F_T_EE_0_.clear();
@@ -322,13 +330,18 @@ void RobotStateData::clearAllBuffers() {
   log_last_motion_errors_0_.clear();
   log_control_command_success_rate_0_.clear();
   log_robot_mode_0_.clear();
-  log_time_0_.clear();
-  log_time_since_skill_started_0_.clear();
-  log_gripper_width_0_.clear();
-  log_gripper_is_grasped_0_.clear();
+  log_robot_time_0_.clear();
+  
+  log_gripper_width_0_ = -1.0;
+  log_gripper_max_width_0_ = -1.0;
+  log_gripper_is_grasped_0_ = false;
+  log_gripper_temperature_0_ = 0;
+  log_gripper_time_0_ = -1.0;
 
   log_skill_info_1_.clear();
   log_pose_desired_1_.clear();
+  log_time_since_skill_started_1_.clear();
+
   log_O_T_EE_1_.clear();
   log_O_T_EE_d_1_.clear();
   log_F_T_EE_1_.clear();
@@ -372,10 +385,13 @@ void RobotStateData::clearAllBuffers() {
   log_last_motion_errors_1_.clear();
   log_control_command_success_rate_1_.clear();
   log_robot_mode_1_.clear();
-  log_time_1_.clear();
-  log_time_since_skill_started_1_.clear();
-  log_gripper_width_1_.clear();
-  log_gripper_is_grasped_1_.clear();
+  log_robot_time_1_.clear();
+  
+  log_gripper_width_1_ = -1.0;
+  log_gripper_max_width_1_ = -1.0;
+  log_gripper_is_grasped_1_ = false;
+  log_gripper_temperature_1_ = 0;
+  log_gripper_time_1_ = -1.0;
 }
 
 void RobotStateData::startFileLoggerThread() {
@@ -547,6 +563,8 @@ void RobotStateData::log_robot_state(franka::RobotState robot_state, double time
 
   if (use_buffer_0) {
     if (buffer_0_mutex_.try_lock()) {
+      log_time_since_skill_started_0_.push_back(time_since_skill_started);
+
       log_O_T_EE_0_.push_back(robot_state.O_T_EE);
       log_O_T_EE_d_0_.push_back(robot_state.O_T_EE_d);
       log_F_T_EE_0_.push_back(robot_state.F_T_EE);
@@ -590,12 +608,14 @@ void RobotStateData::log_robot_state(franka::RobotState robot_state, double time
       log_last_motion_errors_0_.push_back(last_motion_errors);
       log_control_command_success_rate_0_.push_back(robot_state.control_command_success_rate);
       log_robot_mode_0_.push_back(static_cast<uint8_t>(robot_state.robot_mode));
-      log_time_0_.push_back(robot_state.time.toSec());
-      log_time_since_skill_started_0_.push_back(time_since_skill_started);
+      log_robot_time_0_.push_back(robot_state.time.toSec());
+
       buffer_0_mutex_.unlock();
     }
   } else {
     if (buffer_1_mutex_.try_lock()) {
+      log_time_since_skill_started_1_.push_back(time_since_skill_started);
+
       log_O_T_EE_1_.push_back(robot_state.O_T_EE);
       log_O_T_EE_d_1_.push_back(robot_state.O_T_EE_d);
       log_F_T_EE_1_.push_back(robot_state.F_T_EE);
@@ -639,8 +659,8 @@ void RobotStateData::log_robot_state(franka::RobotState robot_state, double time
       log_last_motion_errors_1_.push_back(last_motion_errors);
       log_control_command_success_rate_1_.push_back(robot_state.control_command_success_rate);
       log_robot_mode_1_.push_back(static_cast<uint8_t>(robot_state.robot_mode));
-      log_time_1_.push_back(robot_state.time.toSec());
-      log_time_since_skill_started_1_.push_back(time_since_skill_started);
+      log_robot_time_1_.push_back(robot_state.time.toSec());
+      
       buffer_1_mutex_.unlock();
     }
   }
@@ -649,14 +669,20 @@ void RobotStateData::log_robot_state(franka::RobotState robot_state, double time
 void RobotStateData::log_gripper_state(franka::GripperState gripper_state) {
   if (use_buffer_0) {
     if (buffer_0_mutex_.try_lock()) {
-      log_gripper_width_0_.push_back(gripper_state.width);
-      log_gripper_is_grasped_0_.push_back(gripper_state.is_grasped);
+      log_gripper_width_0_ = gripper_state.width;
+      log_gripper_max_width_0_ = gripper_state.max_width;
+      log_gripper_is_grasped_0_ = gripper_state.is_grasped;
+      log_gripper_temperature_0_ = gripper_state.temperature;
+      log_gripper_time_0_ = gripper_state.time.toSec();
       buffer_0_mutex_.unlock();
     }
   } else {
     if (buffer_1_mutex_.try_lock()) {
-      log_gripper_width_1_.push_back(gripper_state.width);
-      log_gripper_is_grasped_1_.push_back(gripper_state.is_grasped);
+      log_gripper_width_1_ = gripper_state.width;
+      log_gripper_max_width_1_ = gripper_state.max_width;
+      log_gripper_is_grasped_1_ = gripper_state.is_grasped;
+      log_gripper_temperature_1_ = gripper_state.temperature;
+      log_gripper_time_1_ = gripper_state.time.toSec();
       buffer_1_mutex_.unlock();
     }
   }

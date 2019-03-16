@@ -31,6 +31,8 @@ class RobotStateData {
   std::vector<std::string> log_skill_info_1_{};
 
   std::vector<std::array<double, 16>> log_pose_desired_0_{};
+  std::vector<double> log_time_since_skill_started_0_{};
+
   std::vector<std::array<double, 16>> log_O_T_EE_0_{};
   std::vector<std::array<double, 16>> log_O_T_EE_d_0_{};
   std::vector<std::array<double, 16>> log_F_T_EE_0_{};
@@ -74,12 +76,18 @@ class RobotStateData {
   std::vector<std::array<bool, 37>> log_last_motion_errors_0_{};
   std::vector<double> log_control_command_success_rate_0_{};
   std::vector<uint8_t> log_robot_mode_0_{};
-  std::vector<double> log_time_0_{};
-  std::vector<double> log_time_since_skill_started_0_{};
-  std::vector<double> log_gripper_width_0_{};
-  std::vector<bool> log_gripper_is_grasped_0_{};
+  std::vector<double> log_robot_time_0_{};
+
+  double log_gripper_width_0_{-1.0};
+  double log_gripper_max_width_0_{-1.0};
+  bool log_gripper_is_grasped_0_{false};
+  uint16_t log_gripper_temperature_0_{0};
+  double log_gripper_time_0_{-1.0};
+
 
   std::vector<std::array<double, 16>> log_pose_desired_1_{};
+  std::vector<double> log_time_since_skill_started_1_{};
+
   std::vector<std::array<double, 16>> log_O_T_EE_1_{};
   std::vector<std::array<double, 16>> log_O_T_EE_d_1_{};
   std::vector<std::array<double, 16>> log_F_T_EE_1_{};
@@ -123,10 +131,13 @@ class RobotStateData {
   std::vector<std::array<bool, 37>> log_last_motion_errors_1_{};
   std::vector<double> log_control_command_success_rate_1_{};
   std::vector<uint8_t> log_robot_mode_1_{};
-  std::vector<double> log_time_1_{};
-  std::vector<double> log_time_since_skill_started_1_{};
-  std::vector<double> log_gripper_width_1_{};
-  std::vector<bool> log_gripper_is_grasped_1_{};
+  std::vector<double> log_robot_time_1_{};
+  
+  double log_gripper_width_1_{-1.0};
+  double log_gripper_max_width_1_{-1.0};
+  bool log_gripper_is_grasped_1_{false};
+  uint16_t log_gripper_temperature_1_{0};
+  double log_gripper_time_1_{-1.0};
 
   // Utils for printing
   const int print_rate_=10;

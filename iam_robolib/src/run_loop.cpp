@@ -374,7 +374,8 @@ void run_loop::setup_current_robot_state_io_thread() {
                                                                                  7+7+7+7+7+7+7+7+
                                                                                  7+6+7+6+
                                                                                  7+6+6+6+16+6+6+
-                                                                                 7+7+37+37+1+1+1); // 339
+                                                                                 7+7+37+37+1+1+1+
+                                                                                 1+1+1+1+1); // 344
 
                   memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_O_T_EE_0_.back().data(), robot_state_data_->log_O_T_EE_0_.back().size() * sizeof(double));
                   buffer_idx += robot_state_data_->log_O_T_EE_0_.back().size();
@@ -506,17 +507,13 @@ void run_loop::setup_current_robot_state_io_thread() {
 
                   current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_control_command_success_rate_0_.back();
                   current_robot_state_buffer[buffer_idx++] = static_cast<double>(robot_state_data_->log_robot_mode_0_.back());
-                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_time_0_.back();
+                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_robot_time_0_.back();
 
-                  if (robot_state_data_->log_gripper_width_0_.size() > 0) {
-                    current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_gripper_width_0_.back();
-
-                    double_val = robot_state_data_->log_gripper_is_grasped_0_.back() ? 1 : 0;
-                    current_robot_state_buffer[buffer_idx++] = static_cast<double> (double_val);
-                  } else {
-                    current_robot_state_buffer[buffer_idx++] = -1.0;
-                    current_robot_state_buffer[buffer_idx++] = 0.0;
-                  }
+                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_gripper_width_0_;
+                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_gripper_max_width_0_;
+                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_gripper_is_grasped_0_ ? 1.0 : 0.0;
+                  current_robot_state_buffer[buffer_idx++] = static_cast<double>(robot_state_data_->log_gripper_temperature_0_);
+                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_gripper_time_0_;
 
                   shared_memory_handler_->getCurrentRobotStateBufferMutex()->unlock();
               }
@@ -539,7 +536,8 @@ void run_loop::setup_current_robot_state_io_thread() {
                                                                                  7+7+7+7+7+7+7+7+
                                                                                  7+6+7+6+
                                                                                  7+6+6+6+16+6+6+
-                                                                                 7+7+37+37+1+1+1); // 339
+                                                                                 7+7+37+37+1+1+1+
+                                                                                 1+1+1+1+1); // 344
 
                   memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_O_T_EE_1_.back().data(), robot_state_data_->log_O_T_EE_1_.back().size() * sizeof(double));
                   buffer_idx += robot_state_data_->log_O_T_EE_1_.back().size();
@@ -671,17 +669,13 @@ void run_loop::setup_current_robot_state_io_thread() {
 
                   current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_control_command_success_rate_1_.back();
                   current_robot_state_buffer[buffer_idx++] = static_cast<double>(robot_state_data_->log_robot_mode_1_.back());
-                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_time_1_.back();
+                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_robot_time_1_.back();
 
-                  if (robot_state_data_->log_gripper_width_0_.size() > 0) {
-                    current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_gripper_width_1_.back();
-
-                    double_val = robot_state_data_->log_gripper_is_grasped_1_.back() ? 1 : 0;
-                    current_robot_state_buffer[buffer_idx++] = static_cast<double> (double_val);
-                  } else {
-                    current_robot_state_buffer[buffer_idx++] = -1.0;
-                    current_robot_state_buffer[buffer_idx++] = 0.0;
-                  }
+                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_gripper_width_1_;
+                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_gripper_max_width_1_;
+                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_gripper_is_grasped_1_ ? 1.0 : 0.0;
+                  current_robot_state_buffer[buffer_idx++] = static_cast<double>(robot_state_data_->log_gripper_temperature_1_);
+                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_gripper_time_1_;
 
                   shared_memory_handler_->getCurrentRobotStateBufferMutex()->unlock();
               }

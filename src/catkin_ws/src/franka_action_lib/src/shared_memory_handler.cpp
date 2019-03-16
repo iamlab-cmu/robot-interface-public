@@ -723,11 +723,17 @@ namespace franka_action_lib
 
       robot_state.robot_mode = static_cast<uint8_t>(current_robot_state_buffer_[offset++]);
 
-      robot_state.time = current_robot_state_buffer_[offset++];
+      robot_state.robot_time = current_robot_state_buffer_[offset++];
 
       robot_state.gripper_width = current_robot_state_buffer_[offset++];
 
+      robot_state.gripper_max_width = current_robot_state_buffer_[offset++];
+
       robot_state.gripper_is_grasped = current_robot_state_buffer_[offset++] == 1 ? true : false;
+
+      robot_state.gripper_temperature = static_cast<uint16_t>(current_robot_state_buffer_[offset++]);
+
+      robot_state.gripper_time = current_robot_state_buffer_[offset++];
 
       robot_state.is_fresh = true;
     } else {

@@ -45,7 +45,10 @@ Errors current_errors
 Errors last_motion_errors
 float64 control_command_success_rate
 uint8 robot_mode
-float64 time
+float64 robot_time
 float64 gripper_width
+float64 gripper_max_width
 bool gripper_is_grasped
+uint16 gripper_temperature
+float64 gripper_time
 bool is_fresh
