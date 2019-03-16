@@ -526,6 +526,9 @@ namespace franka_action_lib
       robot_state.header.stamp = ros::Time::now();
 
       size_t offset = 0;
+
+      int num_elements = static_cast<int>(current_robot_state_buffer_[offset++]);
+
       memcpy(&robot_state.O_T_EE, &current_robot_state_buffer_[offset], robot_state.O_T_EE.size() * sizeof(double));
       offset += robot_state.O_T_EE.size();
 

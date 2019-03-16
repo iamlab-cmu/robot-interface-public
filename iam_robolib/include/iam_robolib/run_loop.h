@@ -15,7 +15,6 @@
 #include <iam_robolib_common/run_loop_process_info.h>
 #include <iam_robolib_common/SharedMemoryInfo.h>
 
-// TODO(Mohit): Fix this, CANNOT do private imports in public headers. FML.
 #include "iam_robolib/skill_info_manager.h"
 #include "iam_robolib/skills/skill_info.h"
 #include "iam_robolib/run_loop_logger.h"

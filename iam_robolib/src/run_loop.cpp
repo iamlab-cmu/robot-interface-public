@@ -366,6 +366,16 @@ void run_loop::setup_current_robot_state_io_thread() {
                   SharedBuffer current_robot_state_buffer = shared_memory_handler_->getCurrentRobotStateBuffer();
                   size_t buffer_idx = 0;
 
+                  current_robot_state_buffer[buffer_idx++] = static_cast<double>(16+16+16+16+
+                                                                                 1+9+3+
+                                                                                 1+9+3+
+                                                                                 1+9+3+
+                                                                                 2+2+2+2+2+
+                                                                                 7+7+7+7+7+7+7+7+
+                                                                                 7+6+7+6+
+                                                                                 7+6+6+6+16+6+6+
+                                                                                 7+7+37+37+1+1+1); // 339
+
                   memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_O_T_EE_0_.back().data(), robot_state_data_->log_O_T_EE_0_.back().size() * sizeof(double));
                   buffer_idx += robot_state_data_->log_O_T_EE_0_.back().size();
 
@@ -521,6 +531,16 @@ void run_loop::setup_current_robot_state_io_thread() {
                   double* current_robot_state_buffer = shared_memory_handler_->getCurrentRobotStateBuffer();
                   size_t buffer_idx = 0;
 
+                  current_robot_state_buffer[buffer_idx++] = static_cast<double>(16+16+16+16+
+                                                                                 1+9+3+
+                                                                                 1+9+3+
+                                                                                 1+9+3+
+                                                                                 2+2+2+2+2+
+                                                                                 7+7+7+7+7+7+7+7+
+                                                                                 7+6+7+6+
+                                                                                 7+6+6+6+16+6+6+
+                                                                                 7+7+37+37+1+1+1); // 339
+
                   memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_O_T_EE_1_.back().data(), robot_state_data_->log_O_T_EE_1_.back().size() * sizeof(double));
                   buffer_idx += robot_state_data_->log_O_T_EE_1_.back().size();
 
@@ -639,13 +659,13 @@ void run_loop::setup_current_robot_state_io_thread() {
                   std::array<bool, 37> bool_array_37;
                   bool_array_37 = robot_state_data_->log_current_errors_1_.back();
                   for (size_t i = 0; i < bool_array_37.size(); i++) {
-                    double_val = bool_array_37[i] ? 1 : 0;
+                    double_val = bool_array_37[i] ? 1.0 : 0.0;
                     current_robot_state_buffer[buffer_idx++] = static_cast<double> (double_val);
                   }
 
                   bool_array_37 = robot_state_data_->log_last_motion_errors_1_.back();
                   for (size_t i = 0; i < bool_array_37.size(); i++) {
-                    double_val = bool_array_37[i] ? 1 : 0;
+                    double_val = bool_array_37[i] ? 1.0 : 0.0;
                     current_robot_state_buffer[buffer_idx++] = static_cast<double> (double_val);
                   }
 
