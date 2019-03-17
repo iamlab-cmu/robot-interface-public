@@ -12,7 +12,7 @@
     <param name="publish_frequency" value="100" />
   </node>
 
-  <node pkg="franka_action_lib" type="run_loop_process_info_publisher_node" name="run_loop_process_info_publisher_node_2" output="screen">
+  <node pkg="franka_action_lib" type="run_loop_process_info_state_publisher_node" name="run_loop_process_info_state_publisher_node_2" output="screen">
     <param name="publish_frequency" value="100" />
   </node>
   
