@@ -381,7 +381,7 @@ if __name__ == '__main__':
 
             if(args.move_slices_left):
 
-                move_air_dist = 0.02
+                move_air_dist = 0.033
                 move_to_air_skill = cut_cucumber_skill.create_skill_to_move_to_air(
                                     1.0, move_air_dist,
                                     CutCucumberSkill.IDENTITY_QUATERNION,
