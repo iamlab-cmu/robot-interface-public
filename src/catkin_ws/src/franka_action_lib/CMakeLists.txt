@@ -67,7 +67,7 @@ add_message_files(
   Errors.msg
   RobolibStatus.msg
   RobotState.msg
-  SkillState.msg
+  RunLoopProcessInfoState.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -154,7 +154,7 @@ add_executable(example_execute_skill_action_client_node src/example_execute_skil
 add_executable(execute_skill_action_server_node src/execute_skill_action_server.cpp src/execute_skill_action_server_node.cpp)
 add_executable(robot_state_publisher_node src/robot_state_publisher.cpp src/robot_state_publisher_node.cpp)
 add_executable(robolib_status_publisher_node src/robolib_status_publisher.cpp src/robolib_status_publisher_node.cpp)
-add_executable(skill_state_publisher_node src/skill_state_publisher.cpp src/skill_state_publisher_node.cpp)
+add_executable(run_loop_process_info_state_publisher_node src/run_loop_process_info_state_publisher.cpp src/run_loop_process_info_state_publisher_node.cpp)
 add_executable(get_current_robot_state_server_node src/get_current_robot_state_server.cpp src/get_current_robot_state_server_node.cpp)
 add_executable(get_current_robolib_status_server_node src/get_current_robolib_status_server.cpp src/get_current_robolib_status_server_node.cpp)
 
@@ -208,7 +208,7 @@ target_link_libraries(
   ${PROJECT_NAME}
 )
 target_link_libraries(
-  skill_state_publisher_node
+  run_loop_process_info_state_publisher_node
   Threads::Threads
   ${Boost_LIBRARIES}
   ${catkin_LIBRARIES}

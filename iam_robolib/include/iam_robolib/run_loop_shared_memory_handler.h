@@ -14,7 +14,6 @@
 
 #include <iam_robolib_common/iam_robolib_state_info.h>
 #include <iam_robolib_common/run_loop_process_info.h>
-#include <iam_robolib_common/skill_state_info.h>
 #include <iam_robolib_common/SharedMemoryInfo.h>
 
 #include <franka/robot.h>
@@ -36,15 +35,11 @@ class RunLoopSharedMemoryHandler {
 
   RunLoopProcessInfo* getRunLoopProcessInfo();
 
-  SkillStateInfo* getSkillStateInfo();
-
   IAMRobolibStateInfo* getIAMRobolibStateInfo();
 
   boost::interprocess::interprocess_mutex* getRunLoopProcessInfoMutex();
 
   boost::interprocess::interprocess_mutex* getCurrentRobotStateBufferMutex();
-
-  boost::interprocess::interprocess_mutex* getSkillStateInfoMutex();
 
   boost::interprocess::interprocess_mutex* getIAMRobolibStateInfoMutex();
 
@@ -67,9 +62,6 @@ class RunLoopSharedMemoryHandler {
 
   boost::interprocess::interprocess_mutex* run_loop_info_mutex_= nullptr;
   RunLoopProcessInfo* run_loop_info_= nullptr;
-
-  boost::interprocess::interprocess_mutex* skill_state_info_mutex_= nullptr;
-  SkillStateInfo* skill_state_info_= nullptr;
 
   boost::interprocess::interprocess_mutex* iam_robolib_state_info_mutex_= nullptr;
   IAMRobolibStateInfo* iam_robolib_state_info_= nullptr;

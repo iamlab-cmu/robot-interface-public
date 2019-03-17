@@ -4,7 +4,7 @@
 #include <franka_action_lib/ExecuteSkillAction.h> // Note: "Action" is appended
 #include <franka_action_lib/RobotState.h>
 #include <franka_action_lib/RobolibStatus.h>
-#include <franka_action_lib/SkillState.h>
+#include <franka_action_lib/RunLoopProcessInfoState.h>
 
 #include "ros/ros.h" // For ROS::ERROR messages
 
@@ -22,7 +22,6 @@
 #include <iam_robolib_common/iam_robolib_state_info.h>
 #include <iam_robolib_common/run_loop_process_info.h>
 #include <iam_robolib_common/SharedMemoryInfo.h>
-#include <iam_robolib_common/skill_state_info.h>
 
 namespace franka_action_lib
 {
@@ -52,7 +51,7 @@ namespace franka_action_lib
 
       franka_action_lib::RobolibStatus getRobolibStatus();
 
-      franka_action_lib::SkillState getSkillState();
+      franka_action_lib::RunLoopProcessInfoState getRunLoopProcessInfoState();
       
       bool getNewSkillAvailableFlagInSharedMemory();
 
@@ -68,9 +67,6 @@ namespace franka_action_lib
 
       RunLoopProcessInfo *run_loop_process_info_;
       boost::interprocess::interprocess_mutex *run_loop_info_mutex_;
-
-      SkillStateInfo *skill_state_info_;
-      boost::interprocess::interprocess_mutex *skill_state_info_mutex_;
 
       IAMRobolibStateInfo *iam_robolib_state_info_;
       boost::interprocess::interprocess_mutex *iam_robolib_state_info_mutex_;

@@ -23,21 +23,6 @@ namespace franka_action_lib
     run_loop_info_mutex_ = run_loop_info_mutex_pair.first;
     assert(run_loop_info_mutex_ != 0);
 
-    // Get SkillStateInfo from the the shared memory segment.
-    std::pair<SkillStateInfo*, std::size_t> skill_state_info_pair = \
-        managed_shared_memory_.find<SkillStateInfo> (shared_memory_info_.getSkillStateInfoObjectName().c_str());
-    skill_state_info_ = skill_state_info_pair.first;
-
-    // Make sure the skill state info object can be found in memory.
-    assert(skill_state_info_ != 0);
-
-    // Get mutex for SkillStateInfo from the shared memory segment.
-    std::pair<boost::interprocess::interprocess_mutex *, std::size_t> skill_state_info_mutex_pair = \
-                                managed_shared_memory_.find<boost::interprocess::interprocess_mutex>
-                                (shared_memory_info_.getSkillStateInfoMutexName().c_str());
-    skill_state_info_mutex_ = skill_state_info_mutex_pair.first;
-    assert(skill_state_info_mutex_ != 0);
-
     // Get IAMRobolibStateInfo from the the shared memory segment.
     std::pair<IAMRobolibStateInfo*, std::size_t> iam_robolib_state_info_pair = \
         managed_shared_memory_.find<IAMRobolibStateInfo> (shared_memory_info_.getIAMRobolibStateInfoObjectName().c_str());
@@ -781,28 +766,41 @@ namespace franka_action_lib
     return robolib_status;
   }
 
-  franka_action_lib::SkillState SharedMemoryHandler::getSkillState()
+  franka_action_lib::RunLoopProcessInfoState SharedMemoryHandler::getRunLoopProcessInfoState()
   {
-    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> skill_state_info_lock(*skill_state_info_mutex_, boost::interprocess::defer_lock);
+    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> run_loop_info_lock(*run_loop_info_mutex_, boost::interprocess::defer_lock);
 
-    franka_action_lib::SkillState skill_state;
-    skill_state.header.stamp = ros::Time::now();
+    franka_action_lib::RunLoopProcessInfoState run_loop_process_info_state;
+    run_loop_process_info_state.header.stamp = ros::Time::now();
 
-    if (skill_state_info_lock.try_lock()) {
-      skill_state.skill_id = skill_state_info_->get_skill_id();
-      skill_state.meta_skill_id = skill_state_info_->get_meta_skill_id();
-      skill_state.skill_type = skill_state_info_->get_skill_type();
-      skill_state.meta_skill_type = skill_state_info_->get_meta_skill_type();
-      skill_state.skill_description = skill_state_info_->get_skill_description();
-      skill_state.time_since_skill_started = skill_state_info_->get_time_since_skill_started();
-      skill_state.skill_status = skill_state_info_->get_skill_status();
+    if (run_loop_info_lock.try_lock()) {
+      run_loop_process_info_state.current_memory_region = run_loop_process_info_->get_current_memory_region();
+      run_loop_process_info_state.current_sensor_region = run_loop_process_info_->get_current_sensor_region();
+      run_loop_process_info_state.current_feedback_region = run_loop_process_info_->get_current_feedback_region();
+      run_loop_process_info_state.current_skill_id = run_loop_process_info_->get_current_skill_id();
+      run_loop_process_info_state.current_skill_type = run_loop_process_info_->get_current_skill_type();
+      run_loop_process_info_state.current_meta_skill_id = run_loop_process_info_->get_current_meta_skill_id();
+      run_loop_process_info_state.current_meta_skill_type = run_loop_process_info_->get_current_meta_skill_type();
+      run_loop_process_info_state.current_skill_description = run_loop_process_info_->get_current_skill_description();
+      run_loop_process_info_state.new_skill_available = run_loop_process_info_->get_new_skill_available();
+      run_loop_process_info_state.new_skill_id = run_loop_process_info_->get_new_skill_id();
+      run_loop_process_info_state.new_skill_type = run_loop_process_info_->get_new_skill_type();
+      run_loop_process_info_state.new_meta_skill_id = run_loop_process_info_->get_new_meta_skill_id();
+      run_loop_process_info_state.new_meta_skill_type = run_loop_process_info_->get_new_meta_skill_type();
+      run_loop_process_info_state.new_skill_description = run_loop_process_info_->get_new_skill_description();
+      run_loop_process_info_state.is_running_skill = run_loop_process_info_->get_is_running_skill();
+      run_loop_process_info_state.skill_preempted = run_loop_process_info_->get_skill_preempted();
+      run_loop_process_info_state.done_skill_id = run_loop_process_info_->get_done_skill_id();
+      run_loop_process_info_state.result_skill_id = run_loop_process_info_->get_result_skill_id();
+      run_loop_process_info_state.time_since_skill_started = run_loop_process_info_->get_time_since_skill_started();
+      run_loop_process_info_state.robot_time = run_loop_process_info_->get_robot_time();
       
-      skill_state.is_fresh = true;
+      run_loop_process_info_state.is_fresh = true;
     } else {
-      skill_state.is_fresh = false;
+      run_loop_process_info_state.is_fresh = false;
     }
     
-    return skill_state;
+    return run_loop_process_info_state;
   }
 
   void SharedMemoryHandler::incrementWatchdogCounter()
