@@ -145,7 +145,6 @@ namespace franka_action_lib
 
       int getCurrentFreeSharedMemoryIndexInSharedMemoryUnprotected();
       int getCurrentSkillIdInSharedMemoryUnprotected();
-      void setCurrentSkillIdInSharedMemoryUnprotected(int current_skill_id);
       int getDoneSkillIdInSharedMemoryUnprotected();
       bool getNewSkillAvailableFlagInSharedMemoryUnprotected();
       void setNewSkillFlagInSharedMemoryUnprotected(bool new_skill_flag);

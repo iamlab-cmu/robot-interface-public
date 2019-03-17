@@ -847,12 +847,6 @@ namespace franka_action_lib
     return run_loop_process_info_->get_current_skill_id();
   }
 
-  void SharedMemoryHandler::setCurrentSkillIdInSharedMemoryUnprotected(int current_skill_id)
-  {
-    // Set current_skill_id_ in run_loop_process_info_ to the input current_skill_id
-    run_loop_process_info_->set_current_skill_id(current_skill_id);
-  }
-
   int SharedMemoryHandler::getDoneSkillIdInSharedMemoryUnprotected()
   {
     // Return the done_skill_id from run_loop_process_info_

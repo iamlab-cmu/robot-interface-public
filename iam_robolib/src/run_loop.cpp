@@ -210,6 +210,10 @@ void run_loop::update_process_info() {
 
           // Add new skill
           run_loop_info->set_current_skill_id(new_skill_id);
+          run_loop_info->set_current_skill_type(new_skill_type);
+          run_loop_info->set_current_meta_skill_id(new_meta_skill_id);
+          run_loop_info->set_current_meta_skill_type(new_meta_skill_type);
+          run_loop_info->set_current_skill_description(new_skill_description);
           BaseSkill *new_skill;
           if (new_skill_type == 0) {
             new_skill = new SkillInfo(new_skill_id, new_meta_skill_id, new_skill_description);
