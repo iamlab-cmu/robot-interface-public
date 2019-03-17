@@ -19,7 +19,7 @@ source $control_pc_robot_lib_path"/src/catkin_ws/devel/setup.zsh"
 roslaunch franka_action_lib franka_ros_interface.launch
 EOSSH
 else
-sshpass -p "!am-guardians" ssh -tt -o StrictHostKeyChecking=no $control_pc_uname@$control_pc_ip_address << EOSSH
+sshpass -p "!@m-guardians" ssh -tt -o StrictHostKeyChecking=no $control_pc_uname@$control_pc_ip_address << EOSSH
 source ~/Documents/robot-interface/src/catkin_ws/src/franka_action_lib/scripts/bash_scripts/set_rosmaster.sh $control_pc_ip_address $workstation_ip_address
 source ~/Documents/robot-interface/src/catkin_ws/devel/setup.bash
 roslaunch franka_action_lib franka_ros_interface.launch

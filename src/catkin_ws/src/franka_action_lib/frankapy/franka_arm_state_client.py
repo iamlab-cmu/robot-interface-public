@@ -9,12 +9,12 @@ from .utils import franka_pose_to_rigid_transform
 
 class FrankaArmStateClient:
 
-    def __init__(self, new_ros_node=True, server_name='/get_current_robot_state_server_node/get_current_robot_state_server'):
+    def __init__(self, new_ros_node=True, robot_state_server_name='/get_current_robot_state_server_node/get_current_robot_state_server'):
         if new_ros_node:
             rospy.init_node('FrankaArmStateClient', anonymous=True)
 
-        rospy.wait_for_service(server_name)
-        self._get_current_robot_state = rospy.ServiceProxy(server_name, GetCurrentRobotStateCmd)
+        rospy.wait_for_service(robot_state_server_name)
+        self._get_current_robot_state = rospy.ServiceProxy(robot_state_server_name, GetCurrentRobotStateCmd)
 
     def get_data(self):
         '''Get all fields of current robot data in a dict.

@@ -30,7 +30,7 @@ namespace franka_action_lib
     robot_state_buffer_mutex_.lock();
     res.robot_state = robot_state_buffer_.back();
     robot_state_buffer_mutex_.unlock();
-    ROS_DEBUG("Get Current Robot State Servier request processed.");
+    ROS_DEBUG("Get Current Robot State Server request processed.");
     
     return true;
   }

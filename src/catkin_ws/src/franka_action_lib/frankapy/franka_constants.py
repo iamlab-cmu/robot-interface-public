@@ -47,9 +47,6 @@ class FrankaConstants:
     MAX_ANG_MOMENTUM = 2
     MAX_LIN_MOMENTUM_CONSTRAINED = 100
 
-    ROS_ROBOLIB_STATUS_PUBLISHER_NAME = '/robolib_status_publisher_node/robolib_status'
-    ROS_EXECUTE_SKILL_ACTION_SERVER_NAME = '/execute_skill_action_server_node/execute_skill'
-
     DEFAULT_ROBOLIB_TIMEOUT = 10
     ACTION_WAIT_LOOP_TIME = 0.001
 

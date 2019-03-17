@@ -23,6 +23,8 @@ from .franka_constants import FrankaConstants as FC
 class FrankaArm:
 
     def __init__(self, rosnode_name='franka_arm_client', ros_log_level=rospy.INFO, 
+                execute_skill_action_server_name='/execute_skill_action_server_node/execute_skill',
+                robot_state_server_name='/get_current_robot_state_server_node/get_current_robot_state_server',
                 robolib_status_server_name='/get_current_robolib_status_server_node/get_current_robolib_status_server'):
         self._connected = False 
         self._in_skill = False
@@ -36,8 +38,8 @@ class FrankaArm:
         rospy.wait_for_service(robolib_status_server_name)
         self._get_current_robolib_status = rospy.ServiceProxy(robolib_status_server_name, GetCurrentRobolibStatusCmd)
 
-        self._state_client = FrankaArmStateClient(new_ros_node=False)
-        self._client = actionlib.SimpleActionClient(FC.ROS_EXECUTE_SKILL_ACTION_SERVER_NAME, ExecuteSkillAction)
+        self._state_client = FrankaArmStateClient(new_ros_node=False, robot_state_server_name=robot_state_server_name)
+        self._client = actionlib.SimpleActionClient(execute_skill_action_server_name, ExecuteSkillAction)
         self._client.wait_for_server()
         self.wait_for_robolib()
         
