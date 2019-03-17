@@ -299,8 +299,8 @@ if __name__ == '__main__':
             move_onto_cucumber_skill.add_controller_stiffness_params(600, 50)
             move_onto_cucumber_skill.add_contact_termination_params(
                     1.0, 
-                    [10., 10., 5., 10., 10., 10.],
-                    [10., 10., 5., 10., 10., 10.])
+                    [10., 10., 7., 10., 10., 10.],
+                    [10., 10., 7., 10., 10., 10.])
             cut_cucumber_skill.execute_skill(move_onto_cucumber_skill, client)
             
             # Start DMP cutting for n times

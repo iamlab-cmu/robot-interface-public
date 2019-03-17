@@ -8,7 +8,7 @@ namespace franka_action_lib
 
   GetCurrentRobotStateServer::GetCurrentRobotStateServer(std::string name) :  nh_("~")
   {
-    nh_.param("robot_state_topic_name_", robot_state_topic_name_, std::string("/robot_state_publisher_node/robot_state"));
+    nh_.param("robot_state_topic_name", robot_state_topic_name_, std::string("/robot_state_publisher_node/robot_state"));
 
     ros::Subscriber sub = nh_.subscribe(robot_state_topic_name_, 10, robot_state_sub_cb);
     ros::ServiceServer service = nh_.advertiseService("get_current_robot_state_server", get_current_robot_state);

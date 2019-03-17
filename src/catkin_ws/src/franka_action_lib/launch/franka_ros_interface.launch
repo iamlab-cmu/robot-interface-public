@@ -11,13 +11,17 @@
   <node pkg="franka_action_lib" type="robolib_status_publisher_node" name="robolib_status_publisher_node" output="screen">
     <param name="publish_frequency" value="100" />
   </node>
+
+  <node pkg="franka_action_lib" type="skill_state_publisher_node" name="skill_state_publisher_node" output="screen">
+    <param name="publish_frequency" value="100" />
+  </node>
   
   <node pkg="franka_action_lib" type="get_current_robot_state_server_node" name="get_current_robot_state_server_node" output="screen">
-    <param name="robot_state_topic_name_" value="/robot_state_publisher_node/robot_state" />
+    <param name="robot_state_topic_name" value="/robot_state_publisher_node/robot_state" />
   </node>
 
   <node pkg="franka_action_lib" type="get_current_robolib_status_server_node" name="get_current_robolib_status_server_node" output="screen">
-    <param name="robot_state_topic_name_" value="/robolib_status_publisher_node/robolib_status" />
+    <param name="robolib_status_topic_name" value="/robolib_status_publisher_node/robolib_status" />
   </node>
 
 </launch>

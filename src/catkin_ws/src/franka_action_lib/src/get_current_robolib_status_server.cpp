@@ -8,7 +8,7 @@ namespace franka_action_lib
 
   GetCurrentRobolibStatusServer::GetCurrentRobolibStatusServer(std::string name) :  nh_("~")
   {
-    nh_.param("robolib_status_topic_name_", robolib_status_topic_name_, std::string("/robolib_status_publisher_node/robolib_status"));
+    nh_.param("robolib_status_topic_name", robolib_status_topic_name_, std::string("/robolib_status_publisher_node/robolib_status"));
 
     ros::Subscriber sub = nh_.subscribe(robolib_status_topic_name_, 10, robolib_status_sub_cb);
     ros::ServiceServer service = nh_.advertiseService("get_current_robolib_status_server", get_current_robolib_status);
