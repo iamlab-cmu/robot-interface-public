@@ -89,9 +89,9 @@ fi
 
 # ssh to the control pc and start ROS action server in a new gnome-terminal
 sleep 1
-start_execute_skill_action_server_on_control_pc_path="$DIR/start_execute_skill_action_server_on_control_pc.sh"
-echo "Will ssh to control PC and start ROS action server..."$start_execute_skill_action_server_on_control_pc_path
-gnome-terminal -e "bash $start_execute_skill_action_server_on_control_pc_path $control_pc_uname $control_pc_ip_address $workstation_ip_address $control_pc_use_passwd $control_pc_robot_lib_path"
+start_ros_action_lib_on_control_pc_path="$DIR/start_ros_action_lib_on_control_pc_2.sh"
+echo "Will ssh to control PC and start ROS action server..."$start_ros_action_lib_on_control_pc_path
+gnome-terminal -e "bash $start_ros_action_lib_on_control_pc_path $control_pc_uname $control_pc_ip_address $workstation_ip_address $control_pc_use_passwd $control_pc_robot_lib_path"
 echo "Done"
 
 if [ "$start_realsense" -eq 1 ]; then

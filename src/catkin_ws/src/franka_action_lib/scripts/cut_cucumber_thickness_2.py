@@ -139,12 +139,12 @@ class CutCucumberSkill(object):
 
 if __name__ == '__main__':
 
-    rospy.init_node('example_execute_skill_action_client2', 
+    rospy.init_node('example_execute_skill_action_client_2', 
                     log_level=rospy.DEBUG)
     time_now = rospy.Time.now()
     print("Time now: {:.6f}".format(time_now.to_sec()))
     client = actionlib.SimpleActionClient(
-            '/execute_skill_action_server_node2/execute_skill',
+            '/execute_skill_action_server_node_2/execute_skill',
             ExecuteSkillAction)
     client.wait_for_server()
 
@@ -403,7 +403,7 @@ if __name__ == '__main__':
                 cut_cucumber_skill.execute_skill(skill, client)
 
         if(not args.move_slices_left):
-            move_air_dist = 0.02
+            move_air_dist = 0.033
             move_to_air_skill = cut_cucumber_skill.create_skill_to_move_to_air(
                                 1.0, move_air_dist,
                                 CutCucumberSkill.IDENTITY_QUATERNION,

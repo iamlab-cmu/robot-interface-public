@@ -80,6 +80,13 @@ if __name__ == '__main__':
         print(item_ycenter)
         print(item_depth)
 
+        if(item_depth < 0.5):
+            total_item_depth = 0.0
+            for i in range(-1,3):
+                for j in range(-1,3):
+                    total_item_depth += cv_image[item_ycenter + i, item_xcenter + j] / 1000.0 + 0.03
+            item_depth = total_item_depth / 9
+
         item_center_point_in_world = kinect2_overhead_to_world_transform * ir_intrinsics.deproject_pixel(item_depth, item_center)
         
         print(item_center_point_in_world)
