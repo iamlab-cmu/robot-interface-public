@@ -20,7 +20,7 @@
 #include "iam_robolib/skills/base_skill.h"
 #include "iam_robolib/robot_state_data.h"
 #include "iam_robolib/file_stream_logger.h"
-#include "iam_robolib/skills/gripper_open_skill.h"
+#include "iam_robolib/skills/gripper_skill.h"
 #include "iam_robolib/skills/joint_pose_skill.h"
 #include "iam_robolib/skills/joint_pose_continuous_skill.h"
 #include "iam_robolib/skills/save_trajectory_skill.h"
@@ -218,7 +218,7 @@ void run_loop::update_process_info() {
           if (new_skill_type == 0) {
             new_skill = new SkillInfo(new_skill_id, new_meta_skill_id, new_skill_description);
           } else if (new_skill_type == 1) {
-            new_skill = new GripperOpenSkill(new_skill_id, new_meta_skill_id, new_skill_description);
+            new_skill = new GripperSkill(new_skill_id, new_meta_skill_id, new_skill_description);
           } else if (new_skill_type == 2) {
             new_skill = new JointPoseSkill(new_skill_id, new_meta_skill_id, new_skill_description);
           } else if (new_skill_type == 3) {
@@ -1005,4 +1005,8 @@ void run_loop::run_on_ur5e() {
 
 SkillInfoManager* run_loop::getSkillInfoManager() {
   return &skill_manager_;
+}
+
+RunLoopSharedMemoryHandler* run_loop::get_shared_memory_handler() {
+  return shared_memory_handler_;
 }

@@ -130,6 +130,8 @@ class run_loop {
    */
   void finish_current_skill(BaseSkill* skill);
 
+  RunLoopSharedMemoryHandler* get_shared_memory_handler();
+
   static std::atomic<bool> run_loop_ok_;
 
  private:

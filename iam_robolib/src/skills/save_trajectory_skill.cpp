@@ -15,7 +15,8 @@ void SaveTrajectorySkill::execute_skill() {
   assert(false);
 }
 
-void SaveTrajectorySkill::execute_skill_on_franka(FrankaRobot *robot,
+void SaveTrajectorySkill::execute_skill_on_franka(run_loop* run_loop,
+                                                  FrankaRobot *robot,
                                                   RobotStateData *robot_state_data) {
   if (!running_skill_) {
     std::cout << "Will execute SaveTrajectory skill\n" << std::endl;

@@ -42,7 +42,7 @@ add_library(iam_robolib SHARED
   src/skills/base_meta_skill.cpp
   src/skills/base_skill.cpp
   src/skills/force_torque_skill.cpp
-  src/skills/gripper_open_skill.cpp
+  src/skills/gripper_skill.cpp
   src/skills/joint_pose_continuous_skill.cpp
   src/skills/joint_pose_skill.cpp
   src/skills/joint_pose_with_torque_control_skill.cpp
@@ -57,7 +57,7 @@ add_library(iam_robolib SHARED
   src/termination_handler/time_termination_handler.cpp
   src/trajectory_generator/counter_trajectory_generator.cpp
   src/trajectory_generator/dmp_trajectory_generator.cpp
-  src/trajectory_generator/gripper_open_trajectory_generator.cpp
+  src/trajectory_generator/gripper_trajectory_generator.cpp
   src/trajectory_generator/impulse_trajectory_generator.cpp
   src/trajectory_generator/linear_joint_trajectory_generator.cpp
   src/trajectory_generator/linear_trajectory_generator.cpp

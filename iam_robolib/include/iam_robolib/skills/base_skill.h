@@ -3,6 +3,8 @@
 
 #include "iam_robolib/robots/franka_robot.h"
 
+class run_loop;
+
 enum class SkillStatus : uint8_t { 
   TO_START, 
   RUNNING, 
@@ -64,9 +66,9 @@ class BaseSkill {
    * @param termination_handler
    */
   void start_skill(Robot* robot,
-                   TrajectoryGenerator *traj_generator,
-                   FeedbackController *feedback_controller,
-                   TerminationHandler *termination_handler);
+                   TrajectoryGenerator* traj_generator,
+                   FeedbackController* feedback_controller,
+                   TerminationHandler* termination_handler);
 
   virtual void execute_skill() = 0;
 
@@ -76,16 +78,17 @@ class BaseSkill {
    * @param gripper
    * @param robot_state_data
    */
-  virtual void execute_skill_on_franka(FrankaRobot *robot,
-                                       RobotStateData *robot_state_data) = 0;
+  virtual void execute_skill_on_franka(run_loop* run_loop,
+                                       FrankaRobot* robot,
+                                       RobotStateData* robot_state_data) = 0;
 
   virtual bool has_terminated(Robot* robot);
 
-  virtual void write_result_to_shared_memory(double *result_buffer);
-  virtual void write_result_to_shared_memory(double *result_buffer, FrankaRobot *robot);
-  virtual void write_result_to_shared_memory(double *result_buffer, Robot *robot);
+  virtual void write_result_to_shared_memory(double* result_buffer);
+  virtual void write_result_to_shared_memory(double* result_buffer, FrankaRobot* robot);
+  virtual void write_result_to_shared_memory(double* result_buffer, Robot* robot);
 
-  virtual void write_feedback_to_shared_memory(double *feedback_buffer);
+  virtual void write_feedback_to_shared_memory(double* feedback_buffer);
 
  protected:
   int skill_idx_;
@@ -93,9 +96,9 @@ class BaseSkill {
   SkillStatus skill_status_;
   std::string description_;
 
-  TrajectoryGenerator *traj_generator_= nullptr;
-  FeedbackController *feedback_controller_= nullptr;
-  TerminationHandler *termination_handler_= nullptr;
+  TrajectoryGenerator* traj_generator_= nullptr;
+  FeedbackController* feedback_controller_= nullptr;
+  TerminationHandler* termination_handler_= nullptr;
 };
 
 #endif  // IAM_ROBOLIB_SKILLS_BASE_SKILL_H_

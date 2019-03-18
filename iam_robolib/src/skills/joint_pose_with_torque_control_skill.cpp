@@ -14,20 +14,31 @@
 #include "iam_robolib/feedback_controller/feedback_controller.h"
 #include "iam_robolib/termination_handler/termination_handler.h"
 #include "iam_robolib/trajectory_generator/trajectory_generator.h"
+#include "iam_robolib/run_loop.h"
+#include "iam_robolib/run_loop_shared_memory_handler.h"
+
+#include <iam_robolib_common/run_loop_process_info.h>
 
 void JointPoseWithTorqueControlSkill::execute_skill() {
   assert(false);
 }
 
-void JointPoseWithTorqueControlSkill::execute_skill_on_franka(FrankaRobot* robot,
+void JointPoseWithTorqueControlSkill::execute_skill_on_franka(run_loop* run_loop,
+                                                              FrankaRobot* robot,
                                                               RobotStateData *robot_state_data) {
   double time = 0.0;
   int log_counter = 0;
 
+  RunLoopSharedMemoryHandler* shared_memory_handler = run_loop->get_shared_memory_handler();
+  RunLoopProcessInfo* run_loop_info = shared_memory_handler->getRunLoopProcessInfo();
+  boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> lock(
+                                  *(shared_memory_handler->getRunLoopProcessInfoMutex()),
+                                  boost::interprocess::defer_lock);
+
   std::cout << "Will run the control loop\n";
 
   std::function<franka::JointPositions(const franka::RobotState&, franka::Duration)>
-      joint_pose_callback = [=, &time, &log_counter](
+      joint_pose_callback = [&](
       const franka::RobotState& robot_state,
       franka::Duration period) -> franka::JointPositions {
     if (time == 0.0) {
@@ -47,6 +58,15 @@ void JointPoseWithTorqueControlSkill::execute_skill_on_franka(FrankaRobot* robot
       robot_state_data->log_robot_state(robot_state, time);
     }
 
+    try {
+      if (lock.try_lock()) {
+        run_loop_info->set_time_since_skill_started(time);
+        run_loop_info->set_robot_time(robot_state.time.toSec());
+      } 
+    } catch (boost::interprocess::lock_exception) {
+      // Do nothing
+    }
+
     if(done or time >= traj_generator_->run_time_) {
       return franka::MotionFinished(joint_desired);
     }
@@ -61,11 +81,5 @@ void JointPoseWithTorqueControlSkill::execute_skill_on_franka(FrankaRobot* robot
       };
 
   robot->robot_.control(impedance_control_callback, joint_pose_callback);
-}
-
-void JointPoseWithTorqueControlSkill::execute_meta_skill_on_franka(FrankaRobot *robot,
-                                                                   RobotStateData *robot_state_data) {
-  std::cout << "Not implemented\n" << std::endl;
-  assert(false);
 }
 

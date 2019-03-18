@@ -9,7 +9,8 @@ class ForceTorqueSkill : public BaseSkill {
 
   void execute_skill() override;
 
-  void execute_skill_on_franka(FrankaRobot* robot,
+  void execute_skill_on_franka(run_loop* run_loop,
+                               FrankaRobot* robot,
                                RobotStateData *robot_state_data) override;
 
  private:

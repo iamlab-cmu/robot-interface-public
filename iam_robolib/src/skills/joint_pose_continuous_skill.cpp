@@ -18,18 +18,29 @@
 #include "iam_robolib/termination_handler/termination_handler.h"
 #include "iam_robolib/trajectory_generator/dmp_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/trajectory_generator.h"
+#include "iam_robolib/run_loop.h"
+#include "iam_robolib/run_loop_shared_memory_handler.h"
+
+#include <iam_robolib_common/run_loop_process_info.h>
 
 bool JointPoseContinuousSkill::isComposableSkill() {
   return true;
 }
 
 
-void JointPoseContinuousSkill::execute_skill_on_franka(run_loop *run_loop, FrankaRobot* robot,
+void JointPoseContinuousSkill::execute_skill_on_franka(run_loop *run_loop, 
+                                                       FrankaRobot* robot,
                                                        RobotStateData *robot_state_data) {
 
   double time = 0.0;
   double current_skill_time = 0.0;
   int log_counter = 0;
+
+  RunLoopSharedMemoryHandler* shared_memory_handler = run_loop->get_shared_memory_handler();
+  RunLoopProcessInfo* run_loop_info = shared_memory_handler->getRunLoopProcessInfo();
+  boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> lock(
+                                  *(shared_memory_handler->getRunLoopProcessInfoMutex()),
+                                  boost::interprocess::defer_lock);
 
   SkillInfoManager *skill_info_manager = run_loop->getSkillInfoManager();
   BaseSkill *current_skill = skill_info_manager->get_current_skill();
@@ -70,6 +81,15 @@ void JointPoseContinuousSkill::execute_skill_on_franka(run_loop *run_loop, Frank
     bool done = termination_handler->should_terminate_on_franka(robot_state, traj_generator);
     franka::JointPositions joint_desired(traj_generator->joint_desired_);
 
+    try {
+      if (lock.try_lock()) {
+        run_loop_info->set_time_since_skill_started(time);
+        run_loop_info->set_robot_time(robot_state.time.toSec());
+      } 
+    } catch (boost::interprocess::lock_exception) {
+      // Do nothing
+    }
+
     if(done) {
       // Finish current skill and update RunLoopProcessInfo.
       run_loop->didFinishSkillInMetaSkill(current_skill);
@@ -105,6 +125,7 @@ void JointPoseContinuousSkill::execute_skill_on_franka(run_loop *run_loop, Frank
         }
       }
     }
+
     return joint_desired;
   };
 

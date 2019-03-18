@@ -21,15 +21,13 @@ class SkillInfo : public BaseSkill {
 
   void execute_skill() override;
 
-  void execute_skill_on_franka(FrankaRobot *robot, RobotStateData *robot_state_data) override;
+  void execute_skill_on_franka(run_loop* run_loop, FrankaRobot* robot, RobotStateData* robot_state_data) override;
 
-  void execute_meta_skill_on_franka(FrankaRobot *robot, RobotStateData *robot_state_data);
+  void execute_skill_on_franka_temp(run_loop* run_loop, FrankaRobot* robot, RobotStateData* robot_state_data);
 
-  void execute_skill_on_franka_temp(FrankaRobot *robot, RobotStateData *robot_state_data);
+  void execute_skill_on_franka_temp2(run_loop* run_loop, FrankaRobot* robot, RobotStateData* robot_state_data);
 
-  void execute_skill_on_franka_temp2(FrankaRobot *robot, RobotStateData *robot_state_data);
-
-  void execute_skill_on_franka_joint_base(FrankaRobot* robot, RobotStateData *robot_state_data);
+  void execute_skill_on_franka_joint_base(run_loop* run_loop, FrankaRobot* robot, RobotStateData* robot_state_data);
 
   /**
    * Write result to the shared memory after skill is done.

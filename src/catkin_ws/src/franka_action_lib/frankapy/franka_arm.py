@@ -276,11 +276,10 @@ class FrankaArm:
         skill = GripperWithDefaultSensorSkill()
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
 
-        # TODO(jacky): why is wait time needed?
         if force is not None:
-            skill.add_trajectory_params([width, speed, force, FC.GRIPPER_WAIT_TIME])  # Gripper Width, Gripper Speed, Wait Time
+            skill.add_trajectory_params([width, speed, force])  # Gripper Width, Gripper Speed
         else:
-            skill.add_trajectory_params([width, speed, FC.GRIPPER_WAIT_TIME])  # Gripper Width, Gripper Speed, Wait Time
+            skill.add_trajectory_params([width, speed])  # Gripper Width, Gripper Speed
             
         goal = skill.create_goal()
 
