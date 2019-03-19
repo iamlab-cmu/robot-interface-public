@@ -52,6 +52,15 @@ void SkillInfo::execute_skill_on_franka(run_loop* run_loop,
 
     if (time == 0.0) {
       traj_generator_->initialize_trajectory(robot_state);
+      try {
+        if (lock.try_lock()) {
+          run_loop_info->set_time_skill_started_in_robot_time(robot_state.time.toSec());
+          run_loop_info->reset_time_skill_finished_in_robot_time();
+          lock.unlock();
+        } 
+      } catch (boost::interprocess::lock_exception) {
+        // Do nothing
+      }
     }
 
     if (robot_state_data->mutex_.try_lock()) {
@@ -77,17 +86,16 @@ void SkillInfo::execute_skill_on_franka(run_loop* run_loop,
 
     bool done = termination_handler_->should_terminate_on_franka(robot_state, traj_generator_);
 
-    try {
-      if (lock.try_lock()) {
-        run_loop_info->set_time_since_skill_started(time);
-        run_loop_info->set_robot_time(robot_state.time.toSec());
-        lock.unlock();
-      } 
-    } catch (boost::interprocess::lock_exception) {
-      // Do nothing
-    }
-
     if(done) {
+      try {
+        if (lock.try_lock()) {
+          run_loop_info->set_time_skill_finished_in_robot_time(robot_state.time.toSec());
+          lock.unlock();
+        } 
+      } catch (boost::interprocess::lock_exception) {
+        // Do nothing
+      }
+      
       return franka::MotionFinished(franka::Torques(feedback_controller_->tau_d_array_));
     }
 

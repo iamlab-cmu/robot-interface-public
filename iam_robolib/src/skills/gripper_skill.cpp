@@ -1,7 +1,6 @@
 #include "iam_robolib/skills/gripper_skill.h"
 
 #include <cassert>
-#include <chrono>
 #include <iostream>
 #include <thread>
 
@@ -25,15 +24,11 @@ void GripperSkill::execute_skill_on_franka(run_loop* run_loop,
                             boost::interprocess::defer_lock);
 
   franka::GripperState gripper_state = robot->getGripperState();
-  franka::RobotState robot_state = robot->getRobotState();
-
-  double time = 0.0;
-  auto start = std::chrono::system_clock::now();
 
   try {
     if (lock.try_lock()) {
-      run_loop_info->set_time_since_skill_started(time);
-      run_loop_info->set_robot_time(robot_state.time.toSec());
+      run_loop_info->set_time_skill_started_in_robot_time(gripper_state.time.toSec());
+      run_loop_info->reset_time_skill_finished_in_robot_time();
       lock.unlock();
     } 
   } catch (boost::interprocess::lock_exception) {
@@ -64,19 +59,14 @@ void GripperSkill::execute_skill_on_franka(run_loop* run_loop,
     return_status_ = robot->gripper_.move(desired_gripper_width, desired_gripper_speed);
   }
 
-  auto end = std::chrono::system_clock::now();
-  std::chrono::duration<double> elapsed_seconds = end-start;
-  time = elapsed_seconds.count();
-
-  robot_state = robot->getRobotState();
+  gripper_state = robot->getGripperState();
   try {
     if (lock.try_lock()) {
-      run_loop_info->set_time_since_skill_started(time);
-      run_loop_info->set_robot_time(robot_state.time.toSec());
+      run_loop_info->set_time_skill_finished_in_robot_time(gripper_state.time.toSec());
       lock.unlock();
     } 
   } catch (boost::interprocess::lock_exception) {
-    // Do nothing
+  // Do nothing
   }
 
 }

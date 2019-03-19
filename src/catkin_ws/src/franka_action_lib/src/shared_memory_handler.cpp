@@ -792,8 +792,8 @@ namespace franka_action_lib
       run_loop_process_info_state.skill_preempted = run_loop_process_info_->get_skill_preempted();
       run_loop_process_info_state.done_skill_id = run_loop_process_info_->get_done_skill_id();
       run_loop_process_info_state.result_skill_id = run_loop_process_info_->get_result_skill_id();
-      run_loop_process_info_state.time_since_skill_started = run_loop_process_info_->get_time_since_skill_started();
-      run_loop_process_info_state.robot_time = run_loop_process_info_->get_robot_time();
+      run_loop_process_info_state.time_skill_started_in_robot_time = run_loop_process_info_->get_time_skill_started_in_robot_time();
+      run_loop_process_info_state.time_skill_finished_in_robot_time = run_loop_process_info_->get_time_skill_finished_in_robot_time();
       
       run_loop_process_info_state.is_fresh = true;
     } else {

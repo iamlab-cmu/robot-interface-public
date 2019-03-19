@@ -208,20 +208,24 @@ void RunLoopProcessInfo::set_result_skill_id(int result_skill_id) {
   result_skill_id_ = result_skill_id;
 }
 
-double RunLoopProcessInfo::get_time_since_skill_started() {
-  return time_since_skill_started_;
+double RunLoopProcessInfo::get_time_skill_started_in_robot_time() {
+  return time_skill_started_in_robot_time_;
 }
 
-void RunLoopProcessInfo::set_time_since_skill_started(double time_since_skill_started) {
-  time_since_skill_started_ = time_since_skill_started;
+void RunLoopProcessInfo::set_time_skill_started_in_robot_time(double robot_time) {
+  time_skill_started_in_robot_time_ = robot_time;
 }
 
-double RunLoopProcessInfo::get_robot_time() {
-  return robot_time_;
+double RunLoopProcessInfo::get_time_skill_finished_in_robot_time() {
+  return time_skill_finished_in_robot_time_;
 }
 
-void RunLoopProcessInfo::set_robot_time(double robot_time) {
-  robot_time_ = robot_time;
+void RunLoopProcessInfo::reset_time_skill_finished_in_robot_time() {
+  time_skill_finished_in_robot_time_ = 0.0;
+}
+
+void RunLoopProcessInfo::set_time_skill_finished_in_robot_time(double robot_time) {
+  time_skill_finished_in_robot_time_ = robot_time;
 }
 
 void RunLoopProcessInfo::reset_skill_vars() {
@@ -251,5 +255,6 @@ void RunLoopProcessInfo::reset_skill_vars() {
   done_skill_id_ = -1;
   result_skill_id_ = -1;
   
-  time_since_skill_started_ = 0.0;
+  time_skill_started_in_robot_time_ = 0.0;
+  time_skill_finished_in_robot_time_ = 0.0;
 }

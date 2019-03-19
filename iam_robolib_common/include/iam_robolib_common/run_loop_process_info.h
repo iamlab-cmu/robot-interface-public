@@ -105,11 +105,12 @@ class RunLoopProcessInfo {
   int get_result_skill_id();
   void set_result_skill_id(int result_skill_id);
 
-  double get_time_since_skill_started();
-  void set_time_since_skill_started(double time_since_skill_started);
+  double get_time_skill_started_in_robot_time();
+  void set_time_skill_started_in_robot_time(double robot_time);
   
-  double get_robot_time();
-  void set_robot_time(double robot_time);
+  double get_time_skill_finished_in_robot_time();
+  void reset_time_skill_finished_in_robot_time();
+  void set_time_skill_finished_in_robot_time(double robot_time);
 
   // reset internal variables about skills to their default values. used by robolib for error recovery
   void reset_skill_vars();
@@ -141,7 +142,7 @@ class RunLoopProcessInfo {
   int done_skill_id_{-1};
   int result_skill_id_{-1};
   
-  double time_since_skill_started_{0.0};
-  double robot_time_{0.0};
+  double time_skill_started_in_robot_time_{0.0};
+  double time_skill_finished_in_robot_time_{0.0};
 };
 

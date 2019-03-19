@@ -34,6 +34,7 @@ void JointPoseContinuousSkill::execute_skill_on_franka(run_loop *run_loop,
 
   double time = 0.0;
   double current_skill_time = 0.0;
+  bool wrote_finished_time_to_run_loop_process_info = false;
   int log_counter = 0;
 
   RunLoopSharedMemoryHandler* shared_memory_handler = run_loop->get_shared_memory_handler();
@@ -62,6 +63,16 @@ void JointPoseContinuousSkill::execute_skill_on_franka(run_loop *run_loop,
       traj_generator->initialize_trajectory(robot_state);
       traj_generator->y_ = last_dmp_q;
       traj_generator->dy_ = last_dmp_dq;
+      try {
+        if (lock.try_lock()) {
+          run_loop_info->set_time_skill_started_in_robot_time(robot_state.time.toSec());
+          run_loop_info->reset_time_skill_finished_in_robot_time();
+          wrote_finished_time_to_run_loop_process_info = false;
+          lock.unlock();
+        } 
+      } catch (boost::interprocess::lock_exception) {
+        // Do nothing
+      }
     }
 
     double period_in_seconds = period.toSec();
@@ -82,17 +93,19 @@ void JointPoseContinuousSkill::execute_skill_on_franka(run_loop *run_loop,
                                                                 traj_generator);
     franka::JointPositions joint_desired(traj_generator->joint_desired_);
 
-    try {
-      if (lock.try_lock()) {
-        run_loop_info->set_time_since_skill_started(current_skill_time);
-        run_loop_info->set_robot_time(robot_state.time.toSec());
-        lock.unlock();
-      } 
-    } catch (boost::interprocess::lock_exception) {
-      // Do nothing
-    }
-
     if(done) {
+      if(!wrote_finished_time_to_run_loop_process_info) {
+        try {
+          if (lock.try_lock()) {
+            run_loop_info->set_time_skill_finished_in_robot_time(robot_state.time.toSec());
+            wrote_finished_time_to_run_loop_process_info = true;
+            lock.unlock();
+          } 
+        } catch (boost::interprocess::lock_exception) {
+          // Do nothing
+        }
+      }
+
       // Finish current skill and update RunLoopProcessInfo.
       run_loop->didFinishSkillInMetaSkill(current_skill);
       // Get new skill, the above update might have found a new skill.

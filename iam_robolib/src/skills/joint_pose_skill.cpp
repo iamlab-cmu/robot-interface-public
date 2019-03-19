@@ -45,6 +45,15 @@ void JointPoseSkill::execute_skill_on_franka(run_loop* run_loop,
       franka::Duration period) -> franka::JointPositions {
     if (time == 0.0) {
       traj_generator_->initialize_trajectory(robot_state);
+      try {
+        if (lock.try_lock()) {
+          run_loop_info->set_time_skill_started_in_robot_time(robot_state.time.toSec());
+          run_loop_info->reset_time_skill_finished_in_robot_time();
+          lock.unlock();
+        } 
+      } catch (boost::interprocess::lock_exception) {
+        // Do nothing
+      }
     }
     time += period.toSec();
     traj_generator_->time_ = time;
@@ -60,18 +69,16 @@ void JointPoseSkill::execute_skill_on_franka(run_loop* run_loop,
       robot_state_data->log_pose_desired(traj_generator_->pose_desired_);
       robot_state_data->log_robot_state(robot_state, time);
     }
-
-    try {
-      if (lock.try_lock()) {
-        run_loop_info->set_time_since_skill_started(time);
-        run_loop_info->set_robot_time(robot_state.time.toSec());
-        lock.unlock();
-      } 
-    } catch (boost::interprocess::lock_exception) {
-      // Do nothing
-    }
-
+    
     if(done) {
+      try {
+        if (lock.try_lock()) {
+          run_loop_info->set_time_skill_finished_in_robot_time(robot_state.time.toSec());
+          lock.unlock();
+        } 
+      } catch (boost::interprocess::lock_exception) {
+        // Do nothing
+      }
       return franka::MotionFinished(joint_desired);
     }
 

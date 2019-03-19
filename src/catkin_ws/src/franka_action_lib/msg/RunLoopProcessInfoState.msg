@@ -18,6 +18,6 @@ bool is_running_skill
 bool skill_preempted
 int64 done_skill_id
 int64 result_skill_id
-float64 time_since_skill_started
-float64 robot_time
+float64 time_skill_started_in_robot_time
+float64 time_skill_finished_in_robot_time
 bool is_fresh
