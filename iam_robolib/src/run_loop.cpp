@@ -25,6 +25,7 @@
 #include "iam_robolib/skills/joint_pose_continuous_skill.h"
 #include "iam_robolib/skills/save_trajectory_skill.h"
 #include "iam_robolib/skills/force_torque_skill.h"
+#include "iam_robolib/save_robot_state_data_to_shared_memory_buffer.h"
 
 std::atomic<bool> run_loop::run_loop_ok_{false};
 std::mutex run_loop::robot_access_mutex_;
@@ -107,17 +108,17 @@ void run_loop::start_new_skill(BaseSkill* new_skill) {
   int memory_index = run_loop_info->get_current_shared_memory_index();
   std::cout << string_format("Create skill from memory index: %d\n", memory_index);
 
-  SharedBuffer traj_buffer = shared_memory_handler_->getTrajectoryGeneratorBuffer(memory_index);
+  SharedBufferType traj_buffer = shared_memory_handler_->getTrajectoryGeneratorBuffer(memory_index);
   TrajectoryGenerator *traj_generator = traj_gen_factory_.getTrajectoryGeneratorForSkill(
       traj_buffer);
   std::cout << "Did get traj generator\n";
 
-  SharedBuffer feedback_controller_buffer = shared_memory_handler_->getFeedbackControllerBuffer(
+  SharedBufferType feedback_controller_buffer = shared_memory_handler_->getFeedbackControllerBuffer(
       memory_index);
   FeedbackController *feedback_controller =
       feedback_controller_factory_.getFeedbackControllerForSkill(feedback_controller_buffer);
 
-  SharedBuffer termination_handler_buffer = shared_memory_handler_->getTerminationParametersBuffer(
+  SharedBufferType termination_handler_buffer = shared_memory_handler_->getTerminationParametersBuffer(
       memory_index);
   TerminationHandler* termination_handler =
       termination_handler_factory_.getTerminationHandlerForSkill(termination_handler_buffer, run_loop_info);
@@ -139,7 +140,7 @@ void run_loop::finish_current_skill(BaseSkill* skill) {
 
     std::cout << "Writing to execution result buffer number: " << memory_index << std::endl;
 
-    SharedBuffer buffer = shared_memory_handler_->getExecutionResultBuffer(memory_index);
+    SharedBufferType buffer = shared_memory_handler_->getExecutionResultBuffer(memory_index);
     skill->write_result_to_shared_memory(buffer, robot_);
   }
 
@@ -285,7 +286,7 @@ void run_loop::run() {
       skill->execute_skill();
 
       int memory_index = run_loop_info->get_current_shared_memory_index();
-      SharedBuffer buffer = shared_memory_handler_->getFeedbackResultBuffer(memory_index);
+      SharedBufferType buffer = shared_memory_handler_->getFeedbackResultBuffer(memory_index);
       skill->write_feedback_to_shared_memory(buffer);
 
       // Finish skill if possible.
@@ -358,357 +359,38 @@ void run_loop::setup_save_robot_state_thread() {
 void run_loop::setup_current_robot_state_io_thread() {
   int io_rate = 100;
   current_robot_state_io_thread_ = std::thread([&, io_rate]() {
-      while (true) {
-        std::this_thread::sleep_for(
-            std::chrono::milliseconds(static_cast<int>((1.0 / io_rate * 1000.0))));
-
-          if (!run_loop_ok_ || robot_state_data_ == nullptr) {
-            continue;
-          }
-          
-          if (robot_state_data_->use_buffer_0) {
-            if (robot_state_data_->log_O_T_EE_0_.size() > 0 && robot_state_data_->buffer_0_mutex_.try_lock()) {
-              if (shared_memory_handler_->getCurrentRobotStateBufferMutex()->try_lock()) {
-                  SharedBuffer current_robot_state_buffer = shared_memory_handler_->getCurrentRobotStateBuffer();
-                  size_t buffer_idx = 0;
-
-                  current_robot_state_buffer[buffer_idx++] = static_cast<double>(16+16+16+16+
-                                                                                 1+9+3+
-                                                                                 1+9+3+
-                                                                                 1+9+3+
-                                                                                 2+2+2+2+2+
-                                                                                 7+7+7+7+7+7+7+7+
-                                                                                 7+6+7+6+
-                                                                                 7+6+6+6+16+6+6+
-                                                                                 7+7+37+37+1+1+1+
-                                                                                 1+1+1+1+1); // 344
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_O_T_EE_0_.back().data(), robot_state_data_->log_O_T_EE_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_O_T_EE_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_O_T_EE_d_0_.back().data(), robot_state_data_->log_O_T_EE_d_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_O_T_EE_d_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_F_T_EE_0_.back().data(), robot_state_data_->log_F_T_EE_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_F_T_EE_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_EE_T_K_0_.back().data(), robot_state_data_->log_EE_T_K_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_EE_T_K_0_.back().size();
-
-                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_m_ee_0_.back();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_I_ee_0_.back().data(), robot_state_data_->log_I_ee_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_I_ee_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_F_x_Cee_0_.back().data(), robot_state_data_->log_F_x_Cee_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_F_x_Cee_0_.back().size();
-
-                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_m_load_0_.back();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_I_load_0_.back().data(), robot_state_data_->log_I_load_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_I_load_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_F_x_Cload_0_.back().data(), robot_state_data_->log_F_x_Cload_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_F_x_Cload_0_.back().size();
-
-                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_m_total_0_.back();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_I_total_0_.back().data(), robot_state_data_->log_I_total_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_I_total_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_F_x_Ctotal_0_.back().data(), robot_state_data_->log_F_x_Ctotal_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_F_x_Ctotal_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_elbow_0_.back().data(), robot_state_data_->log_elbow_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_elbow_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_elbow_d_0_.back().data(), robot_state_data_->log_elbow_d_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_elbow_d_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_elbow_c_0_.back().data(), robot_state_data_->log_elbow_c_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_elbow_c_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_delbow_c_0_.back().data(), robot_state_data_->log_delbow_c_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_delbow_c_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_ddelbow_c_0_.back().data(), robot_state_data_->log_ddelbow_c_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_ddelbow_c_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_tau_J_0_.back().data(), robot_state_data_->log_tau_J_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_tau_J_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_tau_J_d_0_.back().data(), robot_state_data_->log_tau_J_d_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_tau_J_d_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_dtau_J_0_.back().data(), robot_state_data_->log_dtau_J_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_dtau_J_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_q_0_.back().data(), robot_state_data_->log_q_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_q_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_q_d_0_.back().data(), robot_state_data_->log_q_d_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_q_d_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_dq_0_.back().data(), robot_state_data_->log_dq_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_dq_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_dq_d_0_.back().data(), robot_state_data_->log_dq_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_dq_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_ddq_d_0_.back().data(), robot_state_data_->log_ddq_d_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_ddq_d_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_joint_contact_0_.back().data(), robot_state_data_->log_joint_contact_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_joint_contact_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_cartesian_contact_0_.back().data(), robot_state_data_->log_cartesian_contact_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_cartesian_contact_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_joint_collision_0_.back().data(), robot_state_data_->log_joint_collision_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_joint_collision_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_cartesian_collision_0_.back().data(), robot_state_data_->log_cartesian_collision_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_cartesian_collision_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_tau_ext_hat_filtered_0_.back().data(), robot_state_data_->log_tau_ext_hat_filtered_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_tau_ext_hat_filtered_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_O_F_ext_hat_K_0_.back().data(), robot_state_data_->log_O_F_ext_hat_K_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_O_F_ext_hat_K_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_K_F_ext_hat_K_0_.back().data(), robot_state_data_->log_K_F_ext_hat_K_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_K_F_ext_hat_K_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_O_dP_EE_d_0_.back().data(), robot_state_data_->log_O_dP_EE_d_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_O_dP_EE_d_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_O_T_EE_c_0_.back().data(), robot_state_data_->log_O_T_EE_c_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_O_T_EE_c_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_O_dP_EE_c_0_.back().data(), robot_state_data_->log_O_dP_EE_c_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_O_dP_EE_c_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_O_ddP_EE_c_0_.back().data(), robot_state_data_->log_O_ddP_EE_c_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_O_ddP_EE_c_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_theta_0_.back().data(), robot_state_data_->log_theta_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_theta_0_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_dtheta_0_.back().data(), robot_state_data_->log_dtheta_0_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_dtheta_0_.back().size();
-
-                  double double_val = 0.0;
-                  std::array<bool, 37> bool_array_37;
-                  bool_array_37 = robot_state_data_->log_current_errors_0_.back();
-                  for (size_t i = 0; i < bool_array_37.size(); i++) {
-                    double_val = bool_array_37[i] ? 1 : 0;
-                    current_robot_state_buffer[buffer_idx++] = static_cast<double> (double_val);
-                  }
-
-                  bool_array_37 = robot_state_data_->log_last_motion_errors_0_.back();
-                  for (size_t i = 0; i < bool_array_37.size(); i++) {
-                    double_val = bool_array_37[i] ? 1 : 0;
-                    current_robot_state_buffer[buffer_idx++] = static_cast<double> (double_val);
-                  }
-
-                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_control_command_success_rate_0_.back();
-                  current_robot_state_buffer[buffer_idx++] = static_cast<double>(robot_state_data_->log_robot_mode_0_.back());
-                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_robot_time_0_.back();
-
-                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_gripper_width_0_.back();
-                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_gripper_max_width_0_.back();
-                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_gripper_is_grasped_0_.back() ? 1.0 : 0.0;
-                  current_robot_state_buffer[buffer_idx++] = static_cast<double>(robot_state_data_->log_gripper_temperature_0_.back());
-                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_gripper_time_0_.back();
-
-                  shared_memory_handler_->getCurrentRobotStateBufferMutex()->unlock();
-              }
-              robot_state_data_->buffer_0_mutex_.unlock();
-            } else if (robot_state_data_->log_O_T_EE_0_.size() > 0) {
-              std::cout << "Get robot state failed to get lock 0\n";
-            }
-          }
-          else {
-            if (robot_state_data_->log_O_T_EE_1_.size() > 0 && robot_state_data_->buffer_1_mutex_.try_lock()) {
-              if (shared_memory_handler_->getCurrentRobotStateBufferMutex()->try_lock()) {
-                  double* current_robot_state_buffer = shared_memory_handler_->getCurrentRobotStateBuffer();
-                  size_t buffer_idx = 0;
-
-                  current_robot_state_buffer[buffer_idx++] = static_cast<double>(16+16+16+16+
-                                                                                 1+9+3+
-                                                                                 1+9+3+
-                                                                                 1+9+3+
-                                                                                 2+2+2+2+2+
-                                                                                 7+7+7+7+7+7+7+7+
-                                                                                 7+6+7+6+
-                                                                                 7+6+6+6+16+6+6+
-                                                                                 7+7+37+37+1+1+1+
-                                                                                 1+1+1+1+1); // 344
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_O_T_EE_1_.back().data(), robot_state_data_->log_O_T_EE_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_O_T_EE_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_O_T_EE_d_1_.back().data(), robot_state_data_->log_O_T_EE_d_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_O_T_EE_d_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_F_T_EE_1_.back().data(), robot_state_data_->log_F_T_EE_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_F_T_EE_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_EE_T_K_1_.back().data(), robot_state_data_->log_EE_T_K_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_EE_T_K_1_.back().size();
-
-                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_m_ee_1_.back();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_I_ee_1_.back().data(), robot_state_data_->log_I_ee_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_I_ee_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_F_x_Cee_1_.back().data(), robot_state_data_->log_F_x_Cee_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_F_x_Cee_1_.back().size();
-
-                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_m_load_1_.back();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_I_load_1_.back().data(), robot_state_data_->log_I_load_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_I_load_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_F_x_Cload_1_.back().data(), robot_state_data_->log_F_x_Cload_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_F_x_Cload_1_.back().size();
-
-                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_m_total_1_.back();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_I_total_1_.back().data(), robot_state_data_->log_I_total_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_I_total_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_F_x_Ctotal_1_.back().data(), robot_state_data_->log_F_x_Ctotal_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_F_x_Ctotal_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_elbow_1_.back().data(), robot_state_data_->log_elbow_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_elbow_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_elbow_d_1_.back().data(), robot_state_data_->log_elbow_d_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_elbow_d_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_elbow_c_1_.back().data(), robot_state_data_->log_elbow_c_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_elbow_c_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_delbow_c_1_.back().data(), robot_state_data_->log_delbow_c_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_delbow_c_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_ddelbow_c_1_.back().data(), robot_state_data_->log_ddelbow_c_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_ddelbow_c_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_tau_J_1_.back().data(), robot_state_data_->log_tau_J_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_tau_J_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_tau_J_d_1_.back().data(), robot_state_data_->log_tau_J_d_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_tau_J_d_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_dtau_J_1_.back().data(), robot_state_data_->log_dtau_J_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_dtau_J_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_q_1_.back().data(), robot_state_data_->log_q_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_q_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_q_d_1_.back().data(), robot_state_data_->log_q_d_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_q_d_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_dq_1_.back().data(), robot_state_data_->log_dq_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_dq_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_dq_d_1_.back().data(), robot_state_data_->log_dq_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_dq_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_ddq_d_1_.back().data(), robot_state_data_->log_ddq_d_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_ddq_d_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_joint_contact_1_.back().data(), robot_state_data_->log_joint_contact_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_joint_contact_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_cartesian_contact_1_.back().data(), robot_state_data_->log_cartesian_contact_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_cartesian_contact_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_joint_collision_1_.back().data(), robot_state_data_->log_joint_collision_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_joint_collision_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_cartesian_collision_1_.back().data(), robot_state_data_->log_cartesian_collision_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_cartesian_collision_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_tau_ext_hat_filtered_1_.back().data(), robot_state_data_->log_tau_ext_hat_filtered_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_tau_ext_hat_filtered_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_O_F_ext_hat_K_1_.back().data(), robot_state_data_->log_O_F_ext_hat_K_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_O_F_ext_hat_K_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_K_F_ext_hat_K_1_.back().data(), robot_state_data_->log_K_F_ext_hat_K_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_K_F_ext_hat_K_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_O_dP_EE_d_1_.back().data(), robot_state_data_->log_O_dP_EE_d_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_O_dP_EE_d_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_O_T_EE_c_1_.back().data(), robot_state_data_->log_O_T_EE_c_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_O_T_EE_c_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_O_dP_EE_c_1_.back().data(), robot_state_data_->log_O_dP_EE_c_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_O_dP_EE_c_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_O_ddP_EE_c_1_.back().data(), robot_state_data_->log_O_ddP_EE_c_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_O_ddP_EE_c_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_theta_1_.back().data(), robot_state_data_->log_theta_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_theta_1_.back().size();
-
-                  memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data_->log_dtheta_1_.back().data(), robot_state_data_->log_dtheta_1_.back().size() * sizeof(double));
-                  buffer_idx += robot_state_data_->log_dtheta_1_.back().size();
-
-                  double double_val = 0.0;
-                  std::array<bool, 37> bool_array_37;
-                  bool_array_37 = robot_state_data_->log_current_errors_1_.back();
-                  for (size_t i = 0; i < bool_array_37.size(); i++) {
-                    double_val = bool_array_37[i] ? 1.0 : 0.0;
-                    current_robot_state_buffer[buffer_idx++] = static_cast<double> (double_val);
-                  }
-
-                  bool_array_37 = robot_state_data_->log_last_motion_errors_1_.back();
-                  for (size_t i = 0; i < bool_array_37.size(); i++) {
-                    double_val = bool_array_37[i] ? 1.0 : 0.0;
-                    current_robot_state_buffer[buffer_idx++] = static_cast<double> (double_val);
-                  }
-
-                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_control_command_success_rate_1_.back();
-                  current_robot_state_buffer[buffer_idx++] = static_cast<double>(robot_state_data_->log_robot_mode_1_.back());
-                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_robot_time_1_.back();
-
-                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_gripper_width_1_.back();
-                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_gripper_max_width_1_.back();
-                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_gripper_is_grasped_1_.back() ? 1.0 : 0.0;
-                  current_robot_state_buffer[buffer_idx++] = static_cast<double>(robot_state_data_->log_gripper_temperature_1_.back());
-                  current_robot_state_buffer[buffer_idx++] = robot_state_data_->log_gripper_time_1_.back();
-
-                  shared_memory_handler_->getCurrentRobotStateBufferMutex()->unlock();
-              }
-              robot_state_data_->buffer_1_mutex_.unlock();
-            } else if (robot_state_data_->log_O_T_EE_1_.size() > 0) {
-              std::cout << "Get robot state failed to get lock 1\n";
-            }
-          }
+    while (true) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>((1.0 / io_rate * 1000.0))));
+
+      if (!run_loop_ok_ || robot_state_data_ == nullptr) {
+        continue;
       }
+      
+      if (robot_state_data_->use_buffer_0) {
+        save_robot_state_data_to_shared_memory_buffer(shared_memory_handler_, robot_state_data_, 0);
+      }
+      else {
+        save_robot_state_data_to_shared_memory_buffer(shared_memory_handler_, robot_state_data_, 1);
+      }
+    }
   });
 }
 
 void run_loop::setup_watchdog_thread() {
   int io_rate = 50;
   watchdog_thread_ = std::thread([&, io_rate]() {
-      while (true) {
-        std::this_thread::sleep_for(
-            std::chrono::milliseconds(static_cast<int>((1.0 / io_rate * 1000.0))));
-          IAMRobolibStateInfo* iam_robolib_state_info = shared_memory_handler_->getIAMRobolibStateInfo();
-          boost::interprocess::scoped_lock<
-                  boost::interprocess::interprocess_mutex> lock(
-                      *(shared_memory_handler_->getIAMRobolibStateInfoMutex()),
-                      boost::interprocess::defer_lock);
-          if (lock.try_lock()) {
-            iam_robolib_state_info->reset_watchdog_counter();
-          } 
-      }
+    while (true) {
+      std::this_thread::sleep_for(
+          std::chrono::milliseconds(static_cast<int>((1.0 / io_rate * 1000.0))));
+        IAMRobolibStateInfo* iam_robolib_state_info = shared_memory_handler_->getIAMRobolibStateInfo();
+        boost::interprocess::scoped_lock<
+                boost::interprocess::interprocess_mutex> lock(
+                    *(shared_memory_handler_->getIAMRobolibStateInfoMutex()),
+                    boost::interprocess::defer_lock);
+        if (lock.try_lock()) {
+          iam_robolib_state_info->reset_watchdog_counter();
+        } 
+    }
   });
 }
 

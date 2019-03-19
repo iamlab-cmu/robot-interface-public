@@ -7,8 +7,10 @@
 
 class FileStreamLogger {
  public:
-  FileStreamLogger(const std::string& filename): filename_(filename),
-                                                 open_file_stream_(filename, std::ofstream::out | std::ofstream::app) {};
+  FileStreamLogger(const std::string& filename) : 
+                   filename_(filename),
+                   open_file_stream_(filename, std::ofstream::out | std::ofstream::app) 
+  {};
 
   bool write_pose_desired_=true;
   bool write_F_T_EE_ = true;
@@ -80,7 +82,8 @@ class FileStreamLogger {
                  std::vector<double>& gripper_time_vector);
 
   /**
-   * Write string data to logger. String data is prefixed by "info:" to allow us to easily find it in the logs.
+   * Write string data to logger. String data is prefixed by "info:" to allow us 
+   * to easily find it in the logs.
    * @param data String data to log does not require a "\n" in the end.
    * @return True if we did write the data successfully else false.
    */

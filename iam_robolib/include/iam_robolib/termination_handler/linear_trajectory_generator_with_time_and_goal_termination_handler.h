@@ -32,7 +32,8 @@ class LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler : public Termin
   /**
    * Should we terminate the current skill.
    */
-  virtual bool should_terminate_on_franka(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) override;
+  virtual bool should_terminate_on_franka(const franka::RobotState &robot_state, 
+                                          TrajectoryGenerator *traj_generator) override;
 
  private:
   int num_params_;

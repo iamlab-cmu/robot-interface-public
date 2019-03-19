@@ -178,7 +178,8 @@ class RobotStateData {
    * Helper methods for logging.
    */
   void log_pose_desired(std::array<double, 16> pose_desired_);
-  void log_robot_state(franka::RobotState robot_state, double time_since_skill_started);
+  void log_robot_state(franka::RobotState robot_state, 
+                       double time_since_skill_started);
   void update_current_gripper_state(franka::GripperState gripper_state);
   void log_skill_info(std::string skill_info);
 

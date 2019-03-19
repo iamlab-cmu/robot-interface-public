@@ -78,7 +78,8 @@ void JointPoseContinuousSkill::execute_skill_on_franka(run_loop *run_loop,
     }
 
     TerminationHandler *termination_handler = current_skill->get_termination_handler();
-    bool done = termination_handler->should_terminate_on_franka(robot_state, traj_generator);
+    bool done = termination_handler->should_terminate_on_franka(robot_state, 
+                                                                traj_generator);
     franka::JointPositions joint_desired(traj_generator->joint_desired_);
 
     try {

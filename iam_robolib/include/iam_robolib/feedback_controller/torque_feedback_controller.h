@@ -17,7 +17,8 @@ class TorqueFeedbackController : public FeedbackController {
 
   void get_next_step() override;
 
-  void get_next_step(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) override;
+  void get_next_step(const franka::RobotState &robot_state, 
+                     TrajectoryGenerator *traj_generator) override;
 
  private:
   const franka::Model *model_;

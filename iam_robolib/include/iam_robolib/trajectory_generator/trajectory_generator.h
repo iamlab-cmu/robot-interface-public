@@ -4,10 +4,11 @@
 #include <array>
 #include <Eigen/Dense>
 #include <franka/robot_state.h>
+#include <iam_robolib_common/definitions.h>
 
 class TrajectoryGenerator {
  public:
-  explicit TrajectoryGenerator(double *p) : params_{p} {};
+  explicit TrajectoryGenerator(SharedBufferType p) : params_{p} {};
 
   /**
    * Parse parameters from memory.
@@ -48,7 +49,7 @@ class TrajectoryGenerator {
   double time_ = 0.0;
 
  protected:
-  double *params_=0;
+  SharedBufferType params_=0;
 
 };
 

@@ -1,9 +1,11 @@
 #ifndef IAM_ROBOLIB_SENSOR_DATA_H_
 #define IAM_ROBOLIB_SENSOR_DATA_H_
 
+#include <iam_robolib_common/definitions.h>
+
 class SensorData {
  public:
-  explicit SensorData(double *v) : values_{v} {};
+  explicit SensorData(SharedBufferType v) : values_{v} {};
 
   /**
    * Parse data from memory.
@@ -21,7 +23,7 @@ class SensorData {
   virtual bool update_data() = 0;
 
  protected:
-  double *values_=0;
+  SharedBufferType values_=0;
 };
 
 #endif  // IAM_ROBOLIB_SENSOR_DATA_H_

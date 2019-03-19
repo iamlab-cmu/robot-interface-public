@@ -21,8 +21,8 @@ void GripperSkill::execute_skill_on_franka(run_loop* run_loop,
   RunLoopSharedMemoryHandler* shared_memory_handler = run_loop->get_shared_memory_handler();
   RunLoopProcessInfo* run_loop_info = shared_memory_handler->getRunLoopProcessInfo();
   boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> lock(
-                                  *(shared_memory_handler->getRunLoopProcessInfoMutex()),
-                                  boost::interprocess::defer_lock);
+                            *(shared_memory_handler->getRunLoopProcessInfoMutex()),
+                            boost::interprocess::defer_lock);
 
   franka::GripperState gripper_state = robot->getGripperState();
   franka::RobotState robot_state = robot->getRobotState();
@@ -56,8 +56,9 @@ void GripperSkill::execute_skill_on_franka(run_loop* run_loop,
     // TOOD(Mohit): Maybe stop the gripper before trying to grip again?
     franka::GripperState gripper_state = robot->getGripperState();
     if (!gripper_state.is_grasped) {
-      return_status_ = robot->gripper_.grasp(desired_gripper_width, desired_gripper_speed, gripper_traj_generator->getForce(),
-			              0.1, 0.1);
+      return_status_ = robot->gripper_.grasp(desired_gripper_width, 
+                      desired_gripper_speed, gripper_traj_generator->getForce(),
+                      0.1, 0.1);
     }
   } else {
     return_status_ = robot->gripper_.move(desired_gripper_width, desired_gripper_speed);

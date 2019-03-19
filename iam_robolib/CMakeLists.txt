@@ -81,6 +81,7 @@ add_library(iam_robolib SHARED
   src/run_loop.cpp
   src/run_loop_logger.cpp
   src/run_loop_shared_memory_handler.cpp
+  src/save_robot_state_data_to_shared_memory_buffer.cpp
   src/sensor_data.cpp
   src/skill_info_manager.cpp
   src/tcp_socket.cpp

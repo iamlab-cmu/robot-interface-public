@@ -88,7 +88,8 @@ bool LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::should_terminat
       return true;
     }
 
-    Eigen::Vector3d position_error = linear_trajectory_generator_with_time_and_goal->goal_position_ - linear_trajectory_generator_with_time_and_goal->desired_position_;
+    Eigen::Vector3d position_error = linear_trajectory_generator_with_time_and_goal->goal_position_ - 
+                                     linear_trajectory_generator_with_time_and_goal->desired_position_;
     
     Eigen::Quaterniond goal_orientation(linear_trajectory_generator_with_time_and_goal->goal_orientation_);
     Eigen::Quaterniond desired_orientation(linear_trajectory_generator_with_time_and_goal->desired_orientation_);
@@ -126,7 +127,8 @@ bool LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::should_terminat
 }
 
 
-bool LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::should_terminate_on_franka(const franka::RobotState &robot_state, TrajectoryGenerator *trajectory_generator) {
+bool LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::should_terminate_on_franka(const franka::RobotState &robot_state, 
+                                                                                            TrajectoryGenerator *trajectory_generator) {
   check_terminate_preempt();
 
   if(!done_){

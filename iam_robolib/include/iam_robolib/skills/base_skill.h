@@ -2,14 +2,14 @@
 #define IAM_ROBOLIB_SKILLS_BASE_SKILL_H_
 
 #include "iam_robolib/robots/franka_robot.h"
+#include <iam_robolib_common/definitions.h>
 
 class run_loop;
 
 enum class SkillStatus : uint8_t { 
   TO_START, 
   RUNNING, 
-  FINISHED,
-  PREEMPTED 
+  FINISHED 
 };  // enum class
 
 class RobotStateData;
@@ -23,10 +23,12 @@ namespace franka {
 
 class BaseSkill {
  public:
-  BaseSkill(int skill_idx, int meta_skill_idx, std::string description): skill_idx_(skill_idx),
-                                                                         meta_skill_idx_(meta_skill_idx),
-                                                                         skill_status_(SkillStatus::TO_START),
-                                                                         description_(description){};
+  BaseSkill(int skill_idx, int meta_skill_idx, std::string description) : 
+                                          skill_idx_(skill_idx),
+                                          meta_skill_idx_(meta_skill_idx),
+                                          skill_status_(SkillStatus::TO_START),
+                                          description_(description) 
+  {};
 
   /**
    * Get skill id.
@@ -59,7 +61,8 @@ class BaseSkill {
   TerminationHandler* get_termination_handler();
 
   /**
-   * Start skill. Initiliazes and parses the parameters for different skill components.
+   * Start skill. Initiliazes and parses the parameters for different skill 
+   * components.
    * @param robot
    * @param traj_generator
    * @param feedback_controller
@@ -84,11 +87,13 @@ class BaseSkill {
 
   virtual bool has_terminated(Robot* robot);
 
-  virtual void write_result_to_shared_memory(double* result_buffer);
-  virtual void write_result_to_shared_memory(double* result_buffer, FrankaRobot* robot);
-  virtual void write_result_to_shared_memory(double* result_buffer, Robot* robot);
+  virtual void write_result_to_shared_memory(SharedBufferType result_buffer);
+  virtual void write_result_to_shared_memory(SharedBufferType result_buffer, 
+                                             FrankaRobot* robot);
+  virtual void write_result_to_shared_memory(SharedBufferType result_buffer, 
+                                             Robot* robot);
 
-  virtual void write_feedback_to_shared_memory(double* feedback_buffer);
+  virtual void write_feedback_to_shared_memory(SharedBufferType feedback_buffer);
 
  protected:
   int skill_idx_;

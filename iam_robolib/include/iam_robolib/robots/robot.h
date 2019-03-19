@@ -9,10 +9,8 @@ class Robot
 {
  public:
   Robot(std::string &robot_ip, RobotType robot_type) : robot_ip_(robot_ip),
-                                                       robot_type_(robot_type)
-  {
-
-  }
+                                                       robot_type_(robot_type) 
+  {};
 
   virtual ~Robot() = default;
 

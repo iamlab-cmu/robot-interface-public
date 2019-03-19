@@ -18,7 +18,7 @@
 #include "iam_robolib/trajectory_generator/impulse_trajectory_generator.h"
 
 TrajectoryGenerator* TrajectoryGeneratorFactory::getTrajectoryGeneratorForSkill(
-    SharedBuffer buffer) {
+    SharedBufferType buffer) {
   int traj_gen_id = static_cast<int>(buffer[0]);
   TrajectoryGenerator *traj_generator = nullptr;
 

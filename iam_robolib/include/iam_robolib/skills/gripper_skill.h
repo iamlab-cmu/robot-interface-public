@@ -9,8 +9,9 @@ class TerminationHandler;
 
 class GripperSkill : public BaseSkill {
  public:
-  GripperSkill(int skill_idx, int meta_skill_idx, std::string description): BaseSkill(skill_idx,
-      meta_skill_idx, description) {};
+  GripperSkill(int skill_idx, int meta_skill_idx, std::string description) : 
+                              BaseSkill(skill_idx, meta_skill_idx, description) 
+  {};
 
   void execute_skill() override;
 

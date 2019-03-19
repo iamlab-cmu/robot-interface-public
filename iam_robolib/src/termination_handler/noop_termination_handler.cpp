@@ -22,7 +22,8 @@ bool NoopTerminationHandler::should_terminate(TrajectoryGenerator *trajectory_ge
   return false;
 }
 
-bool NoopTerminationHandler::should_terminate_on_franka(const franka::RobotState &robot_state, TrajectoryGenerator *trajectory_generator) {
+bool NoopTerminationHandler::should_terminate_on_franka(const franka::RobotState &robot_state, 
+                                                        TrajectoryGenerator *trajectory_generator) {
   check_terminate_preempt();
 
   return false;

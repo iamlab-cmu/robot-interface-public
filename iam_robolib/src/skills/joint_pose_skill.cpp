@@ -51,7 +51,8 @@ void JointPoseSkill::execute_skill_on_franka(run_loop* run_loop,
     traj_generator_->dt_ = period.toSec();
     traj_generator_->get_next_step();
 
-    bool done = termination_handler_->should_terminate_on_franka(robot_state, traj_generator_);
+    bool done = termination_handler_->should_terminate_on_franka(robot_state, 
+                                                                 traj_generator_);
     franka::JointPositions joint_desired(traj_generator_->joint_desired_);
 
     log_counter += 1;

@@ -10,12 +10,12 @@
 class FrankaRobot : public Robot
 {
  public:
-  FrankaRobot(std::string &robot_ip, RobotType robot_type) : Robot(robot_ip, robot_type),
-                                                             robot_(robot_ip),
-                                                             gripper_(robot_ip),
-                                                             model_(robot_.loadModel())
-  {
-  }
+  FrankaRobot(std::string &robot_ip, RobotType robot_type) : 
+                                               Robot(robot_ip, robot_type),
+                                               robot_(robot_ip),
+                                               gripper_(robot_ip),
+                                               model_(robot_.loadModel()) 
+  {};
 
   franka::Model* getModel()
   {

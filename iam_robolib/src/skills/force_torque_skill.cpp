@@ -61,7 +61,8 @@ void ForceTorqueSkill::execute_skill_on_franka(run_loop* run_loop,
       // Do nothing
     }
 
-    bool done = termination_handler_->should_terminate_on_franka(robot_state, traj_generator_);
+    bool done = termination_handler_->should_terminate_on_franka(robot_state, 
+                                                                 traj_generator_);
     if (done) {
       // return 0 torques to finish
       std::array<double, 7> tau_d_array{};

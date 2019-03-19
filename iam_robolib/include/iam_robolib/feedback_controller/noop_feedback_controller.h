@@ -15,7 +15,8 @@ class NoopFeedbackController : public FeedbackController {
 
   void get_next_step() override;
 
-  void get_next_step(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) override;
+  void get_next_step(const franka::RobotState &robot_state, 
+                     TrajectoryGenerator *traj_generator) override;
 
   double delta_=0.0;
 };

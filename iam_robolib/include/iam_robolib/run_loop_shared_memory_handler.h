@@ -19,7 +19,7 @@
 #include <franka/robot.h>
 #include <franka/gripper.h>
 
-#include "iam_robolib/definitions.h"
+#include "iam_robolib_common/definitions.h"
 
 class RunLoopSharedMemoryHandler {
  public:
@@ -43,17 +43,17 @@ class RunLoopSharedMemoryHandler {
 
   boost::interprocess::interprocess_mutex* getIAMRobolibStateInfoMutex();
 
-  SharedBuffer getTrajectoryGeneratorBuffer(int memory_region);
+  SharedBufferType getTrajectoryGeneratorBuffer(int memory_region);
 
-  SharedBuffer getFeedbackControllerBuffer(int memory_region);
+  SharedBufferType getFeedbackControllerBuffer(int memory_region);
 
-  SharedBuffer getTerminationParametersBuffer(int memory_region);
+  SharedBufferType getTerminationParametersBuffer(int memory_region);
 
-  SharedBuffer getExecutionResultBuffer(int memory_region);
+  SharedBufferType getExecutionResultBuffer(int memory_region);
 
-  SharedBuffer getFeedbackResultBuffer(int memory_region);
+  SharedBufferType getFeedbackResultBuffer(int memory_region);
 
-  SharedBuffer getCurrentRobotStateBuffer();
+  SharedBufferType getCurrentRobotStateBuffer();
 
   void clearAllBuffers();
 
@@ -86,15 +86,15 @@ class RunLoopSharedMemoryHandler {
   boost::interprocess::mapped_region region_termination_params_1_{};
   boost::interprocess::mapped_region region_timer_params_1_{};
 
-  SharedBuffer traj_gen_buffer_0_=0;
-  SharedBuffer feedback_controller_buffer_0_=0;
-  SharedBuffer termination_buffer_0_=0;
-  SharedBuffer timer_buffer_0_=0;
+  SharedBufferType traj_gen_buffer_0_=0;
+  SharedBufferType feedback_controller_buffer_0_=0;
+  SharedBufferType termination_buffer_0_=0;
+  SharedBufferType timer_buffer_0_=0;
 
-  SharedBuffer traj_gen_buffer_1_=0;
-  SharedBuffer feedback_controller_buffer_1_=0;
-  SharedBuffer termination_buffer_1_=0;
-  SharedBuffer timer_buffer_1_=0;
+  SharedBufferType traj_gen_buffer_1_=0;
+  SharedBufferType feedback_controller_buffer_1_=0;
+  SharedBufferType termination_buffer_1_=0;
+  SharedBufferType timer_buffer_1_=0;
 
   boost::interprocess::shared_memory_object shared_sensor_data_0_{};
   boost::interprocess::shared_memory_object shared_sensor_data_1_{};
@@ -111,15 +111,15 @@ class RunLoopSharedMemoryHandler {
   boost::interprocess::mapped_region region_termination_sensor_data_1_{};
   boost::interprocess::mapped_region region_timer_sensor_data_1_{};
 
-  SharedBuffer traj_gen_sensor_buffer_0_=0;
-  SharedBuffer feedback_controller_sensor_buffer_0_=0;
-  SharedBuffer termination_sensor_buffer_0_=0;
-  SharedBuffer timer_sensor_buffer_0_=0;
+  SharedBufferType traj_gen_sensor_buffer_0_=0;
+  SharedBufferType feedback_controller_sensor_buffer_0_=0;
+  SharedBufferType termination_sensor_buffer_0_=0;
+  SharedBufferType timer_sensor_buffer_0_=0;
 
-  SharedBuffer traj_gen_sensor_buffer_1_=0;
-  SharedBuffer feedback_controller_sensor_buffer_1_=0;
-  SharedBuffer termination_sensor_buffer_1_=0;
-  SharedBuffer timer_sensor_buffer_1_=0;
+  SharedBufferType traj_gen_sensor_buffer_1_=0;
+  SharedBufferType feedback_controller_sensor_buffer_1_=0;
+  SharedBufferType termination_sensor_buffer_1_=0;
+  SharedBufferType timer_sensor_buffer_1_=0;
 
   boost::interprocess::shared_memory_object shared_execution_result_0_{};
   boost::interprocess::shared_memory_object shared_execution_result_1_{};
@@ -131,14 +131,14 @@ class RunLoopSharedMemoryHandler {
   boost::interprocess::mapped_region region_execution_feedback_buffer_1_{};
   boost::interprocess::mapped_region region_execution_result_buffer_1_{};
 
-  SharedBuffer execution_feedback_buffer_0_=0;
-  SharedBuffer execution_result_buffer_0_=0;
-  SharedBuffer execution_feedback_buffer_1_=0;
-  SharedBuffer execution_result_buffer_1_=0;
+  SharedBufferType execution_feedback_buffer_0_=0;
+  SharedBufferType execution_result_buffer_0_=0;
+  SharedBufferType execution_feedback_buffer_1_=0;
+  SharedBufferType execution_result_buffer_1_=0;
 
   boost::interprocess::shared_memory_object shared_current_robot_state_{};
   boost::interprocess::mapped_region region_current_robot_state_buffer_{};
-  SharedBuffer current_robot_state_buffer_=0;
+  SharedBufferType current_robot_state_buffer_=0;
   boost::interprocess::interprocess_mutex *shared_current_robot_state_mutex_ = nullptr;
 
 };

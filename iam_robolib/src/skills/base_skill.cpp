@@ -70,19 +70,19 @@ bool BaseSkill::has_terminated(Robot* robot) {
   return termination_handler_->has_terminated();
 }
 
-void BaseSkill::write_result_to_shared_memory(double* result_buffer) {
+void BaseSkill::write_result_to_shared_memory(SharedBufferType result_buffer) {
   std::cout << "Should write result to shared memory\n";
 }
 
-void BaseSkill::write_result_to_shared_memory(double* result_buffer, FrankaRobot* robot) {
+void BaseSkill::write_result_to_shared_memory(SharedBufferType result_buffer, FrankaRobot* robot) {
   std::cout << "Should write result to shared memory\n";
 }
 
-void BaseSkill::write_result_to_shared_memory(double* result_buffer, Robot* robot) {
+void BaseSkill::write_result_to_shared_memory(SharedBufferType result_buffer, Robot* robot) {
   std::cout << "Should write result to shared memory\n";
 }
 
-void BaseSkill::write_feedback_to_shared_memory(double* feedback_buffer) {
+void BaseSkill::write_feedback_to_shared_memory(SharedBufferType feedback_buffer) {
   std::cout << "Should write feedback to shared memory\n";
 }
 

@@ -5,7 +5,9 @@
 
 class ForceTorqueSkill : public BaseSkill {
  public:
-  ForceTorqueSkill(int skill_idx, int meta_skill_idx, std::string description): BaseSkill(skill_idx, meta_skill_idx, description) {};
+  ForceTorqueSkill(int skill_idx, int meta_skill_idx, std::string description) : 
+                              BaseSkill(skill_idx, meta_skill_idx, description) 
+  {};
 
   void execute_skill() override;
 

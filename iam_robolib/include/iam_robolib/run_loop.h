@@ -39,12 +39,12 @@ class run_loop {
   run_loop(std::mutex& logger_mutex,
            std::mutex& robot_loop_data_mutex,
            RobotType robot_type,
-           std::string robot_ip)              : limit_rate_(false),
-                                                cutoff_frequency_(0.0),
-                                                logger_(logger_mutex),
-                                                elapsed_time_(0.0),
-                                                process_info_requires_update_(false)
-                                                {
+           std::string robot_ip)  : limit_rate_(false),
+                                    cutoff_frequency_(0.0),
+                                    logger_(logger_mutex),
+                                    elapsed_time_(0.0),
+                                    process_info_requires_update_(false)
+  {
 
     robot_state_data_ = new RobotStateData(robot_loop_data_mutex);
 
@@ -136,7 +136,7 @@ class run_loop {
 
  private:
 
-  Robot *robot_;
+  Robot* robot_;
   static std::mutex robot_access_mutex_;
 
   std::thread robot_state_read_thread_{};
@@ -147,7 +147,7 @@ class run_loop {
   SkillInfoManager skill_manager_{};
   RunLoopLogger logger_;
   // This logs the robot state data by using robot readState and within control loops.
-  RobotStateData *robot_state_data_ = nullptr;
+  RobotStateData* robot_state_data_ = nullptr;
 
   // If this flag is true at every loop we will try to get the lock and update process info.
   bool process_info_requires_update_;

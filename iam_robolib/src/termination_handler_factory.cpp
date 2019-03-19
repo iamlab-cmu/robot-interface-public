@@ -13,7 +13,7 @@
 
 #include <iostream>
 
-TerminationHandler* TerminationHandlerFactory::getTerminationHandlerForSkill(SharedBuffer buffer, RunLoopProcessInfo *run_loop_info) {
+TerminationHandler* TerminationHandlerFactory::getTerminationHandlerForSkill(SharedBufferType buffer, RunLoopProcessInfo *run_loop_info) {
   int termination_handler_id = static_cast<int>(buffer[0]);
 
   std::cout << "Termination Handler id: " << termination_handler_id << "\n";

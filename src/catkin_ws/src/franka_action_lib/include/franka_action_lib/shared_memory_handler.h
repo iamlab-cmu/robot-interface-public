@@ -19,6 +19,7 @@
 #include <boost/interprocess/sync/scoped_lock.hpp>
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 
+#include <iam_robolib_common/definitions.h>
 #include <iam_robolib_common/iam_robolib_state_info.h>
 #include <iam_robolib_common/run_loop_process_info.h>
 #include <iam_robolib_common/SharedMemoryInfo.h>
@@ -117,31 +118,31 @@ namespace franka_action_lib
 
       boost::interprocess::mapped_region shared_current_robot_region_;
 
-      double *traj_gen_buffer_0_;
-      double *feedback_controller_buffer_0_;
-      double *termination_buffer_0_;
-      double *timer_buffer_0_;
-      double *traj_gen_buffer_1_;
-      double *feedback_controller_buffer_1_;
-      double *termination_buffer_1_;
-      double *timer_buffer_1_;
+      SharedBufferType traj_gen_buffer_0_;
+      SharedBufferType feedback_controller_buffer_0_;
+      SharedBufferType termination_buffer_0_;
+      SharedBufferType timer_buffer_0_;
+      SharedBufferType traj_gen_buffer_1_;
+      SharedBufferType feedback_controller_buffer_1_;
+      SharedBufferType termination_buffer_1_;
+      SharedBufferType timer_buffer_1_;
 
-      double *traj_gen_sensor_buffer_0_;
-      double *feedback_controller_sensor_buffer_0_;
-      double *termination_sensor_buffer_0_;
-      double *timer_sensor_buffer_0_;
+      SharedBufferType traj_gen_sensor_buffer_0_;
+      SharedBufferType feedback_controller_sensor_buffer_0_;
+      SharedBufferType termination_sensor_buffer_0_;
+      SharedBufferType timer_sensor_buffer_0_;
 
-      double *traj_gen_sensor_buffer_1_;
-      double *feedback_controller_sensor_buffer_1_;
-      double *termination_sensor_buffer_1_;
-      double *timer_sensor_buffer_1_;
+      SharedBufferType traj_gen_sensor_buffer_1_;
+      SharedBufferType feedback_controller_sensor_buffer_1_;
+      SharedBufferType termination_sensor_buffer_1_;
+      SharedBufferType timer_sensor_buffer_1_;
 
-      double *execution_feedback_buffer_0_;
-      double *execution_result_buffer_0_;
-      double *execution_feedback_buffer_1_;
-      double *execution_result_buffer_1_;
+      SharedBufferType execution_feedback_buffer_0_;
+      SharedBufferType execution_result_buffer_0_;
+      SharedBufferType execution_feedback_buffer_1_;
+      SharedBufferType execution_result_buffer_1_;
 
-      double *current_robot_state_buffer_;
+      SharedBufferType current_robot_state_buffer_;
 
       int getCurrentFreeSharedMemoryIndexInSharedMemoryUnprotected();
       int getCurrentSkillIdInSharedMemoryUnprotected();
