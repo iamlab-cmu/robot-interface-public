@@ -15,7 +15,7 @@ import actionlib
 from franka_action_lib.msg import ExecuteSkillAction, RobolibStatus
 from franka_action_lib.srv import GetCurrentRobolibStatusCmd
 
-from .skill_list import ForceAlongAxisSkill, ForceTorqueSkill, GripperWithDefaultSensorSkill, ArmMoveToGoalContactWithDefaultSensorSkill, ArmMoveToGoalWithDefaultSensorSkill, ArmRelativeMotionWithDefaultSensorSkill, JointPoseMinJerkWithDefaultSensorSkill
+from .skill_list import *
 from .exceptions import *
 from .franka_arm_state_client import FrankaArmStateClient
 from .franka_constants import FrankaConstants as FC
@@ -129,8 +129,7 @@ class FrankaArm:
             force_thresholds = np.array(stop_on_contact_forces).tolist()
             skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
                                                 force_thresholds,
-                                                force_thresholds
-                                            )
+                                                force_thresholds)
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_feedback_controller_params(FC.DEFAULT_TORQUE_CONTROLLER_PARAMS)
@@ -142,7 +141,7 @@ class FrankaArm:
         
         self._send_goal(goal, cb=lambda x: skill.feedback_callback(x), ignore_errors=ignore_errors)
 
-    def goto_pose_delta(self, delta_tool_pose, duration=3, ignore_errors=True):
+    def goto_pose_delta(self, delta_tool_pose, duration=3, stop_on_contact_forces=None, ignore_errors=True):
         '''Commands Arm to the given delta pose via linear interpolation
 
         Args:
@@ -154,7 +153,16 @@ class FrankaArm:
 
         delta_tool_base_pose = self._tool_delta_pose * delta_tool_pose * self._tool_delta_pose.inverse()
 
-        skill = ArmRelativeMotionWithDefaultSensorSkill()
+        if stop_on_contact_forces is None:
+            skill = ArmRelativeMotionWithDefaultSensorSkill()
+        else:
+            skill = ArmRelativeMotionToContactWithDefaultSensorSkill()
+            force_thresholds = np.array(stop_on_contact_forces).tolist()
+            skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
+                                                force_thresholds,
+                                                force_thresholds
+                                            )
+
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_feedback_controller_params(FC.DEFAULT_TORQUE_CONTROLLER_PARAMS) 
         skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
@@ -194,6 +202,35 @@ class FrankaArm:
             duration (float): A float in the unit of seconds
         '''
         pass
+
+    def execute_dmp(self, dmp_info, meta_skill_id, duration, ignore_errors=True):
+        '''Commands Arm to execute a given dmp for duration seconds
+
+        Args:
+            dmp_info (dict): Contains all the parameters of a DMP (phi_j, tau, alpha, beta, num_basis, 
+                                                                   num_sensors, mu, h, and weights) 
+            duration (float): A float in the unit of seconds
+        '''
+
+        skill = JointPoseDMPWithDefaultSensorSkill()
+        skill.add_initial_sensor_values(dmp_info['phi_j'])  # sensor values
+        y0 = [-0.282, -0.189, 0.0668, -2.186, 0.0524, 1.916, -1.06273]
+        # Run time, tau, alpha, beta, num_basis, num_sensor_values, mu, h, weights
+        trajectory_params = [duration, dmp_info['tau'], dmp_info['alpha'], dmp_info['beta'],
+                             float(dmp_info['num_basis']), float(dmp_info['num_sensors'])] \
+                             + dmp_info['mu'] \
+                             + dmp_info['h'] \
+                             + y0 \
+                             + np.array(dmp_info['weights']).reshape(-1).tolist()
+
+        skill.add_trajectory_params(trajectory_params)
+        skill.set_meta_skill_id(meta_skill_id)
+        skill.set_meta_skill_type(1)
+        skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
+
+        goal = skill.create_goal()
+        
+        self._send_goal(goal, cb=lambda x: skill.feedback_callback(x), ignore_errors=ignore_errors)
 
     def apply_effector_forces_torques(self, run_duration, acc_duration, max_translation, max_rotation, 
                                     forces=None, torques=None, ignore_errors=True):
