@@ -62,6 +62,7 @@ void JointPoseWithTorqueControlSkill::execute_skill_on_franka(run_loop* run_loop
       if (lock.try_lock()) {
         run_loop_info->set_time_since_skill_started(time);
         run_loop_info->set_robot_time(robot_state.time.toSec());
+        lock.unlock();
       } 
     } catch (boost::interprocess::lock_exception) {
       // Do nothing

@@ -131,7 +131,7 @@ void run_loop::start_new_skill(BaseSkill* new_skill) {
 void run_loop::finish_current_skill(BaseSkill* skill) {
   SkillStatus status = skill->get_current_skill_status();
 
-  if (skill->has_terminated(robot_)) {
+  if (skill->has_terminated(robot_) && status != SkillStatus::FINISHED) {
     skill->set_skill_status(SkillStatus::FINISHED);
 
     // Write results to memory
@@ -143,6 +143,7 @@ void run_loop::finish_current_skill(BaseSkill* skill) {
     skill->write_result_to_shared_memory(buffer, robot_);
   }
 
+  status = skill->get_current_skill_status();
   if (status == SkillStatus::FINISHED) {
     process_info_requires_update_ = true;
   }
