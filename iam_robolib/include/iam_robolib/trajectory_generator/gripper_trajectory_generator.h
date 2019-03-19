@@ -8,7 +8,7 @@
  *
  *      1) gripper width
  *      2) gripper speed
- *      3) wait time for gripper to  in milliseconds.
+ *      3) gripper force
  */
 class GripperTrajectoryGenerator : public TrajectoryGenerator {
  public:
@@ -23,20 +23,20 @@ class GripperTrajectoryGenerator : public TrajectoryGenerator {
   void get_next_step() override;
 
   /**
-   * Get width to  the gripper to.
-   * @return width speed.
+   * Get width to move the gripper to.
+   * @return width
    */
   double getWidth();
 
   /**
-   * Get speed to  the gripper.
+   * Get speed to move the gripper.
    * @return gripper speed.
    */
   double getSpeed();
 
   /**
    * Get Force to grasp an object.
-   * @return
+   * @return gripper force
    */
   double getForce();
 
