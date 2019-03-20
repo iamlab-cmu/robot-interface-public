@@ -13,8 +13,7 @@ class SkillType:
     SkillInfo = 0
     GripperSkill = 1
     JointPoseSkill = 2
-    SaveTrajectorySkill = 3
-    ForceTorqueSkill = 4
+    ForceTorqueSkill = 3
 
 class MetaSkillType:
     BaseMetaSkill = 0

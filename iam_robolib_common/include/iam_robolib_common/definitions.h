@@ -25,8 +25,7 @@ enum class SkillType : uint8_t {
     SkillInfo = 0,
     GripperSkill = 1,
     JointPoseSkill = 2,
-    SaveTrajectorySkill = 3,
-    ForceTorqueSkill = 4
+    ForceTorqueSkill = 3
 };
 
 // Enum for Meta Skill Types
