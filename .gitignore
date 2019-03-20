@@ -61,8 +61,8 @@ CMakeCache.txt
 iam_robolib/cmake-build-debug/
 
 # Add workspace build files
-src/catkin_ws/build
-src/catkin_ws/devel
+catkin_ws/build
+catkin_ws/devel
 
 build
 Release
