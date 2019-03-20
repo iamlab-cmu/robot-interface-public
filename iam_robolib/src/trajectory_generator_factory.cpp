@@ -7,7 +7,7 @@
 #include "iam_robolib/skills/base_meta_skill.h"
 #include "iam_robolib/skills/base_skill.h"
 #include "iam_robolib/trajectory_generator/dmp_trajectory_generator.h"
-#include "iam_robolib/trajectory_generator/gripper_open_trajectory_generator.h"
+#include "iam_robolib/trajectory_generator/gripper_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/counter_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/linear_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/linear_trajectory_generator_with_time_and_goal.h"
@@ -18,7 +18,7 @@
 #include "iam_robolib/trajectory_generator/impulse_trajectory_generator.h"
 
 TrajectoryGenerator* TrajectoryGeneratorFactory::getTrajectoryGeneratorForSkill(
-    SharedBuffer buffer) {
+    SharedBufferTypePtr buffer) {
   int traj_gen_id = static_cast<int>(buffer[0]);
   TrajectoryGenerator *traj_generator = nullptr;
 
@@ -34,7 +34,7 @@ TrajectoryGenerator* TrajectoryGeneratorFactory::getTrajectoryGeneratorForSkill(
   } else if (traj_gen_id == 4) {
     traj_generator = new LinearTrajectoryGeneratorWithTimeAndGoal(buffer);
   } else if (traj_gen_id == 5){
-    traj_generator = new GripperOpenTrajectoryGenerator(buffer);
+    traj_generator = new GripperTrajectoryGenerator(buffer);
   } else if (traj_gen_id == 6) {
     traj_generator = new StayInInitialPositionTrajectoryGenerator(buffer);
   } else if (traj_gen_id == 7) {

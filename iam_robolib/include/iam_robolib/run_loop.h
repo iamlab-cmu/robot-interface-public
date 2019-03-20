@@ -15,7 +15,6 @@
 #include <iam_robolib_common/run_loop_process_info.h>
 #include <iam_robolib_common/SharedMemoryInfo.h>
 
-// TODO(Mohit): Fix this, CANNOT do private imports in public headers. FML.
 #include "iam_robolib/skill_info_manager.h"
 #include "iam_robolib/skills/skill_info.h"
 #include "iam_robolib/run_loop_logger.h"
@@ -40,12 +39,12 @@ class run_loop {
   run_loop(std::mutex& logger_mutex,
            std::mutex& robot_loop_data_mutex,
            RobotType robot_type,
-           std::string robot_ip)              : limit_rate_(false),
-                                                cutoff_frequency_(0.0),
-                                                logger_(logger_mutex),
-                                                elapsed_time_(0.0),
-                                                process_info_requires_update_(false)
-                                                {
+           std::string robot_ip)  : limit_rate_(false),
+                                    cutoff_frequency_(0.0),
+                                    logger_(logger_mutex),
+                                    elapsed_time_(0.0),
+                                    process_info_requires_update_(false)
+  {
 
     robot_state_data_ = new RobotStateData(robot_loop_data_mutex);
 
@@ -131,11 +130,13 @@ class run_loop {
    */
   void finish_current_skill(BaseSkill* skill);
 
+  RunLoopSharedMemoryHandler* get_shared_memory_handler();
+
   static std::atomic<bool> run_loop_ok_;
 
  private:
 
-  Robot *robot_;
+  Robot* robot_;
   static std::mutex robot_access_mutex_;
 
   std::thread robot_state_read_thread_{};
@@ -146,7 +147,7 @@ class run_loop {
   SkillInfoManager skill_manager_{};
   RunLoopLogger logger_;
   // This logs the robot state data by using robot readState and within control loops.
-  RobotStateData *robot_state_data_ = nullptr;
+  RobotStateData* robot_state_data_ = nullptr;
 
   // If this flag is true at every loop we will try to get the lock and update process info.
   bool process_info_requires_update_;

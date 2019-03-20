@@ -16,8 +16,15 @@ void CustomGainTorqueController::parse_parameters() {
   }
   // translational_stiffness(1) and rotational_stiffness(1) were given
   if (num_params == 14) {
-    memcpy(&k_gains_, &params_[2], 7 * sizeof(float));
-    memcpy(&d_gains_, &params_[2 + 7], 7 * sizeof(float));
+    for(int i = 0; i < 7; i++)
+    {
+      k_gains_[i] = static_cast<double>(params_[2+i]);
+    }
+
+    for(int i = 0; i < 7; i++)
+    {
+      d_gains_[i] = static_cast<double>(params_[9+i]);
+    }
   } else {
     std::cout << "Invalid number of params provided: " << num_params << std::endl;
   }

@@ -39,7 +39,8 @@ void LinearTrajectoryGeneratorWithTimeAndGoal::parse_parameters() {
     {
       goal_quaternion[i] = static_cast<double>(params_[6+i]);
     }
-    goal_orientation_ = Eigen::Quaterniond(goal_quaternion[0], goal_quaternion[1], goal_quaternion[2], goal_quaternion[3]);
+    goal_orientation_ = Eigen::Quaterniond(goal_quaternion[0], goal_quaternion[1], 
+                                           goal_quaternion[2], goal_quaternion[3]);
   } 
   // Time + x,y,z + axis angle was given
   else if(num_params == 7)

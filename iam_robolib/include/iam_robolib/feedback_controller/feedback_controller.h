@@ -4,12 +4,13 @@
 #include <array>
 #include <franka/robot_state.h>
 #include <franka/model.h>
+#include <iam_robolib_common/definitions.h>
 
 #include "iam_robolib/trajectory_generator/trajectory_generator.h"
 
 class FeedbackController {
  public:
-  explicit FeedbackController(float *p) : params_{p} {};
+  explicit FeedbackController(SharedBufferTypePtr p) : params_{p} {};
 
   /**
    * Parse parameters from memory.
@@ -34,12 +35,13 @@ class FeedbackController {
   /**
    *  Get next trajectory step.
    */
-  virtual void get_next_step(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) = 0;
+  virtual void get_next_step(const franka::RobotState &robot_state, 
+                             TrajectoryGenerator *traj_generator) = 0;
 
   std::array<double, 7> tau_d_array_{};
 
  protected:
-  float *params_=0;
+  SharedBufferTypePtr params_=0;
 };
 
 #endif  // IAM_ROBOLIB_FEEDBACK_CONTROLLER_FEEDBACK_CONTROLLER_H_

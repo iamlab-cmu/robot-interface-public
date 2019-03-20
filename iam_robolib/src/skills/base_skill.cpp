@@ -44,9 +44,9 @@ TerminationHandler* BaseSkill::get_termination_handler() {
 }
 
 void BaseSkill::start_skill(Robot* robot,
-                            TrajectoryGenerator *traj_generator,
-                            FeedbackController *feedback_controller,
-                            TerminationHandler *termination_handler) {
+                            TrajectoryGenerator* traj_generator,
+                            FeedbackController* feedback_controller,
+                            TerminationHandler* termination_handler) {
   skill_status_ = SkillStatus::TO_START;
   traj_generator_ = traj_generator;
   traj_generator_->initialize_trajectory();
@@ -70,19 +70,19 @@ bool BaseSkill::has_terminated(Robot* robot) {
   return termination_handler_->has_terminated();
 }
 
-void BaseSkill::write_result_to_shared_memory(float *result_buffer) {
+void BaseSkill::write_result_to_shared_memory(SharedBufferTypePtr result_buffer) {
   std::cout << "Should write result to shared memory\n";
 }
 
-void BaseSkill::write_result_to_shared_memory(float *result_buffer, FrankaRobot* robot) {
+void BaseSkill::write_result_to_shared_memory(SharedBufferTypePtr result_buffer, FrankaRobot* robot) {
   std::cout << "Should write result to shared memory\n";
 }
 
-void BaseSkill::write_result_to_shared_memory(float *result_buffer, Robot* robot) {
+void BaseSkill::write_result_to_shared_memory(SharedBufferTypePtr result_buffer, Robot* robot) {
   std::cout << "Should write result to shared memory\n";
 }
 
-void BaseSkill::write_feedback_to_shared_memory(float *feedback_buffer) {
+void BaseSkill::write_feedback_to_shared_memory(SharedBufferTypePtr feedback_buffer) {
   std::cout << "Should write feedback to shared memory\n";
 }
 

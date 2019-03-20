@@ -2,8 +2,15 @@
 #define IAM_ROBOLIB_SKILLS_BASE_SKILL_H_
 
 #include "iam_robolib/robots/franka_robot.h"
+#include <iam_robolib_common/definitions.h>
 
-enum class SkillStatus { TO_START, RUNNING, FINISHED };  // enum class
+class run_loop;
+
+enum class SkillStatus : uint8_t { 
+  TO_START, 
+  RUNNING, 
+  FINISHED 
+};  // enum class
 
 class RobotStateData;
 class FeedbackController;
@@ -16,10 +23,12 @@ namespace franka {
 
 class BaseSkill {
  public:
-  BaseSkill(int skill_idx, int meta_skill_idx, std::string description): skill_idx_(skill_idx),
-                                                                         meta_skill_idx_(meta_skill_idx),
-                                                                         skill_status_(SkillStatus::TO_START),
-                                                                         description_(description){};
+  BaseSkill(int skill_idx, int meta_skill_idx, std::string description) : 
+                                          skill_idx_(skill_idx),
+                                          meta_skill_idx_(meta_skill_idx),
+                                          skill_status_(SkillStatus::TO_START),
+                                          description_(description) 
+  {};
 
   /**
    * Get skill id.
@@ -52,16 +61,17 @@ class BaseSkill {
   TerminationHandler* get_termination_handler();
 
   /**
-   * Start skill. Initiliazes and parses the parameters for different skill components.
+   * Start skill. Initiliazes and parses the parameters for different skill 
+   * components.
    * @param robot
    * @param traj_generator
    * @param feedback_controller
    * @param termination_handler
    */
   void start_skill(Robot* robot,
-                   TrajectoryGenerator *traj_generator,
-                   FeedbackController *feedback_controller,
-                   TerminationHandler *termination_handler);
+                   TrajectoryGenerator* traj_generator,
+                   FeedbackController* feedback_controller,
+                   TerminationHandler* termination_handler);
 
   virtual void execute_skill() = 0;
 
@@ -71,16 +81,19 @@ class BaseSkill {
    * @param gripper
    * @param robot_state_data
    */
-  virtual void execute_skill_on_franka(FrankaRobot *robot,
-                                       RobotStateData *robot_state_data) = 0;
+  virtual void execute_skill_on_franka(run_loop* run_loop,
+                                       FrankaRobot* robot,
+                                       RobotStateData* robot_state_data) = 0;
 
   virtual bool has_terminated(Robot* robot);
 
-  virtual void write_result_to_shared_memory(float *result_buffer);
-  virtual void write_result_to_shared_memory(float *result_buffer, FrankaRobot *robot);
-  virtual void write_result_to_shared_memory(float *result_buffer, Robot *robot);
+  virtual void write_result_to_shared_memory(SharedBufferTypePtr result_buffer);
+  virtual void write_result_to_shared_memory(SharedBufferTypePtr result_buffer, 
+                                             FrankaRobot* robot);
+  virtual void write_result_to_shared_memory(SharedBufferTypePtr result_buffer, 
+                                             Robot* robot);
 
-  virtual void write_feedback_to_shared_memory(float *feedback_buffer);
+  virtual void write_feedback_to_shared_memory(SharedBufferTypePtr feedback_buffer);
 
  protected:
   int skill_idx_;
@@ -88,9 +101,9 @@ class BaseSkill {
   SkillStatus skill_status_;
   std::string description_;
 
-  TrajectoryGenerator *traj_generator_= nullptr;
-  FeedbackController *feedback_controller_= nullptr;
-  TerminationHandler *termination_handler_= nullptr;
+  TrajectoryGenerator* traj_generator_= nullptr;
+  FeedbackController* feedback_controller_= nullptr;
+  TerminationHandler* termination_handler_= nullptr;
 };
 
 #endif  // IAM_ROBOLIB_SKILLS_BASE_SKILL_H_

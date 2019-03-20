@@ -1,16 +1,16 @@
-#ifndef IAM_ROBOLIB_TRAJECTORY_GENERATOR_GRIPPER_OPEN_TRAJECTORY_GENERATOR_H_
-#define IAM_ROBOLIB_TRAJECTORY_GENERATOR_GRIPPER_OPEN_TRAJECTORY_GENERATOR_H_
+#ifndef IAM_ROBOLIB_TRAJECTORY_GENERATOR_GRIPPER_TRAJECTORY_GENERATOR_H_
+#define IAM_ROBOLIB_TRAJECTORY_GENERATOR_GRIPPER_TRAJECTORY_GENERATOR_H_
 
 #include "iam_robolib/trajectory_generator/trajectory_generator.h"
 
 /**
- * Used in GripperOpen skill. Specifies 3 parameters in the following order
+ * Used in Gripper skill. Specifies 3 parameters in the following order
  *
- *      1) gripper open width
- *      2) gripper open speed
- *      3) wait time for gripper to open in milliseconds.
+ *      1) gripper width
+ *      2) gripper speed
+ *      3) gripper force
  */
-class GripperOpenTrajectoryGenerator : public TrajectoryGenerator {
+class GripperTrajectoryGenerator : public TrajectoryGenerator {
  public:
   using TrajectoryGenerator::TrajectoryGenerator;
 
@@ -23,28 +23,22 @@ class GripperOpenTrajectoryGenerator : public TrajectoryGenerator {
   void get_next_step() override;
 
   /**
-   * Get width to open the gripper to.
-   * @return width speed.
+   * Get width to move the gripper to.
+   * @return width
    */
   double getWidth();
 
   /**
-   * Get speed to open the gripper.
+   * Get speed to move the gripper.
    * @return gripper speed.
    */
   double getSpeed();
 
   /**
    * Get Force to grasp an object.
-   * @return
+   * @return gripper force
    */
   double getForce();
-
-  /**
-   * Get time to wait for the skill.
-   * @return
-   */
-  double getWaitTimeInMilliseconds();
 
   /**
    * Check if the skill requires to grasp the object.
@@ -56,8 +50,7 @@ class GripperOpenTrajectoryGenerator : public TrajectoryGenerator {
   double width_=1.0;
   double speed_=0.0;
   double force_=0.0;
-  double wait_time_in_milliseconds_=3000.0;
   bool is_grasp_skill_{false};
 };
 
-#endif  // IAM_ROBOLIB_TRAJECTORY_GENERATOR_GRIPPER_OPEN_TRAJECTORY_GENERATOR_H_
+#endif  // IAM_ROBOLIB_TRAJECTORY_GENERATOR_GRIPPER_TRAJECTORY_GENERATOR_H_

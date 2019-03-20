@@ -48,6 +48,7 @@ bool FinalPoseTerminationHandler::should_terminate(TrajectoryGenerator *trajecto
   return done_;
 }
 
-bool FinalPoseTerminationHandler::should_terminate_on_franka(const franka::RobotState &_, TrajectoryGenerator *trajectory_generator) {
+bool FinalPoseTerminationHandler::should_terminate_on_franka(const franka::RobotState &_, 
+                                                             TrajectoryGenerator *trajectory_generator) {
   return should_terminate(trajectory_generator);
 }

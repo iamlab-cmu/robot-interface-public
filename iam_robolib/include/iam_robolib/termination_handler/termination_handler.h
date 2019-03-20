@@ -3,13 +3,17 @@
 
 #include <franka/robot_state.h>
 
+#include <iam_robolib_common/definitions.h>
 #include <iam_robolib_common/run_loop_process_info.h>
 #include "iam_robolib/trajectory_generator/trajectory_generator.h"
 #include "iam_robolib/robots/franka_robot.h"
 
 class TerminationHandler {
  public:
-  explicit TerminationHandler(float *p, RunLoopProcessInfo *r) : params_{p}, run_loop_info_{r} {};
+  explicit TerminationHandler(SharedBufferTypePtr p, RunLoopProcessInfo *r) : 
+                                                  params_{p}, 
+                                                  run_loop_info_{r} 
+  {};
 
   /**
    * Parse parameters from memory.
@@ -34,10 +38,12 @@ class TerminationHandler {
   /**
    * Should we terminate the current skill.
    */
-  virtual bool should_terminate_on_franka(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) = 0;
+  virtual bool should_terminate_on_franka(const franka::RobotState &robot_state, 
+                                          TrajectoryGenerator *traj_generator) = 0;
 
   /**
-   * Check if skill terminated previously. By default check the done_ flag and return it.
+   * Check if skill terminated previously. By default check the done_ flag and 
+   * return it.
    * @return  True if skill has terminated previously else False.
    */
   virtual bool has_terminated();
@@ -49,7 +55,7 @@ class TerminationHandler {
 
   bool done_ = false;
  protected:
-  float *params_ = 0;
+  SharedBufferTypePtr params_ = 0;
   RunLoopProcessInfo *run_loop_info_ = nullptr;
 };
 

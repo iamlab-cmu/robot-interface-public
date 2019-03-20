@@ -20,11 +20,12 @@
 #include "iam_robolib/skills/base_skill.h"
 #include "iam_robolib/robot_state_data.h"
 #include "iam_robolib/file_stream_logger.h"
-#include "iam_robolib/skills/gripper_open_skill.h"
+#include "iam_robolib/skills/gripper_skill.h"
 #include "iam_robolib/skills/joint_pose_skill.h"
 #include "iam_robolib/skills/joint_pose_continuous_skill.h"
 #include "iam_robolib/skills/save_trajectory_skill.h"
 #include "iam_robolib/skills/force_torque_skill.h"
+#include "iam_robolib/save_robot_state_data_to_shared_memory_buffer.h"
 
 std::atomic<bool> run_loop::run_loop_ok_{false};
 std::mutex run_loop::robot_access_mutex_;
@@ -107,17 +108,17 @@ void run_loop::start_new_skill(BaseSkill* new_skill) {
   int memory_index = run_loop_info->get_current_shared_memory_index();
   std::cout << string_format("Create skill from memory index: %d\n", memory_index);
 
-  SharedBuffer traj_buffer = shared_memory_handler_->getTrajectoryGeneratorBuffer(memory_index);
+  SharedBufferTypePtr traj_buffer = shared_memory_handler_->getTrajectoryGeneratorBuffer(memory_index);
   TrajectoryGenerator *traj_generator = traj_gen_factory_.getTrajectoryGeneratorForSkill(
       traj_buffer);
   std::cout << "Did get traj generator\n";
 
-  SharedBuffer feedback_controller_buffer = shared_memory_handler_->getFeedbackControllerBuffer(
+  SharedBufferTypePtr feedback_controller_buffer = shared_memory_handler_->getFeedbackControllerBuffer(
       memory_index);
   FeedbackController *feedback_controller =
       feedback_controller_factory_.getFeedbackControllerForSkill(feedback_controller_buffer);
 
-  SharedBuffer termination_handler_buffer = shared_memory_handler_->getTerminationParametersBuffer(
+  SharedBufferTypePtr termination_handler_buffer = shared_memory_handler_->getTerminationParametersBuffer(
       memory_index);
   TerminationHandler* termination_handler =
       termination_handler_factory_.getTerminationHandlerForSkill(termination_handler_buffer, run_loop_info);
@@ -131,7 +132,7 @@ void run_loop::start_new_skill(BaseSkill* new_skill) {
 void run_loop::finish_current_skill(BaseSkill* skill) {
   SkillStatus status = skill->get_current_skill_status();
 
-  if (skill->has_terminated(robot_)) {
+  if (skill->has_terminated(robot_) && status != SkillStatus::FINISHED) {
     skill->set_skill_status(SkillStatus::FINISHED);
 
     // Write results to memory
@@ -139,10 +140,11 @@ void run_loop::finish_current_skill(BaseSkill* skill) {
 
     std::cout << "Writing to execution result buffer number: " << memory_index << std::endl;
 
-    SharedBuffer buffer = shared_memory_handler_->getExecutionResultBuffer(memory_index);
+    SharedBufferTypePtr buffer = shared_memory_handler_->getExecutionResultBuffer(memory_index);
     skill->write_result_to_shared_memory(buffer, robot_);
   }
 
+  status = skill->get_current_skill_status();
   if (status == SkillStatus::FINISHED) {
     process_info_requires_update_ = true;
   }
@@ -167,7 +169,6 @@ void run_loop::update_process_info() {
     try {
       std::cout << "Will try to get lock to update process info\n";
       if (lock.try_lock()) {
-        run_loop_info->reset_watchdog_counter();
         run_loop_info->set_is_running_skill(is_executing_skill);
 
         // We have a skill that we have finished. Make sure we update this in RunLoopProcessInfo.
@@ -211,11 +212,15 @@ void run_loop::update_process_info() {
 
           // Add new skill
           run_loop_info->set_current_skill_id(new_skill_id);
+          run_loop_info->set_current_skill_type(new_skill_type);
+          run_loop_info->set_current_meta_skill_id(new_meta_skill_id);
+          run_loop_info->set_current_meta_skill_type(new_meta_skill_type);
+          run_loop_info->set_current_skill_description(new_skill_description);
           BaseSkill *new_skill;
           if (new_skill_type == 0) {
             new_skill = new SkillInfo(new_skill_id, new_meta_skill_id, new_skill_description);
           } else if (new_skill_type == 1) {
-            new_skill = new GripperOpenSkill(new_skill_id, new_meta_skill_id, new_skill_description);
+            new_skill = new GripperSkill(new_skill_id, new_meta_skill_id, new_skill_description);
           } else if (new_skill_type == 2) {
             new_skill = new JointPoseSkill(new_skill_id, new_meta_skill_id, new_skill_description);
           } else if (new_skill_type == 3) {
@@ -230,7 +235,7 @@ void run_loop::update_process_info() {
 
           // Get Meta-skill
           // BaseMetaSkill* new_meta_skill = skill_manager_.get_meta_skill_with_id(new_meta_skill_id);
-           BaseMetaSkill* new_meta_skill = nullptr;
+          BaseMetaSkill* new_meta_skill = nullptr;
           if (new_meta_skill == nullptr) {
             if (new_meta_skill_type == 0) {
               new_meta_skill = new BaseMetaSkill(new_meta_skill_id);
@@ -281,7 +286,7 @@ void run_loop::run() {
       skill->execute_skill();
 
       int memory_index = run_loop_info->get_current_shared_memory_index();
-      SharedBuffer buffer = shared_memory_handler_->getFeedbackResultBuffer(memory_index);
+      SharedBufferTypePtr buffer = shared_memory_handler_->getFeedbackResultBuffer(memory_index);
       skill->write_feedback_to_shared_memory(buffer);
 
       // Finish skill if possible.
@@ -325,15 +330,17 @@ void run_loop::setup_save_robot_state_thread() {
             case RobotType::FRANKA: {
                 try {
                   FrankaRobot* franka_robot = dynamic_cast<FrankaRobot* >(robot_);
-                  franka::RobotState robot_state = franka_robot->getRobotState();
                   franka::GripperState gripper_state = franka_robot->getGripperState();
-
+                  franka::RobotState robot_state = franka_robot->getRobotState();
+                  
                   double duration = std::chrono::duration_cast<std::chrono::milliseconds>(
                       std::chrono::steady_clock::now() - start_time).count();
 
                   robot_state_data_->log_pose_desired(robot_state.O_T_EE_d); // Fictitious call to log pose desired so pose_desired buffer length matches during non-skill execution
+                  // Make sure update_current_gripper_state is before log_robot_state because log_robot_state will
+                  // push_back gripper_state info from the current gripper_state
+                  robot_state_data_->update_current_gripper_state(gripper_state);
                   robot_state_data_->log_robot_state(robot_state, duration / 1000.0);
-                  robot_state_data_->log_gripper_state(gripper_state);
                 } catch (const franka::Exception& ex) {
                   robot_access_mutex_.unlock();
                   std::cerr << "Robot state save thread encountered Franka exception. Will not log for now.\n";
@@ -352,177 +359,38 @@ void run_loop::setup_save_robot_state_thread() {
 void run_loop::setup_current_robot_state_io_thread() {
   int io_rate = 100;
   current_robot_state_io_thread_ = std::thread([&, io_rate]() {
-      while (true) {
-        std::this_thread::sleep_for(
-            std::chrono::milliseconds(static_cast<int>((1.0 / io_rate * 1000.0))));
+    while (true) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>((1.0 / io_rate * 1000.0))));
 
-          if (!run_loop_ok_ || robot_state_data_ == nullptr) {
-            continue;
-          }
-          
-          if (robot_state_data_->use_buffer_0) {
-            if (robot_state_data_->log_robot_state_0_.size() > 0 && robot_state_data_->buffer_0_mutex_.try_lock()) {
-              if (shared_memory_handler_->getCurrentRobotStateBufferMutex()->try_lock()) {
-                  SharedBuffer current_robot_state_data_buffer = shared_memory_handler_->getCurrentRobotStateBuffer();
-                  size_t buffer_idx = 0;
-                  double double_val = 0;
-                  std::array<double, 16> double_array_16;
-                  std::array<double, 7> double_array_7;
-
-                  double_array_16 = robot_state_data_->log_pose_desired_0_.back();
-                  for (size_t i = 0; i < double_array_16.size(); i++) {
-                    double_val = double_array_16[i];
-                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
-                  }
-
-                  double_array_16 = robot_state_data_->log_robot_state_0_.back();
-                  for (size_t i = 0; i < double_array_16.size(); i++) {
-                    double_val = double_array_16[i];
-                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
-                  }
-
-                  double_array_7 = robot_state_data_->log_tau_j_0_.back();
-                  for (size_t i = 0; i < double_array_7.size(); i++) {
-                    double_val = double_array_7[i];
-                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
-                  }
-
-                  double_array_7 = robot_state_data_->log_d_tau_j_0_.back();
-                  for (size_t i = 0; i < double_array_7.size(); i++) {
-                    double_val = double_array_7[i];
-                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
-                  }
-
-                  double_array_7 = robot_state_data_->log_q_0_.back();
-                  for (size_t i = 0; i < double_array_7.size(); i++) {
-                    double_val = double_array_7[i];
-                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
-                  }
-
-                  double_array_7 = robot_state_data_->log_q_d_0_.back();
-                  for (size_t i = 0; i < double_array_7.size(); i++) {
-                    double_val = double_array_7[i];
-                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
-                  }
-
-                  double_array_7 = robot_state_data_->log_dq_0_.back();
-                  for (size_t i = 0; i < double_array_7.size(); i++) {
-                    double_val = double_array_7[i];
-                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
-                  }
-
-                  double_val = robot_state_data_->log_control_time_0_.back();
-                  current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
-
-                  if (robot_state_data_->log_gripper_width_0_.size() > 0) {
-                    double_val = robot_state_data_->log_gripper_width_0_.back();
-                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
-
-                    double_val = robot_state_data_->log_gripper_is_grasped_0_.back() ? 1 : 0;
-                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
-                  } else {
-                    current_robot_state_data_buffer[buffer_idx++] = -1.f;
-                    current_robot_state_data_buffer[buffer_idx++] = 0.f;
-                  }
-
-                  shared_memory_handler_->getCurrentRobotStateBufferMutex()->unlock();
-              }
-              robot_state_data_->buffer_0_mutex_.unlock();
-            } else if (robot_state_data_->log_robot_state_0_.size() > 0) {
-              std::cout << "Get robot state failed to get lock 0\n";
-            }
-          }
-          else {
-            if (robot_state_data_->log_robot_state_1_.size() > 0 && robot_state_data_->buffer_1_mutex_.try_lock()) {
-              if (shared_memory_handler_->getCurrentRobotStateBufferMutex()->try_lock()) {
-                  float* current_robot_state_data_buffer = shared_memory_handler_->getCurrentRobotStateBuffer();
-                  size_t buffer_idx = 0;
-                  double double_val = 0;
-                  std::array<double, 16> double_array_16;
-                  std::array<double, 7> double_array_7;
-
-                  double_array_16 = robot_state_data_->log_pose_desired_1_.back();
-                  for (size_t i = 0; i < double_array_16.size(); i++) {
-                    double_val = double_array_16[i];
-                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
-                  }
-
-                  double_array_16 = robot_state_data_->log_robot_state_1_.back();
-                  for (size_t i = 0; i < double_array_16.size(); i++) {
-                    double_val = double_array_16[i];
-                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
-                  }
-
-                  double_array_7 = robot_state_data_->log_tau_j_1_.back();
-                  for (size_t i = 0; i < double_array_7.size(); i++) {
-                    double_val = double_array_7[i];
-                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
-                  }
-
-                  double_array_7 = robot_state_data_->log_d_tau_j_1_.back();
-                  for (size_t i = 0; i < double_array_7.size(); i++) {
-                    double_val = double_array_7[i];
-                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
-                  }
-
-                  double_array_7 = robot_state_data_->log_q_1_.back();
-                  for (size_t i = 0; i < double_array_7.size(); i++) {
-                    double_val = double_array_7[i];
-                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
-                  }
-
-                  double_array_7 = robot_state_data_->log_q_d_1_.back();
-                  for (size_t i = 0; i < double_array_7.size(); i++) {
-                    double_val = double_array_7[i];
-                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
-                  }
-
-                  double_array_7 = robot_state_data_->log_dq_1_.back();
-                  for (size_t i = 0; i < double_array_7.size(); i++) {
-                    double_val = double_array_7[i];
-                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
-                  }
-
-                  double_val = robot_state_data_->log_control_time_1_.back();
-                  current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
-
-                  if (robot_state_data_->log_gripper_width_1_.size() > 0) {
-                    double_val = robot_state_data_->log_gripper_width_1_.back();
-                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
-
-                    double_val = robot_state_data_->log_gripper_is_grasped_1_.back() ? 1 : 0;
-                    current_robot_state_data_buffer[buffer_idx++] = static_cast<float> (double_val);
-                  } else {
-                    current_robot_state_data_buffer[buffer_idx++] = -1.f;
-                    current_robot_state_data_buffer[buffer_idx++] = 0.f;
-                  }
-
-                  shared_memory_handler_->getCurrentRobotStateBufferMutex()->unlock();
-              }
-              robot_state_data_->buffer_1_mutex_.unlock();
-            } else if (robot_state_data_->log_robot_state_1_.size() > 0) {
-              std::cout << "Get robot state failed to get lock 1\n";
-            }
-          }
+      if (!run_loop_ok_ || robot_state_data_ == nullptr) {
+        continue;
       }
+      
+      if (robot_state_data_->use_buffer_0) {
+        save_robot_state_data_to_shared_memory_buffer(shared_memory_handler_, robot_state_data_, 0);
+      }
+      else {
+        save_robot_state_data_to_shared_memory_buffer(shared_memory_handler_, robot_state_data_, 1);
+      }
+    }
   });
 }
 
 void run_loop::setup_watchdog_thread() {
   int io_rate = 50;
   watchdog_thread_ = std::thread([&, io_rate]() {
-      while (true) {
-        std::this_thread::sleep_for(
-            std::chrono::milliseconds(static_cast<int>((1.0 / io_rate * 1000.0))));
-          RunLoopProcessInfo* run_loop_info = shared_memory_handler_->getRunLoopProcessInfo();
-          boost::interprocess::scoped_lock<
-                  boost::interprocess::interprocess_mutex> lock(
-                      *(shared_memory_handler_->getRunLoopProcessInfoMutex()),
-                      boost::interprocess::defer_lock);
-          if (lock.try_lock()) {
-            run_loop_info->reset_watchdog_counter();
-          } 
-      }
+    while (true) {
+      std::this_thread::sleep_for(
+          std::chrono::milliseconds(static_cast<int>((1.0 / io_rate * 1000.0))));
+        IAMRobolibStateInfo* iam_robolib_state_info = shared_memory_handler_->getIAMRobolibStateInfo();
+        boost::interprocess::scoped_lock<
+                boost::interprocess::interprocess_mutex> lock(
+                    *(shared_memory_handler_->getIAMRobolibStateInfoMutex()),
+                    boost::interprocess::defer_lock);
+        if (lock.try_lock()) {
+          iam_robolib_state_info->reset_watchdog_counter();
+        } 
+    }
   });
 }
 
@@ -584,16 +452,16 @@ void run_loop::log_skill_info(BaseSkill* skill) {
 };
 
 void run_loop::set_robolib_status(bool is_ready, std::string error_message) {
-  RunLoopProcessInfo* run_loop_info = shared_memory_handler_->getRunLoopProcessInfo();
+  IAMRobolibStateInfo* iam_robolib_state_info = shared_memory_handler_->getIAMRobolibStateInfo();
     boost::interprocess::scoped_lock<
             boost::interprocess::interprocess_mutex> lock(
-                *(shared_memory_handler_->getRunLoopProcessInfoMutex()),
+                *(shared_memory_handler_->getIAMRobolibStateInfoMutex()),
                 boost::interprocess::defer_lock);
   try {
     std::cout << "Will try to acquire lock while setting robolib status\n";
     if (lock.try_lock()) {
-      run_loop_info->set_is_ready(is_ready);
-      run_loop_info->set_error_description(error_message);
+      iam_robolib_state_info->set_is_ready(is_ready);
+      iam_robolib_state_info->set_error_description(error_message);
     }
   } catch (boost::interprocess::lock_exception) {
     // TODO(Mohit): Do something better here.
@@ -674,7 +542,7 @@ void run_loop::run_on_franka() {
 
       // Log data
       robot_state_data_->writeCurrentBufferData();
-      robot_state_data_->printGlobalData(50);
+      robot_state_data_->printData(50);
 
       // Clear buffers and reset stateful variables about skills
       RunLoopProcessInfo* run_loop_info = shared_memory_handler_->getRunLoopProcessInfo();
@@ -820,4 +688,8 @@ void run_loop::run_on_ur5e() {
 
 SkillInfoManager* run_loop::getSkillInfoManager() {
   return &skill_manager_;
+}
+
+RunLoopSharedMemoryHandler* run_loop::get_shared_memory_handler() {
+  return shared_memory_handler_;
 }

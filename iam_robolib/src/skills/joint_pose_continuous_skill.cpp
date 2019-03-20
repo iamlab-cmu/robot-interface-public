@@ -18,18 +18,30 @@
 #include "iam_robolib/termination_handler/termination_handler.h"
 #include "iam_robolib/trajectory_generator/dmp_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/trajectory_generator.h"
+#include "iam_robolib/run_loop.h"
+#include "iam_robolib/run_loop_shared_memory_handler.h"
+
+#include <iam_robolib_common/run_loop_process_info.h>
 
 bool JointPoseContinuousSkill::isComposableSkill() {
   return true;
 }
 
 
-void JointPoseContinuousSkill::execute_skill_on_franka(run_loop *run_loop, FrankaRobot* robot,
+void JointPoseContinuousSkill::execute_skill_on_franka(run_loop *run_loop, 
+                                                       FrankaRobot* robot,
                                                        RobotStateData *robot_state_data) {
 
   double time = 0.0;
   double current_skill_time = 0.0;
+  bool wrote_finished_time_to_run_loop_process_info = false;
   int log_counter = 0;
+
+  RunLoopSharedMemoryHandler* shared_memory_handler = run_loop->get_shared_memory_handler();
+  RunLoopProcessInfo* run_loop_info = shared_memory_handler->getRunLoopProcessInfo();
+  boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> lock(
+                                  *(shared_memory_handler->getRunLoopProcessInfoMutex()),
+                                  boost::interprocess::defer_lock);
 
   SkillInfoManager *skill_info_manager = run_loop->getSkillInfoManager();
   BaseSkill *current_skill = skill_info_manager->get_current_skill();
@@ -51,13 +63,23 @@ void JointPoseContinuousSkill::execute_skill_on_franka(run_loop *run_loop, Frank
       traj_generator->initialize_trajectory(robot_state);
       traj_generator->y_ = last_dmp_q;
       traj_generator->dy_ = last_dmp_dq;
+      try {
+        if (lock.try_lock()) {
+          run_loop_info->set_time_skill_started_in_robot_time(robot_state.time.toSec());
+          run_loop_info->reset_time_skill_finished_in_robot_time();
+          wrote_finished_time_to_run_loop_process_info = false;
+          lock.unlock();
+        } 
+      } catch (boost::interprocess::lock_exception) {
+        // Do nothing
+      }
     }
 
     double period_in_seconds = period.toSec();
     time += period_in_seconds;
     current_skill_time += period_in_seconds;
     traj_generator->time_ = current_skill_time;
-    traj_generator->dt_ = static_cast<float>(period_in_seconds);
+    traj_generator->dt_ = static_cast<double>(period_in_seconds);
     traj_generator->get_next_step();
 
     log_counter += 1;
@@ -67,10 +89,23 @@ void JointPoseContinuousSkill::execute_skill_on_franka(run_loop *run_loop, Frank
     }
 
     TerminationHandler *termination_handler = current_skill->get_termination_handler();
-    bool done = termination_handler->should_terminate_on_franka(robot_state, traj_generator);
+    bool done = termination_handler->should_terminate_on_franka(robot_state, 
+                                                                traj_generator);
     franka::JointPositions joint_desired(traj_generator->joint_desired_);
 
     if(done) {
+      if(!wrote_finished_time_to_run_loop_process_info) {
+        try {
+          if (lock.try_lock()) {
+            run_loop_info->set_time_skill_finished_in_robot_time(robot_state.time.toSec());
+            wrote_finished_time_to_run_loop_process_info = true;
+            lock.unlock();
+          } 
+        } catch (boost::interprocess::lock_exception) {
+          // Do nothing
+        }
+      }
+
       // Finish current skill and update RunLoopProcessInfo.
       run_loop->didFinishSkillInMetaSkill(current_skill);
       // Get new skill, the above update might have found a new skill.
@@ -105,6 +140,7 @@ void JointPoseContinuousSkill::execute_skill_on_franka(run_loop *run_loop, Frank
         }
       }
     }
+
     return joint_desired;
   };
 

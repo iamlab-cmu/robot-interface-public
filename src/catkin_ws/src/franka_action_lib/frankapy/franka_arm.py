@@ -15,7 +15,7 @@ import actionlib
 from franka_action_lib.msg import ExecuteSkillAction, RobolibStatus
 from franka_action_lib.srv import GetCurrentRobolibStatusCmd
 
-from .skill_list import ForceAlongAxisSkill, ForceTorqueSkill, GripperWithDefaultSensorSkill, ArmMoveToGoalContactWithDefaultSensorSkill, ArmMoveToGoalWithDefaultSensorSkill, ArmRelativeMotionWithDefaultSensorSkill, JointPoseMinJerkWithDefaultSensorSkill
+from .skill_list import *
 from .exceptions import *
 from .franka_arm_state_client import FrankaArmStateClient
 from .franka_constants import FrankaConstants as FC
@@ -23,6 +23,8 @@ from .franka_constants import FrankaConstants as FC
 class FrankaArm:
 
     def __init__(self, rosnode_name='franka_arm_client', ros_log_level=rospy.INFO, 
+                execute_skill_action_server_name='/execute_skill_action_server_node/execute_skill',
+                robot_state_server_name='/get_current_robot_state_server_node/get_current_robot_state_server',
                 robolib_status_server_name='/get_current_robolib_status_server_node/get_current_robolib_status_server'):
         self._connected = False 
         self._in_skill = False
@@ -36,8 +38,8 @@ class FrankaArm:
         rospy.wait_for_service(robolib_status_server_name)
         self._get_current_robolib_status = rospy.ServiceProxy(robolib_status_server_name, GetCurrentRobolibStatusCmd)
 
-        self._state_client = FrankaArmStateClient(new_ros_node=False)
-        self._client = actionlib.SimpleActionClient(FC.ROS_EXECUTE_SKILL_ACTION_SERVER_NAME, ExecuteSkillAction)
+        self._state_client = FrankaArmStateClient(new_ros_node=False, robot_state_server_name=robot_state_server_name)
+        self._client = actionlib.SimpleActionClient(execute_skill_action_server_name, ExecuteSkillAction)
         self._client.wait_for_server()
         self.wait_for_robolib()
         
@@ -127,8 +129,7 @@ class FrankaArm:
             force_thresholds = np.array(stop_on_contact_forces).tolist()
             skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
                                                 force_thresholds,
-                                                force_thresholds
-                                            )
+                                                force_thresholds)
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_feedback_controller_params(FC.DEFAULT_TORQUE_CONTROLLER_PARAMS)
@@ -140,7 +141,7 @@ class FrankaArm:
         
         self._send_goal(goal, cb=lambda x: skill.feedback_callback(x), ignore_errors=ignore_errors)
 
-    def goto_pose_delta(self, delta_tool_pose, duration=3, ignore_errors=True):
+    def goto_pose_delta(self, delta_tool_pose, duration=3, stop_on_contact_forces=None, ignore_errors=True):
         '''Commands Arm to the given delta pose via linear interpolation
 
         Args:
@@ -152,7 +153,16 @@ class FrankaArm:
 
         delta_tool_base_pose = self._tool_delta_pose * delta_tool_pose * self._tool_delta_pose.inverse()
 
-        skill = ArmRelativeMotionWithDefaultSensorSkill()
+        if stop_on_contact_forces is None:
+            skill = ArmRelativeMotionWithDefaultSensorSkill()
+        else:
+            skill = ArmRelativeMotionToContactWithDefaultSensorSkill()
+            force_thresholds = np.array(stop_on_contact_forces).tolist()
+            skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
+                                                force_thresholds,
+                                                force_thresholds
+                                            )
+
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_feedback_controller_params(FC.DEFAULT_TORQUE_CONTROLLER_PARAMS) 
         skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
@@ -192,6 +202,35 @@ class FrankaArm:
             duration (float): A float in the unit of seconds
         '''
         pass
+
+    def execute_dmp(self, dmp_info, meta_skill_id, duration, ignore_errors=True):
+        '''Commands Arm to execute a given dmp for duration seconds
+
+        Args:
+            dmp_info (dict): Contains all the parameters of a DMP (phi_j, tau, alpha, beta, num_basis, 
+                                                                   num_sensors, mu, h, and weights) 
+            duration (float): A float in the unit of seconds
+        '''
+
+        skill = JointPoseDMPWithDefaultSensorSkill()
+        skill.add_initial_sensor_values(dmp_info['phi_j'])  # sensor values
+        y0 = [-0.282, -0.189, 0.0668, -2.186, 0.0524, 1.916, -1.06273]
+        # Run time, tau, alpha, beta, num_basis, num_sensor_values, mu, h, weights
+        trajectory_params = [duration, dmp_info['tau'], dmp_info['alpha'], dmp_info['beta'],
+                             float(dmp_info['num_basis']), float(dmp_info['num_sensors'])] \
+                             + dmp_info['mu'] \
+                             + dmp_info['h'] \
+                             + y0 \
+                             + np.array(dmp_info['weights']).reshape(-1).tolist()
+
+        skill.add_trajectory_params(trajectory_params)
+        skill.set_meta_skill_id(meta_skill_id)
+        skill.set_meta_skill_type(1)
+        skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
+
+        goal = skill.create_goal()
+        
+        self._send_goal(goal, cb=lambda x: skill.feedback_callback(x), ignore_errors=ignore_errors)
 
     def apply_effector_forces_torques(self, run_duration, acc_duration, max_translation, max_rotation, 
                                     forces=None, torques=None, ignore_errors=True):
@@ -274,11 +313,10 @@ class FrankaArm:
         skill = GripperWithDefaultSensorSkill()
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
 
-        # TODO(jacky): why is wait time needed?
         if force is not None:
-            skill.add_trajectory_params([width, speed, force, FC.GRIPPER_WAIT_TIME])  # Gripper Width, Gripper Speed, Wait Time
+            skill.add_trajectory_params([width, speed, force])  # Gripper Width, Gripper Speed
         else:
-            skill.add_trajectory_params([width, speed, FC.GRIPPER_WAIT_TIME])  # Gripper Width, Gripper Speed, Wait Time
+            skill.add_trajectory_params([width, speed])  # Gripper Width, Gripper Speed
             
         goal = skill.create_goal()
 

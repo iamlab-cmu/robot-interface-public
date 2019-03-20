@@ -17,7 +17,7 @@ void TimeTerminationHandler::parse_parameters() {
     buffer_time_ = static_cast<double>(params_[2]);
   } else {
     buffer_time_ = 0.0;
-  	std::cout << "TimeTerminationHandler Error: invalid number of params provided: " << num_params << std::endl;
+    std::cout << "TimeTerminationHandler Error: invalid number of params provided: " << num_params << std::endl;
   }
 }
 
@@ -42,6 +42,7 @@ bool TimeTerminationHandler::should_terminate(TrajectoryGenerator *trajectory_ge
   return done_;
 }
 
-bool TimeTerminationHandler::should_terminate_on_franka(const franka::RobotState &_, TrajectoryGenerator *trajectory_generator) {
+bool TimeTerminationHandler::should_terminate_on_franka(const franka::RobotState &_, 
+                                                        TrajectoryGenerator *trajectory_generator) {
   return should_terminate(trajectory_generator);
 }

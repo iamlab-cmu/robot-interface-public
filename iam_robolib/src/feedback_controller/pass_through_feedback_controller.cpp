@@ -23,7 +23,7 @@ void PassThroughFeedbackController::get_next_step() {
 }
 
 void PassThroughFeedbackController::get_next_step(const franka::RobotState &robot_state,
-                                                TrajectoryGenerator *traj_generator) {
+                                                  TrajectoryGenerator *traj_generator) {
     
     double* force_torque_desired_ptr = &(traj_generator->force_torque_desired_[0]);
     Eigen::Map<Eigen::VectorXd> desired_force_torque(force_torque_desired_ptr, 6);

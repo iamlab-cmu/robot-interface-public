@@ -26,7 +26,7 @@ class DmpTrajectoryGenerator : public TrajectoryGenerator {
   std::array<double, 7> dy_={};
 
  private:
-  // Variables initialized from shared memory should be floats.
+  // Variables initialized from shared memory should be doubles.
   double alpha_=25.0;
   double beta_=25.0/4.0;
   double tau_=0.0;
@@ -34,11 +34,11 @@ class DmpTrajectoryGenerator : public TrajectoryGenerator {
   int num_basis_;
   int num_dims_=7;
   int num_sensor_values_=10;
-  std::array<float, 10> basis_mean_{};
-  std::array<float, 10> basis_std_{};
-  std::array<std::array<std::array<float, 7>, 10>, 20> weights_{};
-  std::array<float, 10> initial_sensor_values_{{1., 0., 0., 0., 1., 1., 0., 0., 1., 0.}};
-  std::array<float, 7> y0_={};
+  std::array<double, 10> basis_mean_{};
+  std::array<double, 10> basis_std_{};
+  std::array<std::array<std::array<double, 7>, 10>, 20> weights_{};
+  std::array<double, 10> initial_sensor_values_{{1., 0., 0., 0., 1., 1., 0., 0., 1., 0.}};
+  std::array<double, 7> y0_={};
 
   void getInitialMeanAndStd();
 };

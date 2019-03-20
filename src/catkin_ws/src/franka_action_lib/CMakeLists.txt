@@ -64,8 +64,10 @@ LINK_DIRECTORIES(${iam_robolib_common_lib})
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
-  RobotState.msg
+  Errors.msg
   RobolibStatus.msg
+  RobotState.msg
+  RunLoopProcessInfoState.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -152,6 +154,7 @@ add_executable(example_execute_skill_action_client_node src/example_execute_skil
 add_executable(execute_skill_action_server_node src/execute_skill_action_server.cpp src/execute_skill_action_server_node.cpp)
 add_executable(robot_state_publisher_node src/robot_state_publisher.cpp src/robot_state_publisher_node.cpp)
 add_executable(robolib_status_publisher_node src/robolib_status_publisher.cpp src/robolib_status_publisher_node.cpp)
+add_executable(run_loop_process_info_state_publisher_node src/run_loop_process_info_state_publisher.cpp src/run_loop_process_info_state_publisher_node.cpp)
 add_executable(get_current_robot_state_server_node src/get_current_robot_state_server.cpp src/get_current_robot_state_server_node.cpp)
 add_executable(get_current_robolib_status_server_node src/get_current_robolib_status_server.cpp src/get_current_robolib_status_server_node.cpp)
 
@@ -197,6 +200,15 @@ target_link_libraries(
 )
 target_link_libraries(
   robolib_status_publisher_node
+  Threads::Threads
+  ${Boost_LIBRARIES}
+  ${catkin_LIBRARIES}
+  rt
+  iam_robolib_common
+  ${PROJECT_NAME}
+)
+target_link_libraries(
+  run_loop_process_info_state_publisher_node
   Threads::Threads
   ${Boost_LIBRARIES}
   ${catkin_LIBRARIES}

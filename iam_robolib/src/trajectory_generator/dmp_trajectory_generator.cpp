@@ -33,11 +33,11 @@ void DmpTrajectoryGenerator::parse_parameters() {
     num_sensor_values_ = static_cast<int>(params_[7]);
 
     // Get the mean and std for the basis functions
-    memcpy(&basis_mean_, &params_[8], num_basis_ * sizeof(float));
-    memcpy(&basis_std_, &params_[8+num_basis_], num_basis_ * sizeof(float));
-    memcpy(&y0_, &params_[8 + 2*num_basis_], 7 * sizeof(float));
+    memcpy(&basis_mean_, &params_[8], num_basis_ * sizeof(double));
+    memcpy(&basis_std_, &params_[8+num_basis_], num_basis_ * sizeof(double));
+    memcpy(&y0_, &params_[8 + 2*num_basis_], 7 * sizeof(double));
 
-    // memcpy(&weights_, &params_[8 + 2*num_basis_ + 7], num_dims_ * num_sensor_values_ * num_basis_ * sizeof(float));
+    // memcpy(&weights_, &params_[8 + 2*num_basis_ + 7], num_dims_ * num_sensor_values_ * num_basis_ * sizeof(double));
     int params_start_idx = 8 + 2*num_basis_ + 7;
     for (int i = 0; i < num_dims_; i++) {
       for (int j = 0; j < num_sensor_values_; j++) {
@@ -65,7 +65,7 @@ void DmpTrajectoryGenerator::initialize_trajectory(const franka::RobotState &rob
   TrajectoryGenerator::initialize_initial_states(robot_state);
   // TODO: Should we use desired joint values here?
   for (size_t i = 0; i < y0_.size(); i++) {
-    y0_[i] = static_cast<float>(robot_state.q_d[i]);
+    y0_[i] = static_cast<double>(robot_state.q_d[i]);
   }
   y_ = robot_state.q;
   dy_ = robot_state.dq;

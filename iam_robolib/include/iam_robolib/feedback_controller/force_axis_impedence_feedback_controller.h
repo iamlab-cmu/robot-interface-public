@@ -5,7 +5,8 @@
 
 #include "iam_robolib/feedback_controller/feedback_controller.h"
 
-// An impedence controller that allows applying a force along a constrained axis.
+// An impedence controller that allows applying a force along a constrained 
+// axis.
 class ForceAxisImpedenceFeedbackController : public FeedbackController {
  public:
   using FeedbackController::FeedbackController;
@@ -18,7 +19,8 @@ class ForceAxisImpedenceFeedbackController : public FeedbackController {
 
   void get_next_step() override;
 
-  void get_next_step(const franka::RobotState &robot_state, TrajectoryGenerator *traj_generator) override;
+  void get_next_step(const franka::RobotState &robot_state, 
+                     TrajectoryGenerator *traj_generator) override;
 
  private:
   const franka::Model *model_;
