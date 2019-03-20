@@ -5,6 +5,7 @@ roslib.load_manifest('franka_action_lib')
 import rospy
 import actionlib
 import numpy as np
+from .iam_robolib_common_definitions import *
 
 from franka_action_lib.msg import ExecuteSkillAction, ExecuteSkillGoal
 
@@ -106,13 +107,13 @@ class BaseSkill(object):
 
 class GripperWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
-                skill_type=1,
+                skill_type=SkillType.GripperSkill,
                 skill_description='',
-                meta_skill_type=0,
+                meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=5,
-                feedback_controller_type=1,
-                termination_type=1,
+                trajectory_generator_type=TrajectoryGeneratorType.GripperTrajectoryGenerator,
+                feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
+                termination_type=TerminationHandlerType.NoopTerminationHandler,
                 timer_type=1):
         if len(skill_description) == 0:
             skill_description = GripperWithDefaultSensorSkill.__name__
@@ -129,13 +130,13 @@ class GripperWithDefaultSensorSkill(BaseSkill):
 
 class JointPoseDMPWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
-                skill_type=2,
+                skill_type=SkillType.JointPoseSkill,
                 skill_description='',
-                meta_skill_type=0,
+                meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=7,
-                feedback_controller_type=1,
-                termination_type=6,
+                trajectory_generator_type=TrajectoryGeneratorType.DmpTrajectoryGenerator,
+                feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
+                termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):
         if len(skill_description) == 0:
             skill_description = JointPoseWithDefaultSensorSkill.__name__
@@ -152,13 +153,13 @@ class JointPoseDMPWithDefaultSensorSkill(BaseSkill):
 
 class JointPoseDMPWithTorqueControlWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
-                skill_type=2,
+                skill_type=SkillType.JointPoseSkill,
                 skill_description='',
-                meta_skill_type=0,
+                meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=7,
-                feedback_controller_type=3,
-                termination_type=6,
+                trajectory_generator_type=TrajectoryGeneratorType.DmpTrajectoryGenerator,
+                feedback_controller_type=FeedbackControllerType.CustomGainTorqueController,
+                termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):
         if len(skill_description) == 0:
             skill_description = \
@@ -176,13 +177,13 @@ class JointPoseDMPWithTorqueControlWithDefaultSensorSkill(BaseSkill):
 
 class JointPoseWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
-                skill_type=2,
+                skill_type=SkillType.JointPoseSkill,
                 skill_description='',
-                meta_skill_type=0,
+                meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=3,
-                feedback_controller_type=1,
-                termination_type=3,
+                trajectory_generator_type=TrajectoryGeneratorType.LinearJointTrajectoryGenerator,
+                feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
+                termination_type=TerminationHandlerType.FinalJointTerminationHandler,
                 timer_type=1):
         if len(skill_description) == 0:
             skill_description = JointPoseWithDefaultSensorSkill.__name__
@@ -199,13 +200,13 @@ class JointPoseWithDefaultSensorSkill(BaseSkill):
 
 class JointPoseMinJerkWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
-                skill_type=2,
+                skill_type=SkillType.JointPoseSkill,
                 skill_description='',
-                meta_skill_type=0,
+                meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=10,
-                feedback_controller_type=1,
-                termination_type=3,
+                trajectory_generator_type=TrajectoryGeneratorType.MinJerkJointTrajectoryGenerator,
+                feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
+                termination_type=TerminationHandlerType.FinalJointTerminationHandler,
                 timer_type=1):
         if len(skill_description) == 0:
             skill_description = JointPoseMinJerkWithDefaultSensorSkill.__name__
@@ -222,13 +223,13 @@ class JointPoseMinJerkWithDefaultSensorSkill(BaseSkill):
 
 class ArmMoveToGoalWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
-                skill_type=0,
+                skill_type=SkillType.SkillInfo,
                 skill_description='',
-                meta_skill_type=0,
+                meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=4,
-                feedback_controller_type=2,
-                termination_type=4,
+                trajectory_generator_type=TrajectoryGeneratorType.LinearTrajectoryGeneratorWithTimeAndGoal,
+                feedback_controller_type=FeedbackControllerType.TorqueFeedbackController,
+                termination_type=TerminationHandlerType.LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler,
                 timer_type=1):
         if len(skill_description) == 0:
             skill_description = ArmMoveToGoalWithDefaultSensorSkill.__name__
@@ -248,13 +249,13 @@ class ArmMoveToGoalWithDefaultSensorSkill(BaseSkill):
 
 class ArmRelativeMotionWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
-                skill_type=0,
+                skill_type=SkillType.SkillInfo,
                 skill_description='',
-                meta_skill_type=0,
+                meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=8,
-                feedback_controller_type=2,
-                termination_type=4,
+                trajectory_generator_type=TrajectoryGeneratorType.RelativeLinearTrajectoryGenerator,
+                feedback_controller_type=FeedbackControllerType.TorqueFeedbackController,
+                termination_type=TerminationHandlerType.LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler,
                 timer_type=1):
         if len(skill_description) == 0:
             skill_description = ArmRelativeMotionWithDefaultSensorSkill.__name__
@@ -276,13 +277,13 @@ class ArmRelativeMotionWithDefaultSensorSkill(BaseSkill):
 
 class ArmRelativeMotionToContactWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
-                skill_type=0,
+                skill_type=SkillType.SkillInfo,
                 skill_description='',
-                meta_skill_type=0,
+                meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=8,
-                feedback_controller_type=2,
-                termination_type=5,
+                trajectory_generator_type=TrajectoryGeneratorType.RelativeLinearTrajectoryGenerator,
+                feedback_controller_type=FeedbackControllerType.TorqueFeedbackController,
+                termination_type=TerminationHandlerType.ContactTerminationHandler,
                 timer_type=1):
         if len(skill_description) == 0:
             skill_description = \
@@ -394,13 +395,13 @@ class ArmRelativeMotionToContactWithDefaultSensorSkill(BaseSkill):
 
 class ArmMoveToGoalContactWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
-                skill_type=0,
+                skill_type=SkillType.SkillInfo,
                 skill_description='',
-                meta_skill_type=0,
+                meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=4,
-                feedback_controller_type=2,
-                termination_type=5,
+                trajectory_generator_type=TrajectoryGeneratorType.LinearTrajectoryGeneratorWithTimeAndGoal,
+                feedback_controller_type=FeedbackControllerType.TorqueFeedbackController,
+                termination_type=TerminationHandlerType.ContactTerminationHandler,
                 timer_type=1):
         if len(skill_description) == 0:
             skill_description = \
@@ -441,13 +442,13 @@ class ArmMoveToGoalContactWithDefaultSensorSkill(BaseSkill):
 
 class NoOpSkill(BaseSkill):
     def __init__(self, 
-                skill_type=0,
+                skill_type=SkillType.SkillInfo,
                 skill_description='',
-                meta_skill_type=0,
+                meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=1,
-                feedback_controller_type=1,
-                termination_type=1,
+                trajectory_generator_type=TrajectoryGeneratorType.CounterTrajectoryGenerator,
+                feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
+                termination_type=TerminationHandlerType.NoopTerminationHandler,
                 timer_type=1):
         if len(skill_description) == 0:
             skill_description = NoOpSkill.__name__
@@ -465,13 +466,13 @@ class NoOpSkill(BaseSkill):
 
 class SaveTrajectorySkill(BaseSkill):
     def __init__(self, 
-                skill_type=3,
+                skill_type=SkillType.SaveTrajectorySkill,
                 skill_description='',
-                meta_skill_type=0,
+                meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=6,
-                feedback_controller_type=1,
-                termination_type=6,
+                trajectory_generator_type=TrajectoryGeneratorType.StayInInitialPositionTrajectoryGenerator,
+                feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
+                termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):
         if len(skill_description) == 0:
             skill_description = SaveTrajectorySkill.__name__
@@ -489,13 +490,13 @@ class SaveTrajectorySkill(BaseSkill):
 
 class StayInPositionWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
-                skill_type=0,
+                skill_type=SkillType.SkillInfo,
                 skill_description='',
-                meta_skill_type=0,
+                meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=6,
-                feedback_controller_type=2,
-                termination_type=6,
+                trajectory_generator_type=TrajectoryGeneratorType.StayInInitialPositionTrajectoryGenerator,
+                feedback_controller_type=FeedbackControllerType.TorqueFeedbackController,
+                termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):
         if len(skill_description) == 0:
             skill_description = StayInPositionWithDefaultSensorSkill.__name__
@@ -512,13 +513,13 @@ class StayInPositionWithDefaultSensorSkill(BaseSkill):
 
 class ForceTorqueSkill(BaseSkill):
     def __init__(self, 
-                skill_type=4,
+                skill_type=SkillType.ForceTorqueSkill,
                 skill_description='',
-                meta_skill_type=0,
+                meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=9,
-                feedback_controller_type=5,
-                termination_type=6,
+                trajectory_generator_type=TrajectoryGeneratorType.ImpulseTrajectoryGenerator,
+                feedback_controller_type=FeedbackControllerType.PassThroughFeedbackController,
+                termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):
         if len(skill_description) == 0:
             skill_description = ForceTorqueSkill.__name__
@@ -535,13 +536,13 @@ class ForceTorqueSkill(BaseSkill):
 
 class ForceAlongAxisSkill(BaseSkill):
     def __init__(self, 
-                skill_type=4,
+                skill_type=SkillType.ForceTorqueSkill,
                 skill_description='',
-                meta_skill_type=0,
+                meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=9,
-                feedback_controller_type=4,
-                termination_type=6,
+                trajectory_generator_type=TrajectoryGeneratorType.ImpulseTrajectoryGenerator,
+                feedback_controller_type=FeedbackControllerType.ForceAxisImpedenceFeedbackController,
+                termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):
         if len(skill_description) == 0:
             skill_description = ForceTorqueSkill.__name__

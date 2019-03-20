@@ -14,6 +14,7 @@ from .skill_list import *
 from .exceptions import *
 from .franka_arm_state_client import FrankaArmStateClient
 from .franka_constants import FrankaConstants as FC
+from .iam_robolib_common_definitions import *
 
 class FrankaArm:
 
@@ -220,7 +221,7 @@ class FrankaArm:
 
         skill.add_trajectory_params(trajectory_params)
         skill.set_meta_skill_id(meta_skill_id)
-        skill.set_meta_skill_type(1)
+        skill.set_meta_skill_type(MetaSkillType.JointPoseContinuousSkill)
         skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
 
         goal = skill.create_goal()

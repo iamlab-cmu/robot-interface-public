@@ -12,6 +12,7 @@
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 
+#include <iam_robolib_common/definitions.h>
 #include <iam_robolib_common/run_loop_process_info.h>
 #include <iam_robolib_common/SharedMemoryInfo.h>
 
@@ -23,7 +24,6 @@
 #include "iam_robolib/trajectory_generator_factory.h"
 #include "iam_robolib/feedback_controller_factory.h"
 #include "iam_robolib/termination_handler_factory.h"
-#include "iam_robolib/definitions.h"
 #include "iam_robolib/robots/robot.h"
 #include "iam_robolib/robots/franka_robot.h"
 #include "iam_robolib/robots/ur5e_robot.h"

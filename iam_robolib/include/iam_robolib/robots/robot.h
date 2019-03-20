@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "iam_robolib/definitions.h"
+#include <iam_robolib_common/definitions.h>
 
 class Robot
 {
