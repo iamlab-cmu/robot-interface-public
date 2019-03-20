@@ -24,12 +24,12 @@ All directories below are given relative to `/robot-interface`.
 
 2. Build LibFranka
 ```bash
-bash make_libfranka.sh
+bash ./bash_scripts/make_libfranka.sh
 ```
 
 3. Build iam_robolib
 ```bash
-bash make_iam_robolib.sh
+bash ./bash_scripts/make_iam_robolib.sh
 ```
 Once it has finished building, you should see an application named `main_iam_robolib` in the build folder.
 
@@ -37,14 +37,14 @@ Once it has finished building, you should see an application named `main_iam_rob
 Make sure that you have installed ROS Kinetic already and have added the `source /opt/ros/kinetic/setup.bash` into your `~/.bashrc` file.
 
 ```bash
-cd src/catkin_ws
+cd catkin_ws
 catkin_make
 ```
 Once catkin_make has finished there should be a build and devel folder in the catkin_ws folder.
 
 5. Install FrankaPy
 ```bash
-cd src/catkin_ws/src/franka_action_lib
+cd catkin_ws/src/franka_action_lib
 pip install -e .
 ```
 
@@ -55,19 +55,19 @@ pip install -e .
 
 Terminal 1:
 ```bash
-bash run_iam_robolib.sh
+bash ./bash_scripts/run_iam_robolib.sh
 ```
 
 Terminal 2:
 ```bash
-source src/catkin_ws/devel/setup.sh
+source catkin_ws/devel/setup.sh
 roslaunch franka_action_lib franka_ros_interface.launch
 ```
 
 Terminal 3:
 ```bash
-source src/catkin_ws/devel/setup.sh
+source catkin_ws/devel/setup.sh
 ```
-Now in terminal 3 you can run any of the scripts in `src/catkin_ws/src/examples` and `src/catkin_ws/src/scripts`.
+Now in terminal 3 you can run any of the scripts in `catkin_ws/src/examples` and `catkin_ws/src/scripts`.
 
-See `src/catkin_ws/src_scripts/reset_arm.py` for an example of how to use the `FrankaPy` python package.
+See `catkin_ws/src/franka_action_lib/scripts/reset_arm.py` for an example of how to use the `FrankaPy` python package.
