@@ -8,7 +8,6 @@
 #include <iostream>
 
 #include "iam_robolib/trajectory_generator/trajectory_generator.h"
-#include "iam_robolib/trajectory_generator/counter_trajectory_generator.h"
 
 void ContactTerminationHandler::parse_parameters() {
   // First parameter is reserved for the type

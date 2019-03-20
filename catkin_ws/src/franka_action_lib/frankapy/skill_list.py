@@ -440,30 +440,6 @@ class ArmMoveToGoalContactWithDefaultSensorSkill(BaseSkill):
 
         self.add_termination_params(params)
 
-class NoOpSkill(BaseSkill):
-    def __init__(self, 
-                skill_type=SkillType.SkillInfo,
-                skill_description='',
-                meta_skill_type=MetaSkillType.BaseMetaSkill,
-                meta_skill_id=0,
-                trajectory_generator_type=TrajectoryGeneratorType.CounterTrajectoryGenerator,
-                feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
-                termination_type=TerminationHandlerType.NoopTerminationHandler,
-                timer_type=1):
-        if len(skill_description) == 0:
-            skill_description = NoOpSkill.__name__
-
-        super(NoOpSkill, self).__init__(
-              skill_type,
-              skill_description,
-              meta_skill_type,
-              meta_skill_id,
-              ['/franka_robot/camera'],
-              trajectory_generator_type,
-              feedback_controller_type,
-              termination_type,
-              timer_type)
-
 class StayInPositionWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.SkillInfo,
