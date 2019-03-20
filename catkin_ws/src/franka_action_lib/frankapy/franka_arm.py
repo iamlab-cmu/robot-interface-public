@@ -1,10 +1,5 @@
 import sys, signal, logging
 from time import time, sleep
-from multiprocessing import Queue
-try:
-    from Queue import Empty
-except:
-    from queue import Empty
 import numpy as np
 from autolab_core import RigidTransform
 
