@@ -7,7 +7,7 @@ sed -i '129s/.*/option(BUILD_TESTS "Build tests" OFF)/' CMakeLists.txt
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release .. && make
 
-cd ..
+cd ../..
 
 # Copy needed files from libfranka cmake. -n means don't copy if dest. file exists
 [ -d cmake ] || mkdir cmake
