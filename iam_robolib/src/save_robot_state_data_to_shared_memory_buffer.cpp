@@ -6,7 +6,7 @@ void save_robot_state_data_to_shared_memory_buffer(RunLoopSharedMemoryHandler* s
   if(buffer_num == 0) {
     if (robot_state_data->log_O_T_EE_0_.size() > 0 && robot_state_data->buffer_0_mutex_.try_lock()) {
       if (shared_memory_handler->getCurrentRobotStateBufferMutex()->try_lock()) {
-        SharedBufferType current_robot_state_buffer = shared_memory_handler->getCurrentRobotStateBuffer();
+        SharedBufferDataTypePtr current_robot_state_buffer = shared_memory_handler->getCurrentRobotStateBuffer();
         size_t buffer_idx = 0;
 
         current_robot_state_buffer[buffer_idx++] = static_cast<SharedBufferDataType>(16+16+16+16+
@@ -204,7 +204,7 @@ void save_robot_state_data_to_shared_memory_buffer(RunLoopSharedMemoryHandler* s
   else {
     if (robot_state_data->log_O_T_EE_1_.size() > 0 && robot_state_data->buffer_1_mutex_.try_lock()) {
       if (shared_memory_handler->getCurrentRobotStateBufferMutex()->try_lock()) {
-        SharedBufferType current_robot_state_buffer = shared_memory_handler->getCurrentRobotStateBuffer();
+        SharedBufferDataTypePtr current_robot_state_buffer = shared_memory_handler->getCurrentRobotStateBuffer();
         size_t buffer_idx = 0;
 
         current_robot_state_buffer[buffer_idx++] = static_cast<SharedBufferDataType>(16+16+16+16+

@@ -108,17 +108,17 @@ void run_loop::start_new_skill(BaseSkill* new_skill) {
   int memory_index = run_loop_info->get_current_shared_memory_index();
   std::cout << string_format("Create skill from memory index: %d\n", memory_index);
 
-  SharedBufferType traj_buffer = shared_memory_handler_->getTrajectoryGeneratorBuffer(memory_index);
+  SharedBufferDataTypePtr traj_buffer = shared_memory_handler_->getTrajectoryGeneratorBuffer(memory_index);
   TrajectoryGenerator *traj_generator = traj_gen_factory_.getTrajectoryGeneratorForSkill(
       traj_buffer);
   std::cout << "Did get traj generator\n";
 
-  SharedBufferType feedback_controller_buffer = shared_memory_handler_->getFeedbackControllerBuffer(
+  SharedBufferDataTypePtr feedback_controller_buffer = shared_memory_handler_->getFeedbackControllerBuffer(
       memory_index);
   FeedbackController *feedback_controller =
       feedback_controller_factory_.getFeedbackControllerForSkill(feedback_controller_buffer);
 
-  SharedBufferType termination_handler_buffer = shared_memory_handler_->getTerminationParametersBuffer(
+  SharedBufferDataTypePtr termination_handler_buffer = shared_memory_handler_->getTerminationParametersBuffer(
       memory_index);
   TerminationHandler* termination_handler =
       termination_handler_factory_.getTerminationHandlerForSkill(termination_handler_buffer, run_loop_info);
@@ -140,7 +140,7 @@ void run_loop::finish_current_skill(BaseSkill* skill) {
 
     std::cout << "Writing to execution result buffer number: " << memory_index << std::endl;
 
-    SharedBufferType buffer = shared_memory_handler_->getExecutionResultBuffer(memory_index);
+    SharedBufferDataTypePtr buffer = shared_memory_handler_->getExecutionResultBuffer(memory_index);
     skill->write_result_to_shared_memory(buffer, robot_);
   }
 
@@ -286,7 +286,7 @@ void run_loop::run() {
       skill->execute_skill();
 
       int memory_index = run_loop_info->get_current_shared_memory_index();
-      SharedBufferType buffer = shared_memory_handler_->getFeedbackResultBuffer(memory_index);
+      SharedBufferDataTypePtr buffer = shared_memory_handler_->getFeedbackResultBuffer(memory_index);
       skill->write_feedback_to_shared_memory(buffer);
 
       // Finish skill if possible.

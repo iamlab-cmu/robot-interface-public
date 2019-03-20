@@ -10,7 +10,7 @@
 
 class TerminationHandler {
  public:
-  explicit TerminationHandler(SharedBufferType p, RunLoopProcessInfo *r) : 
+  explicit TerminationHandler(SharedBufferDataTypePtr p, RunLoopProcessInfo *r) : 
                                                   params_{p}, 
                                                   run_loop_info_{r} 
   {};
@@ -55,7 +55,7 @@ class TerminationHandler {
 
   bool done_ = false;
  protected:
-  SharedBufferType params_ = 0;
+  SharedBufferDataTypePtr params_ = 0;
   RunLoopProcessInfo *run_loop_info_ = nullptr;
 };
 

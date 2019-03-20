@@ -118,31 +118,31 @@ namespace franka_action_lib
 
       boost::interprocess::mapped_region shared_current_robot_region_;
 
-      SharedBufferType traj_gen_buffer_0_;
-      SharedBufferType feedback_controller_buffer_0_;
-      SharedBufferType termination_buffer_0_;
-      SharedBufferType timer_buffer_0_;
-      SharedBufferType traj_gen_buffer_1_;
-      SharedBufferType feedback_controller_buffer_1_;
-      SharedBufferType termination_buffer_1_;
-      SharedBufferType timer_buffer_1_;
+      SharedBufferDataTypePtr traj_gen_buffer_0_;
+      SharedBufferDataTypePtr feedback_controller_buffer_0_;
+      SharedBufferDataTypePtr termination_buffer_0_;
+      SharedBufferDataTypePtr timer_buffer_0_;
+      SharedBufferDataTypePtr traj_gen_buffer_1_;
+      SharedBufferDataTypePtr feedback_controller_buffer_1_;
+      SharedBufferDataTypePtr termination_buffer_1_;
+      SharedBufferDataTypePtr timer_buffer_1_;
 
-      SharedBufferType traj_gen_sensor_buffer_0_;
-      SharedBufferType feedback_controller_sensor_buffer_0_;
-      SharedBufferType termination_sensor_buffer_0_;
-      SharedBufferType timer_sensor_buffer_0_;
+      SharedBufferDataTypePtr traj_gen_sensor_buffer_0_;
+      SharedBufferDataTypePtr feedback_controller_sensor_buffer_0_;
+      SharedBufferDataTypePtr termination_sensor_buffer_0_;
+      SharedBufferDataTypePtr timer_sensor_buffer_0_;
 
-      SharedBufferType traj_gen_sensor_buffer_1_;
-      SharedBufferType feedback_controller_sensor_buffer_1_;
-      SharedBufferType termination_sensor_buffer_1_;
-      SharedBufferType timer_sensor_buffer_1_;
+      SharedBufferDataTypePtr traj_gen_sensor_buffer_1_;
+      SharedBufferDataTypePtr feedback_controller_sensor_buffer_1_;
+      SharedBufferDataTypePtr termination_sensor_buffer_1_;
+      SharedBufferDataTypePtr timer_sensor_buffer_1_;
 
-      SharedBufferType execution_feedback_buffer_0_;
-      SharedBufferType execution_result_buffer_0_;
-      SharedBufferType execution_feedback_buffer_1_;
-      SharedBufferType execution_result_buffer_1_;
+      SharedBufferDataTypePtr execution_feedback_buffer_0_;
+      SharedBufferDataTypePtr execution_result_buffer_0_;
+      SharedBufferDataTypePtr execution_feedback_buffer_1_;
+      SharedBufferDataTypePtr execution_result_buffer_1_;
 
-      SharedBufferType current_robot_state_buffer_;
+      SharedBufferDataTypePtr current_robot_state_buffer_;
 
       int getCurrentFreeSharedMemoryIndexInSharedMemoryUnprotected();
       int getCurrentSkillIdInSharedMemoryUnprotected();

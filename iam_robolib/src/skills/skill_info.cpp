@@ -377,7 +377,7 @@ void SkillInfo::execute_skill_on_franka_temp(run_loop* run_loop,
 
 
   /*int memory_index = run_loop_info_->get_current_shared_memory_index();
-  SharedBufferType buffer = execution_feedback_buffer_0_;
+  SharedBufferDataTypePtr buffer = execution_feedback_buffer_0_;
   if (memory_index == 1) {
     buffer = execution_feedback_buffer_1_;
   }
@@ -391,11 +391,11 @@ void SkillInfo::execute_skill_on_franka_temp(run_loop* run_loop,
   robot->robot_.control(impedance_control_callback);
 }
 
-void SkillInfo::write_result_to_shared_memory(SharedBufferType result_buffer) {
+void SkillInfo::write_result_to_shared_memory(SharedBufferDataTypePtr result_buffer) {
   std::cout << "Should write result to shared memory\n";
 }
 
-void SkillInfo::write_result_to_shared_memory(SharedBufferType result_buffer, FrankaRobot* robot) {
+void SkillInfo::write_result_to_shared_memory(SharedBufferDataTypePtr result_buffer, FrankaRobot* robot) {
   franka::GripperState gripper_state = robot->getGripperState();
   franka::RobotState robot_state = robot->getRobotState();
 
@@ -614,7 +614,7 @@ void SkillInfo::write_result_to_shared_memory(SharedBufferType result_buffer, Fr
   result_buffer[result_buffer_idx++] = gripper_state.time.toSec();
 }
 
-void SkillInfo::write_result_to_shared_memory(SharedBufferType result_buffer, Robot* robot) {
+void SkillInfo::write_result_to_shared_memory(SharedBufferDataTypePtr result_buffer, Robot* robot) {
   std::cout << "Writing final robot state to shared memory\n";
 
   switch(robot->robot_type_)
@@ -628,6 +628,6 @@ void SkillInfo::write_result_to_shared_memory(SharedBufferType result_buffer, Ro
   
 }
 
-void SkillInfo::write_feedback_to_shared_memory(SharedBufferType feedback_buffer) {
+void SkillInfo::write_feedback_to_shared_memory(SharedBufferDataTypePtr feedback_buffer) {
   std::cout << "Should write feedback to shared memory\n";
 }
