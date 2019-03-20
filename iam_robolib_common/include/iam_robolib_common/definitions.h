@@ -57,10 +57,10 @@ enum class FeedbackControllerType : uint8_t {
 
 // Enum for Termination Handler Types
 enum class TerminationHandlerType : uint8_t {
-    ContactTerminationHandler = 4,
+    ContactTerminationHandler = 1,
     FinalJointTerminationHandler = 2,
     FinalPoseTerminationHandler = 3,
-    NoopTerminationHandler = 1,
+    NoopTerminationHandler = 4,
     TimeTerminationHandler = 5
 };
 
