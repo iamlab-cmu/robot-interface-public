@@ -16,7 +16,7 @@ class FeedbackControllerFactory {
    * will be stored.
    * @return FeedbackController instance for this skill
    */
-  FeedbackController* getFeedbackControllerForSkill(SharedBufferDataTypePtr buffer);
+  FeedbackController* getFeedbackControllerForSkill(SharedBufferTypePtr buffer);
 
 };
 

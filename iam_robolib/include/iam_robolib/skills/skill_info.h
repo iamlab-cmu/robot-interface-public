@@ -41,20 +41,20 @@ class SkillInfo : public BaseSkill {
    * Write result to the shared memory after skill is done.
    * @param result_buffer
    */
-  void write_result_to_shared_memory(SharedBufferDataTypePtr result_buffer) override;
+  void write_result_to_shared_memory(SharedBufferTypePtr result_buffer) override;
 
   /**
    * Write result to the shared memory after skill is done.
    * @param result_buffer
    */
-  void write_result_to_shared_memory(SharedBufferDataTypePtr result_buffer, 
+  void write_result_to_shared_memory(SharedBufferTypePtr result_buffer, 
                                      FrankaRobot *robot) override;
 
   /**
    * Write result to the shared memory after skill is done.
    * @param result_buffer
    */
-  void write_result_to_shared_memory(SharedBufferDataTypePtr result_buffer, 
+  void write_result_to_shared_memory(SharedBufferTypePtr result_buffer, 
                                      Robot *robot) override;
 
 
@@ -62,7 +62,7 @@ class SkillInfo : public BaseSkill {
    * Write feedback result to the shared memory as feedback for a skill.
    * @param feedback_buffer
    */
-  void write_feedback_to_shared_memory(SharedBufferDataTypePtr feedback_buffer) 
+  void write_feedback_to_shared_memory(SharedBufferTypePtr feedback_buffer) 
                                                                       override;
 
  protected:

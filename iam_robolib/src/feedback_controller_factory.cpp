@@ -12,7 +12,7 @@
 #include "iam_robolib/feedback_controller/pass_through_feedback_controller.h"
 #include "iam_robolib/feedback_controller/torque_feedback_controller.h"
 
-FeedbackController* FeedbackControllerFactory::getFeedbackControllerForSkill(SharedBufferDataTypePtr buffer){
+FeedbackController* FeedbackControllerFactory::getFeedbackControllerForSkill(SharedBufferTypePtr buffer){
   int feedback_controller_id = static_cast<int>(buffer[0]);
 
   std::cout << "Feedback Controller id: " << feedback_controller_id << "\n";

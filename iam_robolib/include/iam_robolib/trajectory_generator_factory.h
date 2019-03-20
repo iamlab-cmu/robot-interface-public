@@ -17,7 +17,7 @@ class TrajectoryGeneratorFactory {
    * @param memory_region  Region of the memory where the parameters
    * will be stored.
    */
-  TrajectoryGenerator* getTrajectoryGeneratorForSkill(SharedBufferDataTypePtr buffer);
+  TrajectoryGenerator* getTrajectoryGeneratorForSkill(SharedBufferTypePtr buffer);
 
 };
 

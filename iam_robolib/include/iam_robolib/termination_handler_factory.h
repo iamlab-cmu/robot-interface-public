@@ -17,7 +17,7 @@ class TerminationHandlerFactory {
    * will be stored.
    * @return TermatinationHanndler instance for this skill
    */
-  TerminationHandler* getTerminationHandlerForSkill(SharedBufferDataTypePtr buffer, 
+  TerminationHandler* getTerminationHandlerForSkill(SharedBufferTypePtr buffer, 
   													RunLoopProcessInfo *run_loop_info);
 
 };

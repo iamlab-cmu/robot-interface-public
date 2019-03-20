@@ -8,7 +8,7 @@
 
 class TrajectoryGenerator {
  public:
-  explicit TrajectoryGenerator(SharedBufferDataTypePtr p) : params_{p} {};
+  explicit TrajectoryGenerator(SharedBufferTypePtr p) : params_{p} {};
 
   /**
    * Parse parameters from memory.
@@ -49,7 +49,7 @@ class TrajectoryGenerator {
   double time_ = 0.0;
 
  protected:
-  SharedBufferDataTypePtr params_=0;
+  SharedBufferTypePtr params_=0;
 
 };
 

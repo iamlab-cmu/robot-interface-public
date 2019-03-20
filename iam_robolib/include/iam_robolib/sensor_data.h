@@ -5,7 +5,7 @@
 
 class SensorData {
  public:
-  explicit SensorData(SharedBufferDataTypePtr v) : values_{v} {};
+  explicit SensorData(SharedBufferTypePtr v) : values_{v} {};
 
   /**
    * Parse data from memory.
@@ -23,7 +23,7 @@ class SensorData {
   virtual bool update_data() = 0;
 
  protected:
-  SharedBufferDataTypePtr values_=0;
+  SharedBufferTypePtr values_=0;
 };
 
 #endif  // IAM_ROBOLIB_SENSOR_DATA_H_
