@@ -2,11 +2,11 @@
 // Created by Kevin on 11/29/18.
 //
 
-#include "iam_robolib/trajectory_generator/linear_trajectory_generator_with_time_and_goal.h"
+#include "iam_robolib/trajectory_generator/linear_pose_trajectory_generator.h"
 
 #include <cassert>
 
-void LinearTrajectoryGeneratorWithTimeAndGoal::parse_parameters() {
+void LinearPoseTrajectoryGenerator::parse_parameters() {
   // First parameter is reserved for the type
 
   int num_params = static_cast<int>(params_[1]);
@@ -72,15 +72,15 @@ void LinearTrajectoryGeneratorWithTimeAndGoal::parse_parameters() {
   }
 }
 
-void LinearTrajectoryGeneratorWithTimeAndGoal::initialize_trajectory() {
+void LinearPoseTrajectoryGenerator::initialize_trajectory() {
   // assert(false);
 }
 
-void LinearTrajectoryGeneratorWithTimeAndGoal::initialize_trajectory(const franka::RobotState &robot_state) {
+void LinearPoseTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
   TrajectoryGenerator::initialize_initial_states(robot_state);
 }
 
-void LinearTrajectoryGeneratorWithTimeAndGoal::get_next_step() {
+void LinearPoseTrajectoryGenerator::get_next_step() {
   t_ = std::min(std::max(time_ / run_time_, 0.0), 1.0);
 
   desired_position_ = initial_position_ + (goal_position_ - initial_position_) * t_;

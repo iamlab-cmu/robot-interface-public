@@ -36,12 +36,12 @@ enum class MetaSkillType : uint8_t {
 
 // Enum for Trajectory Generator Types
 enum class TrajectoryGeneratorType : uint8_t {
-    LinearTrajectoryGeneratorWithTimeAndGoal = 1,
+    LinearPoseTrajectoryGenerator = 1,
     LinearJointTrajectoryGenerator = 2,
     GripperTrajectoryGenerator = 3,
     StayInInitialPositionTrajectoryGenerator = 4,
     DmpTrajectoryGenerator = 5,
-    RelativeLinearTrajectoryGenerator = 6,
+    RelativeLinearPoseTrajectoryGenerator = 6,
     ImpulseTrajectoryGenerator = 7,
     MinJerkJointTrajectoryGenerator = 8
 };
@@ -57,10 +57,10 @@ enum class FeedbackControllerType : uint8_t {
 
 // Enum for Termination Handler Types
 enum class TerminationHandlerType : uint8_t {
-    NoopTerminationHandler = 1,
-    FinalJointTerminationHandler = 2,
-    LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler = 3,
     ContactTerminationHandler = 4,
+    FinalJointTerminationHandler = 2,
+    FinalPoseTerminationHandler = 3,
+    NoopTerminationHandler = 1,
     TimeTerminationHandler = 5
 };
 

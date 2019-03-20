@@ -11,10 +11,10 @@
 #include "iam_robolib/skills/base_skill.h"
 #include "iam_robolib/trajectory_generator/dmp_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/gripper_trajectory_generator.h"
-#include "iam_robolib/trajectory_generator/linear_trajectory_generator_with_time_and_goal.h"
+#include "iam_robolib/trajectory_generator/linear_pose_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/linear_joint_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/min_jerk_joint_trajectory_generator.h"
-#include "iam_robolib/trajectory_generator/relative_linear_trajectory_generator.h"
+#include "iam_robolib/trajectory_generator/relative_linear_pose_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/stay_in_initial_position_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/impulse_trajectory_generator.h"
 
@@ -31,8 +31,8 @@ TrajectoryGenerator* TrajectoryGeneratorFactory::getTrajectoryGeneratorForSkill(
     case TrajectoryGeneratorType::LinearJointTrajectoryGenerator:
       trajectory_generator = new LinearJointTrajectoryGenerator(buffer);
       break;
-    case TrajectoryGeneratorType::LinearTrajectoryGeneratorWithTimeAndGoal:
-      trajectory_generator = new LinearTrajectoryGeneratorWithTimeAndGoal(buffer);
+    case TrajectoryGeneratorType::LinearPoseTrajectoryGenerator:
+      trajectory_generator = new LinearPoseTrajectoryGenerator(buffer);
       break;
     case TrajectoryGeneratorType::GripperTrajectoryGenerator:
       trajectory_generator = new GripperTrajectoryGenerator(buffer);
@@ -43,8 +43,8 @@ TrajectoryGenerator* TrajectoryGeneratorFactory::getTrajectoryGeneratorForSkill(
     case TrajectoryGeneratorType::DmpTrajectoryGenerator:
       trajectory_generator = new DmpTrajectoryGenerator(buffer);
       break;
-    case TrajectoryGeneratorType::RelativeLinearTrajectoryGenerator:
-      trajectory_generator = new RelativeLinearTrajectoryGenerator(buffer);
+    case TrajectoryGeneratorType::RelativeLinearPoseTrajectoryGenerator:
+      trajectory_generator = new RelativeLinearPoseTrajectoryGenerator(buffer);
       break;
     case TrajectoryGeneratorType::ImpulseTrajectoryGenerator:
       trajectory_generator = new ImpulseTrajectoryGenerator(buffer);

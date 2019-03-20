@@ -1,11 +1,11 @@
-#ifndef IAM_ROBOLIB_TERMINATION_HANDLER_LINEAR_TRAJECTORY_GENERATOR_WITH_TIME_AND_GOAL_TERMINATION_HANDLER_H_
-#define IAM_ROBOLIB_TERMINATION_HANDLER_LINEAR_TRAJECTORY_GENERATOR_WITH_TIME_AND_GOAL_TERMINATION_HANDLER_H_
+#ifndef IAM_ROBOLIB_TERMINATION_HANDLER_FINAL_POSE_TERMINATION_HANDLER_H_
+#define IAM_ROBOLIB_TERMINATION_HANDLER_FINAL_POSE_TERMINATION_HANDLER_H_
 
 #include <Eigen/Dense>
 
 #include "iam_robolib/termination_handler/termination_handler.h"
 
-class LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler : public TerminationHandler {
+class FinalPoseTerminationHandler : public TerminationHandler {
  public:
   using TerminationHandler::TerminationHandler;
 
@@ -44,4 +44,4 @@ class LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler : public Termin
   Eigen::Vector3d orientation_thresholds_;
 };
 
-#endif  // IAM_ROBOLIB_TERMINATION_HANDLER_LINEAR_TRAJECTORY_GENERATOR_WITH_TIME_AND_GOAL_TERMINATION_HANDLER_H_
+#endif  // IAM_ROBOLIB_TERMINATION_HANDLER_FINAL_POSE_TERMINATION_HANDLER_H_

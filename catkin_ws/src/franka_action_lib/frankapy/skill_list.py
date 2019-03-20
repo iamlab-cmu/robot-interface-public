@@ -227,9 +227,9 @@ class ArmMoveToGoalWithDefaultSensorSkill(BaseSkill):
                 skill_description='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=TrajectoryGeneratorType.LinearTrajectoryGeneratorWithTimeAndGoal,
+                trajectory_generator_type=TrajectoryGeneratorType.LinearPoseTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.TorqueFeedbackController,
-                termination_type=TerminationHandlerType.LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler,
+                termination_type=TerminationHandlerType.FinalPoseTerminationHandler,
                 timer_type=1):
         if len(skill_description) == 0:
             skill_description = ArmMoveToGoalWithDefaultSensorSkill.__name__
@@ -253,9 +253,9 @@ class ArmRelativeMotionWithDefaultSensorSkill(BaseSkill):
                 skill_description='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=TrajectoryGeneratorType.RelativeLinearTrajectoryGenerator,
+                trajectory_generator_type=TrajectoryGeneratorType.RelativeLinearPoseTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.TorqueFeedbackController,
-                termination_type=TerminationHandlerType.LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler,
+                termination_type=TerminationHandlerType.FinalPoseTerminationHandler,
                 timer_type=1):
         if len(skill_description) == 0:
             skill_description = ArmRelativeMotionWithDefaultSensorSkill.__name__
@@ -281,7 +281,7 @@ class ArmRelativeMotionToContactWithDefaultSensorSkill(BaseSkill):
                 skill_description='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=TrajectoryGeneratorType.RelativeLinearTrajectoryGenerator,
+                trajectory_generator_type=TrajectoryGeneratorType.RelativeLinearPoseTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.TorqueFeedbackController,
                 termination_type=TerminationHandlerType.ContactTerminationHandler,
                 timer_type=1):
@@ -399,7 +399,7 @@ class ArmMoveToGoalContactWithDefaultSensorSkill(BaseSkill):
                 skill_description='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=TrajectoryGeneratorType.LinearTrajectoryGeneratorWithTimeAndGoal,
+                trajectory_generator_type=TrajectoryGeneratorType.LinearPoseTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.TorqueFeedbackController,
                 termination_type=TerminationHandlerType.ContactTerminationHandler,
                 timer_type=1):
