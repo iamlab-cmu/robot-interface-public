@@ -1,0 +1,8 @@
+prefix=/home/klz1/Documents/robot-interface/catkin_ws/devel
+
+Name: franka_action_lib
+Description: Description of franka_action_lib
+Version: 0.0.0
+Cflags: -I/home/klz1/Documents/robot-interface/catkin_ws/devel/include -I/home/klz1/Documents/robot-interface/catkin_ws/src/franka_action_lib/include
+Libs: -L/home/klz1/Documents/robot-interface/catkin_ws/devel/lib 
+Requires: roscpp rospy actionlib_msgs
