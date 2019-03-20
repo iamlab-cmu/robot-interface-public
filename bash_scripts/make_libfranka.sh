@@ -8,3 +8,8 @@ mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release .. && make
 
 cd ..
+
+# Copy needed files from libfranka cmake. -n means don't copy if dest. file exists
+[ -d cmake ] || mkdir cmake
+cp -n libfranka/cmake/FindEigen3.cmake cmake/
+cp -n libfranka/cmake/FindPoco.cmake cmake/
