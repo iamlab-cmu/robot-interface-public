@@ -376,7 +376,7 @@ class FrankaArm:
         skill = StayInPositionWithDefaultSensorSkill()
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
-        skill.add_feedback_controller_params([translational_stiffnesses] + [rotational_stiffnesses])
+        skill.add_feedback_controller_params(translational_stiffnesses + rotational_stiffnesses)
         skill.add_trajectory_params([duration])
         goal = skill.create_goal()
         
