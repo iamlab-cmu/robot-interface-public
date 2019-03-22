@@ -342,13 +342,41 @@ class FrankaArm:
         
         self._send_goal(goal, cb=lambda x: skill.feedback_callback(x), ignore_errors=ignore_errors)
 
-    def run_guide_mode_with_selective_compliance(self, duration=3, k_gains=FC.DEFAULT_K_GAINS, 
-                                                d_gains=FC.DEFAULT_D_GAINS, ignore_errors=True):
+    def run_guide_mode_with_selective_joint_compliance(self, duration=3, k_gains=FC.DEFAULT_K_GAINS, 
+                                                       d_gains=FC.DEFAULT_D_GAINS, ignore_errors=True):
+        '''Run guide mode with selective joint compliance given k and d gains for each joint
 
+        Args:
+            duration (float) : How much time this robot motion should take
+            k_gains (list): list of 7 k gains, one for each joint
+                            Default is 600.0, 600.0, 600.0, 600.0, 250.0, 150.0, 50.0. 
+            d_gains (list): list of 7 d gains, one for each joint
+                            Default is 50.0, 50.0, 50.0, 50.0, 30.0, 25.0, 15.0. 
+        '''
         skill = StayInPositionWithSelectiveComplianceWithDefaultSensorSkill()
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_feedback_controller_params(k_gains + d_gains)
+        skill.add_trajectory_params([duration])
+        goal = skill.create_goal()
+        
+        self._send_goal(goal, cb=lambda x: skill.feedback_callback(x), ignore_errors=ignore_errors)
+
+    def run_guide_mode_with_selective_pose_compliance(self, duration=3, translational_stiffnesses=FC.DEFAULT_TRANSLATIONAL_STIFFNESSES, 
+                                                      rotational_stiffnesses=FC.DEFAULT_ROTATIONAL_STIFFNESSES, ignore_errors=True):
+        '''Run guide mode with selective pose compliance given translational and rotational stiffnesses
+
+        Args:
+            duration (float) : How much time this robot motion should take
+            translational_stiffnesses (list): list of 3 translational stiffnesses, one for each axis (x,y,z)
+                            Default is 600.0, 600.0, 600.0 
+            rotational_stiffnesses (list): list of 3 rotational stiffnesses, one for axis (roll, pitch, yaw)
+                            Default is 50.0, 50.0, 50.0
+        '''
+        skill = StayInPositionWithDefaultSensorSkill()
+
+        skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
+        skill.add_feedback_controller_params([translational_stiffnesses] + [rotational_stiffnesses])
         skill.add_trajectory_params([duration])
         goal = skill.create_goal()
         

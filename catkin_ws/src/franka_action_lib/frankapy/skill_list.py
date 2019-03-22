@@ -474,8 +474,8 @@ class StayInPositionWithSelectiveComplianceWithDefaultSensorSkill(BaseSkill):
                 termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):
         if len(skill_description) == 0:
-            skill_description = StayInPositionWithDefaultSensorSkill.__name__
-        super(StayInPositionWithDefaultSensorSkill, self).__init__(
+            skill_description = StayInPositionWithSelectiveComplianceWithDefaultSensorSkill.__name__
+        super(StayInPositionWithSelectiveComplianceWithDefaultSensorSkill, self).__init__(
               skill_type,
               skill_description,
               meta_skill_type,

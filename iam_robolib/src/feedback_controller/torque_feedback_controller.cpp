@@ -9,18 +9,38 @@
 void TorqueFeedbackController::parse_parameters() {
   // First parameter is reserved for the type
 
-  int num_params = static_cast<int>(params_[1]);
+  int param_index = 1;
+  int num_params = static_cast<int>(params_[param_index++]);
 
-  // No parameters given, using default translational stiffness and rotational stiffness
-  if(num_params == 0) {
-    std::cout << "No parameters given, using default translational and rotational stiffness." << std::endl;
-  }
-  // translational_stiffness(1) and rotational_stiffness(1) were given
-  if(num_params == 2) {
-    translational_stiffness_ = static_cast<double>(params_[2]);
-    rotational_stiffness_ = static_cast<double>(params_[3]);
-  } else {
-    std::cout << "Invalid number of params provided: " << num_params << std::endl;
+  switch(num_params) {
+    case 0:
+      // No parameters given, using default translational stiffness and rotational stiffness
+      std::cout << "No parameters given, using default translational and rotational stiffness." << std::endl;
+      break;
+    case 2:
+      // translational_stiffness(1) and rotational_stiffness(1) were given
+      for(size_t i = 0; i < translational_stiffnesses_.size(); i++)
+      {
+        translational_stiffnesses_[i] = static_cast<double>(params_[2]);
+      }
+      for(size_t i = 0; i < rotational_stiffnesses_.size(); i++)
+      {
+        rotational_stiffnesses_[i] = static_cast<double>(params_[3]);
+      }
+      break;
+    case 6:
+      // translational_stiffness(3) and rotational_stiffness(3) were given
+      for(size_t i = 0; i < translational_stiffnesses_.size(); i++)
+      {
+        translational_stiffnesses_[i] = static_cast<double>(params_[param_index++]);
+      }
+      for(size_t i = 0; i < rotational_stiffnesses_.size(); i++)
+      {
+        rotational_stiffnesses_[i] = static_cast<double>(params_[param_index++]);
+      }
+      break;
+    default:
+      std::cout << "Invalid number of params provided: " << num_params << std::endl;
   }
 }
 
@@ -29,14 +49,21 @@ void TorqueFeedbackController::initialize_controller() {
 
   stiffness_ = Eigen::MatrixXd(6,6);
   stiffness_.setZero();
-  stiffness_.topLeftCorner(3, 3) << translational_stiffness_ * Eigen::MatrixXd::Identity(3, 3);
-  stiffness_.bottomRightCorner(3, 3) << rotational_stiffness_ * Eigen::MatrixXd::Identity(3, 3);
+  stiffness_(0,0) = translational_stiffnesses_[0];
+  stiffness_(1,1) = translational_stiffnesses_[1];
+  stiffness_(2,2) = translational_stiffnesses_[2];
+  stiffness_(3,3) = rotational_stiffnesses_[0];
+  stiffness_(4,4) = rotational_stiffnesses_[1];
+  stiffness_(5,5) = rotational_stiffnesses_[2];
+
   damping_ = Eigen::MatrixXd(6,6);
   damping_.setZero();
-  damping_.topLeftCorner(3, 3) << 2.0 * sqrt(translational_stiffness_) *
-                                     Eigen::MatrixXd::Identity(3, 3);
-  damping_.bottomRightCorner(3, 3) << 2.0 * sqrt(rotational_stiffness_) *
-                                         Eigen::MatrixXd::Identity(3, 3);
+  damping_(0,0) = 2.0 * sqrt(translational_stiffnesses_[0]);
+  damping_(1,1) = 2.0 * sqrt(translational_stiffnesses_[1]);
+  damping_(2,2) = 2.0 * sqrt(translational_stiffnesses_[2]);
+  damping_(3,3) = 2.0 * sqrt(rotational_stiffnesses_[0]);
+  damping_(4,4) = 2.0 * sqrt(rotational_stiffnesses_[1]);
+  damping_(5,5) = 2.0 * sqrt(rotational_stiffnesses_[2]);
 }
 
 void TorqueFeedbackController::initialize_controller(franka::Model *model) {
@@ -44,14 +71,21 @@ void TorqueFeedbackController::initialize_controller(franka::Model *model) {
 
   stiffness_ = Eigen::MatrixXd(6,6);
   stiffness_.setZero();
-  stiffness_.topLeftCorner(3, 3) << translational_stiffness_ * Eigen::MatrixXd::Identity(3, 3);
-  stiffness_.bottomRightCorner(3, 3) << rotational_stiffness_ * Eigen::MatrixXd::Identity(3, 3);
+  stiffness_(0,0) = translational_stiffnesses_[0];
+  stiffness_(1,1) = translational_stiffnesses_[1];
+  stiffness_(2,2) = translational_stiffnesses_[2];
+  stiffness_(3,3) = rotational_stiffnesses_[0];
+  stiffness_(4,4) = rotational_stiffnesses_[1];
+  stiffness_(5,5) = rotational_stiffnesses_[2];
+
   damping_ = Eigen::MatrixXd(6,6);
   damping_.setZero();
-  damping_.topLeftCorner(3, 3) << 2.0 * sqrt(translational_stiffness_) *
-                                     Eigen::MatrixXd::Identity(3, 3);
-  damping_.bottomRightCorner(3, 3) << 2.0 * sqrt(rotational_stiffness_) *
-                                         Eigen::MatrixXd::Identity(3, 3);
+  damping_(0,0) = 2.0 * sqrt(translational_stiffnesses_[0]);
+  damping_(1,1) = 2.0 * sqrt(translational_stiffnesses_[1]);
+  damping_(2,2) = 2.0 * sqrt(translational_stiffnesses_[2]);
+  damping_(3,3) = 2.0 * sqrt(rotational_stiffnesses_[0]);
+  damping_(4,4) = 2.0 * sqrt(rotational_stiffnesses_[1]);
+  damping_(5,5) = 2.0 * sqrt(rotational_stiffnesses_[2]);
 }
 
 void TorqueFeedbackController::get_next_step() {
