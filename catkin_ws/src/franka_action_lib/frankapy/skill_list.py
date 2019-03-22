@@ -12,7 +12,7 @@ from franka_action_lib.msg import ExecuteSkillAction, ExecuteSkillGoal
 class BaseSkill(object):
     def __init__(self, 
                  skill_type,
-                 skill_description,
+                 skill_desc,
                  meta_skill_type,
                  meta_skill_id,
                  sensor_topics,
@@ -21,7 +21,7 @@ class BaseSkill(object):
                  termination_type,
                  timer_type):
         self._skill_type = skill_type
-        self._skill_description = skill_description
+        self._skill_desc = skill_desc
         self._meta_skill_type = meta_skill_type
         self._meta_skill_id = meta_skill_id
         self._sensor_topics = sensor_topics
@@ -81,7 +81,7 @@ class BaseSkill(object):
     def create_goal(self):
         goal = ExecuteSkillGoal()
         goal.skill_type = self._skill_type
-        goal.skill_description = self._skill_description
+        goal.skill_desc = self._skill_desc
         goal.meta_skill_type = self._meta_skill_type
         goal.meta_skill_id = self._meta_skill_id
         goal.sensor_topics = self._sensor_topics
@@ -108,18 +108,18 @@ class BaseSkill(object):
 class GripperWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.GripperSkill,
-                skill_description='',
+                skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
                 trajectory_generator_type=TrajectoryGeneratorType.GripperTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
                 termination_type=TerminationHandlerType.NoopTerminationHandler,
                 timer_type=1):
-        if len(skill_description) == 0:
-            skill_description = GripperWithDefaultSensorSkill.__name__
+        if len(skill_desc) == 0:
+            skill_desc = GripperWithDefaultSensorSkill.__name__
         super(GripperWithDefaultSensorSkill, self).__init__(
               skill_type,
-              skill_description,
+              skill_desc,
               meta_skill_type,
               meta_skill_id,
               ['/franka_robot/camera'],
@@ -131,18 +131,18 @@ class GripperWithDefaultSensorSkill(BaseSkill):
 class JointPoseDMPWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.JointPoseSkill,
-                skill_description='',
+                skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
                 trajectory_generator_type=TrajectoryGeneratorType.DmpTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
                 termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):
-        if len(skill_description) == 0:
-            skill_description = JointPoseWithDefaultSensorSkill.__name__
+        if len(skill_desc) == 0:
+            skill_desc = JointPoseWithDefaultSensorSkill.__name__
         super(JointPoseDMPWithDefaultSensorSkill, self).__init__(
               skill_type,
-              skill_description,
+              skill_desc,
               meta_skill_type,
               meta_skill_id,
               ['/franka_robot/camera'],
@@ -154,19 +154,19 @@ class JointPoseDMPWithDefaultSensorSkill(BaseSkill):
 class JointPoseDMPWithTorqueControlWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.JointPoseSkill,
-                skill_description='',
+                skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
                 trajectory_generator_type=TrajectoryGeneratorType.DmpTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.CustomGainTorqueController,
                 termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):
-        if len(skill_description) == 0:
-            skill_description = \
+        if len(skill_desc) == 0:
+            skill_desc = \
                     JointPoseDMPWithTorqueControlWithDefaultSensorSkill.__name__
         super(JointPoseDMPWithTorqueControlWithDefaultSensorSkill, self).__init__(
               skill_type,
-              skill_description,
+              skill_desc,
               meta_skill_type,
               meta_skill_id,
               ['/franka_robot/camera'],
@@ -178,18 +178,18 @@ class JointPoseDMPWithTorqueControlWithDefaultSensorSkill(BaseSkill):
 class JointPoseWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.JointPoseSkill,
-                skill_description='',
+                skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
                 trajectory_generator_type=TrajectoryGeneratorType.LinearJointTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
                 termination_type=TerminationHandlerType.FinalJointTerminationHandler,
                 timer_type=1):
-        if len(skill_description) == 0:
-            skill_description = JointPoseWithDefaultSensorSkill.__name__
+        if len(skill_desc) == 0:
+            skill_desc = JointPoseWithDefaultSensorSkill.__name__
         super(JointPoseWithDefaultSensorSkill, self).__init__(
               skill_type,
-              skill_description,
+              skill_desc,
               meta_skill_type,
               meta_skill_id,
               ['/franka_robot/camera'],
@@ -201,18 +201,18 @@ class JointPoseWithDefaultSensorSkill(BaseSkill):
 class JointPoseMinJerkWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.JointPoseSkill,
-                skill_description='',
+                skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
                 trajectory_generator_type=TrajectoryGeneratorType.MinJerkJointTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
                 termination_type=TerminationHandlerType.FinalJointTerminationHandler,
                 timer_type=1):
-        if len(skill_description) == 0:
-            skill_description = JointPoseMinJerkWithDefaultSensorSkill.__name__
+        if len(skill_desc) == 0:
+            skill_desc = JointPoseMinJerkWithDefaultSensorSkill.__name__
         super(JointPoseMinJerkWithDefaultSensorSkill, self).__init__(
               skill_type,
-              skill_description,
+              skill_desc,
               meta_skill_type,
               meta_skill_id,
               ['/franka_robot/camera'],
@@ -224,18 +224,18 @@ class JointPoseMinJerkWithDefaultSensorSkill(BaseSkill):
 class ArmMoveToGoalWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.SkillInfo,
-                skill_description='',
+                skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
                 trajectory_generator_type=TrajectoryGeneratorType.LinearPoseTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.TorqueFeedbackController,
                 termination_type=TerminationHandlerType.FinalPoseTerminationHandler,
                 timer_type=1):
-        if len(skill_description) == 0:
-            skill_description = ArmMoveToGoalWithDefaultSensorSkill.__name__
+        if len(skill_desc) == 0:
+            skill_desc = ArmMoveToGoalWithDefaultSensorSkill.__name__
         super(ArmMoveToGoalWithDefaultSensorSkill, self).__init__(
               skill_type,
-              skill_description,
+              skill_desc,
               meta_skill_type,
               meta_skill_id,
               ['/franka_robot/camera'],
@@ -250,18 +250,18 @@ class ArmMoveToGoalWithDefaultSensorSkill(BaseSkill):
 class ArmRelativeMotionWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.SkillInfo,
-                skill_description='',
+                skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
                 trajectory_generator_type=TrajectoryGeneratorType.RelativeLinearPoseTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.TorqueFeedbackController,
                 termination_type=TerminationHandlerType.FinalPoseTerminationHandler,
                 timer_type=1):
-        if len(skill_description) == 0:
-            skill_description = ArmRelativeMotionWithDefaultSensorSkill.__name__
+        if len(skill_desc) == 0:
+            skill_desc = ArmRelativeMotionWithDefaultSensorSkill.__name__
         super(ArmRelativeMotionWithDefaultSensorSkill, self).__init__(
               skill_type,
-              skill_description,
+              skill_desc,
               meta_skill_type,
               meta_skill_id,
               ['/franka_robot/camera'],
@@ -278,19 +278,19 @@ class ArmRelativeMotionWithDefaultSensorSkill(BaseSkill):
 class ArmRelativeMotionToContactWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.SkillInfo,
-                skill_description='',
+                skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
                 trajectory_generator_type=TrajectoryGeneratorType.RelativeLinearPoseTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.TorqueFeedbackController,
                 termination_type=TerminationHandlerType.ContactTerminationHandler,
                 timer_type=1):
-        if len(skill_description) == 0:
-            skill_description = \
+        if len(skill_desc) == 0:
+            skill_desc = \
                     ArmRelativeMotionToContactWithDefaultSensorSkill.__name__
         super(ArmRelativeMotionToContactWithDefaultSensorSkill, self).__init__(
               skill_type,
-              skill_description,
+              skill_desc,
               meta_skill_type,
               meta_skill_id,
               ['/franka_robot/camera'],
@@ -396,19 +396,19 @@ class ArmRelativeMotionToContactWithDefaultSensorSkill(BaseSkill):
 class ArmMoveToGoalContactWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.SkillInfo,
-                skill_description='',
+                skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
                 trajectory_generator_type=TrajectoryGeneratorType.LinearPoseTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.TorqueFeedbackController,
                 termination_type=TerminationHandlerType.ContactTerminationHandler,
                 timer_type=1):
-        if len(skill_description) == 0:
-            skill_description = \
+        if len(skill_desc) == 0:
+            skill_desc = \
                     ArmMoveToGoalContactWithDefaultSensorSkill.__name__
         super(ArmMoveToGoalContactWithDefaultSensorSkill, self).__init__(
               skill_type,
-              skill_description,
+              skill_desc,
               meta_skill_type,
               meta_skill_id,
               ['/franka_robot/camera'],
@@ -443,18 +443,18 @@ class ArmMoveToGoalContactWithDefaultSensorSkill(BaseSkill):
 class StayInPositionWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.SkillInfo,
-                skill_description='',
+                skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
                 trajectory_generator_type=TrajectoryGeneratorType.StayInInitialPositionTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.TorqueFeedbackController,
                 termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):
-        if len(skill_description) == 0:
-            skill_description = StayInPositionWithDefaultSensorSkill.__name__
+        if len(skill_desc) == 0:
+            skill_desc = StayInPositionWithDefaultSensorSkill.__name__
         super(StayInPositionWithDefaultSensorSkill, self).__init__(
               skill_type,
-              skill_description,
+              skill_desc,
               meta_skill_type,
               meta_skill_id,
               ['/franka_robot/camera'],
@@ -466,18 +466,18 @@ class StayInPositionWithDefaultSensorSkill(BaseSkill):
 class StayInPositionWithSelectiveComplianceWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.SkillInfo,
-                skill_description='',
+                skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
                 trajectory_generator_type=TrajectoryGeneratorType.StayInInitialPositionTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.CustomGainTorqueController,
                 termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):
-        if len(skill_description) == 0:
-            skill_description = StayInPositionWithSelectiveComplianceWithDefaultSensorSkill.__name__
+        if len(skill_desc) == 0:
+            skill_desc = StayInPositionWithSelectiveComplianceWithDefaultSensorSkill.__name__
         super(StayInPositionWithSelectiveComplianceWithDefaultSensorSkill, self).__init__(
               skill_type,
-              skill_description,
+              skill_desc,
               meta_skill_type,
               meta_skill_id,
               ['/franka_robot/camera'],
@@ -489,18 +489,18 @@ class StayInPositionWithSelectiveComplianceWithDefaultSensorSkill(BaseSkill):
 class ForceTorqueSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.ForceTorqueSkill,
-                skill_description='',
+                skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
                 trajectory_generator_type=TrajectoryGeneratorType.ImpulseTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.PassThroughFeedbackController,
                 termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):
-        if len(skill_description) == 0:
-            skill_description = ForceTorqueSkill.__name__
+        if len(skill_desc) == 0:
+            skill_desc = ForceTorqueSkill.__name__
         super(ForceTorqueSkill, self).__init__(
               skill_type,
-              skill_description,
+              skill_desc,
               meta_skill_type,
               meta_skill_id,
               ['/franka_robot/camera'],
@@ -512,18 +512,18 @@ class ForceTorqueSkill(BaseSkill):
 class ForceAlongAxisSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.ForceTorqueSkill,
-                skill_description='',
+                skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
                 trajectory_generator_type=TrajectoryGeneratorType.ImpulseTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.ForceAxisImpedenceFeedbackController,
                 termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):
-        if len(skill_description) == 0:
-            skill_description = ForceTorqueSkill.__name__
+        if len(skill_desc) == 0:
+            skill_desc = ForceTorqueSkill.__name__
         super(ForceAlongAxisSkill, self).__init__(
               skill_type,
-              skill_description,
+              skill_desc,
               meta_skill_type,
               meta_skill_id,
               ['/franka_robot/camera'],
