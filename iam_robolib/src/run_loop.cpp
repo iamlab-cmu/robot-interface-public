@@ -24,7 +24,6 @@
 #include "iam_robolib/skills/gripper_skill.h"
 #include "iam_robolib/skills/joint_pose_skill.h"
 #include "iam_robolib/skills/joint_pose_continuous_skill.h"
-#include "iam_robolib/skills/save_trajectory_skill.h"
 #include "iam_robolib/skills/force_torque_skill.h"
 #include "iam_robolib/save_robot_state_data_to_shared_memory_buffer.h"
 
@@ -228,9 +227,6 @@ void run_loop::update_process_info() {
               break;
             case SkillType::JointPoseSkill:
               new_skill = new JointPoseSkill(new_skill_id, new_meta_skill_id, new_skill_description);
-              break;
-            case SkillType::SaveTrajectorySkill:
-              new_skill = new SaveTrajectorySkill(new_skill_id, new_meta_skill_id, new_skill_description);
               break;
             case SkillType::ForceTorqueSkill:
               new_skill = new ForceTorqueSkill(new_skill_id, new_meta_skill_id, new_skill_description);

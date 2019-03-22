@@ -13,24 +13,21 @@ class SkillType:
     SkillInfo = 0
     GripperSkill = 1
     JointPoseSkill = 2
-    SaveTrajectorySkill = 3
-    ForceTorqueSkill = 4
+    ForceTorqueSkill = 3
 
 class MetaSkillType:
     BaseMetaSkill = 0
     JointPoseContinuousSkill = 1
 
 class TrajectoryGeneratorType:
-    CounterTrajectoryGenerator = 1
-    LinearTrajectoryGenerator = 2
-    LinearJointTrajectoryGenerator = 3
-    LinearTrajectoryGeneratorWithTimeAndGoal = 4
-    GripperTrajectoryGenerator = 5
-    StayInInitialPositionTrajectoryGenerator = 6
-    DmpTrajectoryGenerator = 7
-    RelativeLinearTrajectoryGenerator = 8
-    ImpulseTrajectoryGenerator = 9
-    MinJerkJointTrajectoryGenerator = 10
+    LinearTrajectoryGeneratorWithTimeAndGoal = 1
+    LinearJointTrajectoryGenerator = 2
+    GripperTrajectoryGenerator = 3
+    StayInInitialPositionTrajectoryGenerator = 4
+    DmpTrajectoryGenerator = 5
+    RelativeLinearTrajectoryGenerator = 6
+    ImpulseTrajectoryGenerator = 7
+    MinJerkJointTrajectoryGenerator = 8
 
 class FeedbackControllerType:
     NoopFeedbackController = 1
@@ -41,11 +38,10 @@ class FeedbackControllerType:
 
 class TerminationHandlerType:
     NoopTerminationHandler = 1
-    FinalPoseTerminationHandler = 2
-    FinalJointTerminationHandler = 3
-    LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler = 4
-    ContactTerminationHandler = 5
-    TimeTerminationHandler = 6
+    FinalJointTerminationHandler = 2
+    LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler = 3
+    ContactTerminationHandler = 4
+    TimeTerminationHandler = 5
 
 class SkillStatus: 
     TO_START = 0

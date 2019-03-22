@@ -8,7 +8,6 @@
 #include <iam_robolib_common/definitions.h>
 
 #include "iam_robolib/termination_handler/final_joint_termination_handler.h"
-#include "iam_robolib/termination_handler/final_pose_termination_handler.h"
 #include "iam_robolib/termination_handler/noop_termination_handler.h"
 #include "iam_robolib/termination_handler/contact_termination_handler.h"
 #include "iam_robolib/termination_handler/linear_trajectory_generator_with_time_and_goal_termination_handler.h"
@@ -25,9 +24,6 @@ TerminationHandler* TerminationHandlerFactory::getTerminationHandlerForSkill(Sha
   switch (termination_handler_type) {
     case TerminationHandlerType::NoopTerminationHandler:
       termination_handler = new NoopTerminationHandler(buffer, run_loop_info);
-      break;
-    case TerminationHandlerType::FinalPoseTerminationHandler:
-      termination_handler = new FinalPoseTerminationHandler(buffer, run_loop_info);
       break;
     case TerminationHandlerType::FinalJointTerminationHandler:
       termination_handler = new FinalJointTerminationHandler(buffer, run_loop_info);

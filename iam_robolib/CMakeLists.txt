@@ -44,21 +44,17 @@ add_library(iam_robolib SHARED
   src/skills/joint_pose_continuous_skill.cpp
   src/skills/joint_pose_skill.cpp
   src/skills/joint_pose_with_torque_control_skill.cpp
-  src/skills/save_trajectory_skill.cpp
   src/skills/skill_info.cpp
   src/termination_handler/contact_termination_handler.cpp
   src/termination_handler/final_joint_termination_handler.cpp
-  src/termination_handler/final_pose_termination_handler.cpp
   src/termination_handler/linear_trajectory_generator_with_time_and_goal_termination_handler.cpp
   src/termination_handler/noop_termination_handler.cpp
   src/termination_handler/termination_handler.cpp
   src/termination_handler/time_termination_handler.cpp
-  src/trajectory_generator/counter_trajectory_generator.cpp
   src/trajectory_generator/dmp_trajectory_generator.cpp
   src/trajectory_generator/gripper_trajectory_generator.cpp
   src/trajectory_generator/impulse_trajectory_generator.cpp
   src/trajectory_generator/linear_joint_trajectory_generator.cpp
-  src/trajectory_generator/linear_trajectory_generator.cpp
   src/trajectory_generator/linear_trajectory_generator_with_time_and_goal.cpp
   src/trajectory_generator/min_jerk_joint_trajectory_generator.cpp
   src/trajectory_generator/relative_linear_trajectory_generator.cpp
