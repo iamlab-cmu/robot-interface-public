@@ -327,7 +327,7 @@ class FrankaArm:
         '''Commands the Arm to stay in its current position with provided translation and rotation stiffnesses
 
         Args:
-            duration (float) : How much time this robot motion should take
+            duration (float) : How much time the robot should stay in place in seconds.
             translational_stiffness (float): Translational stiffness factor used in the torque controller.
                                              Default is 600. A value of 0 will allow free translational movement.
             rotational_stiffness (float): Rotational stiffness factor used in the torque controller.
@@ -347,7 +347,7 @@ class FrankaArm:
         '''Run guide mode with selective joint compliance given k and d gains for each joint
 
         Args:
-            duration (float) : How much time this robot motion should take
+            duration (float) : How much time the robot should be in selective joint guide mode in seconds.
             k_gains (list): list of 7 k gains, one for each joint
                             Default is 600.0, 600.0, 600.0, 600.0, 250.0, 150.0, 50.0. 
             d_gains (list): list of 7 d gains, one for each joint
@@ -367,11 +367,11 @@ class FrankaArm:
         '''Run guide mode with selective pose compliance given translational and rotational stiffnesses
 
         Args:
-            duration (float) : How much time this robot motion should take
+            duration (float) : How much time the robot should be in selective pose guide mode in seconds.
             translational_stiffnesses (list): list of 3 translational stiffnesses, one for each axis (x,y,z)
-                            Default is 600.0, 600.0, 600.0 
+                                              Default is 600.0, 600.0, 600.0 
             rotational_stiffnesses (list): list of 3 rotational stiffnesses, one for axis (roll, pitch, yaw)
-                            Default is 50.0, 50.0, 50.0
+                                              Default is 50.0, 50.0, 50.0
         '''
         skill = StayInPositionWithDefaultSensorSkill()
 
