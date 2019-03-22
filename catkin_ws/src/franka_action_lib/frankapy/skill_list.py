@@ -463,6 +463,29 @@ class StayInPositionWithDefaultSensorSkill(BaseSkill):
               termination_type,
               timer_type)
 
+class StayInPositionWithSelectiveComplianceWithDefaultSensorSkill(BaseSkill):
+    def __init__(self, 
+                skill_type=SkillType.SkillInfo,
+                skill_description='',
+                meta_skill_type=MetaSkillType.BaseMetaSkill,
+                meta_skill_id=0,
+                trajectory_generator_type=TrajectoryGeneratorType.StayInInitialPositionTrajectoryGenerator,
+                feedback_controller_type=FeedbackControllerType.CustomGainTorqueController,
+                termination_type=TerminationHandlerType.TimeTerminationHandler,
+                timer_type=1):
+        if len(skill_description) == 0:
+            skill_description = StayInPositionWithSelectiveComplianceWithDefaultSensorSkill.__name__
+        super(StayInPositionWithSelectiveComplianceWithDefaultSensorSkill, self).__init__(
+              skill_type,
+              skill_description,
+              meta_skill_type,
+              meta_skill_id,
+              ['/franka_robot/camera'],
+              trajectory_generator_type,
+              feedback_controller_type,
+              termination_type,
+              timer_type)
+
 class ForceTorqueSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.ForceTorqueSkill,

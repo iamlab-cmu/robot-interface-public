@@ -114,7 +114,8 @@ class FrankaArm:
                                             Default is None. If None then will not stop on contact.
         '''
         if tool_pose.from_frame != 'franka_tool' or tool_pose.to_frame != 'world':
-            raise ValueError('pose has invalid frame names! Make sure pose has from_frame=franka_tool and to_frame=world')
+            raise ValueError('pose has invalid frame names! Make sure pose has \
+                              from_frame=franka_tool and to_frame=world')
 
         tool_base_pose = tool_pose * self._tool_delta_pose.inverse()
 
@@ -143,9 +144,13 @@ class FrankaArm:
         Args:
             delta_tool_pose (RigidTransform) : Delta pose in tool frame
             duration (float) : How much time this robot motion should take
+            stop_on_contact_forces (list): List of 6 floats corresponding to force limits on
+                                            translation (xyz) and rotation about (xyz) axes. 
+                                            Default is None. If None then will not stop on contact.
         '''
         if delta_tool_pose.from_frame != 'franka_tool' or delta_tool_pose.to_frame != 'franka_tool':
-            raise ValueError('delta_pose has invalid frame names! Make sure delta_pose has from_frame=franka_tool and to_frame=franka_tool')
+            raise ValueError('delta_pose has invalid frame names! Make sure delta_pose has \
+                              from_frame=franka_tool and to_frame=franka_tool')
 
         delta_tool_base_pose = self._tool_delta_pose * delta_tool_pose * self._tool_delta_pose.inverse()
 
@@ -163,7 +168,8 @@ class FrankaArm:
         skill.add_feedback_controller_params(FC.DEFAULT_TORQUE_CONTROLLER_PARAMS) 
         skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
 
-        skill.add_trajectory_params([duration] + delta_tool_base_pose.translation.tolist() + delta_tool_base_pose.quaternion.tolist())
+        skill.add_trajectory_params([duration] + delta_tool_base_pose.translation.tolist() + \
+                                    delta_tool_base_pose.quaternion.tolist())
         goal = skill.create_goal()
         
         self._send_goal(goal, cb=lambda x: skill.feedback_callback(x), ignore_errors=ignore_errors)
@@ -320,6 +326,67 @@ class FrankaArm:
         # this is so the gripper state can be updated, which happens with a small lag
         sleep(FC.GRIPPER_CMD_SLEEP_TIME)
 
+    def stay_in_position(self, duration=3, translational_stiffness=600, rotational_stiffness=50, ignore_errors=True):
+        '''Commands the Arm to stay in its current position with provided translation and rotation stiffnesses
+
+        Args:
+            duration (float) : How much time the robot should stay in place in seconds.
+            translational_stiffness (float): Translational stiffness factor used in the torque controller.
+                                             Default is 600. A value of 0 will allow free translational movement.
+            rotational_stiffness (float): Rotational stiffness factor used in the torque controller.
+                                          Default is 50. A value of 0 will allow free rotational movement.
+        '''
+        skill = StayInPositionWithDefaultSensorSkill()
+
+        skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
+        skill.add_feedback_controller_params([translational_stiffness] + [rotational_stiffness])
+        skill.add_trajectory_params([duration])
+        goal = skill.create_goal()
+        
+        self._send_goal(goal, cb=lambda x: skill.feedback_callback(x), ignore_errors=ignore_errors)
+
+    def run_guide_mode_with_selective_joint_compliance(self, duration=3, k_gains=FC.DEFAULT_K_GAINS, 
+                                                       d_gains=FC.DEFAULT_D_GAINS, ignore_errors=True):
+        '''Run guide mode with selective joint compliance given k and d gains for each joint
+
+        Args:
+            duration (float) : How much time the robot should be in selective joint guide mode in seconds.
+            k_gains (list): list of 7 k gains, one for each joint
+                            Default is 600.0, 600.0, 600.0, 600.0, 250.0, 150.0, 50.0. 
+            d_gains (list): list of 7 d gains, one for each joint
+                            Default is 50.0, 50.0, 50.0, 50.0, 30.0, 25.0, 15.0. 
+        '''
+        skill = StayInPositionWithSelectiveComplianceWithDefaultSensorSkill()
+
+        skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
+        skill.add_feedback_controller_params(k_gains + d_gains)
+        skill.add_trajectory_params([duration])
+        goal = skill.create_goal()
+        
+        self._send_goal(goal, cb=lambda x: skill.feedback_callback(x), ignore_errors=ignore_errors)
+
+    def run_guide_mode_with_selective_pose_compliance(self, duration=3, 
+                                              translational_stiffnesses=FC.DEFAULT_TRANSLATIONAL_STIFFNESSES, 
+                                              rotational_stiffnesses=FC.DEFAULT_ROTATIONAL_STIFFNESSES, 
+                                              ignore_errors=True):
+        '''Run guide mode with selective pose compliance given translational and rotational stiffnesses
+
+        Args:
+            duration (float) : How much time the robot should be in selective pose guide mode in seconds.
+            translational_stiffnesses (list): list of 3 translational stiffnesses, one for each axis (x,y,z)
+                                              Default is 600.0, 600.0, 600.0 
+            rotational_stiffnesses (list): list of 3 rotational stiffnesses, one for axis (roll, pitch, yaw)
+                                              Default is 50.0, 50.0, 50.0
+        '''
+        skill = StayInPositionWithDefaultSensorSkill()
+
+        skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
+        skill.add_feedback_controller_params(translational_stiffnesses + rotational_stiffnesses)
+        skill.add_trajectory_params([duration])
+        goal = skill.create_goal()
+        
+        self._send_goal(goal, cb=lambda x: skill.feedback_callback(x), ignore_errors=ignore_errors)
+
     def open_gripper(self):
         '''Opens gripper to maximum width
         '''
@@ -415,7 +482,8 @@ class FrankaArm:
             tool_delta_pose (RigidTransform)
         '''
         if tool_delta_pose.from_frame != 'franka_tool' or tool_delta_pose.to_frame != 'franka_tool_base':
-            raise ValueError('tool_delta_pose has invalid frame names! Make sure the has from_frame=franka_tool, and to_frame=franka_tool_base')
+            raise ValueError('tool_delta_pose has invalid frame names! Make sure it has \
+                              from_frame=franka_tool, and to_frame=franka_tool_base')
 
         self._tool_delta_pose = tool_delta_pose.copy()
 

@@ -12,13 +12,11 @@ void RelativeLinearPoseTrajectoryGenerator::parse_parameters() {
   int num_params = static_cast<int>(params_[1]);
 
   // Time + Full Cartesian Pose (std::array<double,16>) was given
-  if(num_params == 17) 
-  {
+  if(num_params == 17) {
     run_time_ = static_cast<double>(params_[2]);
 
     std::array<double,16> cartesian_pose_goal{};
-    for(int i = 0; i < 16; i++)
-    {
+    for(int i = 0; i < 16; i++) {
       cartesian_pose_goal[i] = static_cast<double>(params_[3+i]);
     }
     Eigen::Affine3d goal_transform(Eigen::Matrix4d::Map(cartesian_pose_goal.data()));
@@ -26,8 +24,7 @@ void RelativeLinearPoseTrajectoryGenerator::parse_parameters() {
     relative_orientation_ = Eigen::Quaterniond(goal_transform.linear());
   } 
   // Time + x,y,z + quaternion was given
-  else if(num_params == 8)
-  {
+  else if(num_params == 8) {
     run_time_ = static_cast<double>(params_[2]);
 
     relative_position_[0] = static_cast<double>(params_[3]);
@@ -35,16 +32,14 @@ void RelativeLinearPoseTrajectoryGenerator::parse_parameters() {
     relative_position_[2] = static_cast<double>(params_[5]);
 
     std::array<double,4> goal_quaternion{};
-    for(int i = 0; i < 4; i++)
-    {
+    for(int i = 0; i < 4; i++) {
       goal_quaternion[i] = static_cast<double>(params_[6+i]);
     }
     relative_orientation_ = Eigen::Quaterniond(goal_quaternion[0], goal_quaternion[1], 
                                                goal_quaternion[2], goal_quaternion[3]);
   } 
   // Time + x,y,z + axis angle was given
-  else if(num_params == 7)
-  {
+  else if(num_params == 7) {
     run_time_ = static_cast<double>(params_[2]);
 
     relative_position_[0] = static_cast<double>(params_[3]);
@@ -52,8 +47,7 @@ void RelativeLinearPoseTrajectoryGenerator::parse_parameters() {
     relative_position_[2] = static_cast<double>(params_[5]);
 
     Eigen::Vector3d goal_axis_angle;
-    for(int i = 0; i < 3; i++)
-    {
+    for(int i = 0; i < 3; i++) {
       goal_axis_angle[i] = static_cast<double>(params_[6+i]);
     }
 
