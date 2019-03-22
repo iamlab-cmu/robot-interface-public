@@ -2,11 +2,11 @@
 // Created by Kevin on 11/29/18.
 //
 
-#include "iam_robolib/trajectory_generator/relative_linear_trajectory_generator.h"
+#include "iam_robolib/trajectory_generator/relative_linear_pose_trajectory_generator.h"
 
 #include <cassert>
 
-void RelativeLinearTrajectoryGenerator::parse_parameters() {
+void RelativeLinearPoseTrajectoryGenerator::parse_parameters() {
   // First parameter is reserved for the type
 
   int num_params = static_cast<int>(params_[1]);
@@ -72,11 +72,11 @@ void RelativeLinearTrajectoryGenerator::parse_parameters() {
   }
 }
 
-void RelativeLinearTrajectoryGenerator::initialize_trajectory() {
+void RelativeLinearPoseTrajectoryGenerator::initialize_trajectory() {
   // assert(false);
 }
 
-void RelativeLinearTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
+void RelativeLinearPoseTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
   TrajectoryGenerator::initialize_initial_states(robot_state);
   goal_position_ = initial_position_ + relative_position_;
   goal_orientation_ = initial_orientation_ * relative_orientation_;
@@ -87,7 +87,7 @@ void RelativeLinearTrajectoryGenerator::initialize_trajectory(const franka::Robo
   std::cout << goal_orientation_.w() << ", " << goal_orientation_.x() << ", " << goal_orientation_.y() << ", " << goal_orientation_.z() << std::endl;
 }
 
-void RelativeLinearTrajectoryGenerator::get_next_step() {
+void RelativeLinearPoseTrajectoryGenerator::get_next_step() {
   t_ = std::min(std::max(time_ / run_time_, 0.0), 1.0);
 
   desired_position_ = initial_position_ + (goal_position_ - initial_position_) * t_;

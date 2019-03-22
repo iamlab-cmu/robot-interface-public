@@ -1,5 +1,5 @@
-#ifndef IAM_ROBOLIB_TRAJECTORY_GENERATOR_LINEAR_TRAJECTORY_GENERATOR_WITH_TIME_AND_GOAL_H_
-#define IAM_ROBOLIB_TRAJECTORY_GENERATOR_LINEAR_TRAJECTORY_GENERATOR_WITH_TIME_AND_GOAL_H_
+#ifndef IAM_ROBOLIB_TRAJECTORY_GENERATOR_LINEAR_POSE_TRAJECTORY_GENERATOR_H_
+#define IAM_ROBOLIB_TRAJECTORY_GENERATOR_LINEAR_POSE_TRAJECTORY_GENERATOR_H_
 
 #include <array>
 #include <cstring>
@@ -9,7 +9,7 @@
 
 #include "iam_robolib/trajectory_generator/trajectory_generator.h"
 
-class LinearTrajectoryGeneratorWithTimeAndGoal : public TrajectoryGenerator {
+class LinearPoseTrajectoryGenerator : public TrajectoryGenerator {
  public:
   using TrajectoryGenerator::TrajectoryGenerator;
 
@@ -28,4 +28,4 @@ class LinearTrajectoryGeneratorWithTimeAndGoal : public TrajectoryGenerator {
   double t_ = 0.0;
 };
 
-#endif  // IAM_ROBOLIB_TRAJECTORY_GENERATOR_LINEAR_TRAJECTORY_GENERATOR_WITH_TIME_AND_GOAL_H_
+#endif  // IAM_ROBOLIB_TRAJECTORY_GENERATOR_LINEAR_POSE_TRAJECTORY_GENERATOR_H_

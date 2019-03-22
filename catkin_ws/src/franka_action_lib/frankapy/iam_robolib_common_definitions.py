@@ -20,12 +20,12 @@ class MetaSkillType:
     JointPoseContinuousSkill = 1
 
 class TrajectoryGeneratorType:
-    LinearTrajectoryGeneratorWithTimeAndGoal = 1
+    LinearPoseTrajectoryGenerator = 1
     LinearJointTrajectoryGenerator = 2
     GripperTrajectoryGenerator = 3
     StayInInitialPositionTrajectoryGenerator = 4
     DmpTrajectoryGenerator = 5
-    RelativeLinearTrajectoryGenerator = 6
+    RelativeLinearPoseTrajectoryGenerator = 6
     ImpulseTrajectoryGenerator = 7
     MinJerkJointTrajectoryGenerator = 8
 
@@ -37,10 +37,10 @@ class FeedbackControllerType:
     PassThroughFeedbackController = 5
 
 class TerminationHandlerType:
-    NoopTerminationHandler = 1
+    ContactTerminationHandler = 1
     FinalJointTerminationHandler = 2
-    LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler = 3
-    ContactTerminationHandler = 4
+    FinalPoseTerminationHandler = 3
+    NoopTerminationHandler = 4
     TimeTerminationHandler = 5
 
 class SkillStatus: 

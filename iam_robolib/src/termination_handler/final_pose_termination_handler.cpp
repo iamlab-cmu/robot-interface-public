@@ -2,14 +2,14 @@
 // Created by mohit on 11/29/18.
 //
 
-#include "iam_robolib/termination_handler/linear_trajectory_generator_with_time_and_goal_termination_handler.h"
+#include "iam_robolib/termination_handler/final_pose_termination_handler.h"
 
 #include <iostream>
 #include <Eigen/Dense>
 
-#include "iam_robolib/trajectory_generator/linear_trajectory_generator_with_time_and_goal.h"
+#include "iam_robolib/trajectory_generator/linear_pose_trajectory_generator.h"
 
-void LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::parse_parameters() {
+void FinalPoseTerminationHandler::parse_parameters() {
   // First parameter is reserved for the type
 
   num_params_ = static_cast<int>(params_[1]);
@@ -64,35 +64,35 @@ void LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::parse_parameter
   }
 }
 
-void LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::initialize_handler() {
+void FinalPoseTerminationHandler::initialize_handler() {
   // pass
 }
 
-void LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::initialize_handler_on_franka(FrankaRobot *robot) {
+void FinalPoseTerminationHandler::initialize_handler_on_franka(FrankaRobot *robot) {
   // pass
 }
 
 // WARNING since this function does not have robot state, it is using the desired position and orientation from the 
 // trajectory generator to check for termination. If you would like to use the actual position and orientation from the
 // robot state to check for termination, use the should_terminate function with robot state below.
-bool LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::should_terminate(TrajectoryGenerator *trajectory_generator) {
+bool FinalPoseTerminationHandler::should_terminate(TrajectoryGenerator *trajectory_generator) {
   check_terminate_preempt();
   
   if(!done_){
-    LinearTrajectoryGeneratorWithTimeAndGoal *linear_trajectory_generator_with_time_and_goal =
-          static_cast<LinearTrajectoryGeneratorWithTimeAndGoal *>(trajectory_generator);
+    LinearPoseTrajectoryGenerator *linear_pose_trajectory_generator =
+          static_cast<LinearPoseTrajectoryGenerator *>(trajectory_generator);
 
-    if(linear_trajectory_generator_with_time_and_goal->time_ > linear_trajectory_generator_with_time_and_goal->run_time_ + buffer_time_)
+    if(linear_pose_trajectory_generator->time_ > linear_pose_trajectory_generator->run_time_ + buffer_time_)
     {
       done_ = true;
       return true;
     }
 
-    Eigen::Vector3d position_error = linear_trajectory_generator_with_time_and_goal->goal_position_ - 
-                                     linear_trajectory_generator_with_time_and_goal->desired_position_;
+    Eigen::Vector3d position_error = linear_pose_trajectory_generator->goal_position_ - 
+                                     linear_pose_trajectory_generator->desired_position_;
     
-    Eigen::Quaterniond goal_orientation(linear_trajectory_generator_with_time_and_goal->goal_orientation_);
-    Eigen::Quaterniond desired_orientation(linear_trajectory_generator_with_time_and_goal->desired_orientation_);
+    Eigen::Quaterniond goal_orientation(linear_pose_trajectory_generator->goal_orientation_);
+    Eigen::Quaterniond desired_orientation(linear_pose_trajectory_generator->desired_orientation_);
 
     if (goal_orientation.coeffs().dot(desired_orientation.coeffs()) < 0.0) {
       desired_orientation.coeffs() << -desired_orientation.coeffs();
@@ -127,16 +127,16 @@ bool LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::should_terminat
 }
 
 
-bool LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::should_terminate_on_franka(const franka::RobotState &robot_state, 
+bool FinalPoseTerminationHandler::should_terminate_on_franka(const franka::RobotState &robot_state, 
                                                                                             TrajectoryGenerator *trajectory_generator) {
   check_terminate_preempt();
 
   if(!done_){
-    LinearTrajectoryGeneratorWithTimeAndGoal *linear_trajectory_generator_with_time_and_goal =
-          static_cast<LinearTrajectoryGeneratorWithTimeAndGoal *>(trajectory_generator);
+    LinearPoseTrajectoryGenerator *linear_pose_trajectory_generator =
+          static_cast<LinearPoseTrajectoryGenerator *>(trajectory_generator);
 
     // Terminate if the skill time_ has exceeded the provided run_time_ + buffer_time_ 
-    if(linear_trajectory_generator_with_time_and_goal->time_ > linear_trajectory_generator_with_time_and_goal->run_time_ + buffer_time_)
+    if(linear_pose_trajectory_generator->time_ > linear_pose_trajectory_generator->run_time_ + buffer_time_)
     {
       done_ = true;
       return true;
@@ -157,9 +157,9 @@ bool LinearTrajectoryGeneratorWithTimeAndGoalTerminationHandler::should_terminat
     Eigen::Vector3d current_position(current_transform.translation());
     Eigen::Quaterniond current_orientation(current_transform.linear());
 
-    Eigen::Vector3d position_error = linear_trajectory_generator_with_time_and_goal->goal_position_ - current_position;
+    Eigen::Vector3d position_error = linear_pose_trajectory_generator->goal_position_ - current_position;
     
-    Eigen::Quaterniond goal_orientation(linear_trajectory_generator_with_time_and_goal->goal_orientation_);
+    Eigen::Quaterniond goal_orientation(linear_pose_trajectory_generator->goal_orientation_);
 
     if (goal_orientation.coeffs().dot(current_orientation.coeffs()) < 0.0) {
       current_orientation.coeffs() << -current_orientation.coeffs();
