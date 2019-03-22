@@ -11,13 +11,11 @@
 void FinalJointTerminationHandler::parse_parameters() {
   num_params_ = static_cast<int>(params_[1]);
 
-  if(num_params_ == 0)
-  {
+  if(num_params_ == 0) {
     std::cout << "No parameters given, using default buffer time and error thresholds." << std::endl;
   }
   // buffer_time(1) 
-  else if(num_params_ == 1)
-  {
+  else if(num_params_ == 1) {
     buffer_time_ = static_cast<double>(params_[2]);
   }
 }
@@ -37,8 +35,7 @@ bool FinalJointTerminationHandler::should_terminate(TrajectoryGenerator *traject
     LinearJointTrajectoryGenerator *linear_joint_traj_generator =
         static_cast<LinearJointTrajectoryGenerator *>(trajectory_generator);
 
-    if(linear_joint_traj_generator->time_ > linear_joint_traj_generator->run_time_ + buffer_time_)
-    {
+    if(linear_joint_traj_generator->time_ > linear_joint_traj_generator->run_time_ + buffer_time_) {
       done_ = true;
       return true;
     }

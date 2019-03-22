@@ -114,7 +114,8 @@ class FrankaArm:
                                             Default is None. If None then will not stop on contact.
         '''
         if tool_pose.from_frame != 'franka_tool' or tool_pose.to_frame != 'world':
-            raise ValueError('pose has invalid frame names! Make sure pose has from_frame=franka_tool and to_frame=world')
+            raise ValueError('pose has invalid frame names! Make sure pose has \
+                              from_frame=franka_tool and to_frame=world')
 
         tool_base_pose = tool_pose * self._tool_delta_pose.inverse()
 
@@ -148,7 +149,8 @@ class FrankaArm:
                                             Default is None. If None then will not stop on contact.
         '''
         if delta_tool_pose.from_frame != 'franka_tool' or delta_tool_pose.to_frame != 'franka_tool':
-            raise ValueError('delta_pose has invalid frame names! Make sure delta_pose has from_frame=franka_tool and to_frame=franka_tool')
+            raise ValueError('delta_pose has invalid frame names! Make sure delta_pose has \
+                              from_frame=franka_tool and to_frame=franka_tool')
 
         delta_tool_base_pose = self._tool_delta_pose * delta_tool_pose * self._tool_delta_pose.inverse()
 
@@ -166,7 +168,8 @@ class FrankaArm:
         skill.add_feedback_controller_params(FC.DEFAULT_TORQUE_CONTROLLER_PARAMS) 
         skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
 
-        skill.add_trajectory_params([duration] + delta_tool_base_pose.translation.tolist() + delta_tool_base_pose.quaternion.tolist())
+        skill.add_trajectory_params([duration] + delta_tool_base_pose.translation.tolist() + \
+                                    delta_tool_base_pose.quaternion.tolist())
         goal = skill.create_goal()
         
         self._send_goal(goal, cb=lambda x: skill.feedback_callback(x), ignore_errors=ignore_errors)
@@ -362,8 +365,10 @@ class FrankaArm:
         
         self._send_goal(goal, cb=lambda x: skill.feedback_callback(x), ignore_errors=ignore_errors)
 
-    def run_guide_mode_with_selective_pose_compliance(self, duration=3, translational_stiffnesses=FC.DEFAULT_TRANSLATIONAL_STIFFNESSES, 
-                                                      rotational_stiffnesses=FC.DEFAULT_ROTATIONAL_STIFFNESSES, ignore_errors=True):
+    def run_guide_mode_with_selective_pose_compliance(self, duration=3, 
+                                              translational_stiffnesses=FC.DEFAULT_TRANSLATIONAL_STIFFNESSES, 
+                                              rotational_stiffnesses=FC.DEFAULT_ROTATIONAL_STIFFNESSES, 
+                                              ignore_errors=True):
         '''Run guide mode with selective pose compliance given translational and rotational stiffnesses
 
         Args:
@@ -477,7 +482,8 @@ class FrankaArm:
             tool_delta_pose (RigidTransform)
         '''
         if tool_delta_pose.from_frame != 'franka_tool' or tool_delta_pose.to_frame != 'franka_tool_base':
-            raise ValueError('tool_delta_pose has invalid frame names! Make sure the has from_frame=franka_tool, and to_frame=franka_tool_base')
+            raise ValueError('tool_delta_pose has invalid frame names! Make sure it has \
+                              from_frame=franka_tool, and to_frame=franka_tool_base')
 
         self._tool_delta_pose = tool_delta_pose.copy()
 

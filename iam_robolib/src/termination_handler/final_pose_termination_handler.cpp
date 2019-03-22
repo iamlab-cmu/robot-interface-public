@@ -14,32 +14,26 @@ void FinalPoseTerminationHandler::parse_parameters() {
 
   num_params_ = static_cast<int>(params_[1]);
 
-  
-  if(num_params_ == 0)
-  {
+  if(num_params_ == 0) {
     std::cout << "No parameters given, using default buffer time and error thresholds." << std::endl;
   }
   // buffer_time(1) 
-  else if(num_params_ == 1)
-  {
+  else if(num_params_ == 1) {
     buffer_time_ = static_cast<double>(params_[2]);
   }
   // position_error_threshold (1) + orientation_error_threshold (1)
-  else if(num_params_ == 2) 
-  {
+  else if(num_params_ == 2) {
     position_threshold_ = static_cast<double>(params_[2]);
     orientation_threshold_ = static_cast<double>(params_[3]);
   }
   // buffer_time (1) + position_error_threshold (1) + orientation_error_threshold (1)
-  else if(num_params_ == 3) 
-  {
+  else if(num_params_ == 3) {
     buffer_time_ = static_cast<double>(params_[2]);
     position_threshold_ = static_cast<double>(params_[3]);
     orientation_threshold_ = static_cast<double>(params_[4]);
   }  
   // position_error_threshold (3) + orientation_error_threshold (3)
-  else if(num_params_ == 6)
-  {
+  else if(num_params_ == 6) {
     position_thresholds_[0] = static_cast<double>(params_[2]);
     position_thresholds_[1] = static_cast<double>(params_[3]);
     position_thresholds_[2] = static_cast<double>(params_[4]);
@@ -48,8 +42,7 @@ void FinalPoseTerminationHandler::parse_parameters() {
     orientation_thresholds_[2] = static_cast<double>(params_[7]);
   }
   // buffer_time (1) + position_error_threshold (3) + orientation_error_threshold (3)
-  else if(num_params_ == 7)
-  {
+  else if(num_params_ == 7) {
     buffer_time_ = static_cast<double>(params_[2]);
     position_thresholds_[0] = static_cast<double>(params_[3]);
     position_thresholds_[1] = static_cast<double>(params_[4]);
@@ -58,8 +51,7 @@ void FinalPoseTerminationHandler::parse_parameters() {
     orientation_thresholds_[1] = static_cast<double>(params_[7]);
     orientation_thresholds_[2] = static_cast<double>(params_[8]);
   }
-  else
-  {
+  else {
     std::cout << "Invalid number of params provided: " << num_params_ << std::endl;
   }
 }
@@ -82,8 +74,7 @@ bool FinalPoseTerminationHandler::should_terminate(TrajectoryGenerator *trajecto
     LinearPoseTrajectoryGenerator *linear_pose_trajectory_generator =
           static_cast<LinearPoseTrajectoryGenerator *>(trajectory_generator);
 
-    if(linear_pose_trajectory_generator->time_ > linear_pose_trajectory_generator->run_time_ + buffer_time_)
-    {
+    if(linear_pose_trajectory_generator->time_ > linear_pose_trajectory_generator->run_time_ + buffer_time_) {
       done_ = true;
       return true;
     }
@@ -103,23 +94,20 @@ bool FinalPoseTerminationHandler::should_terminate(TrajectoryGenerator *trajecto
     // compute "orientation error"
     Eigen::Vector3d orientation_error = error_quaternion_angle_axis.axis() * error_quaternion_angle_axis.angle();
     
-    if(num_params_ == 6)
-    {
-      for(int i=0; i<3; i++)
-      {
-        if(std::abs(position_error[i]) > position_thresholds_[i] || std::abs(orientation_error[i]) > orientation_thresholds_[i])
-        {
+    if(num_params_ == 6) {
+      for(int i=0; i<3; i++) {
+        if(std::abs(position_error[i]) > position_thresholds_[i] || 
+           std::abs(orientation_error[i]) > orientation_thresholds_[i]) {
           return false;
         }
       }
       done_ = true;
     }
-    else if(num_params_ == 2 && position_error.norm() < position_threshold_ && orientation_error.norm() < orientation_threshold_)
-    {
+    else if(num_params_ == 2 && position_error.norm() < position_threshold_ && 
+            orientation_error.norm() < orientation_threshold_) {
       done_ = true;
     }
-    else
-    {
+    else {
       return false;
     }
   }
@@ -128,7 +116,7 @@ bool FinalPoseTerminationHandler::should_terminate(TrajectoryGenerator *trajecto
 
 
 bool FinalPoseTerminationHandler::should_terminate_on_franka(const franka::RobotState &robot_state, 
-                                                                                            TrajectoryGenerator *trajectory_generator) {
+                                                             TrajectoryGenerator *trajectory_generator) {
   check_terminate_preempt();
 
   if(!done_){
@@ -136,8 +124,7 @@ bool FinalPoseTerminationHandler::should_terminate_on_franka(const franka::Robot
           static_cast<LinearPoseTrajectoryGenerator *>(trajectory_generator);
 
     // Terminate if the skill time_ has exceeded the provided run_time_ + buffer_time_ 
-    if(linear_pose_trajectory_generator->time_ > linear_pose_trajectory_generator->run_time_ + buffer_time_)
-    {
+    if(linear_pose_trajectory_generator->time_ > linear_pose_trajectory_generator->run_time_ + buffer_time_) {
       done_ = true;
       return true;
     }
@@ -164,29 +151,27 @@ bool FinalPoseTerminationHandler::should_terminate_on_franka(const franka::Robot
     if (goal_orientation.coeffs().dot(current_orientation.coeffs()) < 0.0) {
       current_orientation.coeffs() << -current_orientation.coeffs();
     }
+
     Eigen::Quaterniond error_quaternion(current_orientation * goal_orientation.inverse());
     // convert to axis angle
     Eigen::AngleAxisd error_quaternion_angle_axis(error_quaternion);
     // compute "orientation error"
     Eigen::Vector3d orientation_error = error_quaternion_angle_axis.axis() * error_quaternion_angle_axis.angle();
     
-    if(num_params_ == 6)
-    {
-      for(int i=0; i<3; i++)
-      {
-        if(std::abs(position_error[i]) > position_thresholds_[i] || std::abs(orientation_error[i]) > orientation_thresholds_[i])
-        {
+    if(num_params_ == 6) {
+      for(int i=0; i<3; i++) {
+        if(std::abs(position_error[i]) > position_thresholds_[i] || 
+           std::abs(orientation_error[i]) > orientation_thresholds_[i]) {
           return false;
         }
       }
       done_ = true;
     }
-    else if(num_params_ == 2 && position_error.norm() < position_threshold_ && orientation_error.norm() < orientation_threshold_)
-    {
+    else if(num_params_ == 2 && position_error.norm() < position_threshold_ && 
+            orientation_error.norm() < orientation_threshold_) {
       done_ = true;
     }
-    else
-    {
+    else {
       return false;
     }
   }

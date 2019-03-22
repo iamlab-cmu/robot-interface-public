@@ -11,17 +11,14 @@ void StayInInitialPositionTrajectoryGenerator::parse_parameters() {
 
   int num_params = static_cast<int>(params_[1]);
 
-  if(num_params == 0) 
-  {
+  if(num_params == 0) {
     std::cout << "StayInInitialPositionTrajectoryGenerator: No parameters provided. Using default run_time. " << std::endl;
   } 
   // Time
-  else if(num_params == 1) 
-  {
+  else if(num_params == 1) {
     run_time_ = static_cast<double>(params_[2]);
   } 
-  else
-  {
+  else {
     std::cout << "StayInInitialPositionTrajectoryGenerator: Invalid number of params provided: " << num_params << std::endl;
   }
 }

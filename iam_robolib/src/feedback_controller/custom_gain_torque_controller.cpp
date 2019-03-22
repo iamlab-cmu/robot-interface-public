@@ -16,13 +16,11 @@ void CustomGainTorqueController::parse_parameters() {
   }
   // translational_stiffness(1) and rotational_stiffness(1) were given
   if (num_params == 14) {
-    for(int i = 0; i < 7; i++)
-    {
+    for(int i = 0; i < 7; i++) {
       k_gains_[i] = static_cast<double>(params_[2+i]);
     }
 
-    for(int i = 0; i < 7; i++)
-    {
+    for(int i = 0; i < 7; i++) {
       d_gains_[i] = static_cast<double>(params_[9+i]);
     }
   } else {

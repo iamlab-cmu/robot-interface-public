@@ -19,23 +19,19 @@ void TorqueFeedbackController::parse_parameters() {
       break;
     case 2:
       // translational_stiffness(1) and rotational_stiffness(1) were given
-      for(size_t i = 0; i < translational_stiffnesses_.size(); i++)
-      {
+      for(size_t i = 0; i < translational_stiffnesses_.size(); i++) {
         translational_stiffnesses_[i] = static_cast<double>(params_[2]);
       }
-      for(size_t i = 0; i < rotational_stiffnesses_.size(); i++)
-      {
+      for(size_t i = 0; i < rotational_stiffnesses_.size(); i++) {
         rotational_stiffnesses_[i] = static_cast<double>(params_[3]);
       }
       break;
     case 6:
       // translational_stiffness(3) and rotational_stiffness(3) were given
-      for(size_t i = 0; i < translational_stiffnesses_.size(); i++)
-      {
+      for(size_t i = 0; i < translational_stiffnesses_.size(); i++) {
         translational_stiffnesses_[i] = static_cast<double>(params_[param_index++]);
       }
-      for(size_t i = 0; i < rotational_stiffnesses_.size(); i++)
-      {
+      for(size_t i = 0; i < rotational_stiffnesses_.size(); i++) {
         rotational_stiffnesses_[i] = static_cast<double>(params_[param_index++]);
       }
       break;
