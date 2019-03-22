@@ -2,7 +2,8 @@
 #include <mutex>
 #include <boost/program_options.hpp>
 
-#include <iam_robolib/definitions.h>
+#include <iam_robolib_common/definitions.h>
+
 #include <iam_robolib/run_loop.h>
 
 namespace po = boost::program_options;

@@ -4,6 +4,9 @@
 
 #include "iam_robolib/trajectory_generator_factory.h"
 
+#include <iostream>
+#include <iam_robolib_common/definitions.h>
+
 #include "iam_robolib/skills/base_meta_skill.h"
 #include "iam_robolib/skills/base_skill.h"
 #include "iam_robolib/trajectory_generator/dmp_trajectory_generator.h"
@@ -19,38 +22,52 @@
 
 TrajectoryGenerator* TrajectoryGeneratorFactory::getTrajectoryGeneratorForSkill(
     SharedBufferTypePtr buffer) {
-  int traj_gen_id = static_cast<int>(buffer[0]);
-  TrajectoryGenerator *traj_generator = nullptr;
+  TrajectoryGeneratorType trajectory_generator_type = static_cast<TrajectoryGeneratorType>(buffer[0]);
+  TrajectoryGenerator *trajectory_generator = nullptr;
 
-  std::cout << "Trajectory generator id: " << traj_gen_id << "\n";
+  std::cout << "Trajectory Generator Type: " << 
+  static_cast<std::underlying_type<TrajectoryGeneratorType>::type>(trajectory_generator_type) << 
+  "\n";
 
-  if (traj_gen_id == 1) {
-    // Create Counter based trajectory.
-    traj_generator = new CounterTrajectoryGenerator(buffer);
-  } else if (traj_gen_id == 2) {
-    traj_generator = new LinearTrajectoryGenerator(buffer);
-  } else if (traj_gen_id == 3) {
-    traj_generator = new LinearJointTrajectoryGenerator(buffer);
-  } else if (traj_gen_id == 4) {
-    traj_generator = new LinearTrajectoryGeneratorWithTimeAndGoal(buffer);
-  } else if (traj_gen_id == 5){
-    traj_generator = new GripperTrajectoryGenerator(buffer);
-  } else if (traj_gen_id == 6) {
-    traj_generator = new StayInInitialPositionTrajectoryGenerator(buffer);
-  } else if (traj_gen_id == 7) {
-    traj_generator = new DmpTrajectoryGenerator(buffer);
-  } else if (traj_gen_id == 8) {
-    traj_generator = new RelativeLinearTrajectoryGenerator(buffer);
-  } else if (traj_gen_id == 9) {
-    traj_generator = new ImpulseTrajectoryGenerator(buffer);
-  } else if (traj_gen_id == 10) {
-    traj_generator = new MinJerkJointTrajectoryGenerator(buffer);
-  } else {
-    // Cannot create Trajectory generator for this skill. Throw error
-    std::cout << "Cannot create TrajectoryGenerator with class_id:" << traj_gen_id << "\n";
-    return nullptr;
+  switch (trajectory_generator_type) {
+    case TrajectoryGeneratorType::CounterTrajectoryGenerator:
+      trajectory_generator = new CounterTrajectoryGenerator(buffer);
+      break;
+    case TrajectoryGeneratorType::LinearTrajectoryGenerator:
+      trajectory_generator = new LinearTrajectoryGenerator(buffer);
+      break;
+    case TrajectoryGeneratorType::LinearJointTrajectoryGenerator:
+      trajectory_generator = new LinearJointTrajectoryGenerator(buffer);
+      break;
+    case TrajectoryGeneratorType::LinearTrajectoryGeneratorWithTimeAndGoal:
+      trajectory_generator = new LinearTrajectoryGeneratorWithTimeAndGoal(buffer);
+      break;
+    case TrajectoryGeneratorType::GripperTrajectoryGenerator:
+      trajectory_generator = new GripperTrajectoryGenerator(buffer);
+      break;
+    case TrajectoryGeneratorType::StayInInitialPositionTrajectoryGenerator:
+      trajectory_generator = new StayInInitialPositionTrajectoryGenerator(buffer);
+      break;
+    case TrajectoryGeneratorType::DmpTrajectoryGenerator:
+      trajectory_generator = new DmpTrajectoryGenerator(buffer);
+      break;
+    case TrajectoryGeneratorType::RelativeLinearTrajectoryGenerator:
+      trajectory_generator = new RelativeLinearTrajectoryGenerator(buffer);
+      break;
+    case TrajectoryGeneratorType::ImpulseTrajectoryGenerator:
+      trajectory_generator = new ImpulseTrajectoryGenerator(buffer);
+      break;
+    case TrajectoryGeneratorType::MinJerkJointTrajectoryGenerator:
+      trajectory_generator = new MinJerkJointTrajectoryGenerator(buffer);
+      break;
+    default:
+      std::cout << "Cannot create Trajectory Generator with type:" << 
+      static_cast<std::underlying_type<TrajectoryGeneratorType>::type>(trajectory_generator_type) << 
+      "\n";
+      return nullptr;
   }
-  traj_generator->parse_parameters();
-  return traj_generator;
+
+  trajectory_generator->parse_parameters();
+  return trajectory_generator;
 }
 

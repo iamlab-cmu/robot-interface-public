@@ -14,6 +14,7 @@
 #include <cassert>
 
 #include <franka/exception.h>
+#include <iam_robolib_common/definitions.h>
 
 #include "iam_robolib/duration.h"
 #include "iam_robolib/skills/base_meta_skill.h"
@@ -203,50 +204,63 @@ void run_loop::update_process_info() {
           std::cout << "Did get new skill";
           // Create new task Skill
           int new_skill_id = run_loop_info->get_new_skill_id();
-          int new_skill_type = run_loop_info->get_new_skill_type();
+          SkillType new_skill_type = static_cast<SkillType>(run_loop_info->get_new_skill_type());
           int new_meta_skill_id = run_loop_info->get_new_meta_skill_id();
-          int new_meta_skill_type = run_loop_info->get_new_meta_skill_type();
+          MetaSkillType new_meta_skill_type = static_cast<MetaSkillType>(run_loop_info->get_new_meta_skill_type());
           std::string new_skill_description = run_loop_info->get_new_skill_description();
           std::cout << string_format("Did find new skill id: %d, type: %d meta skill: %d, type: %d\n",
               new_skill_id, new_skill_type, new_meta_skill_id, new_meta_skill_type);
 
-          // Add new skill
+          // Set the current skill to the new skill parameters
           run_loop_info->set_current_skill_id(new_skill_id);
-          run_loop_info->set_current_skill_type(new_skill_type);
+          run_loop_info->set_current_skill_type(static_cast<int>(new_skill_type));
           run_loop_info->set_current_meta_skill_id(new_meta_skill_id);
-          run_loop_info->set_current_meta_skill_type(new_meta_skill_type);
+          run_loop_info->set_current_meta_skill_type(static_cast<int>(new_meta_skill_type));
           run_loop_info->set_current_skill_description(new_skill_description);
+
           BaseSkill *new_skill;
-          if (new_skill_type == 0) {
-            new_skill = new SkillInfo(new_skill_id, new_meta_skill_id, new_skill_description);
-          } else if (new_skill_type == 1) {
-            new_skill = new GripperSkill(new_skill_id, new_meta_skill_id, new_skill_description);
-          } else if (new_skill_type == 2) {
-            new_skill = new JointPoseSkill(new_skill_id, new_meta_skill_id, new_skill_description);
-          } else if (new_skill_type == 3) {
-            new_skill = new SaveTrajectorySkill(new_skill_id, new_meta_skill_id, new_skill_description);
-          } else if (new_skill_type == 4) {
-            new_skill = new ForceTorqueSkill(new_skill_id, new_meta_skill_id, new_skill_description);
-          } else {
-              std::cout << "Incorrect skill type: " << new_skill_type << "\n";
+          switch(new_skill_type) {
+            case SkillType::SkillInfo:
+              new_skill = new SkillInfo(new_skill_id, new_meta_skill_id, new_skill_description);
+              break;
+            case SkillType::GripperSkill:
+              new_skill = new GripperSkill(new_skill_id, new_meta_skill_id, new_skill_description);
+              break;
+            case SkillType::JointPoseSkill:
+              new_skill = new JointPoseSkill(new_skill_id, new_meta_skill_id, new_skill_description);
+              break;
+            case SkillType::SaveTrajectorySkill:
+              new_skill = new SaveTrajectorySkill(new_skill_id, new_meta_skill_id, new_skill_description);
+              break;
+            case SkillType::ForceTorqueSkill:
+              new_skill = new ForceTorqueSkill(new_skill_id, new_meta_skill_id, new_skill_description);
+              break;
+            default:
+              std::cout << "Incorrect skill type: " << 
+              static_cast<std::underlying_type<SkillType>::type>(new_skill_type) << 
+              "\n";
               assert(false);
           }
+
           skill_manager_.add_skill(new_skill);
 
           // Get Meta-skill
           // BaseMetaSkill* new_meta_skill = skill_manager_.get_meta_skill_with_id(new_meta_skill_id);
           BaseMetaSkill* new_meta_skill = nullptr;
-          if (new_meta_skill == nullptr) {
-            if (new_meta_skill_type == 0) {
+          switch(new_meta_skill_type) {
+            case MetaSkillType::BaseMetaSkill:
               new_meta_skill = new BaseMetaSkill(new_meta_skill_id);
-            } else if (new_meta_skill_type == 1) {
+              break;
+            case MetaSkillType::JointPoseContinuousSkill:
               new_meta_skill = new JointPoseContinuousSkill(new_meta_skill_id);
-            } else {
-                std::cout << "Incorrect meta skill type: " << new_skill_type << "\n";
-                assert(false);
-            }
-            skill_manager_.add_meta_skill(new_meta_skill);
+              break;
+            default:
+              std::cout << "Incorrect meta skill type: " << 
+              static_cast<std::underlying_type<MetaSkillType>::type>(new_meta_skill_type) << 
+              "\n";
+              assert(false);  
           }
+          skill_manager_.add_meta_skill(new_meta_skill);
 
           // Update the shared memory region. This means that the actionlib service will now write
           // to the other memory region, i.e. not the current memory region.

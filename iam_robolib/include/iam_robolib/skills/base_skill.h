@@ -6,12 +6,6 @@
 
 class run_loop;
 
-enum class SkillStatus : uint8_t { 
-  TO_START, 
-  RUNNING, 
-  FINISHED 
-};  // enum class
-
 class RobotStateData;
 class FeedbackController;
 class TerminationHandler;
