@@ -27,10 +27,13 @@ void printListOfVectors(std::vector<std::array<double, N>> data, int print_last)
 void RobotStateData::setFileStreamLogger(FileStreamLogger *logger) {
   file_logger_ = logger;
   use_buffer_0 = true;
+
+  file_logger_->initializeFile();
 }
 
 void RobotStateData::updateFileStreamLogger(std::string new_filename) {
   file_logger_->updateFileName(new_filename);
+  file_logger_->initializeFile();
 }
 
 void RobotStateData::writeBufferData_0() {

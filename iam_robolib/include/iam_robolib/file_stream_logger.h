@@ -97,6 +97,11 @@ class FileStreamLogger {
    */
   bool updateFileName(std::string new_filename);
 
+  /**
+   * Initialize the first line of the file with the parameters that are being saved. 
+   */
+  void initializeFile();
+
  private:
   std::ofstream open_file_stream_;
   std::string filename_;

@@ -454,3 +454,143 @@ bool FileStreamLogger::updateFileName(std::string new_filename) {
     filename_ = new_filename;
     open_file_stream_ = std::ofstream(new_filename, std::ofstream::out | std::ofstream::app);
 }
+
+void FileStreamLogger::initializeFile() {
+    if (!open_file_stream_.is_open()) {
+        open_file_stream_ = std::ofstream(filename_, std::ofstream::out | std::ofstream::app);
+    }
+
+    open_file_stream_ << "time_since_skill_started(1)" << ",";
+
+    if(write_pose_desired_) {
+        open_file_stream_ << "pose_desired(16)" << ",";
+    }
+
+    open_file_stream_ << "O_T_EE(16)" << ",";
+
+    open_file_stream_ << "O_T_EE_d(16)" << ",";
+
+    if(write_F_T_EE_) {
+        open_file_stream_ << "F_T_EE(16)" << ",";
+    }
+
+    open_file_stream_ << "EE_T_K(16)" << ",";
+
+    if(write_m_ee_) {
+        open_file_stream_ << "m_ee(1)" << ",";
+    }
+
+    if(write_I_ee) {
+        open_file_stream_ << "I_ee(9)" << ",";
+    }
+
+    if(write_F_x_Cee) {
+        open_file_stream_ << "F_x_Cee(3)" << ",";
+    }
+
+    if(write_m_load_) {
+        open_file_stream_ << "m_load(1)" << ",";
+    }
+
+    if(write_I_load) {
+        open_file_stream_ << "I_load(9)" << ",";
+    }
+
+    if(write_F_x_Cload) {
+        open_file_stream_ << "F_x_Cload(3)" << ",";
+    }
+
+    if(write_m_total_) {
+        open_file_stream_ << "m_total(1)" << ",";
+    }
+
+    if(write_I_total) {
+        open_file_stream_ << "I_total(9)" << ",";
+    }
+
+    if(write_F_x_Ctotal) {
+        open_file_stream_ << "F_x_Ctotal(3)" << ",";
+    }
+
+    open_file_stream_ << "elbow(2)" << ",";
+
+    open_file_stream_ << "elbow_d(2)" << ",";
+
+    open_file_stream_ << "elbow_c(2)" << ",";
+
+    open_file_stream_ << "delbow_c(2)" << ",";
+
+    open_file_stream_ << "ddelbow_c(2)" << ",";
+
+    open_file_stream_ << "tau_J(7)" << ",";
+
+    open_file_stream_ << "tau_J_d(7)" << ",";
+
+    open_file_stream_ << "dtau_J(7)" << ",";
+
+    open_file_stream_ << "q(7)" << ",";
+
+    open_file_stream_ << "q_d(7)" << ",";
+
+    open_file_stream_ << "dq(7)" << ",";
+
+    open_file_stream_ << "dq_d(7)" << ",";
+
+    open_file_stream_ << "ddq_d(7)" << ",";
+
+    open_file_stream_ << "joint_contact(7)" << ",";
+
+    open_file_stream_ << "cartesian_contact(6)" << ",";
+
+    if(write_joint_collision_) {
+        open_file_stream_ << "joint_collision(7)" << ",";
+    }
+
+    if(write_cartesian_collision_) {
+        open_file_stream_ << "cartesian_collision(6)" << ",";
+    }
+
+    open_file_stream_ << "tau_ext_hat_filtered(7)" << ",";
+
+    open_file_stream_ << "O_F_ext_hat_K(6)" << ",";
+
+    open_file_stream_ << "K_F_ext_hat_K(6)" << ",";
+
+    open_file_stream_ << "O_dP_EE_d(6)" << ",";
+
+    open_file_stream_ << "O_T_EE_c(16)" << ",";
+
+    open_file_stream_ << "O_dP_EE_c(6)" << ",";
+
+    open_file_stream_ << "O_ddP_EE_c(6)" << ",";
+
+    open_file_stream_ << "theta(7)" << ",";
+
+    open_file_stream_ << "dtheta(7)" << ",";
+
+    if(write_current_errors_) {
+        open_file_stream_ << "current_errors(37)" << ",";
+    }
+
+    if(write_last_motion_errors_) {
+        open_file_stream_ << "last_motion_errors(37)" << ",";
+    }
+
+    open_file_stream_ << "control_command_success_rate(1)" << ",";
+
+    open_file_stream_ << "robot_mode(1)" << ",";
+
+    open_file_stream_ << "robot_time(1)" << ",";
+
+    open_file_stream_ << "gripper_width(1)" << ",";
+
+    if(write_gripper_max_width_) {
+        open_file_stream_ << "gripper_max_width(1)" << ",";
+    }
+    
+    open_file_stream_ << "gripper_is_grasped(1)" << ",";
+
+    open_file_stream_ << "gripper_temperature(1)" << ",";
+
+    open_file_stream_ << "gripper_time(1)" << "\n";
+}
