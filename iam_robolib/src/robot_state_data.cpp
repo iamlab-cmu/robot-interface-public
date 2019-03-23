@@ -41,7 +41,7 @@ void RobotStateData::writeBufferData_0() {
         if (log_skill_info_0_.size() > 0) {
           bool result = file_logger_->writeStringData(log_skill_info_0_);
           if (result) {
-            std::cout << "Success: Did write string data from buffer 0." << std::endl;
+            // std::cout << "Success: Did write string data from buffer 0." << std::endl;
           } else {
             std::cout << "Fail: Did not write string data from buffer 0." << std::endl;
           }
@@ -99,7 +99,7 @@ void RobotStateData::writeBufferData_0() {
                                               log_gripper_temperature_0_,
                                               log_gripper_time_0_);
         if (result) {
-            std::cout << "Success: Did write data from buffer 0." << std::endl;
+            // std::cout << "Success: Did write data from buffer 0." << std::endl;
         } else {
             std::cout << "Fail: Did not write data from buffer 0." << std::endl;
         }
@@ -172,7 +172,7 @@ void RobotStateData::writeBufferData_1() {
         if (log_skill_info_1_.size() > 0) {
           bool result = file_logger_->writeStringData(log_skill_info_1_);
           if (result) {
-            std::cout << "Success: Did write string data from buffer 0." << std::endl;
+            // std::cout << "Success: Did write string data from buffer 0." << std::endl;
           } else {
             std::cout << "Fail: Did not write string data from buffer 0." << std::endl;
           }
@@ -229,9 +229,9 @@ void RobotStateData::writeBufferData_1() {
                                               log_gripper_temperature_1_,
                                               log_gripper_time_1_);
         if (result) {
-            std::cout << "Success: Did write data from buffer 1." << std::endl;
+          // std::cout << "Success: Did write data from buffer 1." << std::endl;
         } else {
-            std::cout << "Fail: Did not write data from buffer 1." << std::endl;
+          std::cout << "Fail: Did not write data from buffer 1." << std::endl;
         }
     }
 
@@ -278,8 +278,7 @@ void RobotStateData::writeBufferData_1() {
     log_O_ddP_EE_c_1_.clear();
     log_theta_1_.clear();
     log_dtheta_1_.clear();
-    log_current_errors_1_.clear();
-    log_last_motion_errors_1_.clear();
+    log_current_errors_1_.clear(); log_last_motion_errors_1_.clear();
     log_control_command_success_rate_1_.clear();
     log_robot_mode_1_.clear();
     log_robot_time_1_.clear();
