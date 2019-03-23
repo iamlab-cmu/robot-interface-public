@@ -589,6 +589,16 @@ void run_loop::run_on_franka() {
       continue;
     }
   }
+
+  if (robot_state_read_thread_.joinable()) {
+    robot_state_read_thread_.join();
+  }
+  if (current_robot_state_io_thread_.joinable()) {
+    current_robot_state_io_thread_.join();
+  }
+  if (robot_state_data_->file_logger_thread_.joinable()) {
+    robot_state_data_->file_logger_thread_.join();
+  }
 }
 
 void run_loop::run_on_ur5e() {
