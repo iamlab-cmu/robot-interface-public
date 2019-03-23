@@ -278,7 +278,8 @@ void RobotStateData::writeBufferData_1() {
     log_O_ddP_EE_c_1_.clear();
     log_theta_1_.clear();
     log_dtheta_1_.clear();
-    log_current_errors_1_.clear(); log_last_motion_errors_1_.clear();
+    log_current_errors_1_.clear();
+    log_last_motion_errors_1_.clear();
     log_control_command_success_rate_1_.clear();
     log_robot_mode_1_.clear();
     log_robot_time_1_.clear();
