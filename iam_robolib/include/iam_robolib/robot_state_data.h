@@ -158,6 +158,13 @@ class RobotStateData {
   void setFileStreamLogger(FileStreamLogger *logger);
 
   /**
+   * Update filestream logger log file.  This method is called after every reset.
+   *
+   * @param new_filename New file to save logs in.
+   */
+  void updateFileStreamLogger(std::string new_filename);
+
+  /**
    * Start logging to some global buffer or file.
    */
   void startFileLoggerThread();

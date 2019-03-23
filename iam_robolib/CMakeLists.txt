@@ -81,6 +81,7 @@ add_library(iam_robolib SHARED
   src/tcp_socket.cpp
   src/termination_handler_factory.cpp
   src/trajectory_generator_factory.cpp
+  src/utils/logger_utils.cpp
 )
 
 # Add namespace

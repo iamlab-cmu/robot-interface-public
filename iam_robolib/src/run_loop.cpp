@@ -17,15 +17,16 @@
 #include <iam_robolib_common/definitions.h>
 
 #include "iam_robolib/duration.h"
+#include "iam_robolib/file_stream_logger.h"
+#include "iam_robolib/robot_state_data.h"
+#include "iam_robolib/save_robot_state_data_to_shared_memory_buffer.h"
 #include "iam_robolib/skills/base_meta_skill.h"
 #include "iam_robolib/skills/base_skill.h"
-#include "iam_robolib/robot_state_data.h"
-#include "iam_robolib/file_stream_logger.h"
-#include "iam_robolib/skills/gripper_skill.h"
-#include "iam_robolib/skills/joint_pose_skill.h"
-#include "iam_robolib/skills/joint_pose_continuous_skill.h"
 #include "iam_robolib/skills/force_torque_skill.h"
-#include "iam_robolib/save_robot_state_data_to_shared_memory_buffer.h"
+#include "iam_robolib/skills/gripper_skill.h"
+#include "iam_robolib/skills/joint_pose_continuous_skill.h"
+#include "iam_robolib/skills/joint_pose_skill.h"
+#include "iam_robolib/utils/logger_utils.h"
 
 std::atomic<bool> run_loop::run_loop_ok_{false};
 std::mutex run_loop::robot_access_mutex_;
@@ -443,7 +444,11 @@ void run_loop::didFinishSkillInMetaSkill(BaseSkill* skill) {
 }
 
 void run_loop::setup_data_loggers() {
-  FileStreamLogger *robot_logger = new FileStreamLogger("./robot_state_data.txt");
+  // LoggerUtils::all_logger_files();
+  int logger_integer_suffix = LoggerUtils::integer_suffix_for_new_log_file();
+  std::string filename = "./robot_state_data_" + std::to_string(logger_integer_suffix) + ".txt";
+  std::cout << "Will save data to: " << filename << std::endl;
+  FileStreamLogger *robot_logger = new FileStreamLogger(filename);
   robot_state_data_->setFileStreamLogger(robot_logger);
   robot_state_data_->startFileLoggerThread();
 }
@@ -565,6 +570,12 @@ void run_loop::run_on_franka() {
       shared_memory_handler_->clearAllBuffers();
       robot_state_data_->clearAllBuffers();
 
+      // Write new logs to a new log file.
+      int logger_integer_suffix = LoggerUtils::integer_suffix_for_new_log_file();
+      std::string filename = "./robot_state_data_" + std::to_string(logger_integer_suffix) + ".txt";
+      std::cout << "Will save data to: " << filename << std::endl;
+      robot_state_data_->updateFileStreamLogger(filename);
+
       // Perform error recovery
       std::cout << "Performing automatic error recovery\n";
       robot_->automaticErrorRecovery();
@@ -619,76 +630,6 @@ void run_loop::run_on_ur5e() {
   }
 
   dynamic_cast<UR5eRobot* >(robot_)->rt_commander_->stopl();
-
-  // setup_robot_default_behavior();
-
-  /*try {
-    running_skills_ = true;
-
-    //setup_data_loggers();
-    //setup_current_robot_state_io_thread();
-
-    // TODO(Mohit): This causes a weird race condition between reading the robot state and 
-    // running the control loop. It prevents iam_robolib from running when robot is in guide mode.
-    // setup_save_robot_state_thread();
-
-    LOG_INFO("Starting main loop");
-
-    while (1) {
-      start = std::chrono::high_resolution_clock::now();
-
-      // Execute the current skill (traj_generator, FBC are here)
-      BaseSkill* skill = skill_manager_.get_current_skill();
-      BaseMetaSkill *meta_skill = skill_manager_.get_current_meta_skill();
-
-      // NOTE: We keep on running the last skill even if it is finished!!
-      if (skill != nullptr && meta_skill != nullptr) {
-        if (!meta_skill->isComposableSkill() && !skill->get_termination_handler()->done_) {
-          // Execute skill.
-          log_skill_info(skill);
-          //meta_skill->execute_skill_on_franka(this, dynamic_cast<FrankaRobot* >(robot_), robot_state_data_);
-        } else if (meta_skill->isComposableSkill()) {
-          log_skill_info(skill);
-          //meta_skill->execute_skill_on_franka(this, dynamic_cast<FrankaRobot* >(robot_), robot_state_data_);
-        } else {
-          finish_current_skill(skill);
-          std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        }
-      }
-
-      // Complete old skills and acquire new skills
-      update_process_info();
-
-      // Start new skill, if possible
-      BaseSkill* new_skill = skill_manager_.get_current_skill();
-      if (should_start_new_skill(skill, new_skill)) {
-        std::cout << "Will start skill\n";
-        start_new_skill(new_skill);
-      }
-
-      // Sleep to maintain 1Khz frequency, not sure if this is required or not.
-      auto finish = std::chrono::high_resolution_clock::now();
-      // Wait for start + milli - finish
-      auto elapsed = start + milli - finish;
-      // std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
-  } catch (const franka::Exception& ex) {
-    std::cout << "Franka exception occurred during control loop. Will exit." << std::endl;
-    std::cerr << ex.what() << std::endl;
-    logger_.print_error_log();
-    logger_.print_warning_log();
-    logger_.print_info_log();
-  }*/
-
-  /*if (print_thread_.joinable()) {
-    print_thread_.join();
-  }
-  if (current_robot_state_io_thread_.joinable()) {
-    current_robot_state_io_thread_.join();
-  }
-  if (robot_state_data_->file_logger_thread_.joinable()) {
-    robot_state_data_->file_logger_thread_.join();
-  }*/
 
   LOG_INFO("Stopping, shutting down pipelines");
 

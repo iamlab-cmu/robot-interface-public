@@ -449,3 +449,8 @@ bool FileStreamLogger::writeStringData(std::vector<std::string> data) {
         open_file_stream_ << "info: " << data[i] << "\n";
     }
 }
+
+bool FileStreamLogger::updateFileName(std::string new_filename) {
+    filename_ = new_filename;
+    open_file_stream_ = std::ofstream(new_filename, std::ofstream::out | std::ofstream::app);
+}
