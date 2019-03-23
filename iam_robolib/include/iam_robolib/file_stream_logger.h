@@ -89,6 +89,14 @@ class FileStreamLogger {
    */
   bool writeStringData(std::vector<std::string> data);
 
+  /**
+   * Update logger filename.
+   *
+   * @param new_filename
+   * @return
+   */
+  bool updateFileName(std::string new_filename);
+
  private:
   std::ofstream open_file_stream_;
   std::string filename_;
