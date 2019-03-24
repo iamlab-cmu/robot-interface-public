@@ -217,6 +217,8 @@ void run_loop::update_process_info() {
           run_loop_info->set_current_meta_skill_id(new_meta_skill_id);
           run_loop_info->set_current_meta_skill_type(static_cast<int>(new_meta_skill_type));
           run_loop_info->set_current_skill_description(new_skill_description);
+          run_loop_info->reset_time_skill_started_in_robot_time();
+          run_loop_info->reset_time_skill_finished_in_robot_time();
 
           BaseSkill *new_skill;
           switch(new_skill_type) {

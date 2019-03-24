@@ -55,7 +55,6 @@ void SkillInfo::execute_skill_on_franka(run_loop* run_loop,
       try {
         if (lock.try_lock()) {
           run_loop_info->set_time_skill_started_in_robot_time(robot_state.time.toSec());
-          run_loop_info->reset_time_skill_finished_in_robot_time();
           lock.unlock();
         } 
       } catch (boost::interprocess::lock_exception) {

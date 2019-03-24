@@ -106,6 +106,7 @@ class RunLoopProcessInfo {
   void set_result_skill_id(int result_skill_id);
 
   double get_time_skill_started_in_robot_time();
+  void reset_time_skill_started_in_robot_time();
   void set_time_skill_started_in_robot_time(double robot_time);
   
   double get_time_skill_finished_in_robot_time();

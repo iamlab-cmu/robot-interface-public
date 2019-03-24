@@ -212,6 +212,10 @@ double RunLoopProcessInfo::get_time_skill_started_in_robot_time() {
   return time_skill_started_in_robot_time_;
 }
 
+void RunLoopProcessInfo::reset_time_skill_started_in_robot_time() {
+  time_skill_started_in_robot_time_ = 0.0;
+}
+
 void RunLoopProcessInfo::set_time_skill_started_in_robot_time(double robot_time) {
   time_skill_started_in_robot_time_ = robot_time;
 }
