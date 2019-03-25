@@ -603,15 +603,15 @@ class FrankaArm:
     '''
     Misc
     '''
-    def reset_joints(self):
+    def reset_joints(self, skill_desc=''):
         '''Commands Arm to goto hardcoded home joint configuration
         '''
-        self.goto_joints(FC.HOME_JOINTS, duration=5)
+        self.goto_joints(FC.HOME_JOINTS, duration=5, skill_desc=skill_desc)
 
-    def reset_pose(self):
+    def reset_pose(self, skill_desc=''):
         '''Commands Arm to goto hardcoded home pose
         '''
-        self.goto_pose(FC.HOME_POSE, duration=5)
+        self.goto_pose(FC.HOME_POSE, duration=5, skill_desc=skill_desc)
 
     def is_joints_reachable(self, joints):
         '''
