@@ -1,8 +1,4 @@
-//
-// Created by mohit on 12/6/18.
-//
-
-#include "iam_robolib/skills/joint_position_skill.h"
+#include "iam_robolib/skills/cartesian_pose_skill.h"
 
 #include <cassert>
 #include <iostream>
@@ -20,11 +16,11 @@
 
 #include <iam_robolib_common/run_loop_process_info.h>
 
-void JointPositionSkill::execute_skill() {
+void CartesianPoseSkill::execute_skill() {
   assert(false);
 }
 
-void JointPositionSkill::execute_skill_on_franka(run_loop* run_loop,
+void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
                                                  FrankaRobot* robot,
                                                  RobotStateData *robot_state_data) {
   double time = 0.0;
@@ -38,10 +34,10 @@ void JointPositionSkill::execute_skill_on_franka(run_loop* run_loop,
 
   std::cout << "Will run the control loop\n";
 
-  std::function<franka::JointPositions(const franka::RobotState&, franka::Duration)>
-      joint_pose_callback = [&](
+  std::function<franka::CartesianPose(const franka::RobotState&, franka::Duration)>
+      cartesian_pose_callback = [&](
       const franka::RobotState& robot_state,
-      franka::Duration period) -> franka::JointPositions {
+      franka::Duration period) -> franka::CartesianPose {
     if (time == 0.0) {
       traj_generator_->initialize_trajectory(robot_state);
       try {
@@ -60,7 +56,6 @@ void JointPositionSkill::execute_skill_on_franka(run_loop* run_loop,
 
     bool done = termination_handler_->should_terminate_on_franka(robot_state, 
                                                                  traj_generator_);
-    franka::JointPositions joint_desired(traj_generator_->joint_desired_);
 
     log_counter += 1;
     if (log_counter % 1 == 0) {
@@ -77,12 +72,12 @@ void JointPositionSkill::execute_skill_on_franka(run_loop* run_loop,
       } catch (boost::interprocess::lock_exception) {
         // Do nothing
       }
-      return franka::MotionFinished(joint_desired);
+      return franka::MotionFinished(traj_generator_->pose_desired_);
     }
 
-    return joint_desired;
+    return traj_generator_->pose_desired_;
   };
 
-  robot->robot_.control(joint_pose_callback);
+  robot->robot_.control(cartesian_pose_callback);
 }
 

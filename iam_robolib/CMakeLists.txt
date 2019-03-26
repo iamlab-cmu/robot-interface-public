@@ -40,6 +40,7 @@ add_library(iam_robolib SHARED
   src/feedback_controller/set_internal_impedance_feedback_controller.cpp
   src/skills/base_meta_skill.cpp
   src/skills/base_skill.cpp
+  src/skills/cartesian_pose_skill.cpp
   src/skills/force_torque_skill.cpp
   src/skills/gripper_skill.cpp
   src/skills/impedance_control_skill.cpp
