@@ -24,7 +24,6 @@ class RelativeLinearPoseTrajectoryGenerator : public LinearPoseTrajectoryGenerat
  private:
   Eigen::Vector3d relative_position_;
   Eigen::Quaterniond relative_orientation_;
-  double t_ = 0.0;
 };
 
 #endif  // IAM_ROBOLIB_TRAJECTORY_GENERATOR_RELATIVE_LINEAR_POSE_TRAJECTORY_GENERATOR_H_

@@ -272,17 +272,17 @@ class ArmMoveToGoalSkill(BaseSkill):
 
 class ArmRelativeMotionSkill(BaseSkill):
     def __init__(self, 
-                skill_type=SkillType.ImpedanceControlSkill,
+                skill_type=SkillType.CartesianPoseSkill,
                 skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=TrajectoryGeneratorType.RelativeLinearPoseTrajectoryGenerator,
-                feedback_controller_type=FeedbackControllerType.CartesianImpedanceFeedbackController,
+                trajectory_generator_type=TrajectoryGeneratorType.MinJerkPoseTrajectoryGenerator,
+                feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
                 termination_type=TerminationHandlerType.FinalPoseTerminationHandler,
                 timer_type=1):
         if len(skill_desc) == 0:
-            skill_desc = ArmRelativeMotionSkill.__name__
-        super(ArmRelativeMotionSkill, self).__init__(
+            skill_desc = ArmMoveToGoalPositionControlWithDefaultSensorSkill.__name__
+        super(ArmMoveToGoalPositionControlWithDefaultSensorSkill, self).__init__(
               skill_type,
               skill_desc,
               meta_skill_type,
@@ -416,7 +416,153 @@ class ArmRelativeMotionToContactSkill(BaseSkill):
 
         self.add_termination_params(params)
 
-class ArmMoveToGoalContactSkill(BaseSkill):
+class ArmRelativeMotionPositionControlSkill(BaseSkill):
+    def __init__(self, 
+                skill_type=SkillType.CartesianPoseSkill,
+                skill_desc='',
+                meta_skill_type=MetaSkillType.BaseMetaSkill,
+                meta_skill_id=0,
+                trajectory_generator_type=TrajectoryGeneratorType.RelativeMinJerkPoseTrajectoryGenerator,
+                feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
+                termination_type=TerminationHandlerType.FinalPoseTerminationHandler,
+                timer_type=1):
+        if len(skill_desc) == 0:
+            skill_desc = ArmRelativeMotionPositionControlWithDefaultSensorSkill.__name__
+        super(ArmRelativeMotionPositionControlWithDefaultSensorSkill, self).__init__(
+              skill_type,
+              skill_desc,
+              meta_skill_type,
+              meta_skill_id,
+              ['/franka_robot/camera'],
+              trajectory_generator_type,
+              feedback_controller_type,
+              termination_type,
+              timer_type)
+
+    def add_relative_motion_with_quaternion(self, time, position, quaternion):
+        assert len(position) == 3, "Incorrect position to move to."
+        assert len(quaternion) == 4, "Incorrect quaternion representation."
+        self.add_trajectory_params([time] + position + quaternion)
+
+class ArmRelativeMotionToContactPositionControlSkill(BaseSkill):
+    def __init__(self, 
+                skill_type=SkillType.CartesianPoseSkill,
+                skill_desc='',
+                meta_skill_type=MetaSkillType.BaseMetaSkill,
+                meta_skill_id=0,
+                trajectory_generator_type=TrajectoryGeneratorType.RelativeMinJerkPoseTrajectoryGenerator,
+                feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
+                termination_type=TerminationHandlerType.ContactTerminationHandler,
+                timer_type=1):
+        if len(skill_desc) == 0:
+            skill_desc = \
+                    ArmRelativeMotionToContactPositionControlWithDefaultSensorSkill.__name__
+        super(ArmRelativeMotionToContactPositionControlWithDefaultSensorSkill, self).__init__(
+              skill_type,
+              skill_desc,
+              meta_skill_type,
+              meta_skill_id,
+              ['/franka_robot/camera'],
+              trajectory_generator_type,
+              feedback_controller_type,
+              termination_type,
+              timer_type)
+
+    @staticmethod
+    def get_default_torque_thresholds():
+        lower_torque_thresholds_accel = \
+                [20.0,20.0,18.0,18.0,16.0,14.0,12.0]
+        upper_torque_thresholds_accel = \
+                [120.0,120.0,120.0,118.0,116.0,114.0,112.0]
+        lower_torque_thresholds_nominal = \
+                [20.0,20.0,18.0,18.0,16.0,14.0,12.0]
+        upper_torque_thresholds_nominal = \
+                [120.0,120.0,118.0,118.0,116.0,114.0,112.0]
+
+        return {
+            'lower_torque_thresholds_accel': lower_torque_thresholds_accel,
+            'upper_torque_thresholds_accel': upper_torque_thresholds_accel,
+            'lower_torque_thresholds_nominal': lower_torque_thresholds_nominal,
+            'upper_torque_thresholds_nominal': upper_torque_thresholds_nominal,
+        }
+
+    @staticmethod
+    def get_default_force_thresholds():
+        lower_force_thresholds_accel = \
+                [10.0,10.0,10.0,10.0,10.0,10.0]
+        upper_force_thresholds_accel = \
+                [120.0,120.0,120.0,125.0,125.0,125.0]
+        lower_force_thresholds_nominal = \
+                [10.0,10.0,10.0,10.0,10.0,10.0]
+        upper_force_thresholds_nominal = \
+                [120.0,120.0,120.0,125.0,125.0,125.0]
+        return {
+            'lower_force_thresholds_accel': lower_force_thresholds_accel,
+            'upper_force_thresholds_accel': upper_force_thresholds_accel,
+            'lower_force_thresholds_nominal': lower_force_thresholds_nominal,
+            'upper_force_thresholds_nominal': upper_force_thresholds_nominal
+        }
+
+    def add_controller_stiffness_params(self,
+                                        translational_stiffness=600,
+                                        rotational_stiffness=50):
+        self.add_feedback_controller_params(
+                [translational_stiffness, rotational_stiffness])
+
+    def add_traj_params_with_quaternion(self, time, position, quaternion):
+        '''Add trajectory parameters with desired orientation as quaternion
+
+        time: time for the trajectory.
+        position: Relative movement for the trajectory.
+        quaternion: Desired orientation for the trajectory.
+        '''
+        assert len(position) == 3, "Incorrect position given"
+        assert len(quaternion) == 4, "Incorrect quaternion representation"
+        assert type(position) is list, "Incorrect position type"
+        assert type(quaternion) is list, "Incorrect quaternion type"
+        self.add_trajectory_params([time] + position + quaternion)
+
+    def add_collision_termination_params(self, buffer_time,
+            lower_torque_thresholds_accel=[10.0,10.0,10.0,10.0,10.0,10.0,10.0],
+            upper_torque_thresholds_accel=[120.0,120.0,118.0,118.0,116.0,114.0,112.0],
+            lower_torque_thresholds_nominal=[10.0,10.0,10.0,10.0,10.0,10.0,10.0],
+            upper_torque_thresholds_nominal=[120.0,120.0,118.0,118.0,116.0,114.0,112.0],
+            lower_force_thresholds_accel=[10.0,10.0,10.0,10.0,10.0,10.0],
+            upper_force_thresholds_accel=[120.0,120.0,120.0,125.0,125.0,125.0],
+            lower_force_thresholds_nominal=[10.0,10.0,10.0,10.0,10.0,10.0],
+            upper_force_thresholds_nominal=[120.0,120.0,120.0,125.0,125.0,125.0]):
+        collision_termination_params = lower_torque_thresholds_accel \
+                + upper_torque_thresholds_accel \
+                + lower_torque_thresholds_nominal \
+                + upper_torque_thresholds_nominal \
+                + lower_force_thresholds_accel \
+                + upper_force_thresholds_accel \
+                + lower_force_thresholds_nominal \
+                + upper_force_thresholds_nominal
+
+        self.add_termination_params([buffer_time] + collision_termination_params)
+    
+    def add_contact_termination_params(self, 
+            buffer_time,
+            lower_force_thresholds_accel,
+            lower_force_thresholds_nominal):
+        torque_thresholds = \
+                ArmRelativeMotionToContactWithDefaultSensorSkill.get_default_torque_thresholds()
+        force_thresholds = \
+                ArmRelativeMotionToContactWithDefaultSensorSkill.get_default_force_thresholds()
+        params = [buffer_time] \
+                + torque_thresholds['lower_torque_thresholds_accel'] \
+                + torque_thresholds['upper_torque_thresholds_accel'] \
+                + torque_thresholds['lower_torque_thresholds_nominal'] \
+                + torque_thresholds['upper_torque_thresholds_nominal'] \
+                + lower_force_thresholds_accel \
+                + force_thresholds['upper_force_thresholds_accel'] \
+                + lower_force_thresholds_nominal \
+                + force_thresholds['upper_force_thresholds_nominal']
+
+        self.add_termination_params(params)
+
+class ArmMoveToGoalContact(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.ImpedanceControlSkill,
                 skill_desc='',
@@ -451,6 +597,53 @@ class ArmMoveToGoalContactSkill(BaseSkill):
                 ArmRelativeMotionToContactSkill.get_default_torque_thresholds()
         force_thresholds = \
                 ArmRelativeMotionToContactSkill.get_default_force_thresholds()
+        params = [buffer_time] \
+                + torque_thresholds['lower_torque_thresholds_accel'] \
+                + torque_thresholds['upper_torque_thresholds_accel'] \
+                + torque_thresholds['lower_torque_thresholds_nominal'] \
+                + torque_thresholds['upper_torque_thresholds_nominal'] \
+                + lower_force_thresholds_accel \
+                + force_thresholds['upper_force_thresholds_accel'] \
+                + lower_force_thresholds_nominal \
+                + force_thresholds['upper_force_thresholds_nominal']
+
+        self.add_termination_params(params)
+
+class ArmMoveToGoalContactPositionControlSkill(BaseSkill):
+    def __init__(self, 
+                skill_type=SkillType.CartesianPoseSkill,
+                skill_desc='',
+                meta_skill_type=MetaSkillType.BaseMetaSkill,
+                meta_skill_id=0,
+                trajectory_generator_type=TrajectoryGeneratorType.MinJerkPoseTrajectoryGenerator,
+                feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
+                termination_type=TerminationHandlerType.ContactTerminationHandler,
+                timer_type=1):
+        if len(skill_desc) == 0:
+            skill_desc = \
+                    ArmMoveToGoalContactPositionControlWithDefaultSensorSkill.__name__
+        super(ArmMoveToGoalContactPositionControlWithDefaultSensorSkill, self).__init__(
+              skill_type,
+              skill_desc,
+              meta_skill_type,
+              meta_skill_id,
+              ['/franka_robot/camera'],
+              trajectory_generator_type,
+              feedback_controller_type,
+              termination_type,
+              timer_type)
+
+    def add_buffer_time_for_termination(self, buffer_time):
+        self.add_termination_params([buffer_time])
+
+    def add_contact_termination_params(self, 
+            buffer_time,
+            lower_force_thresholds_accel,
+            lower_force_thresholds_nominal):
+        torque_thresholds = \
+                ArmRelativeMotionToContactWithDefaultSensorSkill.get_default_torque_thresholds()
+        force_thresholds = \
+                ArmRelativeMotionToContactWithDefaultSensorSkill.get_default_force_thresholds()
         params = [buffer_time] \
                 + torque_thresholds['lower_torque_thresholds_accel'] \
                 + torque_thresholds['upper_torque_thresholds_accel'] \

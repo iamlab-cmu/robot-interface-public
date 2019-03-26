@@ -121,7 +121,8 @@ class FrankaArm:
     '''
 
     def goto_pose(self, tool_pose, duration=3, stop_on_contact_forces=None,
-                  ignore_errors=True, skill_desc=''):
+                  ignore_errors=True, skill_desc='', 
+                  skill_type=SkillType.ImpedanceControlSkill):
         '''Commands Arm to the given pose via linear interpolation
 
         Args:
@@ -137,16 +138,39 @@ class FrankaArm:
 
         tool_base_pose = tool_pose * self._tool_delta_pose.inverse()
 
-        if stop_on_contact_forces is None:
-            skill = ArmMoveToGoalSkill(
-                    skill_desc=skill_desc)
+        if skill_type == SkillType.ImpedanceControlSkill:
+            if stop_on_contact_forces is None:
+                skill = ArmMoveToGoalWithDefaultSensorSkill(
+                        skill_desc=skill_desc)
+            else:
+                skill = ArmMoveToGoalContactWithDefaultSensorSkill(
+                        skill_desc=skill_desc)
+                force_thresholds = np.array(stop_on_contact_forces).tolist()
+                skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
+                                                    force_thresholds,
+                                                    force_thresholds)
+        elif skill_type == SkillType.CartesianPoseSkill:
+            if stop_on_contact_forces is None:
+                skill = ArmMoveToGoalPositionControlWithDefaultSensorSkill(
+                        skill_desc=skill_desc)
+            else:
+                skill = ArmMoveToGoalContactPositionControlWithDefaultSensorSkill(
+                        skill_desc=skill_desc)
+                force_thresholds = np.array(stop_on_contact_forces).tolist()
+                skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
+                                                    force_thresholds,
+                                                    force_thresholds)
         else:
-            skill = ArmMoveToGoalContactSkill(
-                    skill_desc=skill_desc)
-            force_thresholds = np.array(stop_on_contact_forces).tolist()
-            skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
-                                                force_thresholds,
-                                                force_thresholds)
+            if stop_on_contact_forces is None:
+                skill = ArmMoveToGoalWithDefaultSensorSkill(
+                        skill_desc=skill_desc)
+            else:
+                skill = ArmMoveToGoalContactWithDefaultSensorSkill(
+                        skill_desc=skill_desc)
+                force_thresholds = np.array(stop_on_contact_forces).tolist()
+                skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
+                                                    force_thresholds,
+                                                    force_thresholds)
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_feedback_controller_params(FC.DEFAULT_TORQUE_CONTROLLER_PARAMS)
@@ -163,7 +187,7 @@ class FrankaArm:
 
     def goto_pose_delta(self, delta_tool_pose, duration=3,
                         stop_on_contact_forces=None, ignore_errors=True,
-                        skill_desc=''):
+                        skill_desc='', skill_type=SkillType.ImpedanceControlSkill):
         '''Commands Arm to the given delta pose via linear interpolation
 
         Args:
@@ -182,17 +206,30 @@ class FrankaArm:
         delta_tool_base_pose = self._tool_delta_pose \
                 * delta_tool_pose * self._tool_delta_pose.inverse()
 
-        if stop_on_contact_forces is None:
-            skill = ArmRelativeMotionSkill(
-                    skill_desc=skill_desc)
-        else:
-            skill = ArmRelativeMotionToContactSkill(
-                    skill_desc=skill_desc)
-            force_thresholds = np.array(stop_on_contact_forces).tolist()
-            skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
-                                                force_thresholds,
-                                                force_thresholds
-                                            )
+        if skill_type == SkillType.ImpedanceControlSkill:
+            if stop_on_contact_forces is None:
+                skill = ArmRelativeMotionWithDefaultSensorSkill(
+                        skill_desc=skill_desc)
+            else:
+                skill = ArmRelativeMotionToContactWithDefaultSensorSkill(
+                        skill_desc=skill_desc)
+                force_thresholds = np.array(stop_on_contact_forces).tolist()
+                skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
+                                                    force_thresholds,
+                                                    force_thresholds
+                                                )
+        elif skill_type == SkillType.CartesianPoseSkill:
+            if stop_on_contact_forces is None:
+                skill = ArmRelativeMotionPositionControlWithDefaultSensorSkill(
+                        skill_desc=skill_desc)
+            else:
+                skill = ArmRelativeMotionToContactPositionControlWithDefaultSensorSkill(
+                        skill_desc=skill_desc)
+                force_thresholds = np.array(stop_on_contact_forces).tolist()
+                skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
+                                                    force_thresholds,
+                                                    force_thresholds
+                                                )
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_feedback_controller_params(FC.DEFAULT_TORQUE_CONTROLLER_PARAMS)

@@ -17,6 +17,7 @@
 #include "iam_robolib/trajectory_generator/min_jerk_joint_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/min_jerk_pose_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/relative_linear_pose_trajectory_generator.h"
+#include "iam_robolib/trajectory_generator/relative_min_jerk_pose_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/stay_in_initial_position_trajectory_generator.h"
 
 TrajectoryGenerator* TrajectoryGeneratorFactory::getTrajectoryGeneratorForSkill(
@@ -52,6 +53,9 @@ TrajectoryGenerator* TrajectoryGeneratorFactory::getTrajectoryGeneratorForSkill(
       break;
     case TrajectoryGeneratorType::RelativeLinearPoseTrajectoryGenerator:
       trajectory_generator = new RelativeLinearPoseTrajectoryGenerator(buffer);
+      break;
+    case TrajectoryGeneratorType::RelativeMinJerkPoseTrajectoryGenerator:
+      trajectory_generator = new RelativeMinJerkPoseTrajectoryGenerator(buffer);
       break;
     case TrajectoryGeneratorType::StayInInitialPositionTrajectoryGenerator:
       trajectory_generator = new StayInInitialPositionTrajectoryGenerator(buffer);

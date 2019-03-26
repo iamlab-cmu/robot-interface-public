@@ -17,7 +17,6 @@ class MinJerkPoseTrajectoryGenerator : public TrajectoryGenerator {
 
   Eigen::Vector3d goal_position_;
   Eigen::Quaterniond goal_orientation_;
- private:
   double t_ = 0.0;
   double slerp_t_ = 0.0;
 };
