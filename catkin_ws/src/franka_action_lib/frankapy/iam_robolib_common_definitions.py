@@ -32,7 +32,7 @@ class TrajectoryGeneratorType:
 class FeedbackControllerType:
     NoopFeedbackController = 1
     TorqueFeedbackController = 2
-    CustomGainTorqueController = 3
+    JointImpedanceFeedbackController = 3
     ForceAxisImpedenceFeedbackController = 4
     PassThroughFeedbackController = 5
 

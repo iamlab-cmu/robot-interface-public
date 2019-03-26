@@ -1,10 +1,10 @@
-#include "iam_robolib/feedback_controller/custom_gain_torque_controller.h"
+#include "iam_robolib/feedback_controller/joint_impedance_feedback_controller.h"
 
 #include <iostream>
 
 #include <franka/rate_limiting.h>
 
-void CustomGainTorqueController::parse_parameters() {
+void JointImpedanceFeedbackController::parse_parameters() {
   // First parameter is reserved for the type
 
   int num_params = static_cast<int>(params_[1]);
@@ -28,15 +28,15 @@ void CustomGainTorqueController::parse_parameters() {
   }
 }
 
-void CustomGainTorqueController::initialize_controller() {}
+void JointImpedanceFeedbackController::initialize_controller() {}
 
-void CustomGainTorqueController::initialize_controller(franka::Model *model) {
+void JointImpedanceFeedbackController::initialize_controller(franka::Model *model) {
   model_ = model;
 }
 
-void CustomGainTorqueController::get_next_step() {}
+void JointImpedanceFeedbackController::get_next_step() {}
 
-void CustomGainTorqueController::get_next_step(const franka::RobotState &robot_state,
+void JointImpedanceFeedbackController::get_next_step(const franka::RobotState &robot_state,
                                                TrajectoryGenerator *traj_generator) {
 
   // Read current coriolis terms from model.

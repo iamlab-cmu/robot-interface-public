@@ -8,8 +8,8 @@
 
 #include <iam_robolib_common/definitions.h>
 
-#include "iam_robolib/feedback_controller/custom_gain_torque_controller.h"
 #include "iam_robolib/feedback_controller/force_axis_impedence_feedback_controller.h"
+#include "iam_robolib/feedback_controller/joint_impedance_feedback_controller.h"
 #include "iam_robolib/feedback_controller/noop_feedback_controller.h"
 #include "iam_robolib/feedback_controller/pass_through_feedback_controller.h"
 #include "iam_robolib/feedback_controller/torque_feedback_controller.h"
@@ -29,8 +29,8 @@ FeedbackController* FeedbackControllerFactory::getFeedbackControllerForSkill(Sha
     case FeedbackControllerType::TorqueFeedbackController:
       feedback_controller = new TorqueFeedbackController(buffer);
       break;
-    case FeedbackControllerType::CustomGainTorqueController:
-      feedback_controller = new CustomGainTorqueController(buffer);
+    case FeedbackControllerType::JointImpedanceFeedbackController:
+      feedback_controller = new JointImpedanceFeedbackController(buffer);
       break;
     case FeedbackControllerType::ForceAxisImpedenceFeedbackController:
       feedback_controller = new ForceAxisImpedenceFeedbackController(buffer);

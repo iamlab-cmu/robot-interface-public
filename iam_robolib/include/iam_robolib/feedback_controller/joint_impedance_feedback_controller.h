@@ -1,11 +1,11 @@
-#ifndef IAM_ROBOLIB_FEEDBACK_CONTROLLER_CUSTOM_GAIN_TORQUE_CONTROLLER_H_
-#define IAM_ROBOLIB_FEEDBACK_CONTROLLER_CUSTOM_GAIN_TORQUE_CONTROLLER_H_
+#ifndef IAM_ROBOLIB_FEEDBACK_CONTROLLER_JOINT_IMPEDANCE_FEEDBACK_CONTROLLER_H_
+#define IAM_ROBOLIB_FEEDBACK_CONTROLLER_JOINT_IMPEDANCE_FEEDBACK_CONTROLLER_H_
 
 #include "iam_robolib/feedback_controller/feedback_controller.h"
 
 #include <array>
 
-class CustomGainTorqueController : public FeedbackController {
+class JointImpedanceFeedbackController : public FeedbackController {
  public:
   using FeedbackController::FeedbackController;
 
@@ -30,4 +30,4 @@ class CustomGainTorqueController : public FeedbackController {
                                      30.0, 25.0, 15.0}};
 };
 
-#endif  // IAM_ROBOLIB_FEEDBACK_CONTROLLER_CUSTOM_GAIN_TORQUE_CONTROLLER_H_
+#endif  // IAM_ROBOLIB_FEEDBACK_CONTROLLER_JOINT_IMPEDANCE_FEEDBACK_CONTROLLER_H_

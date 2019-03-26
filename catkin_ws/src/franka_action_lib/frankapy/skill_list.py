@@ -158,7 +158,7 @@ class JointPoseDMPWithTorqueControlWithDefaultSensorSkill(BaseSkill):
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
                 trajectory_generator_type=TrajectoryGeneratorType.JointDmpTrajectoryGenerator,
-                feedback_controller_type=FeedbackControllerType.CustomGainTorqueController,
+                feedback_controller_type=FeedbackControllerType.JointImpedanceFeedbackController,
                 termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):
         if len(skill_desc) == 0:
@@ -470,7 +470,7 @@ class StayInPositionWithSelectiveComplianceWithDefaultSensorSkill(BaseSkill):
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
                 trajectory_generator_type=TrajectoryGeneratorType.StayInInitialPositionTrajectoryGenerator,
-                feedback_controller_type=FeedbackControllerType.CustomGainTorqueController,
+                feedback_controller_type=FeedbackControllerType.JointImpedanceFeedbackController,
                 termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):
         if len(skill_desc) == 0:
