@@ -49,21 +49,25 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
         // Do nothing
       }
     }
+    std::cout << "will get next step\n";
     time += period.toSec();
     traj_generator_->time_ = time;
     traj_generator_->dt_ = period.toSec();
     traj_generator_->get_next_step();
 
-    bool done = termination_handler_->should_terminate_on_franka(robot_state, 
-                                                                 traj_generator_);
-
+    std::cout << "Did get next step\n.";
+    bool done = termination_handler_->should_terminate_on_franka(robot_state, traj_generator_);
+    std::cout << "Did get done " << done << "\n";
     log_counter += 1;
     if (log_counter % 1 == 0) {
       robot_state_data->log_pose_desired(traj_generator_->pose_desired_);
       robot_state_data->log_robot_state(robot_state, time);
     }
-    
+
+    std::array<double, 16> desired_pose = traj_generator_->pose_desired_;
+
     if(done) {
+      std::cout << "Will try to get lock\n";
       try {
         if (lock.try_lock()) {
           run_loop_info->set_time_skill_finished_in_robot_time(robot_state.time.toSec());
@@ -72,10 +76,14 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
       } catch (boost::interprocess::lock_exception) {
         // Do nothing
       }
-      return franka::MotionFinished(traj_generator_->pose_desired_);
+      return franka::MotionFinished(desired_pose);
     }
-
-    return traj_generator_->pose_desired_;
+    std::cout << "Desird pose: ";
+    for (size_t i = 0; i < desired_pose.size(); i++) {
+      std::cout << desired_pose[i] << " ";
+    }
+    std::cout << "\n";
+    return desired_pose;
   };
 
   robot->robot_.control(cartesian_pose_callback);
