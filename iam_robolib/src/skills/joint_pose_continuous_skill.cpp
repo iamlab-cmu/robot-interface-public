@@ -16,7 +16,7 @@
 #include "iam_robolib/robot_state_data.h"
 #include "iam_robolib/skills/base_skill.h"
 #include "iam_robolib/termination_handler/termination_handler.h"
-#include "iam_robolib/trajectory_generator/dmp_trajectory_generator.h"
+#include "iam_robolib/trajectory_generator/joint_dmp_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/trajectory_generator.h"
 #include "iam_robolib/run_loop.h"
 #include "iam_robolib/run_loop_shared_memory_handler.h"
@@ -57,7 +57,7 @@ void JointPoseContinuousSkill::execute_skill_on_franka(run_loop *run_loop,
       const franka::RobotState& robot_state,
       franka::Duration period) -> franka::JointPositions {
 
-    DmpTrajectoryGenerator* traj_generator = static_cast<DmpTrajectoryGenerator *>(
+    JointDmpTrajectoryGenerator* traj_generator = static_cast<JointDmpTrajectoryGenerator *>(
         current_skill->get_trajectory_generator());
     if (current_skill_time == 0.0) {
       traj_generator->initialize_trajectory(robot_state);

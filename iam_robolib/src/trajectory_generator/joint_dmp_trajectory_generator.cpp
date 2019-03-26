@@ -2,13 +2,13 @@
 // Created by mohit on 12/3/18.
 //
 
-#include "iam_robolib/trajectory_generator/dmp_trajectory_generator.h"
+#include "iam_robolib/trajectory_generator/joint_dmp_trajectory_generator.h"
 
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
 
-void DmpTrajectoryGenerator::getInitialMeanAndStd() {
+void JointDmpTrajectoryGenerator::getInitialMeanAndStd() {
   std::array<double, 10> basis_mean{};
   std::array<double, 10> basis_std{};
   for (int i = 0; i < num_basis_; i++)  {
@@ -20,7 +20,7 @@ void DmpTrajectoryGenerator::getInitialMeanAndStd() {
   basis_std[num_basis_ - 1] = basis_std[num_basis_ - 2];
 }
 
-void DmpTrajectoryGenerator::parse_parameters() {
+void JointDmpTrajectoryGenerator::parse_parameters() {
   int num_params = static_cast<int>(params_[1]);
 
   // Tau (1) + num_basis = 7 (1) + num_sensor_values = 10 (1) + initial_y0(7) + weights (7 joints * 20 basis functions * 10 sensor inputs)
@@ -53,15 +53,15 @@ void DmpTrajectoryGenerator::parse_parameters() {
       initial_sensor_values_[i] = 1.0;
     }
   } else {
-    std::cout << "DmpTrajectoryGenerator Invalid number of parameters: " << num_params << std::endl;
+    std::cout << "JointDmpTrajectoryGenerator Invalid number of parameters: " << num_params << std::endl;
   }
 }
 
-void DmpTrajectoryGenerator::initialize_trajectory() {
+void JointDmpTrajectoryGenerator::initialize_trajectory() {
   // assert(false);
 }
 
-void DmpTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
+void JointDmpTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
   TrajectoryGenerator::initialize_initial_states(robot_state);
   // TODO: Should we use desired joint values here?
   for (size_t i = 0; i < y0_.size(); i++) {
@@ -73,7 +73,7 @@ void DmpTrajectoryGenerator::initialize_trajectory(const franka::RobotState &rob
 }
 
 
-void DmpTrajectoryGenerator::get_next_step() {
+void JointDmpTrajectoryGenerator::get_next_step() {
   static int i, j, k;
   static double ddy, t;
 

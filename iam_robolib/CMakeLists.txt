@@ -51,9 +51,9 @@ add_library(iam_robolib SHARED
   src/termination_handler/noop_termination_handler.cpp
   src/termination_handler/termination_handler.cpp
   src/termination_handler/time_termination_handler.cpp
-  src/trajectory_generator/dmp_trajectory_generator.cpp
   src/trajectory_generator/gripper_trajectory_generator.cpp
   src/trajectory_generator/impulse_trajectory_generator.cpp
+  src/trajectory_generator/joint_dmp_trajectory_generator.cpp
   src/trajectory_generator/linear_joint_trajectory_generator.cpp
   src/trajectory_generator/linear_pose_trajectory_generator.cpp
   src/trajectory_generator/min_jerk_joint_trajectory_generator.cpp

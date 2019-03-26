@@ -1,5 +1,5 @@
-#ifndef IAM_ROBOLIB_TRAJECTORY_GENERATOR_DMP_TRAJECTORY_GENERATOR_H_
-#define IAM_ROBOLIB_TRAJECTORY_GENERATOR_DMP_TRAJECTORY_GENERATOR_H_
+#ifndef IAM_ROBOLIB_TRAJECTORY_GENERATOR_JOINT_DMP_TRAJECTORY_GENERATOR_H_
+#define IAM_ROBOLIB_TRAJECTORY_GENERATOR_JOINT_DMP_TRAJECTORY_GENERATOR_H_
 
 #include <array>
 #include <cstring>
@@ -10,7 +10,7 @@
 
 #include "iam_robolib/trajectory_generator/trajectory_generator.h"
 
-class DmpTrajectoryGenerator : public TrajectoryGenerator {
+class JointDmpTrajectoryGenerator : public TrajectoryGenerator {
  public:
   using TrajectoryGenerator::TrajectoryGenerator;
 
@@ -43,4 +43,4 @@ class DmpTrajectoryGenerator : public TrajectoryGenerator {
   void getInitialMeanAndStd();
 };
 
-#endif  // IAM_ROBOLIB_TRAJECTORY_GENERATOR_DMP_TRAJECTORY_GENERATOR_H_
+#endif  // IAM_ROBOLIB_TRAJECTORY_GENERATOR_JOINT_DMP_TRAJECTORY_GENERATOR_H_

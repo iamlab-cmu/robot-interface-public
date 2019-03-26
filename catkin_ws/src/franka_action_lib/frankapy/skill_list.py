@@ -134,7 +134,7 @@ class JointPoseDMPWithDefaultSensorSkill(BaseSkill):
                 skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=TrajectoryGeneratorType.DmpTrajectoryGenerator,
+                trajectory_generator_type=TrajectoryGeneratorType.JointDmpTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
                 termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):
@@ -157,7 +157,7 @@ class JointPoseDMPWithTorqueControlWithDefaultSensorSkill(BaseSkill):
                 skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=TrajectoryGeneratorType.DmpTrajectoryGenerator,
+                trajectory_generator_type=TrajectoryGeneratorType.JointDmpTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.CustomGainTorqueController,
                 termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):

@@ -9,14 +9,14 @@
 
 #include "iam_robolib/skills/base_meta_skill.h"
 #include "iam_robolib/skills/base_skill.h"
-#include "iam_robolib/trajectory_generator/dmp_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/gripper_trajectory_generator.h"
+#include "iam_robolib/trajectory_generator/impulse_trajectory_generator.h"
+#include "iam_robolib/trajectory_generator/joint_dmp_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/linear_pose_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/linear_joint_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/min_jerk_joint_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/relative_linear_pose_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/stay_in_initial_position_trajectory_generator.h"
-#include "iam_robolib/trajectory_generator/impulse_trajectory_generator.h"
 
 TrajectoryGenerator* TrajectoryGeneratorFactory::getTrajectoryGeneratorForSkill(
     SharedBufferTypePtr buffer) {
@@ -40,8 +40,8 @@ TrajectoryGenerator* TrajectoryGeneratorFactory::getTrajectoryGeneratorForSkill(
     case TrajectoryGeneratorType::StayInInitialPositionTrajectoryGenerator:
       trajectory_generator = new StayInInitialPositionTrajectoryGenerator(buffer);
       break;
-    case TrajectoryGeneratorType::DmpTrajectoryGenerator:
-      trajectory_generator = new DmpTrajectoryGenerator(buffer);
+    case TrajectoryGeneratorType::JointDmpTrajectoryGenerator:
+      trajectory_generator = new JointDmpTrajectoryGenerator(buffer);
       break;
     case TrajectoryGeneratorType::RelativeLinearPoseTrajectoryGenerator:
       trajectory_generator = new RelativeLinearPoseTrajectoryGenerator(buffer);
