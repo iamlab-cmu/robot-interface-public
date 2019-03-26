@@ -24,6 +24,7 @@
 #include "iam_robolib/skills/base_skill.h"
 #include "iam_robolib/skills/force_torque_skill.h"
 #include "iam_robolib/skills/gripper_skill.h"
+#include "iam_robolib/skills/impedance_control_skill.h"
 #include "iam_robolib/skills/joint_pose_continuous_skill.h"
 #include "iam_robolib/skills/joint_position_skill.h"
 #include "iam_robolib/utils/logger_utils.h"
@@ -222,8 +223,8 @@ void run_loop::update_process_info() {
 
           BaseSkill *new_skill;
           switch(new_skill_type) {
-            case SkillType::SkillInfo:
-              new_skill = new SkillInfo(new_skill_id, new_meta_skill_id, new_skill_description);
+            case SkillType::ImpedanceControlSkill:
+              new_skill = new ImpedanceControlSkill(new_skill_id, new_meta_skill_id, new_skill_description);
               break;
             case SkillType::GripperSkill:
               new_skill = new GripperSkill(new_skill_id, new_meta_skill_id, new_skill_description);

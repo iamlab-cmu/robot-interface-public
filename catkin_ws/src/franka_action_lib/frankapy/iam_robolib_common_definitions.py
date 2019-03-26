@@ -10,7 +10,7 @@ class RobotType:
     UR5E = 1
 
 class SkillType:
-    SkillInfo = 0
+    ImpedanceControlSkill = 0
     GripperSkill = 1
     JointPositionSkill = 2
     ForceTorqueSkill = 3

@@ -223,7 +223,7 @@ class JointPoseMinJerkWithDefaultSensorSkill(BaseSkill):
 
 class ArmMoveToGoalWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
-                skill_type=SkillType.SkillInfo,
+                skill_type=SkillType.ImpedanceControlSkill,
                 skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
@@ -249,7 +249,7 @@ class ArmMoveToGoalWithDefaultSensorSkill(BaseSkill):
 
 class ArmRelativeMotionWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
-                skill_type=SkillType.SkillInfo,
+                skill_type=SkillType.ImpedanceControlSkill,
                 skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
@@ -277,7 +277,7 @@ class ArmRelativeMotionWithDefaultSensorSkill(BaseSkill):
 
 class ArmRelativeMotionToContactWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
-                skill_type=SkillType.SkillInfo,
+                skill_type=SkillType.ImpedanceControlSkill,
                 skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
@@ -395,7 +395,7 @@ class ArmRelativeMotionToContactWithDefaultSensorSkill(BaseSkill):
 
 class ArmMoveToGoalContactWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
-                skill_type=SkillType.SkillInfo,
+                skill_type=SkillType.ImpedanceControlSkill,
                 skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
@@ -442,7 +442,7 @@ class ArmMoveToGoalContactWithDefaultSensorSkill(BaseSkill):
 
 class StayInPositionWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
-                skill_type=SkillType.SkillInfo,
+                skill_type=SkillType.ImpedanceControlSkill,
                 skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
@@ -465,7 +465,7 @@ class StayInPositionWithDefaultSensorSkill(BaseSkill):
 
 class StayInPositionWithSelectiveComplianceWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
-                skill_type=SkillType.SkillInfo,
+                skill_type=SkillType.ImpedanceControlSkill,
                 skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,

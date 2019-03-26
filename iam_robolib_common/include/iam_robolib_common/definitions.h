@@ -22,7 +22,7 @@ enum class RobotType : uint8_t {
 
 // Enum for Skill Types
 enum class SkillType : uint8_t {
-    SkillInfo = 0,
+    ImpedanceControlSkill = 0,
     GripperSkill = 1,
     JointPositionSkill = 2,
     ForceTorqueSkill = 3
