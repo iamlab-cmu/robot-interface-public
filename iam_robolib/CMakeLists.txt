@@ -44,7 +44,6 @@ add_library(iam_robolib SHARED
   src/skills/impedance_control_skill.cpp
   src/skills/joint_pose_continuous_skill.cpp
   src/skills/joint_position_skill.cpp
-  src/skills/joint_pose_with_torque_control_skill.cpp
   src/termination_handler/contact_termination_handler.cpp
   src/termination_handler/final_joint_termination_handler.cpp
   src/termination_handler/final_pose_termination_handler.cpp
