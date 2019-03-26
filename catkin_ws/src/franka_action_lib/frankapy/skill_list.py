@@ -228,7 +228,7 @@ class ArmMoveToGoalWithDefaultSensorSkill(BaseSkill):
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
                 trajectory_generator_type=TrajectoryGeneratorType.LinearPoseTrajectoryGenerator,
-                feedback_controller_type=FeedbackControllerType.TorqueFeedbackController,
+                feedback_controller_type=FeedbackControllerType.CartesianImpedanceFeedbackController,
                 termination_type=TerminationHandlerType.FinalPoseTerminationHandler,
                 timer_type=1):
         if len(skill_desc) == 0:
@@ -254,7 +254,7 @@ class ArmRelativeMotionWithDefaultSensorSkill(BaseSkill):
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
                 trajectory_generator_type=TrajectoryGeneratorType.RelativeLinearPoseTrajectoryGenerator,
-                feedback_controller_type=FeedbackControllerType.TorqueFeedbackController,
+                feedback_controller_type=FeedbackControllerType.CartesianImpedanceFeedbackController,
                 termination_type=TerminationHandlerType.FinalPoseTerminationHandler,
                 timer_type=1):
         if len(skill_desc) == 0:
@@ -282,7 +282,7 @@ class ArmRelativeMotionToContactWithDefaultSensorSkill(BaseSkill):
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
                 trajectory_generator_type=TrajectoryGeneratorType.RelativeLinearPoseTrajectoryGenerator,
-                feedback_controller_type=FeedbackControllerType.TorqueFeedbackController,
+                feedback_controller_type=FeedbackControllerType.CartesianImpedanceFeedbackController,
                 termination_type=TerminationHandlerType.ContactTerminationHandler,
                 timer_type=1):
         if len(skill_desc) == 0:
@@ -400,7 +400,7 @@ class ArmMoveToGoalContactWithDefaultSensorSkill(BaseSkill):
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
                 trajectory_generator_type=TrajectoryGeneratorType.LinearPoseTrajectoryGenerator,
-                feedback_controller_type=FeedbackControllerType.TorqueFeedbackController,
+                feedback_controller_type=FeedbackControllerType.CartesianImpedanceFeedbackController,
                 termination_type=TerminationHandlerType.ContactTerminationHandler,
                 timer_type=1):
         if len(skill_desc) == 0:
@@ -447,7 +447,7 @@ class StayInPositionWithDefaultSensorSkill(BaseSkill):
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
                 trajectory_generator_type=TrajectoryGeneratorType.StayInInitialPositionTrajectoryGenerator,
-                feedback_controller_type=FeedbackControllerType.TorqueFeedbackController,
+                feedback_controller_type=FeedbackControllerType.CartesianImpedanceFeedbackController,
                 termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):
         if len(skill_desc) == 0:

@@ -31,12 +31,12 @@ include_directories(include)
 ## Library
 
 add_library(iam_robolib SHARED
+  src/feedback_controller/cartesian_impedance_feedback_controller.cpp
   src/feedback_controller/feedback_controller.cpp
   src/feedback_controller/force_axis_impedence_feedback_controller.cpp
   src/feedback_controller/joint_impedance_feedback_controller.cpp
   src/feedback_controller/noop_feedback_controller.cpp
   src/feedback_controller/pass_through_feedback_controller.cpp
-  src/feedback_controller/torque_feedback_controller.cpp
   src/skills/base_meta_skill.cpp
   src/skills/base_skill.cpp
   src/skills/force_torque_skill.cpp

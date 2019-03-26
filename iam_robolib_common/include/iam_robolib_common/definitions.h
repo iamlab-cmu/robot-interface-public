@@ -49,7 +49,7 @@ enum class TrajectoryGeneratorType : uint8_t {
 // Enum for Feedback Controller Types
 enum class FeedbackControllerType : uint8_t {
     NoopFeedbackController = 1,
-    TorqueFeedbackController = 2,
+    CartesianImpedanceFeedbackController = 2,
     JointImpedanceFeedbackController = 3,
     ForceAxisImpedenceFeedbackController = 4,
     PassThroughFeedbackController = 5

@@ -2,11 +2,11 @@
 // Created by mohit on 11/25/18.
 //
 
-#include "iam_robolib/feedback_controller/torque_feedback_controller.h"
+#include "iam_robolib/feedback_controller/cartesian_impedance_feedback_controller.h"
 
 #include <iostream>
 
-void TorqueFeedbackController::parse_parameters() {
+void CartesianImpedanceFeedbackController::parse_parameters() {
   // First parameter is reserved for the type
 
   int param_index = 1;
@@ -40,7 +40,7 @@ void TorqueFeedbackController::parse_parameters() {
   }
 }
 
-void TorqueFeedbackController::initialize_controller() {
+void CartesianImpedanceFeedbackController::initialize_controller() {
   std::cout << "No model provided." << std::endl;
 
   stiffness_ = Eigen::MatrixXd(6,6);
@@ -62,7 +62,7 @@ void TorqueFeedbackController::initialize_controller() {
   damping_(5,5) = 2.0 * sqrt(rotational_stiffnesses_[2]);
 }
 
-void TorqueFeedbackController::initialize_controller(franka::Model *model) {
+void CartesianImpedanceFeedbackController::initialize_controller(franka::Model *model) {
   model_ = model;
 
   stiffness_ = Eigen::MatrixXd(6,6);
@@ -84,12 +84,12 @@ void TorqueFeedbackController::initialize_controller(franka::Model *model) {
   damping_(5,5) = 2.0 * sqrt(rotational_stiffnesses_[2]);
 }
 
-void TorqueFeedbackController::get_next_step() {
+void CartesianImpedanceFeedbackController::get_next_step() {
   // pass
 }
 
-void TorqueFeedbackController::get_next_step(const franka::RobotState &robot_state,
-                                             TrajectoryGenerator *traj_generator) {
+void CartesianImpedanceFeedbackController::get_next_step(const franka::RobotState &robot_state,
+                                                         TrajectoryGenerator *traj_generator) {
   std::array<double, 7> coriolis_array = model_->coriolis(robot_state);
   std::array<double, 42> jacobian_array = model_->zeroJacobian(franka::Frame::kEndEffector, robot_state);
 
