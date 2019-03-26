@@ -7,11 +7,11 @@
 #include <franka/robot.h>
 #include <Eigen/Dense>
 
-#include "iam_robolib/trajectory_generator/linear_pose_trajectory_generator.h"
+#include "iam_robolib/trajectory_generator/relative_pose_trajectory_generator.h"
 
-class RelativeLinearPoseTrajectoryGenerator : public LinearPoseTrajectoryGenerator {
+class RelativeLinearPoseTrajectoryGenerator : public RelativePoseTrajectoryGenerator {
  public:
-  using LinearPoseTrajectoryGenerator::LinearPoseTrajectoryGenerator;
+  using RelativePoseTrajectoryGenerator::RelativePoseTrajectoryGenerator;
 
   void parse_parameters() override;
 
@@ -21,9 +21,6 @@ class RelativeLinearPoseTrajectoryGenerator : public LinearPoseTrajectoryGenerat
 
   void get_next_step() override;
 
- private:
-  Eigen::Vector3d relative_position_;
-  Eigen::Quaterniond relative_orientation_;
 };
 
 #endif  // IAM_ROBOLIB_TRAJECTORY_GENERATOR_RELATIVE_LINEAR_POSE_TRAJECTORY_GENERATOR_H_

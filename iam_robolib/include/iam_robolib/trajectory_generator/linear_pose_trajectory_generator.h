@@ -7,11 +7,11 @@
 #include <franka/robot.h>
 #include <Eigen/Dense>
 
-#include "iam_robolib/trajectory_generator/trajectory_generator.h"
+#include "iam_robolib/trajectory_generator/pose_trajectory_generator.h"
 
-class LinearPoseTrajectoryGenerator : public TrajectoryGenerator {
+class LinearPoseTrajectoryGenerator : public PoseTrajectoryGenerator {
  public:
-  using TrajectoryGenerator::TrajectoryGenerator;
+  using PoseTrajectoryGenerator::PoseTrajectoryGenerator;
 
   void parse_parameters() override;
 
@@ -20,10 +20,6 @@ class LinearPoseTrajectoryGenerator : public TrajectoryGenerator {
   void initialize_trajectory(const franka::RobotState &robot_state) override;
 
   void get_next_step() override;
-
-  Eigen::Vector3d goal_position_;
-  Eigen::Quaterniond goal_orientation_;
-  double t_ = 0.0;
   
 };
 

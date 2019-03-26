@@ -7,7 +7,7 @@
 #include <iostream>
 #include <Eigen/Dense>
 
-#include "iam_robolib/trajectory_generator/linear_pose_trajectory_generator.h"
+#include "iam_robolib/trajectory_generator/pose_trajectory_generator.h"
 
 void FinalPoseTerminationHandler::parse_parameters() {
   // First parameter is reserved for the type
@@ -71,19 +71,19 @@ bool FinalPoseTerminationHandler::should_terminate(TrajectoryGenerator *trajecto
   check_terminate_preempt();
   
   if(!done_){
-    LinearPoseTrajectoryGenerator *linear_pose_trajectory_generator =
-          static_cast<LinearPoseTrajectoryGenerator *>(trajectory_generator);
+    PoseTrajectoryGenerator *pose_trajectory_generator =
+          static_cast<PoseTrajectoryGenerator *>(trajectory_generator);
 
-    if(linear_pose_trajectory_generator->time_ > linear_pose_trajectory_generator->run_time_ + buffer_time_) {
+    if(pose_trajectory_generator->time_ > pose_trajectory_generator->run_time_ + buffer_time_) {
       done_ = true;
       return true;
     }
 
-    Eigen::Vector3d position_error = linear_pose_trajectory_generator->goal_position_ - 
-                                     linear_pose_trajectory_generator->desired_position_;
+    Eigen::Vector3d position_error = pose_trajectory_generator->goal_position_ - 
+                                     pose_trajectory_generator->desired_position_;
     
-    Eigen::Quaterniond goal_orientation(linear_pose_trajectory_generator->goal_orientation_);
-    Eigen::Quaterniond desired_orientation(linear_pose_trajectory_generator->desired_orientation_);
+    Eigen::Quaterniond goal_orientation(pose_trajectory_generator->goal_orientation_);
+    Eigen::Quaterniond desired_orientation(pose_trajectory_generator->desired_orientation_);
 
     if (goal_orientation.coeffs().dot(desired_orientation.coeffs()) < 0.0) {
       desired_orientation.coeffs() << -desired_orientation.coeffs();
@@ -120,11 +120,11 @@ bool FinalPoseTerminationHandler::should_terminate_on_franka(const franka::Robot
   check_terminate_preempt();
 
   if(!done_){
-    LinearPoseTrajectoryGenerator *linear_pose_trajectory_generator =
-          static_cast<LinearPoseTrajectoryGenerator *>(trajectory_generator);
+    PoseTrajectoryGenerator *pose_trajectory_generator =
+          static_cast<PoseTrajectoryGenerator *>(trajectory_generator);
 
     // Terminate if the skill time_ has exceeded the provided run_time_ + buffer_time_ 
-    if(linear_pose_trajectory_generator->time_ > linear_pose_trajectory_generator->run_time_ + buffer_time_) {
+    if(pose_trajectory_generator->time_ > pose_trajectory_generator->run_time_ + buffer_time_) {
       done_ = true;
       return true;
     }
@@ -144,9 +144,9 @@ bool FinalPoseTerminationHandler::should_terminate_on_franka(const franka::Robot
     Eigen::Vector3d current_position(current_transform.translation());
     Eigen::Quaterniond current_orientation(current_transform.linear());
 
-    Eigen::Vector3d position_error = linear_pose_trajectory_generator->goal_position_ - current_position;
+    Eigen::Vector3d position_error = pose_trajectory_generator->goal_position_ - current_position;
     
-    Eigen::Quaterniond goal_orientation(linear_pose_trajectory_generator->goal_orientation_);
+    Eigen::Quaterniond goal_orientation(pose_trajectory_generator->goal_orientation_);
 
     if (goal_orientation.coeffs().dot(current_orientation.coeffs()) < 0.0) {
       current_orientation.coeffs() << -current_orientation.coeffs();

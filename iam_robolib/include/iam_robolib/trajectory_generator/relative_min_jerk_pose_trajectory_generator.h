@@ -7,11 +7,11 @@
 #include <franka/robot.h>
 #include <Eigen/Dense>
 
-#include "iam_robolib/trajectory_generator/min_jerk_pose_trajectory_generator.h"
+#include "iam_robolib/trajectory_generator/relative_pose_trajectory_generator.h"
 
-class RelativeMinJerkPoseTrajectoryGenerator : public MinJerkPoseTrajectoryGenerator {
+class RelativeMinJerkPoseTrajectoryGenerator : public RelativePoseTrajectoryGenerator {
  public:
-  using MinJerkPoseTrajectoryGenerator::MinJerkPoseTrajectoryGenerator;
+  using RelativePoseTrajectoryGenerator::RelativePoseTrajectoryGenerator;
 
   void parse_parameters() override;
 
@@ -21,10 +21,7 @@ class RelativeMinJerkPoseTrajectoryGenerator : public MinJerkPoseTrajectoryGener
 
   void get_next_step() override;
 
- private:
-  Eigen::Vector3d relative_position_;
-  Eigen::Quaterniond relative_orientation_;
-  
+  double slerp_t_ = 0.0;
 };
 
 #endif  // IAM_ROBOLIB_TRAJECTORY_GENERATOR_RELATIVE_MIN_JERK_POSE_TRAJECTORY_GENERATOR_H_

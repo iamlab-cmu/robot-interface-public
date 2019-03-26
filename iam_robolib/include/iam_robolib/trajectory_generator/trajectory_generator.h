@@ -52,6 +52,7 @@ class TrajectoryGenerator {
   double run_time_ = 0.0;
   double dt_ = 0.001;
   double time_ = 0.0;
+  double t_ = 0.0;
 
  protected:
   SharedBufferTypePtr params_=0;
