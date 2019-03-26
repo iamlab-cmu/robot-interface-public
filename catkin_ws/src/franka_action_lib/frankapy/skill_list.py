@@ -130,7 +130,7 @@ class GripperWithDefaultSensorSkill(BaseSkill):
 
 class JointPoseDMPWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
-                skill_type=SkillType.JointPoseSkill,
+                skill_type=SkillType.JointPositionSkill,
                 skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
@@ -153,7 +153,7 @@ class JointPoseDMPWithDefaultSensorSkill(BaseSkill):
 
 class JointPoseDMPWithTorqueControlWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
-                skill_type=SkillType.JointPoseSkill,
+                skill_type=SkillType.JointPositionSkill,
                 skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
@@ -177,7 +177,7 @@ class JointPoseDMPWithTorqueControlWithDefaultSensorSkill(BaseSkill):
 
 class JointPoseWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
-                skill_type=SkillType.JointPoseSkill,
+                skill_type=SkillType.JointPositionSkill,
                 skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
@@ -200,7 +200,7 @@ class JointPoseWithDefaultSensorSkill(BaseSkill):
 
 class JointPoseMinJerkWithDefaultSensorSkill(BaseSkill):
     def __init__(self, 
-                skill_type=SkillType.JointPoseSkill,
+                skill_type=SkillType.JointPositionSkill,
                 skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,

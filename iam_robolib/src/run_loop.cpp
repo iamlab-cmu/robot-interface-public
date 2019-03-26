@@ -25,7 +25,7 @@
 #include "iam_robolib/skills/force_torque_skill.h"
 #include "iam_robolib/skills/gripper_skill.h"
 #include "iam_robolib/skills/joint_pose_continuous_skill.h"
-#include "iam_robolib/skills/joint_pose_skill.h"
+#include "iam_robolib/skills/joint_position_skill.h"
 #include "iam_robolib/utils/logger_utils.h"
 
 std::atomic<bool> run_loop::run_loop_ok_{false};
@@ -228,8 +228,8 @@ void run_loop::update_process_info() {
             case SkillType::GripperSkill:
               new_skill = new GripperSkill(new_skill_id, new_meta_skill_id, new_skill_description);
               break;
-            case SkillType::JointPoseSkill:
-              new_skill = new JointPoseSkill(new_skill_id, new_meta_skill_id, new_skill_description);
+            case SkillType::JointPositionSkill:
+              new_skill = new JointPositionSkill(new_skill_id, new_meta_skill_id, new_skill_description);
               break;
             case SkillType::ForceTorqueSkill:
               new_skill = new ForceTorqueSkill(new_skill_id, new_meta_skill_id, new_skill_description);

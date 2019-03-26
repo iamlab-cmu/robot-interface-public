@@ -2,7 +2,7 @@
 // Created by mohit on 12/6/18.
 //
 
-#include "iam_robolib/skills/joint_pose_skill.h"
+#include "iam_robolib/skills/joint_position_skill.h"
 
 #include <cassert>
 #include <iostream>
@@ -21,11 +21,11 @@
 
 #include <iam_robolib_common/run_loop_process_info.h>
 
-void JointPoseSkill::execute_skill() {
+void JointPositionSkill::execute_skill() {
   assert(false);
 }
 
-void JointPoseSkill::execute_skill_on_franka(run_loop* run_loop,
+void JointPositionSkill::execute_skill_on_franka(run_loop* run_loop,
                                              FrankaRobot* robot,
                                              RobotStateData *robot_state_data) {
   double time = 0.0;

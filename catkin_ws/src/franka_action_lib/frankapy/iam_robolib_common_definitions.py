@@ -12,7 +12,7 @@ class RobotType:
 class SkillType:
     SkillInfo = 0
     GripperSkill = 1
-    JointPoseSkill = 2
+    JointPositionSkill = 2
     ForceTorqueSkill = 3
 
 class MetaSkillType:

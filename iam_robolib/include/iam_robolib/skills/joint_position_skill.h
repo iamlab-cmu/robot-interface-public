@@ -1,11 +1,11 @@
-#ifndef IAM_ROBOLIB_SKILLS_JOINT_POSE_SKILL_H_
-#define IAM_ROBOLIB_SKILLS_JOINT_POSE_SKILL_H_
+#ifndef IAM_ROBOLIB_SKILLS_JOINT_POSITION_SKILL_H_
+#define IAM_ROBOLIB_SKILLS_JOINT_POSITION_SKILL_H_
 
 #include "iam_robolib/skills/base_skill.h"
 
-class JointPoseSkill : public BaseSkill {
+class JointPositionSkill : public BaseSkill {
  public:
-  JointPoseSkill(int skill_idx, int meta_skill_idx, std::string description) : 
+  JointPositionSkill(int skill_idx, int meta_skill_idx, std::string description) : 
                               BaseSkill(skill_idx, meta_skill_idx, description)
   {};
 
@@ -19,4 +19,4 @@ class JointPoseSkill : public BaseSkill {
   bool return_status_{false};
 };
 
-#endif  // IAM_ROBOLIB_SKILLS_JOINT_POSE_SKILL_H_
+#endif  // IAM_ROBOLIB_SKILLS_JOINT_POSITION_SKILL_H_

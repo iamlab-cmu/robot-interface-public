@@ -24,7 +24,7 @@ enum class RobotType : uint8_t {
 enum class SkillType : uint8_t {
     SkillInfo = 0,
     GripperSkill = 1,
-    JointPoseSkill = 2,
+    JointPositionSkill = 2,
     ForceTorqueSkill = 3
 };
 
