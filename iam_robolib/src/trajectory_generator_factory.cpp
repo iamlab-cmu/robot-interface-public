@@ -15,6 +15,7 @@
 #include "iam_robolib/trajectory_generator/linear_pose_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/linear_joint_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/min_jerk_joint_trajectory_generator.h"
+#include "iam_robolib/trajectory_generator/min_jerk_pose_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/relative_linear_pose_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/stay_in_initial_position_trajectory_generator.h"
 
@@ -28,29 +29,32 @@ TrajectoryGenerator* TrajectoryGeneratorFactory::getTrajectoryGeneratorForSkill(
   "\n";
 
   switch (trajectory_generator_type) {
+    case TrajectoryGeneratorType::GripperTrajectoryGenerator:
+      trajectory_generator = new GripperTrajectoryGenerator(buffer);
+      break;
+    case TrajectoryGeneratorType::ImpulseTrajectoryGenerator:
+      trajectory_generator = new ImpulseTrajectoryGenerator(buffer);
+      break;
+    case TrajectoryGeneratorType::JointDmpTrajectoryGenerator:
+      trajectory_generator = new JointDmpTrajectoryGenerator(buffer);
+      break;
     case TrajectoryGeneratorType::LinearJointTrajectoryGenerator:
       trajectory_generator = new LinearJointTrajectoryGenerator(buffer);
       break;
     case TrajectoryGeneratorType::LinearPoseTrajectoryGenerator:
       trajectory_generator = new LinearPoseTrajectoryGenerator(buffer);
       break;
-    case TrajectoryGeneratorType::GripperTrajectoryGenerator:
-      trajectory_generator = new GripperTrajectoryGenerator(buffer);
+    case TrajectoryGeneratorType::MinJerkJointTrajectoryGenerator:
+      trajectory_generator = new MinJerkJointTrajectoryGenerator(buffer);
       break;
-    case TrajectoryGeneratorType::StayInInitialPositionTrajectoryGenerator:
-      trajectory_generator = new StayInInitialPositionTrajectoryGenerator(buffer);
-      break;
-    case TrajectoryGeneratorType::JointDmpTrajectoryGenerator:
-      trajectory_generator = new JointDmpTrajectoryGenerator(buffer);
+    case TrajectoryGeneratorType::MinJerkPoseTrajectoryGenerator:
+      trajectory_generator = new MinJerkPoseTrajectoryGenerator(buffer);
       break;
     case TrajectoryGeneratorType::RelativeLinearPoseTrajectoryGenerator:
       trajectory_generator = new RelativeLinearPoseTrajectoryGenerator(buffer);
       break;
-    case TrajectoryGeneratorType::ImpulseTrajectoryGenerator:
-      trajectory_generator = new ImpulseTrajectoryGenerator(buffer);
-      break;
-    case TrajectoryGeneratorType::MinJerkJointTrajectoryGenerator:
-      trajectory_generator = new MinJerkJointTrajectoryGenerator(buffer);
+    case TrajectoryGeneratorType::StayInInitialPositionTrajectoryGenerator:
+      trajectory_generator = new StayInInitialPositionTrajectoryGenerator(buffer);
       break;
     default:
       std::cout << "Cannot create Trajectory Generator with type:" << 

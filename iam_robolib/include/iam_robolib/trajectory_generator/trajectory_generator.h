@@ -31,6 +31,11 @@ class TrajectoryGenerator {
   void initialize_initial_states(const franka::RobotState &robot_state);
 
   /**
+   * Calculate desired pose from the desired_position_ and desired_orientation_
+   */
+  void calculate_desired_pose();
+
+  /**
    *  Get next trajectory step.
    */
   virtual void get_next_step() = 0;
