@@ -22,10 +22,10 @@ enum class RobotType : uint8_t {
 
 // Enum for Skill Types
 enum class SkillType : uint8_t {
-    ImpedanceControlSkill = 0,
+    ForceTorqueSkill = 0,
     GripperSkill = 1,
-    JointPositionSkill = 2,
-    ForceTorqueSkill = 3
+    ImpedanceControlSkill = 2,
+    JointPositionSkill = 3
 };
 
 // Enum for Meta Skill Types
@@ -36,32 +36,32 @@ enum class MetaSkillType : uint8_t {
 
 // Enum for Trajectory Generator Types
 enum class TrajectoryGeneratorType : uint8_t {
-    LinearPoseTrajectoryGenerator = 1,
-    LinearJointTrajectoryGenerator = 2,
-    GripperTrajectoryGenerator = 3,
-    StayInInitialPositionTrajectoryGenerator = 4,
-    JointDmpTrajectoryGenerator = 5,
+    GripperTrajectoryGenerator = 0,
+    ImpulseTrajectoryGenerator = 1,
+    JointDmpTrajectoryGenerator = 2,
+    LinearPoseTrajectoryGenerator = 3,
+    LinearJointTrajectoryGenerator = 4,
+    MinJerkJointTrajectoryGenerator = 5,
     RelativeLinearPoseTrajectoryGenerator = 6,
-    ImpulseTrajectoryGenerator = 7,
-    MinJerkJointTrajectoryGenerator = 8
+    StayInInitialPositionTrajectoryGenerator = 7
 };
 
 // Enum for Feedback Controller Types
 enum class FeedbackControllerType : uint8_t {
-    NoopFeedbackController = 1,
-    CartesianImpedanceFeedbackController = 2,
-    JointImpedanceFeedbackController = 3,
-    ForceAxisImpedenceFeedbackController = 4,
-    PassThroughFeedbackController = 5
+    CartesianImpedanceFeedbackController = 0,
+    ForceAxisImpedenceFeedbackController = 1,
+    JointImpedanceFeedbackController = 2,
+    NoopFeedbackController = 3,
+    PassThroughFeedbackController = 4
 };
 
 // Enum for Termination Handler Types
 enum class TerminationHandlerType : uint8_t {
-    ContactTerminationHandler = 1,
-    FinalJointTerminationHandler = 2,
-    FinalPoseTerminationHandler = 3,
-    NoopTerminationHandler = 4,
-    TimeTerminationHandler = 5
+    ContactTerminationHandler = 0,
+    FinalJointTerminationHandler = 1,
+    FinalPoseTerminationHandler = 2,
+    NoopTerminationHandler = 3,
+    TimeTerminationHandler = 4
 };
 
 // Enum for Skill Statuses
