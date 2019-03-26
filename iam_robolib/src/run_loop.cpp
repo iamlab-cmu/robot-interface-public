@@ -25,7 +25,7 @@
 #include "iam_robolib/skills/force_torque_skill.h"
 #include "iam_robolib/skills/gripper_skill.h"
 #include "iam_robolib/skills/impedance_control_skill.h"
-#include "iam_robolib/skills/joint_pose_continuous_skill.h"
+#include "iam_robolib/skills/joint_position_continuous_skill.h"
 #include "iam_robolib/skills/joint_position_skill.h"
 #include "iam_robolib/utils/logger_utils.h"
 
@@ -251,8 +251,8 @@ void run_loop::update_process_info() {
             case MetaSkillType::BaseMetaSkill:
               new_meta_skill = new BaseMetaSkill(new_meta_skill_id);
               break;
-            case MetaSkillType::JointPoseContinuousSkill:
-              new_meta_skill = new JointPoseContinuousSkill(new_meta_skill_id);
+            case MetaSkillType::JointPositionContinuousSkill:
+              new_meta_skill = new JointPositionContinuousSkill(new_meta_skill_id);
               break;
             default:
               std::cout << "Incorrect meta skill type: " << 

@@ -31,7 +31,7 @@ enum class SkillType : uint8_t {
 // Enum for Meta Skill Types
 enum class MetaSkillType : uint8_t {
     BaseMetaSkill = 0,
-    JointPoseContinuousSkill = 1
+    JointPositionContinuousSkill = 1
 };
 
 // Enum for Trajectory Generator Types

@@ -17,7 +17,7 @@ class SkillType:
 
 class MetaSkillType:
     BaseMetaSkill = 0
-    JointPoseContinuousSkill = 1
+    JointPositionContinuousSkill = 1
 
 class TrajectoryGeneratorType:
     GripperTrajectoryGenerator = 0

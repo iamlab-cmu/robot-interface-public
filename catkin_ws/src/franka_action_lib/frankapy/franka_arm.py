@@ -266,7 +266,7 @@ class FrankaArm:
 
         skill.add_trajectory_params(trajectory_params)
         skill.set_meta_skill_id(meta_skill_id)
-        skill.set_meta_skill_type(MetaSkillType.JointPoseContinuousSkill)
+        skill.set_meta_skill_type(MetaSkillType.JointPositionContinuousSkill)
         skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
 
         goal = skill.create_goal()
