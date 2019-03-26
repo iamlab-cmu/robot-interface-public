@@ -2,7 +2,7 @@
 // Created by mohit on 11/20/18.
 //
 
-#include "iam_robolib/skills/skill_info.h"
+#include "iam_robolib/skills/impedance_control_skill.h"
 
 #include <cassert>
 #include <iostream>
@@ -19,7 +19,7 @@
 
 #include <iam_robolib_common/run_loop_process_info.h>
 
-void SkillInfo::execute_skill() {
+void ImpedanceControlSkill::execute_skill() {
   assert(traj_generator_ != 0);
   // HACK
   std::string skill_status_string = "Running";
@@ -30,7 +30,7 @@ void SkillInfo::execute_skill() {
   traj_generator_->get_next_step();
 }
 
-void SkillInfo::execute_skill_on_franka(run_loop* run_loop, 
+void ImpedanceControlSkill::execute_skill_on_franka(run_loop* run_loop, 
                                         FrankaRobot* robot,
                                         RobotStateData *robot_state_data) {
 
@@ -104,11 +104,11 @@ void SkillInfo::execute_skill_on_franka(run_loop* run_loop,
   robot->robot_.control(impedance_control_callback);
 }
 
-void SkillInfo::write_result_to_shared_memory(SharedBufferTypePtr result_buffer) {
+void ImpedanceControlSkill::write_result_to_shared_memory(SharedBufferTypePtr result_buffer) {
   std::cout << "Should write result to shared memory\n";
 }
 
-void SkillInfo::write_result_to_shared_memory(SharedBufferTypePtr result_buffer, FrankaRobot* robot) {
+void ImpedanceControlSkill::write_result_to_shared_memory(SharedBufferTypePtr result_buffer, FrankaRobot* robot) {
   franka::GripperState gripper_state = robot->getGripperState();
   franka::RobotState robot_state = robot->getRobotState();
 
@@ -327,7 +327,7 @@ void SkillInfo::write_result_to_shared_memory(SharedBufferTypePtr result_buffer,
   result_buffer[result_buffer_idx++] = gripper_state.time.toSec();
 }
 
-void SkillInfo::write_result_to_shared_memory(SharedBufferTypePtr result_buffer, Robot* robot) {
+void ImpedanceControlSkill::write_result_to_shared_memory(SharedBufferTypePtr result_buffer, Robot* robot) {
   std::cout << "Writing final robot state to shared memory\n";
 
   switch(robot->robot_type_)
@@ -341,6 +341,6 @@ void SkillInfo::write_result_to_shared_memory(SharedBufferTypePtr result_buffer,
   
 }
 
-void SkillInfo::write_feedback_to_shared_memory(SharedBufferTypePtr feedback_buffer) {
+void ImpedanceControlSkill::write_feedback_to_shared_memory(SharedBufferTypePtr feedback_buffer) {
   std::cout << "Should write feedback to shared memory\n";
 }

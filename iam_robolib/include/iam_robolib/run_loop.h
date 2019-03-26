@@ -17,7 +17,6 @@
 #include <iam_robolib_common/SharedMemoryInfo.h>
 
 #include "iam_robolib/skill_info_manager.h"
-#include "iam_robolib/skills/skill_info.h"
 #include "iam_robolib/run_loop_logger.h"
 #include "iam_robolib/robot_state_data.h"
 #include "iam_robolib/run_loop_shared_memory_handler.h"

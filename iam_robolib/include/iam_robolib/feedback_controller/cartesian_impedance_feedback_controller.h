@@ -1,11 +1,11 @@
-#ifndef IAM_ROBOLIB_FEEDBACK_CONTROLLER_TORQUE_FEEDBACK_CONTROLLER_H_
-#define IAM_ROBOLIB_FEEDBACK_CONTROLLER_TORQUE_FEEDBACK_CONTROLLER_H_
+#ifndef IAM_ROBOLIB_FEEDBACK_CONTROLLER_CARTESIAN_IMPEDANCE_FEEDBACK_CONTROLLER_H_
+#define IAM_ROBOLIB_FEEDBACK_CONTROLLER_CARTESIAN_IMPEDANCE_FEEDBACK_CONTROLLER_H_
 
 #include <Eigen/Dense>
 
 #include "iam_robolib/feedback_controller/feedback_controller.h"
 
-class TorqueFeedbackController : public FeedbackController {
+class CartesianImpedanceFeedbackController : public FeedbackController {
  public:
   using FeedbackController::FeedbackController;
 
@@ -29,4 +29,4 @@ class TorqueFeedbackController : public FeedbackController {
   Eigen::MatrixXd damping_;
 };
 
-#endif  // IAM_ROBOLIB_FEEDBACK_CONTROLLER_TORQUE_FEEDBACK_CONTROLLER_H_
+#endif  // IAM_ROBOLIB_FEEDBACK_CONTROLLER_CARTESIAN_IMPEDANCE_FEEDBACK_CONTROLLER_H_

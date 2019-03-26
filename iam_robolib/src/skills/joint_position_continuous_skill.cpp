@@ -2,7 +2,7 @@
 // Created by mohit on 12/9/18.
 //
 
-#include "iam_robolib/skills/joint_pose_continuous_skill.h"
+#include "iam_robolib/skills/joint_position_continuous_skill.h"
 
 #include <cassert>
 #include <iostream>
@@ -23,12 +23,12 @@
 
 #include <iam_robolib_common/run_loop_process_info.h>
 
-bool JointPoseContinuousSkill::isComposableSkill() {
+bool JointPositionContinuousSkill::isComposableSkill() {
   return true;
 }
 
 
-void JointPoseContinuousSkill::execute_skill_on_franka(run_loop *run_loop, 
+void JointPositionContinuousSkill::execute_skill_on_franka(run_loop *run_loop, 
                                                        FrankaRobot* robot,
                                                        RobotStateData *robot_state_data) {
 
@@ -46,7 +46,7 @@ void JointPoseContinuousSkill::execute_skill_on_franka(run_loop *run_loop,
   SkillInfoManager *skill_info_manager = run_loop->getSkillInfoManager();
   BaseSkill *current_skill = skill_info_manager->get_current_skill();
 
-  std::cout << "Will run JointPoseContinuousSkill control loop\n";
+  std::cout << "Will run JointPositionContinuousSkill control loop\n";
 
   franka::RobotState initial_robot_state = robot->getRobotState();
   std::array<double, 7> last_dmp_q = initial_robot_state.q;

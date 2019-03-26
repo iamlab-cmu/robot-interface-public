@@ -31,20 +31,19 @@ include_directories(include)
 ## Library
 
 add_library(iam_robolib SHARED
-  src/feedback_controller/custom_gain_torque_controller.cpp
+  src/feedback_controller/cartesian_impedance_feedback_controller.cpp
   src/feedback_controller/feedback_controller.cpp
   src/feedback_controller/force_axis_impedence_feedback_controller.cpp
+  src/feedback_controller/joint_impedance_feedback_controller.cpp
   src/feedback_controller/noop_feedback_controller.cpp
   src/feedback_controller/pass_through_feedback_controller.cpp
-  src/feedback_controller/torque_feedback_controller.cpp
   src/skills/base_meta_skill.cpp
   src/skills/base_skill.cpp
   src/skills/force_torque_skill.cpp
   src/skills/gripper_skill.cpp
-  src/skills/joint_pose_continuous_skill.cpp
-  src/skills/joint_pose_skill.cpp
-  src/skills/joint_pose_with_torque_control_skill.cpp
-  src/skills/skill_info.cpp
+  src/skills/impedance_control_skill.cpp
+  src/skills/joint_position_continuous_skill.cpp
+  src/skills/joint_position_skill.cpp
   src/termination_handler/contact_termination_handler.cpp
   src/termination_handler/final_joint_termination_handler.cpp
   src/termination_handler/final_pose_termination_handler.cpp

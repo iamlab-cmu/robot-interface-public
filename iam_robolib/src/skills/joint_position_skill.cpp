@@ -1,4 +1,8 @@
-#include "iam_robolib/skills/joint_pose_with_torque_control_skill.h"
+//
+// Created by mohit on 12/6/18.
+//
+
+#include "iam_robolib/skills/joint_position_skill.h"
 
 #include <cassert>
 #include <iostream>
@@ -7,11 +11,9 @@
 
 #include <franka/robot.h>
 #include <franka/exception.h>
-#include <franka/rate_limiting.h>
 
 #include "iam_robolib/run_loop.h"
 #include "iam_robolib/robot_state_data.h"
-#include "iam_robolib/feedback_controller/feedback_controller.h"
 #include "iam_robolib/termination_handler/termination_handler.h"
 #include "iam_robolib/trajectory_generator/trajectory_generator.h"
 #include "iam_robolib/run_loop.h"
@@ -19,13 +21,13 @@
 
 #include <iam_robolib_common/run_loop_process_info.h>
 
-void JointPoseWithTorqueControlSkill::execute_skill() {
+void JointPositionSkill::execute_skill() {
   assert(false);
 }
 
-void JointPoseWithTorqueControlSkill::execute_skill_on_franka(run_loop* run_loop,
-                                                              FrankaRobot* robot,
-                                                              RobotStateData *robot_state_data) {
+void JointPositionSkill::execute_skill_on_franka(run_loop* run_loop,
+                                             FrankaRobot* robot,
+                                             RobotStateData *robot_state_data) {
   double time = 0.0;
   int log_counter = 0;
 
@@ -57,7 +59,8 @@ void JointPoseWithTorqueControlSkill::execute_skill_on_franka(run_loop* run_loop
     traj_generator_->dt_ = period.toSec();
     traj_generator_->get_next_step();
 
-    bool done = termination_handler_->should_terminate_on_franka(robot_state, traj_generator_);
+    bool done = termination_handler_->should_terminate_on_franka(robot_state, 
+                                                                 traj_generator_);
     franka::JointPositions joint_desired(traj_generator_->joint_desired_);
 
     log_counter += 1;
@@ -65,7 +68,7 @@ void JointPoseWithTorqueControlSkill::execute_skill_on_franka(run_loop* run_loop
       robot_state_data->log_pose_desired(traj_generator_->pose_desired_);
       robot_state_data->log_robot_state(robot_state, time);
     }
-
+    
     if(done) {
       try {
         if (lock.try_lock()) {
@@ -75,19 +78,12 @@ void JointPoseWithTorqueControlSkill::execute_skill_on_franka(run_loop* run_loop
       } catch (boost::interprocess::lock_exception) {
         // Do nothing
       }
-
       return franka::MotionFinished(joint_desired);
     }
+
     return joint_desired;
   };
 
-  std::function<franka::Torques(const franka::RobotState&,
-      franka::Duration)> impedance_control_callback = [&](
-        const franka::RobotState& state, franka::Duration) -> franka::Torques {
-        feedback_controller_->get_next_step();
-        return feedback_controller_->tau_d_array_;
-      };
-
-  robot->robot_.control(impedance_control_callback, joint_pose_callback);
+  robot->robot_.control(joint_pose_callback);
 }
 

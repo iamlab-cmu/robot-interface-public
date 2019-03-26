@@ -10,38 +10,38 @@ class RobotType:
     UR5E = 1
 
 class SkillType:
-    SkillInfo = 0
+    ForceTorqueSkill = 0
     GripperSkill = 1
-    JointPoseSkill = 2
-    ForceTorqueSkill = 3
+    ImpedanceControlSkill = 2
+    JointPositionSkill = 3
 
 class MetaSkillType:
     BaseMetaSkill = 0
-    JointPoseContinuousSkill = 1
+    JointPositionContinuousSkill = 1
 
 class TrajectoryGeneratorType:
-    LinearPoseTrajectoryGenerator = 1
-    LinearJointTrajectoryGenerator = 2
-    GripperTrajectoryGenerator = 3
-    StayInInitialPositionTrajectoryGenerator = 4
-    JointDmpTrajectoryGenerator = 5
+    GripperTrajectoryGenerator = 0
+    ImpulseTrajectoryGenerator = 1
+    JointDmpTrajectoryGenerator = 2
+    LinearPoseTrajectoryGenerator = 3
+    LinearJointTrajectoryGenerator = 4
+    MinJerkJointTrajectoryGenerator = 5
     RelativeLinearPoseTrajectoryGenerator = 6
-    ImpulseTrajectoryGenerator = 7
-    MinJerkJointTrajectoryGenerator = 8
+    StayInInitialPositionTrajectoryGenerator = 7
 
 class FeedbackControllerType:
-    NoopFeedbackController = 1
-    TorqueFeedbackController = 2
-    CustomGainTorqueController = 3
-    ForceAxisImpedenceFeedbackController = 4
-    PassThroughFeedbackController = 5
+    CartesianImpedanceFeedbackController = 0
+    ForceAxisImpedenceFeedbackController = 1
+    JointImpedanceFeedbackController = 2
+    NoopFeedbackController = 3
+    PassThroughFeedbackController = 4
 
 class TerminationHandlerType:
-    ContactTerminationHandler = 1
-    FinalJointTerminationHandler = 2
-    FinalPoseTerminationHandler = 3
-    NoopTerminationHandler = 4
-    TimeTerminationHandler = 5
+    ContactTerminationHandler = 0
+    FinalJointTerminationHandler = 1
+    FinalPoseTerminationHandler = 2
+    NoopTerminationHandler = 3
+    TimeTerminationHandler = 4
 
 class SkillStatus: 
     TO_START = 0

@@ -24,8 +24,9 @@
 #include "iam_robolib/skills/base_skill.h"
 #include "iam_robolib/skills/force_torque_skill.h"
 #include "iam_robolib/skills/gripper_skill.h"
-#include "iam_robolib/skills/joint_pose_continuous_skill.h"
-#include "iam_robolib/skills/joint_pose_skill.h"
+#include "iam_robolib/skills/impedance_control_skill.h"
+#include "iam_robolib/skills/joint_position_continuous_skill.h"
+#include "iam_robolib/skills/joint_position_skill.h"
 #include "iam_robolib/utils/logger_utils.h"
 
 std::atomic<bool> run_loop::run_loop_ok_{false};
@@ -222,14 +223,14 @@ void run_loop::update_process_info() {
 
           BaseSkill *new_skill;
           switch(new_skill_type) {
-            case SkillType::SkillInfo:
-              new_skill = new SkillInfo(new_skill_id, new_meta_skill_id, new_skill_description);
+            case SkillType::ImpedanceControlSkill:
+              new_skill = new ImpedanceControlSkill(new_skill_id, new_meta_skill_id, new_skill_description);
               break;
             case SkillType::GripperSkill:
               new_skill = new GripperSkill(new_skill_id, new_meta_skill_id, new_skill_description);
               break;
-            case SkillType::JointPoseSkill:
-              new_skill = new JointPoseSkill(new_skill_id, new_meta_skill_id, new_skill_description);
+            case SkillType::JointPositionSkill:
+              new_skill = new JointPositionSkill(new_skill_id, new_meta_skill_id, new_skill_description);
               break;
             case SkillType::ForceTorqueSkill:
               new_skill = new ForceTorqueSkill(new_skill_id, new_meta_skill_id, new_skill_description);
@@ -250,8 +251,8 @@ void run_loop::update_process_info() {
             case MetaSkillType::BaseMetaSkill:
               new_meta_skill = new BaseMetaSkill(new_meta_skill_id);
               break;
-            case MetaSkillType::JointPoseContinuousSkill:
-              new_meta_skill = new JointPoseContinuousSkill(new_meta_skill_id);
+            case MetaSkillType::JointPositionContinuousSkill:
+              new_meta_skill = new JointPositionContinuousSkill(new_meta_skill_id);
               break;
             default:
               std::cout << "Incorrect meta skill type: " << 

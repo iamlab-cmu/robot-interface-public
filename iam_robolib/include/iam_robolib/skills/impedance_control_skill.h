@@ -1,5 +1,5 @@
-#ifndef IAM_ROBOLIB_SKILLS_SKILL_INFO_H_
-#define IAM_ROBOLIB_SKILLS_SKILL_INFO_H_
+#ifndef IAM_ROBOLIB_SKILLS_IMPEDANCE_CONTROL_SKILL_H_
+#define IAM_ROBOLIB_SKILLS_IMPEDANCE_CONTROL_SKILL_H_
 
 #include <franka/duration.h>
 #include <franka/exception.h>
@@ -13,9 +13,9 @@
 #include "iam_robolib/termination_handler/termination_handler.h"
 #include "iam_robolib/trajectory_generator/trajectory_generator.h"
 
-class SkillInfo : public BaseSkill {
+class ImpedanceControlSkill : public BaseSkill {
  public:
-  SkillInfo(int skill_idx, int meta_skill_idx, std::string description) : 
+  ImpedanceControlSkill(int skill_idx, int meta_skill_idx, std::string description) : 
             BaseSkill(skill_idx, meta_skill_idx, description) 
   {};
 
@@ -61,4 +61,4 @@ class SkillInfo : public BaseSkill {
                                            30.0, 25.0, 15.0}};
 };
 
-#endif  // IAM_ROBOLIB_SKILLS_SKILL_INFO_H_
+#endif  // IAM_ROBOLIB_SKILLS_IMPEDANCE_CONTROL_SKILL_H_

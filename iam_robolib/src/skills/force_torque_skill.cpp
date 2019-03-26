@@ -13,6 +13,7 @@
 #include <franka/model.h>
 #include <franka/exception.h>
 
+#include "iam_robolib/feedback_controller/feedback_controller.h"
 #include "iam_robolib/termination_handler/termination_handler.h"
 #include "iam_robolib/trajectory_generator/impulse_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/trajectory_generator.h"
