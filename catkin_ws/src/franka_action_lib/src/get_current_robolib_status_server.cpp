@@ -3,8 +3,8 @@
 
 namespace franka_action_lib
 {
-  std::mutex GetCurrentRobolibStatusServer::robolib_status_buffer_mutex_;
-  boost::circular_buffer<franka_action_lib::RobolibStatus> GetCurrentRobolibStatusServer::robolib_status_buffer_{1};
+  std::mutex GetCurrentRobolibStatusServer::current_robolib_status_mutex_;
+  franka_action_lib::RobolibStatus GetCurrentRobolibStatusServer::current_robolib_status_;
 
   GetCurrentRobolibStatusServer::GetCurrentRobolibStatusServer(std::string name) :  nh_("~")
   {
@@ -18,18 +18,18 @@ namespace franka_action_lib
 
   void GetCurrentRobolibStatusServer::robolib_status_sub_cb(const franka_action_lib::RobolibStatus& robolib_status)
   {
-    if (robolib_status_buffer_mutex_.try_lock()) {
-      robolib_status_buffer_.push_back(robolib_status);
-      robolib_status_buffer_mutex_.unlock();
+    if (current_robolib_status_mutex_.try_lock()) {
+      current_robolib_status_ = robolib_status;
+      current_robolib_status_mutex_.unlock();
     }
   }
 
   bool GetCurrentRobolibStatusServer::get_current_robolib_status(GetCurrentRobolibStatusCmd::Request &req, GetCurrentRobolibStatusCmd::Response &res)
   {
     ROS_DEBUG("Get Current Robolib Status Server request received.");
-    robolib_status_buffer_mutex_.lock();
-    res.robolib_status = robolib_status_buffer_.back();
-    robolib_status_buffer_mutex_.unlock();
+    current_robolib_status_mutex_.lock();
+    res.robolib_status = current_robolib_status_;
+    current_robolib_status_mutex_.unlock();
     ROS_DEBUG("Get Current Robolib Status Servier request processed.");
     
     return true;

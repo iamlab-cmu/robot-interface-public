@@ -3,8 +3,8 @@
 
 namespace franka_action_lib
 {
-  std::mutex GetCurrentRobotStateServer::robot_state_buffer_mutex_;
-  boost::circular_buffer<franka_action_lib::RobotState> GetCurrentRobotStateServer::robot_state_buffer_{1};
+  std::mutex GetCurrentRobotStateServer::current_robot_state_mutex_;
+  franka_action_lib::RobotState GetCurrentRobotStateServer::current_robot_state_;
 
   GetCurrentRobotStateServer::GetCurrentRobotStateServer(std::string name) :  nh_("~")
   {
@@ -18,18 +18,18 @@ namespace franka_action_lib
 
   void GetCurrentRobotStateServer::robot_state_sub_cb(const franka_action_lib::RobotState& robot_state)
   {
-    if (robot_state_buffer_mutex_.try_lock()) {
-      robot_state_buffer_.push_back(robot_state);
-      robot_state_buffer_mutex_.unlock();
+    if (current_robot_state_mutex_.try_lock()) {
+      current_robot_state_ = robot_state;
+      current_robot_state_mutex_.unlock();
     }
   }
 
   bool GetCurrentRobotStateServer::get_current_robot_state(GetCurrentRobotStateCmd::Request &req, GetCurrentRobotStateCmd::Response &res)
   {
     ROS_DEBUG("Get Current Robot State Server request received.");
-    robot_state_buffer_mutex_.lock();
-    res.robot_state = robot_state_buffer_.back();
-    robot_state_buffer_mutex_.unlock();
+    current_robot_state_mutex_.lock();
+    res.robot_state = current_robot_state_;
+    current_robot_state_mutex_.unlock();
     ROS_DEBUG("Get Current Robot State Server request processed.");
     
     return true;

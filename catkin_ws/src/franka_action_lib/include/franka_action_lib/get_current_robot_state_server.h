@@ -9,8 +9,6 @@
 #include "franka_action_lib/GetCurrentRobotStateCmd.h"
 #include "franka_action_lib/RobotState.h"
 
-#include <boost/circular_buffer.hpp>
-
 namespace franka_action_lib  
 { 
   class GetCurrentRobotStateServer
@@ -20,8 +18,8 @@ namespace franka_action_lib
       ros::NodeHandle nh_;
       ros::ServiceServer server; // NodeHandle instance must be created before this line. Otherwise strange error occurs.
       std::string robot_state_topic_name_;
-      static std::mutex robot_state_buffer_mutex_;
-      static boost::circular_buffer<franka_action_lib::RobotState> robot_state_buffer_;
+      static std::mutex current_robot_state_mutex_;
+      static franka_action_lib::RobotState current_robot_state_;
 
     public:
 
