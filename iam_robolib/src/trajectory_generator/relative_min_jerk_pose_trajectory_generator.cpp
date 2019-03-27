@@ -78,11 +78,6 @@ void RelativeMinJerkPoseTrajectoryGenerator::initialize_trajectory(const franka:
   TrajectoryGenerator::initialize_initial_states(robot_state);
   goal_position_ = initial_position_ + relative_position_;
   goal_orientation_ = initial_orientation_ * relative_orientation_;
-  
-  std::cout << "Initial orientation" << std::endl;
-  std::cout << initial_orientation_.w() << ", " << initial_orientation_.x() << ", " << initial_orientation_.y() << ", " << initial_orientation_.z() << std::endl;
-  std::cout << "Goal orientation" << std::endl;
-  std::cout << goal_orientation_.w() << ", " << goal_orientation_.x() << ", " << goal_orientation_.y() << ", " << goal_orientation_.z() << std::endl;
 }
 
 void RelativeMinJerkPoseTrajectoryGenerator::get_next_step() {
