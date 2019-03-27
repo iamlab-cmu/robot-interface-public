@@ -359,6 +359,21 @@ void run_loop::setup_save_robot_state_thread() {
                   // push_back gripper_state info from the current gripper_state
                   robot_state_data_->update_current_gripper_state(gripper_state);
                   robot_state_data_->log_robot_state(robot_state, duration / 1000.0);
+
+                  std::cout << "Measured robot state:" << std::endl;
+                  for(int i = 0; i < 4; i++) {
+                    for(int j = 0; j < 4; j++) {
+                      std::cout << robot_state.O_T_EE[4*j + i] << ", ";
+                    }
+                    std::cout << "\n";
+                  }
+                  std::cout << "Last commanded robot state:" << std::endl;
+                  for(int i = 0; i < 4; i++) {
+                    for(int j = 0; j < 4; j++) {
+                      std::cout << robot_state.O_T_EE_c[4*j + i] << ", ";
+                    }
+                    std::cout << "\n";
+                  }
                 } catch (const franka::Exception& ex) {
                   robot_access_mutex_.unlock();
                   std::cerr << "Robot state save thread encountered Franka exception. Will not log for now.\n";
