@@ -269,6 +269,8 @@ class FrankaArm:
             skill.add_feedback_controller_params(joint_impedances)
         else:
             skill = JointPoseMinJerkSkill(skill_desc=skill_desc)
+=======
+        skill = JointPoseSineSkill(skill_desc=skill_desc)
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
 

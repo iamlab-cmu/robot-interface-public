@@ -244,6 +244,30 @@ class JointPoseMinJerkWithJointImpedancesSkill(BaseSkill):
               termination_type,
               timer_type)
 
+class JointPoseSineSkill(BaseSkill):
+    def __init__(self, 
+                skill_type=SkillType.JointPositionSkill,
+                skill_desc='',
+                meta_skill_type=MetaSkillType.BaseMetaSkill,
+                meta_skill_id=0,
+                trajectory_generator_type=TrajectoryGeneratorType.SineJointTrajectoryGenerator,
+                feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
+                termination_type=TerminationHandlerType.FinalJointTerminationHandler,
+                timer_type=1):
+        if len(skill_desc) == 0:
+            skill_desc = JointPoseSineWithDefaultSensorSkill.__name__
+        super(JointPoseSineWithDefaultSensorSkill, self).__init__(
+              skill_type,
+              skill_desc,
+              meta_skill_type,
+              meta_skill_id,
+              ['/franka_robot/camera'],
+              trajectory_generator_type,
+              feedback_controller_type,
+              termination_type,
+              timer_type)
+
+
 class ArmMoveToGoalSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.ImpedanceControlSkill,
@@ -252,6 +276,8 @@ class ArmMoveToGoalSkill(BaseSkill):
                 meta_skill_id=0,
                 trajectory_generator_type=TrajectoryGeneratorType.LinearPoseTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.CartesianImpedanceFeedbackController,
+                #trajectory_generator_type=TrajectoryGeneratorType.SinePoseTrajectoryGenerator,
+                #feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
                 termination_type=TerminationHandlerType.FinalPoseTerminationHandler,
                 timer_type=1):
         if len(skill_desc) == 0:
