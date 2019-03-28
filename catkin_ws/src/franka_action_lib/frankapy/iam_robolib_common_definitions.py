@@ -35,6 +35,7 @@ class FeedbackControllerType:
     JointImpedanceFeedbackController = 2
     NoopFeedbackController = 3
     PassThroughFeedbackController = 4
+    SetInternalImpedanceFeedbackController = 5
 
 class TerminationHandlerType:
     ContactTerminationHandler = 0

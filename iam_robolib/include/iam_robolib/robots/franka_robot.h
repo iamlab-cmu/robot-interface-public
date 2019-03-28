@@ -39,6 +39,14 @@ class FrankaRobot : public Robot
   void automaticErrorRecovery() {
     robot_.automaticErrorRecovery();
   }
+
+  void setJointImpedance(const std::array<double, 7>& K_theta) {
+    robot_.setJointImpedance(K_theta);
+  }
+
+  void setCartesianImpedance(const std::array<double, 6>& K_x) {
+    robot_.setCartesianImpedance(K_x);
+  }
 };
 
 #endif  // IAM_ROBOLIB_ROBOTS_FRANKA_ROBOT_H_

@@ -14,8 +14,8 @@ void PassThroughFeedbackController::initialize_controller() {
   // pass
 }
 
-void PassThroughFeedbackController::initialize_controller(franka::Model *model) {
-  model_ = model;
+void PassThroughFeedbackController::initialize_controller(FrankaRobot *robot) {
+  model_ = robot->getModel();
 }
 
 void PassThroughFeedbackController::get_next_step() {

@@ -52,7 +52,8 @@ enum class FeedbackControllerType : uint8_t {
     ForceAxisImpedenceFeedbackController = 1,
     JointImpedanceFeedbackController = 2,
     NoopFeedbackController = 3,
-    PassThroughFeedbackController = 4
+    PassThroughFeedbackController = 4,
+    SetInternalImpedanceFeedbackController = 5
 };
 
 // Enum for Termination Handler Types

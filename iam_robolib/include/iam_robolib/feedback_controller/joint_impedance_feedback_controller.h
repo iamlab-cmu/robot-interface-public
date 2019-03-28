@@ -13,7 +13,7 @@ class JointImpedanceFeedbackController : public FeedbackController {
 
   void initialize_controller() override;
 
-  void initialize_controller(franka::Model *model) override;
+  void initialize_controller(FrankaRobot *robot) override;
 
   void get_next_step() override;
 

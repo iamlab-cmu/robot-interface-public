@@ -13,6 +13,7 @@
 #include "iam_robolib/feedback_controller/joint_impedance_feedback_controller.h"
 #include "iam_robolib/feedback_controller/noop_feedback_controller.h"
 #include "iam_robolib/feedback_controller/pass_through_feedback_controller.h"
+#include "iam_robolib/feedback_controller/set_internal_impedance_feedback_controller.h"
 
 FeedbackController* FeedbackControllerFactory::getFeedbackControllerForSkill(SharedBufferTypePtr buffer){
   FeedbackControllerType feedback_controller_type = static_cast<FeedbackControllerType>(buffer[0]);
@@ -37,6 +38,9 @@ FeedbackController* FeedbackControllerFactory::getFeedbackControllerForSkill(Sha
       break;
     case FeedbackControllerType::PassThroughFeedbackController:
       feedback_controller = new PassThroughFeedbackController(buffer);
+      break;
+    case FeedbackControllerType::SetInternalImpedanceFeedbackController:
+      feedback_controller = new SetInternalImpedanceFeedbackController(buffer);
       break;
     default:
       std::cout << "Cannot create Feedback Controller with type: " << 

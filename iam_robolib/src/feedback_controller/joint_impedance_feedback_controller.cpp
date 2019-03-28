@@ -30,8 +30,8 @@ void JointImpedanceFeedbackController::parse_parameters() {
 
 void JointImpedanceFeedbackController::initialize_controller() {}
 
-void JointImpedanceFeedbackController::initialize_controller(franka::Model *model) {
-  model_ = model;
+void JointImpedanceFeedbackController::initialize_controller(FrankaRobot *robot) {
+  model_ = robot->getModel();
 }
 
 void JointImpedanceFeedbackController::get_next_step() {}

@@ -62,8 +62,8 @@ void CartesianImpedanceFeedbackController::initialize_controller() {
   damping_(5,5) = 2.0 * sqrt(rotational_stiffnesses_[2]);
 }
 
-void CartesianImpedanceFeedbackController::initialize_controller(franka::Model *model) {
-  model_ = model;
+void CartesianImpedanceFeedbackController::initialize_controller(FrankaRobot *robot) {
+  model_ = robot->getModel();
 
   stiffness_ = Eigen::MatrixXd(6,6);
   stiffness_.setZero();

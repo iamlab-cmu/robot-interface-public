@@ -14,7 +14,7 @@ void NoopFeedbackController::initialize_controller() {
   // pass
 }
 
-void NoopFeedbackController::initialize_controller(franka::Model *model) {
+void NoopFeedbackController::initialize_controller(FrankaRobot *robot) {
   // pass
 }
 

@@ -11,14 +11,12 @@ class NoopFeedbackController : public FeedbackController {
 
   void initialize_controller() override;
 
-  void initialize_controller(franka::Model *model) override;
+  void initialize_controller(FrankaRobot *robot) override;
 
   void get_next_step() override;
 
   void get_next_step(const franka::RobotState &robot_state, 
                      TrajectoryGenerator *traj_generator) override;
-
-  double delta_=0.0;
 };
 
 #endif  // IAM_ROBOLIB_FEEDBACK_CONTROLLER_NOOP_FEEDBACK_CONTROLLER_H_
