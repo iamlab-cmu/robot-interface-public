@@ -138,10 +138,10 @@ class FrankaArm:
         tool_base_pose = tool_pose * self._tool_delta_pose.inverse()
 
         if stop_on_contact_forces is None:
-            skill = ArmMoveToGoalWithDefaultSensorSkill(
+            skill = ArmMoveToGoalSkill(
                     skill_desc=skill_desc)
         else:
-            skill = ArmMoveToGoalContactWithDefaultSensorSkill(
+            skill = ArmMoveToGoalContactSkill(
                     skill_desc=skill_desc)
             force_thresholds = np.array(stop_on_contact_forces).tolist()
             skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
@@ -183,10 +183,10 @@ class FrankaArm:
                 * delta_tool_pose * self._tool_delta_pose.inverse()
 
         if stop_on_contact_forces is None:
-            skill = ArmRelativeMotionWithDefaultSensorSkill(
+            skill = ArmRelativeMotionSkill(
                     skill_desc=skill_desc)
         else:
-            skill = ArmRelativeMotionToContactWithDefaultSensorSkill(
+            skill = ArmRelativeMotionToContactSkill(
                     skill_desc=skill_desc)
             force_thresholds = np.array(stop_on_contact_forces).tolist()
             skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
@@ -207,13 +207,17 @@ class FrankaArm:
                         cb=lambda x: skill.feedback_callback(x),
                         ignore_errors=ignore_errors)
 
-    def goto_joints(self, joints, duration=5, ignore_errors=True, skill_desc=''):
+    def goto_joints(self, joints, duration=5, ignore_errors=True, skill_desc='', 
+                    joint_impedances=None):
         '''Commands Arm to the given joint configuration
 
         Args:
             joints (list): A list of 7 numbers that correspond to joint angles
-                in radians
-            duration (float) : How much time this robot motion should take
+                           in radians
+            duration (float): How much time this robot motion should take
+            joint_impedances (list): A list of 7 numbers that represent the desired
+                                     joint impedances for the internal robot joint 
+                                     controller
 
         Raises:
             ValueError: If is_joints_reachable(joints) returns False
@@ -221,7 +225,13 @@ class FrankaArm:
         if not self.is_joints_reachable(joints):
             raise ValueError('Joints not reachable!')
 
-        skill = JointPoseMinJerkWithDefaultSensorSkill(skill_desc=skill_desc)
+        if joint_impedances is not None and \
+           isinstance(joint_impedances,(list,)) and \
+           len(joint_impedances) == 7:
+            skill = JointPoseMinJerkWithJointImpedancesSkill(skill_desc=skill_desc)
+            skill.add_feedback_controller_params(joint_impedances)
+        else:
+            skill = JointPoseMinJerkSkill(skill_desc=skill_desc)
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
 
@@ -252,7 +262,7 @@ class FrankaArm:
             duration (float): A float in the unit of seconds
         '''
 
-        skill = JointPoseDMPWithDefaultSensorSkill(skill_desc=skill_desc)
+        skill = JointPoseDMPSkill(skill_desc=skill_desc)
         skill.add_initial_sensor_values(dmp_info['phi_j'])  # sensor values
         y0 = [-0.282, -0.189, 0.0668, -2.186, 0.0524, 1.916, -1.06273]
         # Run time, tau, alpha, beta, num_basis, num_sensor_value, mu, h, weight
@@ -387,7 +397,7 @@ class FrankaArm:
             ValueError: If width is less than 0 or greater than TODO(jacky)
                 the maximum gripper opening
         '''
-        skill = GripperWithDefaultSensorSkill()
+        skill = GripperSkill()
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
 
         if force is not None:
@@ -421,7 +431,7 @@ class FrankaArm:
                 the torque controller.
                 Default is 50. A value of 0 will allow free rotational movement.
         '''
-        skill = StayInPositionWithDefaultSensorSkill(skill_desc=skill_desc)
+        skill = StayInPositionSkill(skill_desc=skill_desc)
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_feedback_controller_params(
@@ -449,7 +459,7 @@ class FrankaArm:
             d_gains (list): list of 7 d gains, one for each joint
                             Default is 50.0, 50.0, 50.0, 50.0, 30.0, 25.0, 15.0.
         '''
-        skill = StayInPositionWithSelectiveComplianceWithDefaultSensorSkill()
+        skill = StayInPositionWithSelectiveComplianceSkill()
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_feedback_controller_params(k_gains + d_gains)
@@ -476,7 +486,7 @@ class FrankaArm:
             rotational_stiffnesses (list): list of 3 rotational stiffnesses,
                 one for axis (roll, pitch, yaw) Default is 50.0, 50.0, 50.0
         '''
-        skill = StayInPositionWithDefaultSensorSkill()
+        skill = StayInPositionSkill()
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_feedback_controller_params(
