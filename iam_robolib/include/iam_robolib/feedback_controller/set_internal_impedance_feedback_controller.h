@@ -21,6 +21,10 @@ class SetInternalImpedanceFeedbackController : public FeedbackController {
  private:
   bool set_joint_impedance_ = false;
   bool set_cartesian_impedance_ = false;
+
+  // Max Joint and Cartesian Impedance Values. 
+  // TODO: Check to see what they actually are.
+  // Kevin simply guessed 10000.0
   double max_joint_impedance_ = 10000.0;
   double max_cartesian_impedance_ = 10000.0;
 
