@@ -24,6 +24,7 @@ void SetInternalImpedanceFeedbackController::parse_parameters() {
       for(size_t i = 0; i < K_x_.size(); i++) {
         K_x_[i] = static_cast<double>(params_[param_idx++]);
       }
+      set_joint_impedance_ = false;
       set_cartesian_impedance_ = true;
       break;
     case 7:
@@ -32,6 +33,7 @@ void SetInternalImpedanceFeedbackController::parse_parameters() {
         K_theta_[i] = static_cast<double>(params_[param_idx++]);
       }
       set_joint_impedance_ = true;
+      set_cartesian_impedance_ = false;
       break;
     case 13:
       // Joint (7) and Cartesian (6) Impedances
@@ -55,10 +57,26 @@ void SetInternalImpedanceFeedbackController::initialize_controller() {
 
 void SetInternalImpedanceFeedbackController::initialize_controller(FrankaRobot *robot) {
   if(set_joint_impedance_) {
-    robot->setJointImpedance(K_theta_);
+    bool joint_impedance_values_valid = true;
+    for(size_t i = 0; i < K_theta_.size(); i++) {
+      if(K_theta_[i] < 0.0 or K_theta_[i] > max_joint_impedance_) {
+        joint_impedance_values_valid = false;
+      }
+    }
+    if(joint_impedance_values_valid) {
+      robot->setJointImpedance(K_theta_);
+    }
   }
   if(set_cartesian_impedance_) {
-    robot->setCartesianImpedance(K_x_);
+    bool cartesian_impedance_values_valid = true;
+    for(size_t i = 0; i < K_x_.size(); i++) {
+      if(K_x_[i] < 0.0 or K_x_[i] > max_cartesian_impedance_) {
+        cartesian_impedance_values_valid = false;
+      }
+    }
+    if(cartesian_impedance_values_valid) {
+      robot->setCartesianImpedance(K_x_);
+    }
   }
 }
 

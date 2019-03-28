@@ -18,8 +18,12 @@ class SetInternalImpedanceFeedbackController : public FeedbackController {
   void get_next_step(const franka::RobotState &robot_state, 
                      TrajectoryGenerator *traj_generator) override;
 
+ private:
   bool set_joint_impedance_ = false;
   bool set_cartesian_impedance_ = false;
+  double max_joint_impedance_ = 10000.0;
+  double max_cartesian_impedance_ = 10000.0;
+
   std::array<double, 7> K_theta_ = {{3000, 3000, 3000, 2500, 2500, 2000, 2000}};
   std::array<double, 6> K_x_ = {{3000, 3000, 3000, 300, 300, 300}};
 };
