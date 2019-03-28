@@ -82,11 +82,12 @@ void SinePoseTrajectoryGenerator::initialize_trajectory(const franka::RobotState
 void SinePoseTrajectoryGenerator::get_next_step() {
 
   if(!saved_full_trajectory_) {
-    FILE * pFile = fopen ("bad_sine_trajectory_3.txt","w");
+    FILE * pFile = fopen ("good_sine_trajectory_4.txt","w");
      
     double time = 0.0;
     for(time=0.0; time < run_time_; time += 0.001) {
-      sine_t_ = ((std::sin((time * M_PI) - (M_PI / 2)) + 1) / 2);
+      t_ = std::min(std::max(time / run_time_, 0.0), 1.0);
+      sine_t_ = ((std::sin((t_ * M_PI) - (M_PI / 2)) + 1) / 2);
       desired_position_ = initial_position_ + (goal_position_ - initial_position_) * sine_t_;
       desired_orientation_ = initial_orientation_.slerp(sine_t_, goal_orientation_);
 
