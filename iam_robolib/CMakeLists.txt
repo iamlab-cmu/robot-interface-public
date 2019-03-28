@@ -37,6 +37,7 @@ add_library(iam_robolib SHARED
   src/feedback_controller/joint_impedance_feedback_controller.cpp
   src/feedback_controller/noop_feedback_controller.cpp
   src/feedback_controller/pass_through_feedback_controller.cpp
+  src/feedback_controller/set_internal_impedance_feedback_controller.cpp
   src/skills/base_meta_skill.cpp
   src/skills/base_skill.cpp
   src/skills/force_torque_skill.cpp

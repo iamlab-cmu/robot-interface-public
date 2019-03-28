@@ -105,7 +105,7 @@ class BaseSkill(object):
     def feedback_callback(self, feedback):
         pass
 
-class GripperWithDefaultSensorSkill(BaseSkill):
+class GripperSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.GripperSkill,
                 skill_desc='',
@@ -116,8 +116,8 @@ class GripperWithDefaultSensorSkill(BaseSkill):
                 termination_type=TerminationHandlerType.NoopTerminationHandler,
                 timer_type=1):
         if len(skill_desc) == 0:
-            skill_desc = GripperWithDefaultSensorSkill.__name__
-        super(GripperWithDefaultSensorSkill, self).__init__(
+            skill_desc = GripperSkill.__name__
+        super(GripperSkill, self).__init__(
               skill_type,
               skill_desc,
               meta_skill_type,
@@ -128,7 +128,7 @@ class GripperWithDefaultSensorSkill(BaseSkill):
               termination_type,
               timer_type)
 
-class JointPoseDMPWithDefaultSensorSkill(BaseSkill):
+class JointPoseDMPSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.JointPositionSkill,
                 skill_desc='',
@@ -139,8 +139,8 @@ class JointPoseDMPWithDefaultSensorSkill(BaseSkill):
                 termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):
         if len(skill_desc) == 0:
-            skill_desc = JointPoseWithDefaultSensorSkill.__name__
-        super(JointPoseDMPWithDefaultSensorSkill, self).__init__(
+            skill_desc = JointPoseSkill.__name__
+        super(JointPoseDMPSkill, self).__init__(
               skill_type,
               skill_desc,
               meta_skill_type,
@@ -151,7 +151,7 @@ class JointPoseDMPWithDefaultSensorSkill(BaseSkill):
               termination_type,
               timer_type)
 
-class JointPoseDMPWithTorqueControlWithDefaultSensorSkill(BaseSkill):
+class JointPoseDMPWithTorqueControlSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.JointPositionSkill,
                 skill_desc='',
@@ -163,8 +163,8 @@ class JointPoseDMPWithTorqueControlWithDefaultSensorSkill(BaseSkill):
                 timer_type=1):
         if len(skill_desc) == 0:
             skill_desc = \
-                    JointPoseDMPWithTorqueControlWithDefaultSensorSkill.__name__
-        super(JointPoseDMPWithTorqueControlWithDefaultSensorSkill, self).__init__(
+                    JointPoseDMPWithTorqueControlSkill.__name__
+        super(JointPoseDMPWithTorqueControlSkill, self).__init__(
               skill_type,
               skill_desc,
               meta_skill_type,
@@ -175,7 +175,7 @@ class JointPoseDMPWithTorqueControlWithDefaultSensorSkill(BaseSkill):
               termination_type,
               timer_type)
 
-class JointPoseWithDefaultSensorSkill(BaseSkill):
+class JointPoseSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.JointPositionSkill,
                 skill_desc='',
@@ -186,8 +186,8 @@ class JointPoseWithDefaultSensorSkill(BaseSkill):
                 termination_type=TerminationHandlerType.FinalJointTerminationHandler,
                 timer_type=1):
         if len(skill_desc) == 0:
-            skill_desc = JointPoseWithDefaultSensorSkill.__name__
-        super(JointPoseWithDefaultSensorSkill, self).__init__(
+            skill_desc = JointPoseSkill.__name__
+        super(JointPoseSkill, self).__init__(
               skill_type,
               skill_desc,
               meta_skill_type,
@@ -198,7 +198,7 @@ class JointPoseWithDefaultSensorSkill(BaseSkill):
               termination_type,
               timer_type)
 
-class JointPoseMinJerkWithDefaultSensorSkill(BaseSkill):
+class JointPoseMinJerkSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.JointPositionSkill,
                 skill_desc='',
@@ -209,8 +209,8 @@ class JointPoseMinJerkWithDefaultSensorSkill(BaseSkill):
                 termination_type=TerminationHandlerType.FinalJointTerminationHandler,
                 timer_type=1):
         if len(skill_desc) == 0:
-            skill_desc = JointPoseMinJerkWithDefaultSensorSkill.__name__
-        super(JointPoseMinJerkWithDefaultSensorSkill, self).__init__(
+            skill_desc = JointPoseMinJerkSkill.__name__
+        super(JointPoseMinJerkSkill, self).__init__(
               skill_type,
               skill_desc,
               meta_skill_type,
@@ -221,7 +221,30 @@ class JointPoseMinJerkWithDefaultSensorSkill(BaseSkill):
               termination_type,
               timer_type)
 
-class ArmMoveToGoalWithDefaultSensorSkill(BaseSkill):
+class JointPoseMinJerkWithJointImpedancesSkill(BaseSkill):
+    def __init__(self, 
+                skill_type=SkillType.JointPositionSkill,
+                skill_desc='',
+                meta_skill_type=MetaSkillType.BaseMetaSkill,
+                meta_skill_id=0,
+                trajectory_generator_type=TrajectoryGeneratorType.MinJerkJointTrajectoryGenerator,
+                feedback_controller_type=FeedbackControllerType.SetInternalImpedanceFeedbackController,
+                termination_type=TerminationHandlerType.FinalJointTerminationHandler,
+                timer_type=1):
+        if len(skill_desc) == 0:
+            skill_desc = JointPoseMinJerkWithJointImpedancesSkill.__name__
+        super(JointPoseMinJerkWithJointImpedancesSkill, self).__init__(
+              skill_type,
+              skill_desc,
+              meta_skill_type,
+              meta_skill_id,
+              ['/franka_robot/camera'],
+              trajectory_generator_type,
+              feedback_controller_type,
+              termination_type,
+              timer_type)
+
+class ArmMoveToGoalSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.ImpedanceControlSkill,
                 skill_desc='',
@@ -232,8 +255,8 @@ class ArmMoveToGoalWithDefaultSensorSkill(BaseSkill):
                 termination_type=TerminationHandlerType.FinalPoseTerminationHandler,
                 timer_type=1):
         if len(skill_desc) == 0:
-            skill_desc = ArmMoveToGoalWithDefaultSensorSkill.__name__
-        super(ArmMoveToGoalWithDefaultSensorSkill, self).__init__(
+            skill_desc = ArmMoveToGoalSkill.__name__
+        super(ArmMoveToGoalSkill, self).__init__(
               skill_type,
               skill_desc,
               meta_skill_type,
@@ -247,7 +270,7 @@ class ArmMoveToGoalWithDefaultSensorSkill(BaseSkill):
     def add_buffer_time_for_termination(self, buffer_time):
         self.add_termination_params([buffer_time])
 
-class ArmRelativeMotionWithDefaultSensorSkill(BaseSkill):
+class ArmRelativeMotionSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.ImpedanceControlSkill,
                 skill_desc='',
@@ -258,8 +281,8 @@ class ArmRelativeMotionWithDefaultSensorSkill(BaseSkill):
                 termination_type=TerminationHandlerType.FinalPoseTerminationHandler,
                 timer_type=1):
         if len(skill_desc) == 0:
-            skill_desc = ArmRelativeMotionWithDefaultSensorSkill.__name__
-        super(ArmRelativeMotionWithDefaultSensorSkill, self).__init__(
+            skill_desc = ArmRelativeMotionSkill.__name__
+        super(ArmRelativeMotionSkill, self).__init__(
               skill_type,
               skill_desc,
               meta_skill_type,
@@ -275,7 +298,7 @@ class ArmRelativeMotionWithDefaultSensorSkill(BaseSkill):
         assert len(quaternion) == 4, "Incorrect quaternion representation."
         self.add_trajectory_params([time] + position + quaternion)
 
-class ArmRelativeMotionToContactWithDefaultSensorSkill(BaseSkill):
+class ArmRelativeMotionToContactSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.ImpedanceControlSkill,
                 skill_desc='',
@@ -287,8 +310,8 @@ class ArmRelativeMotionToContactWithDefaultSensorSkill(BaseSkill):
                 timer_type=1):
         if len(skill_desc) == 0:
             skill_desc = \
-                    ArmRelativeMotionToContactWithDefaultSensorSkill.__name__
-        super(ArmRelativeMotionToContactWithDefaultSensorSkill, self).__init__(
+                    ArmRelativeMotionToContactSkill.__name__
+        super(ArmRelativeMotionToContactSkill, self).__init__(
               skill_type,
               skill_desc,
               meta_skill_type,
@@ -378,9 +401,9 @@ class ArmRelativeMotionToContactWithDefaultSensorSkill(BaseSkill):
             lower_force_thresholds_accel,
             lower_force_thresholds_nominal):
         torque_thresholds = \
-                ArmRelativeMotionToContactWithDefaultSensorSkill.get_default_torque_thresholds()
+                ArmRelativeMotionToContactSkill.get_default_torque_thresholds()
         force_thresholds = \
-                ArmRelativeMotionToContactWithDefaultSensorSkill.get_default_force_thresholds()
+                ArmRelativeMotionToContactSkill.get_default_force_thresholds()
         params = [buffer_time] \
                 + torque_thresholds['lower_torque_thresholds_accel'] \
                 + torque_thresholds['upper_torque_thresholds_accel'] \
@@ -393,7 +416,7 @@ class ArmRelativeMotionToContactWithDefaultSensorSkill(BaseSkill):
 
         self.add_termination_params(params)
 
-class ArmMoveToGoalContactWithDefaultSensorSkill(BaseSkill):
+class ArmMoveToGoalContactSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.ImpedanceControlSkill,
                 skill_desc='',
@@ -405,8 +428,8 @@ class ArmMoveToGoalContactWithDefaultSensorSkill(BaseSkill):
                 timer_type=1):
         if len(skill_desc) == 0:
             skill_desc = \
-                    ArmMoveToGoalContactWithDefaultSensorSkill.__name__
-        super(ArmMoveToGoalContactWithDefaultSensorSkill, self).__init__(
+                    ArmMoveToGoalContactSkill.__name__
+        super(ArmMoveToGoalContactSkill, self).__init__(
               skill_type,
               skill_desc,
               meta_skill_type,
@@ -425,9 +448,9 @@ class ArmMoveToGoalContactWithDefaultSensorSkill(BaseSkill):
             lower_force_thresholds_accel,
             lower_force_thresholds_nominal):
         torque_thresholds = \
-                ArmRelativeMotionToContactWithDefaultSensorSkill.get_default_torque_thresholds()
+                ArmRelativeMotionToContactSkill.get_default_torque_thresholds()
         force_thresholds = \
-                ArmRelativeMotionToContactWithDefaultSensorSkill.get_default_force_thresholds()
+                ArmRelativeMotionToContactSkill.get_default_force_thresholds()
         params = [buffer_time] \
                 + torque_thresholds['lower_torque_thresholds_accel'] \
                 + torque_thresholds['upper_torque_thresholds_accel'] \
@@ -440,7 +463,7 @@ class ArmMoveToGoalContactWithDefaultSensorSkill(BaseSkill):
 
         self.add_termination_params(params)
 
-class StayInPositionWithDefaultSensorSkill(BaseSkill):
+class StayInPositionSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.ImpedanceControlSkill,
                 skill_desc='',
@@ -451,8 +474,8 @@ class StayInPositionWithDefaultSensorSkill(BaseSkill):
                 termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):
         if len(skill_desc) == 0:
-            skill_desc = StayInPositionWithDefaultSensorSkill.__name__
-        super(StayInPositionWithDefaultSensorSkill, self).__init__(
+            skill_desc = StayInPositionSkill.__name__
+        super(StayInPositionSkill, self).__init__(
               skill_type,
               skill_desc,
               meta_skill_type,
@@ -463,7 +486,7 @@ class StayInPositionWithDefaultSensorSkill(BaseSkill):
               termination_type,
               timer_type)
 
-class StayInPositionWithSelectiveComplianceWithDefaultSensorSkill(BaseSkill):
+class StayInPositionWithSelectiveComplianceSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.ImpedanceControlSkill,
                 skill_desc='',
@@ -474,8 +497,8 @@ class StayInPositionWithSelectiveComplianceWithDefaultSensorSkill(BaseSkill):
                 termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):
         if len(skill_desc) == 0:
-            skill_desc = StayInPositionWithSelectiveComplianceWithDefaultSensorSkill.__name__
-        super(StayInPositionWithSelectiveComplianceWithDefaultSensorSkill, self).__init__(
+            skill_desc = StayInPositionWithSelectiveComplianceSkill.__name__
+        super(StayInPositionWithSelectiveComplianceSkill, self).__init__(
               skill_type,
               skill_desc,
               meta_skill_type,

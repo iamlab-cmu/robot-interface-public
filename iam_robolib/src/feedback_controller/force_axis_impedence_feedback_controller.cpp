@@ -27,8 +27,6 @@ void ForceAxisImpedenceFeedbackController::parse_parameters() {
 }
 
 void ForceAxisImpedenceFeedbackController::initialize_controller() {
-  std::cout << "No model provided." << std::endl;
-
   stiffness_ = Eigen::MatrixXd(6,6);
   stiffness_.setZero();
   stiffness_.topLeftCorner(3, 3) << translational_stiffness_ * Eigen::MatrixXd::Identity(3, 3);
@@ -41,8 +39,8 @@ void ForceAxisImpedenceFeedbackController::initialize_controller() {
                                          Eigen::MatrixXd::Identity(3, 3);
 }
 
-void ForceAxisImpedenceFeedbackController::initialize_controller(franka::Model *model) {
-  model_ = model;
+void ForceAxisImpedenceFeedbackController::initialize_controller(FrankaRobot *robot) {
+  model_ = robot->getModel();
   initialize_controller();
 }
 
