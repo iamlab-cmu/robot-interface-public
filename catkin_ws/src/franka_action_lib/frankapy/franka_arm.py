@@ -142,9 +142,9 @@ class FrankaArm:
                                stop_on_contact_forces,
                                ignore_errors,
                                skill_desc,
-                               skill_type=SkillType.CartesianPoseSkill)
+                               skill_type=SkillType.ImpedanceControlSkill)
 
-    def goto_pose_with_caretsian_control(self,
+    def goto_pose_with_cartesian_control(self,
                                          tool_pose,
                                          duration=3.,
                                          stop_on_contact_forces=None,
