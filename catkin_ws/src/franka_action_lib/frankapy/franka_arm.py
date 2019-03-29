@@ -185,9 +185,13 @@ class FrankaArm:
                         cb=lambda x: skill.feedback_callback(x),
                         ignore_errors=ignore_errors)
 
-    def goto_pose_delta(self, delta_tool_pose, duration=3,
-                        stop_on_contact_forces=None, ignore_errors=True,
-                        skill_desc='', skill_type=SkillType.ImpedanceControlSkill):
+    def goto_pose_delta(self,
+                        delta_tool_pose,
+                        duration=3,
+                        stop_on_contact_forces=None,
+                        ignore_errors=True,
+                        skill_desc='',
+                        skill_type=SkillType.ImpedanceControlSkill):
         '''Commands Arm to the given delta pose via linear interpolation
 
         Args:
@@ -244,7 +248,11 @@ class FrankaArm:
                         cb=lambda x: skill.feedback_callback(x),
                         ignore_errors=ignore_errors)
 
-    def goto_joints(self, joints, duration=5, ignore_errors=True, skill_desc='', 
+    def goto_joints(self, 
+                    joints,
+                    duration=5,
+                    ignore_errors=True,
+                    skill_desc='', 
                     joint_impedances=None):
         '''Commands Arm to the given joint configuration
 
@@ -269,8 +277,7 @@ class FrankaArm:
             skill.add_feedback_controller_params(joint_impedances)
         else:
             skill = JointPoseMinJerkSkill(skill_desc=skill_desc)
-=======
-        skill = JointPoseSineSkill(skill_desc=skill_desc)
+
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
 

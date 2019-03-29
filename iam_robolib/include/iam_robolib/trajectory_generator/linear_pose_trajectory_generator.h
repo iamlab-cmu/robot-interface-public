@@ -20,9 +20,6 @@ class LinearPoseTrajectoryGenerator : public PoseTrajectoryGenerator {
   void initialize_trajectory(const franka::RobotState &robot_state) override;
 
   void get_next_step() override;
-
-  bool saved_full_trajectory_ = true;
-  
 };
 
 #endif  // IAM_ROBOLIB_TRAJECTORY_GENERATOR_LINEAR_POSE_TRAJECTORY_GENERATOR_H_

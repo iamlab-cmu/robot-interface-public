@@ -15,7 +15,6 @@ class PoseTrajectoryGenerator : public TrajectoryGenerator {
 
   Eigen::Vector3d goal_position_;
   Eigen::Quaterniond goal_orientation_;
-  
 };
 
 #endif  // IAM_ROBOLIB_TRAJECTORY_GENERATOR_POSE_TRAJECTORY_GENERATOR_H_

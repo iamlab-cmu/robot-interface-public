@@ -80,34 +80,6 @@ void SinePoseTrajectoryGenerator::initialize_trajectory(const franka::RobotState
 }
 
 void SinePoseTrajectoryGenerator::get_next_step() {
-
-  if(!saved_full_trajectory_) {
-    FILE * pFile = fopen ("good_sine_trajectory_4.txt","w");
-     
-    double time = 0.0;
-    for(time=0.0; time < run_time_; time += 0.001) {
-      t_ = std::min(std::max(time / run_time_, 0.0), 1.0);
-      sine_t_ = ((std::sin((t_ * M_PI) - (M_PI / 2)) + 1) / 2);
-      desired_position_ = initial_position_ + (goal_position_ - initial_position_) * sine_t_;
-      desired_orientation_ = initial_orientation_.slerp(sine_t_, goal_orientation_);
-
-      TrajectoryGenerator::calculate_desired_pose();
-
-      fprintf(pFile, "=========================================\n");
-      fprintf(pFile, "time=%f\n", time);
-      for(int i = 0; i < 4; i++) {
-        for(int j = 0; j < 4; j++) {
-          // file_stream << pose_desired_[4*j + i] << ", ";
-          fprintf(pFile, "%10.6f, ", pose_desired_[4*j + i]);
-        }
-        fprintf(pFile, "\n");
-      }
-    }
-    fclose (pFile);
-
-    saved_full_trajectory_ = true;
-  }
-
   t_ = std::min(std::max(time_ / run_time_, 0.0), 1.0);
   sine_t_ = ((std::sin((t_ * M_PI) - (M_PI / 2)) + 1) / 2);
   desired_position_ = initial_position_ + (goal_position_ - initial_position_) * sine_t_;

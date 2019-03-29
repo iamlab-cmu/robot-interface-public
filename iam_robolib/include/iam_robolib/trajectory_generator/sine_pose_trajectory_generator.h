@@ -22,7 +22,6 @@ class SinePoseTrajectoryGenerator : public PoseTrajectoryGenerator {
   void get_next_step() override;
   
   double sine_t_ = 0.0;
-  bool saved_full_trajectory_ = false;
 };
 
 #endif  // IAM_ROBOLIB_TRAJECTORY_GENERATOR_SINE_POSE_TRAJECTORY_GENERATOR_H_
