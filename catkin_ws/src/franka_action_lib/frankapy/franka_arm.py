@@ -286,7 +286,7 @@ class FrankaArm:
         '''
         return self._goto_pose_delta(
                 delta_tool_pose,
-                duration=3,
+                duration,
                 stop_on_contact_forces,
                 None,
                 ignore_errors,

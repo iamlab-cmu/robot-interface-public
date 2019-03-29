@@ -307,8 +307,8 @@ class ArmMoveToGoalPositionControlSkill(BaseSkill):
 class ArmRelativeMotionSkill(BaseSkill):
     def __init__(self, skill_desc=''):
         if len(skill_desc) == 0:
-            skill_desc = ArmMoveToGoalPositionControlSkill.__name__
-        super(ArmMoveToGoalPositionControlSkill, self).__init__(
+            skill_desc = ArmRelativeMotionSkill.__name__
+        super(ArmRelativeMotionSkill, self).__init__(
               SkillType.ImpedanceControlSkill,
               skill_desc,
               MetaSkillType.BaseMetaSkill,
