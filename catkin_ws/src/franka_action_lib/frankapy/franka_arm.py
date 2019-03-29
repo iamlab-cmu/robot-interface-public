@@ -120,9 +120,90 @@ class FrankaArm:
     Controls
     '''
 
-    def goto_pose(self, tool_pose, duration=3, stop_on_contact_forces=None,
-                  ignore_errors=True, skill_desc='', 
-                  skill_type=SkillType.ImpedanceControlSkill):
+    def goto_pose(self,
+                  tool_pose,
+                  duration=3,
+                  stop_on_contact_forces=None,
+                  ignore_errors=True,
+                  skill_desc=''):
+        '''Commands Arm to the given pose via linear interpolation
+
+        Args:
+            tool_pose (RigidTransform) : End-effector pose in tool frame
+            duration (float) : How much time this robot motion should take
+            stop_on_contact_forces (list): List of 6 floats corresponding to
+                force limits on translation (xyz) and rotation about (xyz) axes.
+                Default is None. If None then will not stop on contact.
+            skill_desc (string) : Skill description to use for logging on
+                control-pc.
+        '''
+        return self._goto_pose(tool_pose,
+                               duration,
+                               stop_on_contact_forces,
+                               ignore_errors,
+                               skill_desc,
+                               skill_type=SkillType.CartesianPoseSkill)
+
+    def goto_pose_with_caretsian_control(self,
+                                         tool_pose,
+                                         duration=3.,
+                                         stop_on_contact_forces=None,
+                                         ignore_errors=True,
+                                         skill_desc=''):
+        '''Commands Arm to the given pose via min-jerk interpolation.
+
+        Use Franka's internal Cartesian Controller to execute this skill.
+
+        Args:
+            tool_pose (RigidTransform) : End-effector pose in tool frame
+            duration (float) : How much time this robot motion should take
+            stop_on_contact_forces (list): List of 6 floats corresponding to
+                force limits on translation (xyz) and rotation about (xyz) axes.
+                Default is None. If None then will not stop on contact.
+            skill_desc (string) : Skill description to use for logging on
+                control-pc.
+        '''
+        return self._goto_pose(tool_pose,
+                               duration,
+                               stop_on_contact_forces,
+                               ignore_errors,
+                               skill_desc,
+                               skill_type=SkillType.CartesianPoseSkill)
+
+    def goto_pose_with_impedance_control(self,
+                                         tool_pose,
+                                         duration=3.,
+                                         stop_on_contact_forces=None,
+                                         ignore_errors=True,
+                                         skill_desc=''):
+        '''Commands Arm to the given pose via min-jerk interpolation.
+
+        Use our own impedance controller (use jacobian to convert cartesian
+            poses to joints.)
+
+        Args:
+            tool_pose (RigidTransform) : End-effector pose in tool frame
+            duration (float) : How much time this robot motion should take
+            stop_on_contact_forces (list): List of 6 floats corresponding to
+                force limits on translation (xyz) and rotation about (xyz) axes.
+                Default is None. If None then will not stop on contact.
+            skill_desc (string) : Skill description to use for logging on
+                control-pc.
+        '''
+        return self._goto_pose(tool_pose,
+                               duration,
+                               stop_on_contact_forces,
+                               ignore_errors,
+                               skill_desc,
+                               skill_type=ImpedanceControlSkill)
+
+    def _goto_pose(self,
+                   tool_pose,
+                   duration=3,
+                   stop_on_contact_forces=None,
+                   ignore_errors=True,
+                   skill_desc='',
+                   skill_type=None):
         '''Commands Arm to the given pose via linear interpolation
 
         Args:
@@ -248,11 +329,11 @@ class FrankaArm:
                         cb=lambda x: skill.feedback_callback(x),
                         ignore_errors=ignore_errors)
 
-    def goto_joints(self, 
+    def goto_joints(self,
                     joints,
                     duration=5,
                     ignore_errors=True,
-                    skill_desc='', 
+                    skill_desc='',
                     joint_impedances=None):
         '''Commands Arm to the given joint configuration
 
@@ -261,7 +342,7 @@ class FrankaArm:
                            in radians
             duration (float): How much time this robot motion should take
             joint_impedances (list): A list of 7 numbers that represent the desired
-                                     joint impedances for the internal robot joint 
+                                     joint impedances for the internal robot joint
                                      controller
 
         Raises:
@@ -382,7 +463,7 @@ class FrankaArm:
 
         self._send_goal(goal,
                         cb=lambda x: skill.feedback_callback(x),
-                        ignore_errors=ignore_errors) 
+                        ignore_errors=ignore_errors)
 
     def apply_effector_forces_along_axis(self,
                                          run_duration,
