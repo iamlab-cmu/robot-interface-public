@@ -271,6 +271,73 @@ class FrankaArm:
                         duration=3,
                         stop_on_contact_forces=None,
                         ignore_errors=True,
+                        skill_desc=''):
+        '''Commands Arm to the given delta pose via linear interpolation and
+        uses impedance control.
+
+        Args:
+            delta_tool_pose (RigidTransform) : Delta pose in tool frame
+            duration (float) : How much time this robot motion should take
+            stop_on_contact_forces (list): List of 6 floats corresponding to
+                force limits on translation (xyz) and rotation about (xyz) axes.
+                Default is None. If None then will not stop on contact.
+            skill_desc (string) : Skill description to use for logging on
+                control-pc.
+        '''
+        return self.goto_pose_delta(
+                delta_tool_pose,
+                duration=3,
+                stop_on_contact_forces,
+                ignore_errors,
+                skill_desc,
+                skill_type=SkillType.ImpedanceControlSkill)
+
+    def goto_pose_delta_with_impedance_control(self,
+                        delta_tool_pose,
+                        duration=3,
+                        stop_on_contact_forces=None,
+                        ignore_errors=True,
+                        skill_desc='',
+                        skill_type=SkillType.ImpedanceControlSkill):
+        return self.goto_pose_delta(
+                delta_tool_pose,
+                duration,
+                stop_on_contact_forces,
+                ignore_errors,
+                skill_desc,
+                skill_type=SkillType.ImpedanceControlSkill)
+
+    def goto_pose_delta_with_cartesian_control(self,
+                        delta_tool_pose,
+                        duration=3,
+                        stop_on_contact_forces=None,
+                        ignore_errors=True,
+                        skill_desc=''):
+        '''Commands Arm to the given delta pose via linear interpolation using
+        franka's internal cartesian control.
+
+        Args:
+            delta_tool_pose (RigidTransform) : Delta pose in tool frame
+            duration (float) : How much time this robot motion should take
+            stop_on_contact_forces (list): List of 6 floats corresponding to
+                force limits on translation (xyz) and rotation about (xyz) axes.
+                Default is None. If None then will not stop on contact.
+            skill_desc (string) : Skill description to use for logging on
+                control-pc.
+        '''
+        return self.goto_pose_delta(
+                delta_tool_pose,
+                duration,
+                stop_on_contact_forces,
+                ignore_errors,
+                skill_desc,
+                SkillType.CartesianPoseSkill)
+
+    def _goto_pose_delta(self,
+                        delta_tool_pose,
+                        duration=3,
+                        stop_on_contact_forces=None,
+                        ignore_errors=True,
                         skill_desc='',
                         skill_type=SkillType.ImpedanceControlSkill):
         '''Commands Arm to the given delta pose via linear interpolation
@@ -315,6 +382,9 @@ class FrankaArm:
                                                     force_thresholds,
                                                     force_thresholds
                                                 )
+        else:
+            raise ValueError("Incorrect skill type for goto_pose_delta: {}".format(
+                skill_type))
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_feedback_controller_params(FC.DEFAULT_TORQUE_CONTROLLER_PARAMS)
