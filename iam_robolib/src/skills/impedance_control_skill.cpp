@@ -31,8 +31,8 @@ void ImpedanceControlSkill::execute_skill() {
 }
 
 void ImpedanceControlSkill::execute_skill_on_franka(run_loop* run_loop, 
-                                        FrankaRobot* robot,
-                                        RobotStateData *robot_state_data) {
+                                                    FrankaRobot* robot,
+                                                    RobotStateData *robot_state_data) {
 
   double time = 0.0;
   int log_counter = 0;

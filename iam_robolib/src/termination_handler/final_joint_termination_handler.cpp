@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-#include "iam_robolib/trajectory_generator/linear_joint_trajectory_generator.h"
+#include "iam_robolib/trajectory_generator/joint_trajectory_generator.h"
 
 void FinalJointTerminationHandler::parse_parameters() {
   num_params_ = static_cast<int>(params_[1]);
@@ -32,16 +32,16 @@ bool FinalJointTerminationHandler::should_terminate(TrajectoryGenerator *traject
   check_terminate_preempt();
 
   if (!done_) {
-    LinearJointTrajectoryGenerator *linear_joint_traj_generator =
-        static_cast<LinearJointTrajectoryGenerator *>(trajectory_generator);
+    JointTrajectoryGenerator *joint_traj_generator =
+        static_cast<JointTrajectoryGenerator *>(trajectory_generator);
 
-    if(linear_joint_traj_generator->time_ > linear_joint_traj_generator->run_time_ + buffer_time_) {
+    if(joint_traj_generator->time_ > joint_traj_generator->run_time_ + buffer_time_) {
       done_ = true;
       return true;
     }
 
-    for(size_t i = 0; i < linear_joint_traj_generator->joint_goal_.size(); i++) {
-      if(fabs(linear_joint_traj_generator->joint_goal_[i] - linear_joint_traj_generator->joint_desired_[i]) > 0.0001) {
+    for(size_t i = 0; i < joint_traj_generator->joint_goal_.size(); i++) {
+      if(fabs(joint_traj_generator->joint_goal_[i] - joint_traj_generator->joint_desired_[i]) > 0.0001) {
         return false;
       }
     }

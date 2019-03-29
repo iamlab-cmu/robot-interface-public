@@ -1,12 +1,15 @@
 //
-// Created by Kevin on 11/29/18.
+// Created by Kevin on 3/25/19.
+// From https://mika-s.github.io/python/control-theory/trajectory-generation/2017/12/06/trajectory-generation-with-a-minimum-jerk-trajectory.html
 //
 
-#include "iam_robolib/trajectory_generator/relative_linear_pose_trajectory_generator.h"
+#include "iam_robolib/trajectory_generator/relative_min_jerk_pose_trajectory_generator.h"
 
 #include <cassert>
+#include <iostream>
+#include <memory.h>
 
-void RelativeLinearPoseTrajectoryGenerator::parse_parameters() {
+void RelativeMinJerkPoseTrajectoryGenerator::parse_parameters() {
   // First parameter is reserved for the type
 
   int num_params = static_cast<int>(params_[1]);
@@ -66,22 +69,29 @@ void RelativeLinearPoseTrajectoryGenerator::parse_parameters() {
   }
 }
 
-void RelativeLinearPoseTrajectoryGenerator::initialize_trajectory() {
+
+void RelativeMinJerkPoseTrajectoryGenerator::initialize_trajectory() {
   // assert(false);
 }
 
-void RelativeLinearPoseTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
+void RelativeMinJerkPoseTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
   TrajectoryGenerator::initialize_initial_states(robot_state);
   goal_position_ = initial_position_ + relative_position_;
   goal_orientation_ = initial_orientation_ * relative_orientation_;
 }
 
-void RelativeLinearPoseTrajectoryGenerator::get_next_step() {
+void RelativeMinJerkPoseTrajectoryGenerator::get_next_step() {
   t_ = std::min(std::max(time_ / run_time_, 0.0), 1.0);
+  
+  for (int i = 0; i < desired_position_.size(); i++) {
+    desired_position_[i] = initial_position_[i] + (goal_position_[i] - initial_position_[i]) * (
+            10 * std::pow(t_, 3) - 15 * std::pow(t_, 4) + 6 * std::pow(t_, 5)
+        );
+  }
 
-  desired_position_ = initial_position_ + (goal_position_ - initial_position_) * t_;
-  desired_orientation_ = initial_orientation_.slerp(t_, goal_orientation_);
+  slerp_t_ = (10 * std::pow(t_, 3) - 15 * std::pow(t_, 4) + 6 * std::pow(t_, 5));
+  desired_orientation_ = initial_orientation_.slerp(slerp_t_, goal_orientation_);
 
   TrajectoryGenerator::calculate_desired_pose();
 }
-
+  

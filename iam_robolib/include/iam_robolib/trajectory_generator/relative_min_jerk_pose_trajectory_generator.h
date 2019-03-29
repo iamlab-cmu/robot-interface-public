@@ -1,5 +1,5 @@
-#ifndef IAM_ROBOLIB_TRAJECTORY_GENERATOR_RELATIVE_LINEAR_POSE_TRAJECTORY_GENERATOR_H_
-#define IAM_ROBOLIB_TRAJECTORY_GENERATOR_RELATIVE_LINEAR_POSE_TRAJECTORY_GENERATOR_H_
+#ifndef IAM_ROBOLIB_TRAJECTORY_GENERATOR_RELATIVE_MIN_JERK_POSE_TRAJECTORY_GENERATOR_H_
+#define IAM_ROBOLIB_TRAJECTORY_GENERATOR_RELATIVE_MIN_JERK_POSE_TRAJECTORY_GENERATOR_H_
 
 #include <array>
 #include <cstring>
@@ -9,7 +9,7 @@
 
 #include "iam_robolib/trajectory_generator/relative_pose_trajectory_generator.h"
 
-class RelativeLinearPoseTrajectoryGenerator : public RelativePoseTrajectoryGenerator {
+class RelativeMinJerkPoseTrajectoryGenerator : public RelativePoseTrajectoryGenerator {
  public:
   using RelativePoseTrajectoryGenerator::RelativePoseTrajectoryGenerator;
 
@@ -21,6 +21,7 @@ class RelativeLinearPoseTrajectoryGenerator : public RelativePoseTrajectoryGener
 
   void get_next_step() override;
 
+  double slerp_t_ = 0.0;
 };
 
-#endif  // IAM_ROBOLIB_TRAJECTORY_GENERATOR_RELATIVE_LINEAR_POSE_TRAJECTORY_GENERATOR_H_
+#endif  // IAM_ROBOLIB_TRAJECTORY_GENERATOR_RELATIVE_MIN_JERK_POSE_TRAJECTORY_GENERATOR_H_

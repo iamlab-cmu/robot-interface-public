@@ -10,10 +10,11 @@ class RobotType:
     UR5E = 1
 
 class SkillType:
-    ForceTorqueSkill = 0
-    GripperSkill = 1
-    ImpedanceControlSkill = 2
-    JointPositionSkill = 3
+    CartesianPoseSkill = 0
+    ForceTorqueSkill = 1
+    GripperSkill = 2
+    ImpedanceControlSkill = 3
+    JointPositionSkill = 4
 
 class MetaSkillType:
     BaseMetaSkill = 0
@@ -26,8 +27,12 @@ class TrajectoryGeneratorType:
     LinearPoseTrajectoryGenerator = 3
     LinearJointTrajectoryGenerator = 4
     MinJerkJointTrajectoryGenerator = 5
-    RelativeLinearPoseTrajectoryGenerator = 6
-    StayInInitialPositionTrajectoryGenerator = 7
+    MinJerkPoseTrajectoryGenerator = 6
+    RelativeLinearPoseTrajectoryGenerator = 7
+    RelativeMinJerkPoseTrajectoryGenerator = 8
+    SineJointTrajectoryGenerator = 9
+    SinePoseTrajectoryGenerator = 10
+    StayInInitialPositionTrajectoryGenerator = 11
 
 class FeedbackControllerType:
     CartesianImpedanceFeedbackController = 0

@@ -1,5 +1,5 @@
-#ifndef IAM_ROBOLIB_TRAJECTORY_GENERATOR_LINEAR_POSE_TRAJECTORY_GENERATOR_H_
-#define IAM_ROBOLIB_TRAJECTORY_GENERATOR_LINEAR_POSE_TRAJECTORY_GENERATOR_H_
+#ifndef IAM_ROBOLIB_TRAJECTORY_GENERATOR_SINE_POSE_TRAJECTORY_GENERATOR_H_
+#define IAM_ROBOLIB_TRAJECTORY_GENERATOR_SINE_POSE_TRAJECTORY_GENERATOR_H_
 
 #include <array>
 #include <cstring>
@@ -9,7 +9,7 @@
 
 #include "iam_robolib/trajectory_generator/pose_trajectory_generator.h"
 
-class LinearPoseTrajectoryGenerator : public PoseTrajectoryGenerator {
+class SinePoseTrajectoryGenerator : public PoseTrajectoryGenerator {
  public:
   using PoseTrajectoryGenerator::PoseTrajectoryGenerator;
 
@@ -20,6 +20,8 @@ class LinearPoseTrajectoryGenerator : public PoseTrajectoryGenerator {
   void initialize_trajectory(const franka::RobotState &robot_state) override;
 
   void get_next_step() override;
+  
+  double sine_t_ = 0.0;
 };
 
-#endif  // IAM_ROBOLIB_TRAJECTORY_GENERATOR_LINEAR_POSE_TRAJECTORY_GENERATOR_H_
+#endif  // IAM_ROBOLIB_TRAJECTORY_GENERATOR_SINE_POSE_TRAJECTORY_GENERATOR_H_

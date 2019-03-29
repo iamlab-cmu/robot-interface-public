@@ -22,6 +22,7 @@
 #include "iam_robolib/save_robot_state_data_to_shared_memory_buffer.h"
 #include "iam_robolib/skills/base_meta_skill.h"
 #include "iam_robolib/skills/base_skill.h"
+#include "iam_robolib/skills/cartesian_pose_skill.h"
 #include "iam_robolib/skills/force_torque_skill.h"
 #include "iam_robolib/skills/gripper_skill.h"
 #include "iam_robolib/skills/impedance_control_skill.h"
@@ -223,17 +224,20 @@ void run_loop::update_process_info() {
 
           BaseSkill *new_skill;
           switch(new_skill_type) {
-            case SkillType::ImpedanceControlSkill:
-              new_skill = new ImpedanceControlSkill(new_skill_id, new_meta_skill_id, new_skill_description);
+            case SkillType::CartesianPoseSkill:
+              new_skill = new CartesianPoseSkill(new_skill_id, new_meta_skill_id, new_skill_description);
+              break;
+            case SkillType::ForceTorqueSkill:
+              new_skill = new ForceTorqueSkill(new_skill_id, new_meta_skill_id, new_skill_description);
               break;
             case SkillType::GripperSkill:
               new_skill = new GripperSkill(new_skill_id, new_meta_skill_id, new_skill_description);
               break;
+            case SkillType::ImpedanceControlSkill:
+              new_skill = new ImpedanceControlSkill(new_skill_id, new_meta_skill_id, new_skill_description);
+              break;
             case SkillType::JointPositionSkill:
               new_skill = new JointPositionSkill(new_skill_id, new_meta_skill_id, new_skill_description);
-              break;
-            case SkillType::ForceTorqueSkill:
-              new_skill = new ForceTorqueSkill(new_skill_id, new_meta_skill_id, new_skill_description);
               break;
             default:
               std::cout << "Incorrect skill type: " << 

@@ -18,6 +18,8 @@ void SetInternalImpedanceFeedbackController::parse_parameters() {
                 << std::endl;
       set_joint_impedance_ = true;
       set_cartesian_impedance_ = true;
+      K_theta_ = k_K_theta_;
+      K_x_ = k_K_x_;
       break;
     case 6:
       // Cartesian Impedances (6)

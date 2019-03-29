@@ -22,10 +22,11 @@ enum class RobotType : uint8_t {
 
 // Enum for Skill Types
 enum class SkillType : uint8_t {
-    ForceTorqueSkill = 0,
-    GripperSkill = 1,
-    ImpedanceControlSkill = 2,
-    JointPositionSkill = 3
+    CartesianPoseSkill = 0,
+    ForceTorqueSkill = 1,
+    GripperSkill = 2,
+    ImpedanceControlSkill = 3,
+    JointPositionSkill = 4
 };
 
 // Enum for Meta Skill Types
@@ -42,8 +43,12 @@ enum class TrajectoryGeneratorType : uint8_t {
     LinearPoseTrajectoryGenerator = 3,
     LinearJointTrajectoryGenerator = 4,
     MinJerkJointTrajectoryGenerator = 5,
-    RelativeLinearPoseTrajectoryGenerator = 6,
-    StayInInitialPositionTrajectoryGenerator = 7
+    MinJerkPoseTrajectoryGenerator = 6,
+    RelativeLinearPoseTrajectoryGenerator = 7,
+    RelativeMinJerkPoseTrajectoryGenerator = 8,
+    SineJointTrajectoryGenerator = 9,
+    SinePoseTrajectoryGenerator = 10,
+    StayInInitialPositionTrajectoryGenerator = 11
 };
 
 // Enum for Feedback Controller Types
