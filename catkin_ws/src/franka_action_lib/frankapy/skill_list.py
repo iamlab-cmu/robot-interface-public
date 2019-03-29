@@ -274,10 +274,8 @@ class ArmMoveToGoalSkill(BaseSkill):
                 skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=TrajectoryGeneratorType.LinearPoseTrajectoryGenerator,
+                trajectory_generator_type=TrajectoryGeneratorType.MinJerkPoseTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.CartesianImpedanceFeedbackController,
-                #trajectory_generator_type=TrajectoryGeneratorType.SinePoseTrajectoryGenerator,
-                #feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
                 termination_type=TerminationHandlerType.FinalPoseTerminationHandler,
                 timer_type=1):
         if len(skill_desc) == 0:
@@ -296,7 +294,7 @@ class ArmMoveToGoalSkill(BaseSkill):
     def add_buffer_time_for_termination(self, buffer_time):
         self.add_termination_params([buffer_time])
 
-class ArmRelativeMotionSkill(BaseSkill):
+class ArmMoveToGoalPositionControlSkill(BaseSkill):
     def __init__(self, 
                 skill_type=SkillType.CartesianPoseSkill,
                 skill_desc='',
@@ -304,6 +302,32 @@ class ArmRelativeMotionSkill(BaseSkill):
                 meta_skill_id=0,
                 trajectory_generator_type=TrajectoryGeneratorType.MinJerkPoseTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
+                termination_type=TerminationHandlerType.FinalPoseTerminationHandler,
+                timer_type=1):
+        if len(skill_desc) == 0:
+            skill_desc = ArmMoveToGoalPositionControlSkill.__name__
+        super(ArmMoveToGoalPositionControlSkill, self).__init__(
+              skill_type,
+              skill_desc,
+              meta_skill_type,
+              meta_skill_id,
+              ['/franka_robot/camera'],
+              trajectory_generator_type,
+              feedback_controller_type,
+              termination_type,
+              timer_type)
+
+    def add_buffer_time_for_termination(self, buffer_time):
+        self.add_termination_params([buffer_time])
+
+class ArmRelativeMotionSkill(BaseSkill):
+    def __init__(self, 
+                skill_type=SkillType.ImpedanceControlSkill,
+                skill_desc='',
+                meta_skill_type=MetaSkillType.BaseMetaSkill,
+                meta_skill_id=0,
+                trajectory_generator_type=TrajectoryGeneratorType.RelativeLinearPoseTrajectoryGenerator,
+                feedback_controller_type=FeedbackControllerType.CartesianImpedanceFeedbackController,
                 termination_type=TerminationHandlerType.FinalPoseTerminationHandler,
                 timer_type=1):
         if len(skill_desc) == 0:
@@ -453,8 +477,8 @@ class ArmRelativeMotionPositionControlSkill(BaseSkill):
                 termination_type=TerminationHandlerType.FinalPoseTerminationHandler,
                 timer_type=1):
         if len(skill_desc) == 0:
-            skill_desc = ArmRelativeMotionPositionControlWithDefaultSensorSkill.__name__
-        super(ArmRelativeMotionPositionControlWithDefaultSensorSkill, self).__init__(
+            skill_desc = ArmRelativeMotionPositionControlSkill.__name__
+        super(ArmRelativeMotionPositionControlSkill, self).__init__(
               skill_type,
               skill_desc,
               meta_skill_type,
@@ -482,8 +506,8 @@ class ArmRelativeMotionToContactPositionControlSkill(BaseSkill):
                 timer_type=1):
         if len(skill_desc) == 0:
             skill_desc = \
-                    ArmRelativeMotionToContactPositionControlWithDefaultSensorSkill.__name__
-        super(ArmRelativeMotionToContactPositionControlWithDefaultSensorSkill, self).__init__(
+                    ArmRelativeMotionToContactPositionControlSkill.__name__
+        super(ArmRelativeMotionToContactPositionControlSkill, self).__init__(
               skill_type,
               skill_desc,
               meta_skill_type,
@@ -573,9 +597,9 @@ class ArmRelativeMotionToContactPositionControlSkill(BaseSkill):
             lower_force_thresholds_accel,
             lower_force_thresholds_nominal):
         torque_thresholds = \
-                ArmRelativeMotionToContactWithDefaultSensorSkill.get_default_torque_thresholds()
+                ArmRelativeMotionToContactSkill.get_default_torque_thresholds()
         force_thresholds = \
-                ArmRelativeMotionToContactWithDefaultSensorSkill.get_default_force_thresholds()
+                ArmRelativeMotionToContactSkill.get_default_force_thresholds()
         params = [buffer_time] \
                 + torque_thresholds['lower_torque_thresholds_accel'] \
                 + torque_thresholds['upper_torque_thresholds_accel'] \
@@ -647,8 +671,8 @@ class ArmMoveToGoalContactPositionControlSkill(BaseSkill):
                 timer_type=1):
         if len(skill_desc) == 0:
             skill_desc = \
-                    ArmMoveToGoalContactPositionControlWithDefaultSensorSkill.__name__
-        super(ArmMoveToGoalContactPositionControlWithDefaultSensorSkill, self).__init__(
+                    ArmMoveToGoalContactPositionControlSkill.__name__
+        super(ArmMoveToGoalContactPositionControlSkill, self).__init__(
               skill_type,
               skill_desc,
               meta_skill_type,
@@ -667,9 +691,9 @@ class ArmMoveToGoalContactPositionControlSkill(BaseSkill):
             lower_force_thresholds_accel,
             lower_force_thresholds_nominal):
         torque_thresholds = \
-                ArmRelativeMotionToContactWithDefaultSensorSkill.get_default_torque_thresholds()
+                ArmRelativeMotionToContactSkill.get_default_torque_thresholds()
         force_thresholds = \
-                ArmRelativeMotionToContactWithDefaultSensorSkill.get_default_force_thresholds()
+                ArmRelativeMotionToContactSkill.get_default_force_thresholds()
         params = [buffer_time] \
                 + torque_thresholds['lower_torque_thresholds_accel'] \
                 + torque_thresholds['upper_torque_thresholds_accel'] \

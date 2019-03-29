@@ -221,10 +221,10 @@ class FrankaArm:
 
         if skill_type == SkillType.ImpedanceControlSkill:
             if stop_on_contact_forces is None:
-                skill = ArmMoveToGoalWithDefaultSensorSkill(
+                skill = ArmMoveToGoalSkill(
                         skill_desc=skill_desc)
             else:
-                skill = ArmMoveToGoalContactWithDefaultSensorSkill(
+                skill = ArmMoveToGoalContactSkill(
                         skill_desc=skill_desc)
                 force_thresholds = np.array(stop_on_contact_forces).tolist()
                 skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
@@ -232,10 +232,10 @@ class FrankaArm:
                                                     force_thresholds)
         elif skill_type == SkillType.CartesianPoseSkill:
             if stop_on_contact_forces is None:
-                skill = ArmMoveToGoalPositionControlWithDefaultSensorSkill(
+                skill = ArmMoveToGoalPositionControlSkill(
                         skill_desc=skill_desc)
             else:
-                skill = ArmMoveToGoalContactPositionControlWithDefaultSensorSkill(
+                skill = ArmMoveToGoalContactPositionControlSkill(
                         skill_desc=skill_desc)
                 force_thresholds = np.array(stop_on_contact_forces).tolist()
                 skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
@@ -243,10 +243,10 @@ class FrankaArm:
                                                     force_thresholds)
         else:
             if stop_on_contact_forces is None:
-                skill = ArmMoveToGoalWithDefaultSensorSkill(
+                skill = ArmMoveToGoalSkill(
                         skill_desc=skill_desc)
             else:
-                skill = ArmMoveToGoalContactWithDefaultSensorSkill(
+                skill = ArmMoveToGoalContactSkill(
                         skill_desc=skill_desc)
                 force_thresholds = np.array(stop_on_contact_forces).tolist()
                 skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
@@ -293,10 +293,10 @@ class FrankaArm:
 
         if skill_type == SkillType.ImpedanceControlSkill:
             if stop_on_contact_forces is None:
-                skill = ArmRelativeMotionWithDefaultSensorSkill(
+                skill = ArmRelativeMotionSkill(
                         skill_desc=skill_desc)
             else:
-                skill = ArmRelativeMotionToContactWithDefaultSensorSkill(
+                skill = ArmRelativeMotionToContactSkill(
                         skill_desc=skill_desc)
                 force_thresholds = np.array(stop_on_contact_forces).tolist()
                 skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
@@ -305,10 +305,10 @@ class FrankaArm:
                                                 )
         elif skill_type == SkillType.CartesianPoseSkill:
             if stop_on_contact_forces is None:
-                skill = ArmRelativeMotionPositionControlWithDefaultSensorSkill(
+                skill = ArmRelativeMotionPositionControlSkill(
                         skill_desc=skill_desc)
             else:
-                skill = ArmRelativeMotionToContactPositionControlWithDefaultSensorSkill(
+                skill = ArmRelativeMotionToContactPositionControlSkill(
                         skill_desc=skill_desc)
                 force_thresholds = np.array(stop_on_contact_forces).tolist()
                 skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
