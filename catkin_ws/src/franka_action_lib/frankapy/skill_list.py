@@ -255,8 +255,8 @@ class JointPoseSineSkill(BaseSkill):
                 termination_type=TerminationHandlerType.FinalJointTerminationHandler,
                 timer_type=1):
         if len(skill_desc) == 0:
-            skill_desc = JointPoseSineWithDefaultSensorSkill.__name__
-        super(JointPoseSineWithDefaultSensorSkill, self).__init__(
+            skill_desc = JointPoseSineSkill.__name__
+        super(JointPoseSineSkill, self).__init__(
               skill_type,
               skill_desc,
               meta_skill_type,
@@ -307,8 +307,8 @@ class ArmRelativeMotionSkill(BaseSkill):
                 termination_type=TerminationHandlerType.FinalPoseTerminationHandler,
                 timer_type=1):
         if len(skill_desc) == 0:
-            skill_desc = ArmMoveToGoalPositionControlWithDefaultSensorSkill.__name__
-        super(ArmMoveToGoalPositionControlWithDefaultSensorSkill, self).__init__(
+            skill_desc = ArmMoveToGoalPositionControlSkill.__name__
+        super(ArmMoveToGoalPositionControlSkill, self).__init__(
               skill_type,
               skill_desc,
               meta_skill_type,
