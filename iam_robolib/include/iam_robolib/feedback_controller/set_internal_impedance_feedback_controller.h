@@ -30,6 +30,10 @@ class SetInternalImpedanceFeedbackController : public FeedbackController {
 
   std::array<double, 7> K_theta_ = {{3000, 3000, 3000, 2500, 2500, 2000, 2000}};
   std::array<double, 6> K_x_ = {{3000, 3000, 3000, 300, 300, 300}};
+
+  // Constant values
+  static constexpr std::array<double, 7> k_K_theta_ = {{3000, 3000, 3000, 2500, 2500, 2000, 2000}};
+  static constexpr std::array<double, 6> k_K_x_ = {{3000, 3000, 3000, 300, 300, 300}};
 };
 
 #endif  // IAM_ROBOLIB_FEEDBACK_CONTROLLER_SET_INTERNAL_IMPEDANCE_FEEDBACK_CONTROLLER_H_

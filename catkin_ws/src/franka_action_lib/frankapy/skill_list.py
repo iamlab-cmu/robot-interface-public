@@ -269,79 +269,55 @@ class JointPoseSineSkill(BaseSkill):
 
 
 class ArmMoveToGoalSkill(BaseSkill):
-    def __init__(self, 
-                skill_type=SkillType.ImpedanceControlSkill,
-                skill_desc='',
-                meta_skill_type=MetaSkillType.BaseMetaSkill,
-                meta_skill_id=0,
-                trajectory_generator_type=TrajectoryGeneratorType.MinJerkPoseTrajectoryGenerator,
-                feedback_controller_type=FeedbackControllerType.CartesianImpedanceFeedbackController,
-                termination_type=TerminationHandlerType.FinalPoseTerminationHandler,
-                timer_type=1):
+    def __init__(self, skill_desc=''):
         if len(skill_desc) == 0:
             skill_desc = ArmMoveToGoalSkill.__name__
         super(ArmMoveToGoalSkill, self).__init__(
-              skill_type,
+              SkillType.ImpedanceControlSkill,
               skill_desc,
-              meta_skill_type,
-              meta_skill_id,
+              MetaSkillType.BaseMetaSkill,
+              0,
               ['/franka_robot/camera'],
-              trajectory_generator_type,
-              feedback_controller_type,
-              termination_type,
-              timer_type)
+              TrajectoryGeneratorType.MinJerkPoseTrajectoryGenerator,
+              FeedbackControllerType.CartesianImpedanceFeedbackController,
+              TerminationHandlerType.FinalPoseTerminationHandler,
+              1)
 
     def add_buffer_time_for_termination(self, buffer_time):
         self.add_termination_params([buffer_time])
 
 class ArmMoveToGoalPositionControlSkill(BaseSkill):
-    def __init__(self, 
-                skill_type=SkillType.CartesianPoseSkill,
-                skill_desc='',
-                meta_skill_type=MetaSkillType.BaseMetaSkill,
-                meta_skill_id=0,
-                trajectory_generator_type=TrajectoryGeneratorType.MinJerkPoseTrajectoryGenerator,
-                feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
-                termination_type=TerminationHandlerType.FinalPoseTerminationHandler,
-                timer_type=1):
+    def __init__(self, skill_desc=''):
         if len(skill_desc) == 0:
             skill_desc = ArmMoveToGoalPositionControlSkill.__name__
         super(ArmMoveToGoalPositionControlSkill, self).__init__(
-              skill_type,
+              SkillType.CartesianPoseSkill,
               skill_desc,
-              meta_skill_type,
-              meta_skill_id,
+              MetaSkillType.BaseMetaSkill,
+              0,
               ['/franka_robot/camera'],
-              trajectory_generator_type,
-              feedback_controller_type,
-              termination_type,
-              timer_type)
+              TrajectoryGeneratorType.MinJerkPoseTrajectoryGenerator,
+              FeedbackControllerType.SetInternalImpedanceFeedbackController,
+              TerminationHandlerType.FinalPoseTerminationHandler,
+              1)
 
     def add_buffer_time_for_termination(self, buffer_time):
         self.add_termination_params([buffer_time])
 
 class ArmRelativeMotionSkill(BaseSkill):
-    def __init__(self, 
-                skill_type=SkillType.ImpedanceControlSkill,
-                skill_desc='',
-                meta_skill_type=MetaSkillType.BaseMetaSkill,
-                meta_skill_id=0,
-                trajectory_generator_type=TrajectoryGeneratorType.RelativeLinearPoseTrajectoryGenerator,
-                feedback_controller_type=FeedbackControllerType.CartesianImpedanceFeedbackController,
-                termination_type=TerminationHandlerType.FinalPoseTerminationHandler,
-                timer_type=1):
+    def __init__(self, skill_desc=''):
         if len(skill_desc) == 0:
             skill_desc = ArmMoveToGoalPositionControlSkill.__name__
         super(ArmMoveToGoalPositionControlSkill, self).__init__(
-              skill_type,
+              SkillType.ImpedanceControlSkill,
               skill_desc,
-              meta_skill_type,
-              meta_skill_id,
+              MetaSkillType.BaseMetaSkill,
+              0,
               ['/franka_robot/camera'],
-              trajectory_generator_type,
-              feedback_controller_type,
-              termination_type,
-              timer_type)
+              TrajectoryGeneratorType.RelativeMinJerkPoseTrajectoryGenerator,
+              FeedbackControllerType.CartesianImpedanceFeedbackController,
+              TerminationHandlerType.FinalPoseTerminationHandler,
+              1)
 
     def add_relative_motion_with_quaternion(self, time, position, quaternion):
         assert len(position) == 3, "Incorrect position to move to."
@@ -349,28 +325,20 @@ class ArmRelativeMotionSkill(BaseSkill):
         self.add_trajectory_params([time] + position + quaternion)
 
 class ArmRelativeMotionToContactSkill(BaseSkill):
-    def __init__(self, 
-                skill_type=SkillType.ImpedanceControlSkill,
-                skill_desc='',
-                meta_skill_type=MetaSkillType.BaseMetaSkill,
-                meta_skill_id=0,
-                trajectory_generator_type=TrajectoryGeneratorType.RelativeLinearPoseTrajectoryGenerator,
-                feedback_controller_type=FeedbackControllerType.CartesianImpedanceFeedbackController,
-                termination_type=TerminationHandlerType.ContactTerminationHandler,
-                timer_type=1):
+    def __init__(self, skill_desc=''):
         if len(skill_desc) == 0:
             skill_desc = \
                     ArmRelativeMotionToContactSkill.__name__
         super(ArmRelativeMotionToContactSkill, self).__init__(
-              skill_type,
+              SkillType.ImpedanceControlSkill,
               skill_desc,
-              meta_skill_type,
-              meta_skill_id,
+              MetaSkillType.BaseMetaSkill,
+              0,
               ['/franka_robot/camera'],
-              trajectory_generator_type,
-              feedback_controller_type,
-              termination_type,
-              timer_type)
+              TrajectoryGeneratorType.RelativeMinJerkPoseTrajectoryGenerator,
+              FeedbackControllerType.CartesianImpedanceFeedbackController,
+              TerminationHandlerType.ContactTerminationHandler,
+              1)
 
     @staticmethod
     def get_default_torque_thresholds():
@@ -467,27 +435,21 @@ class ArmRelativeMotionToContactSkill(BaseSkill):
         self.add_termination_params(params)
 
 class ArmRelativeMotionPositionControlSkill(BaseSkill):
-    def __init__(self, 
-                skill_type=SkillType.CartesianPoseSkill,
-                skill_desc='',
-                meta_skill_type=MetaSkillType.BaseMetaSkill,
-                meta_skill_id=0,
-                trajectory_generator_type=TrajectoryGeneratorType.RelativeMinJerkPoseTrajectoryGenerator,
-                feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
-                termination_type=TerminationHandlerType.FinalPoseTerminationHandler,
-                timer_type=1):
+    def __init__(self, skill_desc=''):
         if len(skill_desc) == 0:
             skill_desc = ArmRelativeMotionPositionControlSkill.__name__
         super(ArmRelativeMotionPositionControlSkill, self).__init__(
-              skill_type,
+              SkillType.CartesianPoseSkill,
               skill_desc,
-              meta_skill_type,
-              meta_skill_id,
+              MetaSkillType.BaseMetaSkill,
+              0,
               ['/franka_robot/camera'],
-              trajectory_generator_type,
-              feedback_controller_type,
-              termination_type,
-              timer_type)
+              # Default options, we can later maybe provide options for user
+              # to change these.
+              TrajectoryGeneratorType.RelativeMinJerkPoseTrajectoryGenerator,
+              FeedbackControllerType.SetInternalImpedanceFeedbackController,
+              TerminationHandlerType.FinalPoseTerminationHandler,
+              1)
 
     def add_relative_motion_with_quaternion(self, time, position, quaternion):
         assert len(position) == 3, "Incorrect position to move to."
@@ -495,27 +457,19 @@ class ArmRelativeMotionPositionControlSkill(BaseSkill):
         self.add_trajectory_params([time] + position + quaternion)
 
 class ArmRelativeMotionToContactPositionControlSkill(BaseSkill):
-    def __init__(self, 
-                skill_type=SkillType.CartesianPoseSkill,
-                skill_desc='',
-                meta_skill_type=MetaSkillType.BaseMetaSkill,
-                meta_skill_id=0,
-                trajectory_generator_type=TrajectoryGeneratorType.RelativeMinJerkPoseTrajectoryGenerator,
-                feedback_controller_type=FeedbackControllerType.NoopFeedbackController,
-                termination_type=TerminationHandlerType.ContactTerminationHandler,
-                timer_type=1):
+    def __init__(self, skill_desc='', timer_type=1):
         if len(skill_desc) == 0:
             skill_desc = \
                     ArmRelativeMotionToContactPositionControlSkill.__name__
         super(ArmRelativeMotionToContactPositionControlSkill, self).__init__(
-              skill_type,
+              SkillType.CartesianPoseSkill,
               skill_desc,
-              meta_skill_type,
-              meta_skill_id,
+              MetaSkillType.BaseMetaSkill,
+              0,
               ['/franka_robot/camera'],
-              trajectory_generator_type,
-              feedback_controller_type,
-              termination_type,
+              TrajectoryGeneratorType.RelativeMinJerkPoseTrajectoryGenerator,
+              FeedbackControllerType.SetInternalImpedanceFeedbackController,
+              TerminationHandlerType.ContactTerminationHandler,
               timer_type)
 
     @staticmethod
@@ -612,29 +566,21 @@ class ArmRelativeMotionToContactPositionControlSkill(BaseSkill):
 
         self.add_termination_params(params)
 
-class ArmMoveToGoalContact(BaseSkill):
-    def __init__(self, 
-                skill_type=SkillType.ImpedanceControlSkill,
-                skill_desc='',
-                meta_skill_type=MetaSkillType.BaseMetaSkill,
-                meta_skill_id=0,
-                trajectory_generator_type=TrajectoryGeneratorType.LinearPoseTrajectoryGenerator,
-                feedback_controller_type=FeedbackControllerType.CartesianImpedanceFeedbackController,
-                termination_type=TerminationHandlerType.ContactTerminationHandler,
-                timer_type=1):
+class ArmMoveToGoalContactSkill(BaseSkill):
+    def __init__(self, skill_desc=''):
         if len(skill_desc) == 0:
             skill_desc = \
                     ArmMoveToGoalContactSkill.__name__
         super(ArmMoveToGoalContactSkill, self).__init__(
-              skill_type,
+              SkillType.ImpedanceControlSkill,
               skill_desc,
-              meta_skill_type,
-              meta_skill_id,
+              MetaSkillType.BaseMetaSkill,
+              0,
               ['/franka_robot/camera'],
-              trajectory_generator_type,
-              feedback_controller_type,
-              termination_type,
-              timer_type)
+              TrajectoryGeneratorType.MinJerkPoseTrajectoryGenerator,
+              FeedbackControllerType.CartesianImpedanceFeedbackController,
+              TerminationHandlerType.ContactTerminationHandler,
+              1)
 
     def add_buffer_time_for_termination(self, buffer_time):
         self.add_termination_params([buffer_time])

@@ -284,10 +284,11 @@ class FrankaArm:
             skill_desc (string) : Skill description to use for logging on
                 control-pc.
         '''
-        return self.goto_pose_delta(
+        return self._goto_pose_delta(
                 delta_tool_pose,
                 duration=3,
                 stop_on_contact_forces,
+                None,
                 ignore_errors,
                 skill_desc,
                 skill_type=SkillType.ImpedanceControlSkill)
@@ -299,10 +300,11 @@ class FrankaArm:
                         ignore_errors=True,
                         skill_desc='',
                         skill_type=SkillType.ImpedanceControlSkill):
-        return self.goto_pose_delta(
+        return self._goto_pose_delta(
                 delta_tool_pose,
                 duration,
                 stop_on_contact_forces,
+                None,
                 ignore_errors,
                 skill_desc,
                 skill_type=SkillType.ImpedanceControlSkill)
@@ -311,6 +313,7 @@ class FrankaArm:
                         delta_tool_pose,
                         duration=3,
                         stop_on_contact_forces=None,
+                        cartesian_impedance=None,
                         ignore_errors=True,
                         skill_desc=''):
         '''Commands Arm to the given delta pose via linear interpolation using
@@ -322,13 +325,17 @@ class FrankaArm:
             stop_on_contact_forces (list): List of 6 floats corresponding to
                 force limits on translation (xyz) and rotation about (xyz) axes.
                 Default is None. If None then will not stop on contact.
+            cartesian_impedance (list): List of 6 floats. Used to set the cartesian
+                impedance of Franka's internal cartesian controller. 
+                List of (x, y, z, roll, pitch, yaw)
             skill_desc (string) : Skill description to use for logging on
                 control-pc.
         '''
-        return self.goto_pose_delta(
+        return self._goto_pose_delta(
                 delta_tool_pose,
                 duration,
                 stop_on_contact_forces,
+                cartesian_impedance,
                 ignore_errors,
                 skill_desc,
                 SkillType.CartesianPoseSkill)
@@ -337,6 +344,7 @@ class FrankaArm:
                         delta_tool_pose,
                         duration=3,
                         stop_on_contact_forces=None,
+                        cartesian_impedance=None,
                         ignore_errors=True,
                         skill_desc='',
                         skill_type=SkillType.ImpedanceControlSkill):
@@ -360,11 +368,9 @@ class FrankaArm:
 
         if skill_type == SkillType.ImpedanceControlSkill:
             if stop_on_contact_forces is None:
-                skill = ArmRelativeMotionSkill(
-                        skill_desc=skill_desc)
+                skill = ArmRelativeMotionSkill(skill_desc=skill_desc)
             else:
-                skill = ArmRelativeMotionToContactSkill(
-                        skill_desc=skill_desc)
+                skill = ArmRelativeMotionToContactSkill(skill_desc=skill_desc)
                 force_thresholds = np.array(stop_on_contact_forces).tolist()
                 skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
                                                     force_thresholds,
@@ -378,10 +384,10 @@ class FrankaArm:
                 skill = ArmRelativeMotionToContactPositionControlSkill(
                         skill_desc=skill_desc)
                 force_thresholds = np.array(stop_on_contact_forces).tolist()
-                skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
-                                                    force_thresholds,
-                                                    force_thresholds
-                                                )
+                skill.add_contact_termination_params(
+                        FC.DEFAULT_TERM_BUFFER_TIME,
+                        force_thresholds,
+                        force_thresholds)
         else:
             raise ValueError("Incorrect skill type for goto_pose_delta: {}".format(
                 skill_type))
@@ -404,7 +410,7 @@ class FrankaArm:
                     duration=5,
                     ignore_errors=True,
                     skill_desc='',
-                    joint_impedances=None):
+                    joint_impedance=None):
         '''Commands Arm to the given joint configuration
 
         Args:
@@ -421,10 +427,12 @@ class FrankaArm:
         if not self.is_joints_reachable(joints):
             raise ValueError('Joints not reachable!')
 
-        if joint_impedances is not None and \
-           isinstance(joint_impedances,(list,)) and \
-           len(joint_impedances) == 7:
-            skill = JointPoseMinJerkWithJointImpedancesSkill(skill_desc=skill_desc)
+        if joint_impedance is not None: 
+            assert type(joint_impedance) is list and len(joint_impedance) == 7,\
+                    "Incorrect value of joint impedance {}".format(
+                            joint_impedance)
+            skill = JointPoseMinJerkWithJointImpedancesSkill(
+                    skill_desc=skill_desc)
             skill.add_feedback_controller_params(joint_impedances)
         else:
             skill = JointPoseMinJerkSkill(skill_desc=skill_desc)
