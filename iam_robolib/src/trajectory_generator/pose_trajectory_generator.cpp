@@ -1,5 +1,7 @@
 #include "iam_robolib/trajectory_generator/pose_trajectory_generator.h"
 
+#include <iostream>
+
 void PoseTrajectoryGenerator::parse_parameters() {
   // First parameter is reserved for the type
 
@@ -115,4 +117,20 @@ void PoseTrajectoryGenerator::calculate_desired_pose() {
 
 const std::array<double, 16>& PoseTrajectoryGenerator::get_desired_pose() const {
   return desired_pose_;
+}
+
+const Eigen::Vector3d& PoseTrajectoryGenerator::get_desired_position() const {
+  return desired_position_;
+}
+
+const Eigen::Quaterniond& PoseTrajectoryGenerator::get_desired_orientation() const {
+  return desired_orientation_;
+}
+
+const Eigen::Vector3d& PoseTrajectoryGenerator::get_goal_position() const {
+  return goal_position_;
+}
+
+const Eigen::Quaterniond& PoseTrajectoryGenerator::get_goal_orientation() const {
+  return goal_orientation_;
 }

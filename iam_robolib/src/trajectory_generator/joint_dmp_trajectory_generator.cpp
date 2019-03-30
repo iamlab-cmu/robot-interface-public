@@ -4,34 +4,49 @@
 
 #include "iam_robolib/trajectory_generator/joint_dmp_trajectory_generator.h"
 
-#include <cstdlib>
+//#include <cstdlib>
 #include <cmath>
 #include <iostream>
 
 void JointDmpTrajectoryGenerator::parse_parameters() {
-  int num_params = static_cast<int>(params_[1]);
+  // First element is reserved for trajectory type
+
+  int params_idx = 1;
+
+  int num_params = static_cast<int>(params_[params_idx++]);
 
   // Tau (1) + num_basis = 7 (1) + num_sensor_values = 10 (1) + initial_y0(7) + weights (7 joints * 20 basis functions * 10 sensor inputs)
   if(num_params == 109) {
-    run_time_ = static_cast<double>(params_[2]);
-    tau_ = static_cast<double>(params_[3]);
-    alpha_  = static_cast<double>(params_[4]);
-    beta_ = static_cast<double>(params_[5]);
-    num_basis_ = static_cast<int>(params_[6]);
-    num_sensor_values_ = static_cast<int>(params_[7]);
+    run_time_ = static_cast<double>(params_[params_idx++]);
+    tau_ = static_cast<double>(params_[params_idx++]);
+    alpha_  = static_cast<double>(params_[params_idx++]);
+    beta_ = static_cast<double>(params_[params_idx++]);
+    num_basis_ = static_cast<int>(params_[params_idx++]);
+    num_sensor_values_ = static_cast<int>(params_[params_idx++]);
 
     // Get the mean and std for the basis functions
-    memcpy(&basis_mean_, &params_[8], num_basis_ * sizeof(double));
-    memcpy(&basis_std_, &params_[8+num_basis_], num_basis_ * sizeof(double));
-    memcpy(&y0_, &params_[8 + 2*num_basis_], 7 * sizeof(double));
+    for (int i = 0; i < num_basis_; i++) {
+      basis_mean_[i] = static_cast<double>(params_[params_idx++]);
+    }
+
+    for (int i = 0; i < num_basis_; i++) {
+      basis_std_[i] = static_cast<double>(params_[params_idx++]);
+    }
+
+    for (size_t i = 0; i < y0_.size(); i++) {
+      y0_[i] = static_cast<double>(params_[params_idx++]);
+    }
+
+    // memcpy(&basis_mean_, &params_[8], num_basis_ * sizeof(double));
+    // memcpy(&basis_std_, &params_[8+num_basis_], num_basis_ * sizeof(double));
+    // memcpy(&y0_, &params_[8 + 2*num_basis_], 7 * sizeof(double));
 
     // memcpy(&weights_, &params_[8 + 2*num_basis_ + 7], num_dims_ * num_sensor_values_ * num_basis_ * sizeof(double));
-    int params_start_idx = 8 + 2*num_basis_ + 7;
+    // int params_idx = 8 + 2*num_basis_ + 7;
     for (int i = 0; i < num_dims_; i++) {
       for (int j = 0; j < num_sensor_values_; j++) {
-        for (int k = 0; k < num_basis_;k++) {
-          weights_[i][j][k] = params_[params_start_idx];
-          params_start_idx += 1;
+        for (int k = 0; k < num_basis_; k++) {
+          weights_[i][j][k] = static_cast<double>(params_[params_idx++]);
         }
       }
     }
@@ -46,7 +61,8 @@ void JointDmpTrajectoryGenerator::parse_parameters() {
 }
 
 void JointDmpTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
-  JointTrajectoryGenerator::initialize_initial_and_desired_joints(robot_state);
+  initialize_initial_and_desired_joints(robot_state);
+  
   // TODO: Should we use desired joint values here?
   y0_ = robot_state.q_d;
   y_ = robot_state.q;

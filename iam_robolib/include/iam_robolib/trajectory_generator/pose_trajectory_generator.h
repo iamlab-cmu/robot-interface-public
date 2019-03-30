@@ -17,8 +17,8 @@ class PoseTrajectoryGenerator : public TrajectoryGenerator {
 
   void initialize_trajectory(const franka::RobotState &robot_state) override;
 
-  void initialize_trajectory(const franka::RobotState &robot_state,
-                             SkillType skill_type);
+  virtual void initialize_trajectory(const franka::RobotState &robot_state,
+                                     SkillType skill_type);
 
   /**
    * Initialize initial and desired positions and orientations from robot state
@@ -35,6 +35,26 @@ class PoseTrajectoryGenerator : public TrajectoryGenerator {
    * Returns the desired pose
    */
   const std::array<double, 16>& get_desired_pose() const;
+
+  /**
+   * Returns the desired position
+   */
+  const Eigen::Vector3d& get_desired_position() const;
+
+  /**
+   * Returns the desired orientation
+   */
+  const Eigen::Quaterniond& get_desired_orientation() const;
+
+  /**
+   * Returns the goal position
+   */
+  const Eigen::Vector3d& get_goal_position() const;
+
+  /**
+   * Returns the goal orientation
+   */
+  const Eigen::Quaterniond& get_goal_orientation() const;
 
  protected:
   std::array<double, 16> initial_pose_{};

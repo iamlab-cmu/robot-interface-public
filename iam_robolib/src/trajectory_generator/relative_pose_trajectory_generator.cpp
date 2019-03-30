@@ -62,14 +62,14 @@ void RelativePoseTrajectoryGenerator::parse_parameters() {
 }
 
 void RelativePoseTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
-  PoseTrajectoryGenerator::initialize_trajectory(robot_state);
+  initialize_initial_and_desired_poses(robot_state, SkillType::ImpedanceControlSkill);
   goal_position_ = initial_position_ + relative_position_;
   goal_orientation_ = initial_orientation_ * relative_orientation_;
 }
 
 void RelativePoseTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state,
-                                                    SkillType skill_type) {
-  PoseTrajectoryGenerator::initialize_trajectory(robot_state, skill_type);
+                                                            SkillType skill_type) {
+  initialize_initial_and_desired_poses(robot_state, skill_type);
   goal_position_ = initial_position_ + relative_position_;
   goal_orientation_ = initial_orientation_ * relative_orientation_;
 }

@@ -25,6 +25,11 @@ class JointTrajectoryGenerator : public TrajectoryGenerator {
    */
   const std::array<double, 7>& get_desired_joints() const;
 
+  /**
+   * Returns the goal joints
+   */
+  const std::array<double, 7>& get_goal_joints() const;
+
  protected:
   std::array<double, 7> initial_joints_{};
   std::array<double, 7> desired_joints_{};

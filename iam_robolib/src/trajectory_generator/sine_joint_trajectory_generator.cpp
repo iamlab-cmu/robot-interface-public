@@ -4,6 +4,8 @@
 
 #include "iam_robolib/trajectory_generator/sine_joint_trajectory_generator.h"
 
+#include <cmath>
+
 void SineJointTrajectoryGenerator::get_next_step() {
   t_ = std::min(std::max(time_ / run_time_, 0.0), 1.0);
   sine_t_ = ((std::sin((t_ * M_PI) - (M_PI / 2)) + 1) / 2);

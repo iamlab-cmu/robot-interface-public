@@ -10,6 +10,6 @@ void RelativeLinearPoseTrajectoryGenerator::get_next_step() {
   desired_position_ = initial_position_ + (goal_position_ - initial_position_) * t_;
   desired_orientation_ = initial_orientation_.slerp(t_, goal_orientation_);
 
-  PoseTrajectoryGenerator::calculate_desired_pose();
+  calculate_desired_pose();
 }
 

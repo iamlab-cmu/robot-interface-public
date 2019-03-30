@@ -3,6 +3,10 @@
 
 #include "iam_robolib/skills/base_meta_skill.h"
 
+#include "iam_robolib/trajectory_generator/trajectory_generator.h"
+#include "iam_robolib/feedback_controller/feedback_controller.h"
+#include "iam_robolib/termination_handler/termination_handler.h"
+
 class JointPositionContinuousSkill : public BaseMetaSkill {
  public:
   JointPositionContinuousSkill(int skill_idx): BaseMetaSkill(skill_idx) {

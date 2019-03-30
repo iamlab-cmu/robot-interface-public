@@ -13,10 +13,7 @@
 #include <franka/model.h>
 #include <franka/exception.h>
 
-#include "iam_robolib/feedback_controller/feedback_controller.h"
-#include "iam_robolib/termination_handler/termination_handler.h"
 #include "iam_robolib/trajectory_generator/impulse_trajectory_generator.h"
-#include "iam_robolib/trajectory_generator/trajectory_generator.h"
 #include "iam_robolib/robot_state_data.h"
 #include "iam_robolib/run_loop.h"
 #include "iam_robolib/run_loop_shared_memory_handler.h"
@@ -41,10 +38,16 @@ void ForceTorqueSkill::execute_skill_on_franka(run_loop* run_loop,
                                   *(shared_memory_handler->getRunLoopProcessInfoMutex()),
                                   boost::interprocess::defer_lock);
 
+  ImpulseTrajectoryGenerator* impulse_trajectory_generator = dynamic_cast<ImpulseTrajectoryGenerator*>(traj_generator_);
+
+  if(impulse_trajectory_generator == nullptr) {
+    throw 333;
+  } 
+
   auto force_control_callback = [&](const franka::RobotState& robot_state, 
                     franka::Duration period) -> franka::Torques {
     if (time == 0.0) {
-      traj_generator_->initialize_trajectory(robot_state);
+      impulse_trajectory_generator->initialize_trajectory(robot_state);
       try {
         if (lock.try_lock()) {
           run_loop_info->set_time_skill_started_in_robot_time(robot_state.time.toSec());
@@ -56,7 +59,6 @@ void ForceTorqueSkill::execute_skill_on_franka(run_loop* run_loop,
     }
     log_counter += 1;
     if (log_counter % 1 == 0) {
-      robot_state_data->log_pose_desired(traj_generator_->pose_desired_);
       robot_state_data->log_robot_state(robot_state, time);
     }
 
@@ -78,11 +80,10 @@ void ForceTorqueSkill::execute_skill_on_franka(run_loop* run_loop,
       return franka::MotionFinished(torques);
     }
     
-    dynamic_cast<ImpulseTrajectoryGenerator*>(traj_generator_)->check_displacement_cap(robot_state);
+    impulse_trajectory_generator->check_displacement_cap(robot_state);
     time += period.toSec();
     traj_generator_->time_ = time;
     traj_generator_->dt_ = period.toSec();
-
     traj_generator_->get_next_step();
 
     feedback_controller_->get_next_step(robot_state, traj_generator_);

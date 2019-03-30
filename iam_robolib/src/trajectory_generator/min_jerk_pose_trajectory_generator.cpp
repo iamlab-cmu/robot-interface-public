@@ -16,6 +16,6 @@ void MinJerkPoseTrajectoryGenerator::get_next_step() {
 
   desired_orientation_ = initial_orientation_.slerp(slerp_t_, goal_orientation_);
 
-  PoseTrajectoryGenerator::calculate_desired_pose();
+  calculate_desired_pose();
 }
   

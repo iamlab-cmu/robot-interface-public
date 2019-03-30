@@ -77,7 +77,6 @@ void ImpedanceControlSkill::execute_skill_on_franka(run_loop* run_loop,
     traj_generator_->get_next_step();
 
     if (log_counter % 1 == 0) {
-      robot_state_data->log_pose_desired(traj_generator_->pose_desired_);
       robot_state_data->log_robot_state(robot_state, time);
     }
 

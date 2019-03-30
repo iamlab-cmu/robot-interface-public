@@ -15,9 +15,7 @@
 #include "iam_robolib/run_loop.h"
 #include "iam_robolib/robot_state_data.h"
 #include "iam_robolib/skills/base_skill.h"
-#include "iam_robolib/termination_handler/termination_handler.h"
 #include "iam_robolib/trajectory_generator/joint_dmp_trajectory_generator.h"
-#include "iam_robolib/trajectory_generator/trajectory_generator.h"
 #include "iam_robolib/run_loop.h"
 #include "iam_robolib/run_loop_shared_memory_handler.h"
 
@@ -57,8 +55,13 @@ void JointPositionContinuousSkill::execute_skill_on_franka(run_loop *run_loop,
       const franka::RobotState& robot_state,
       franka::Duration period) -> franka::JointPositions {
 
-    JointDmpTrajectoryGenerator* traj_generator = static_cast<JointDmpTrajectoryGenerator *>(
+    JointDmpTrajectoryGenerator* traj_generator = dynamic_cast<JointDmpTrajectoryGenerator *>(
         current_skill->get_trajectory_generator());
+
+    if(traj_generator == nullptr) {
+      throw 333;
+    }
+
     if (current_skill_time == 0.0) {
       traj_generator->initialize_trajectory(robot_state);
       traj_generator->y_ = last_dmp_q;
@@ -83,14 +86,13 @@ void JointPositionContinuousSkill::execute_skill_on_franka(run_loop *run_loop,
 
     log_counter += 1;
     if (log_counter % 1 == 0) {
-      robot_state_data->log_pose_desired(traj_generator->pose_desired_);
       robot_state_data->log_robot_state(robot_state, time);
     }
 
     TerminationHandler *termination_handler = current_skill->get_termination_handler();
     bool done = termination_handler->should_terminate_on_franka(robot_state, 
                                                                 traj_generator);
-    franka::JointPositions joint_desired(traj_generator->joint_desired_);
+    franka::JointPositions joint_desired(traj_generator->get_desired_joints());
 
     if(done) {
       if(!wrote_finished_time_to_run_loop_process_info) {

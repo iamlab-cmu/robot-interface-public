@@ -5,6 +5,9 @@
 #include "iam_robolib/feedback_controller/cartesian_impedance_feedback_controller.h"
 
 #include <iostream>
+#include <exception>
+
+#include "iam_robolib/trajectory_generator/pose_trajectory_generator.h"
 
 void CartesianImpedanceFeedbackController::parse_parameters() {
   // First parameter is reserved for the type
@@ -101,8 +104,14 @@ void CartesianImpedanceFeedbackController::get_next_step(const franka::RobotStat
   Eigen::Vector3d position(transform.translation());
   Eigen::Quaterniond orientation(transform.linear());
 
-  Eigen::Vector3d position_d(traj_generator->desired_position_);
-  Eigen::Quaterniond orientation_d(traj_generator->desired_orientation_);
+  PoseTrajectoryGenerator* pose_trajectory_generator = dynamic_cast<PoseTrajectoryGenerator*>(traj_generator);
+
+  if(pose_trajectory_generator == nullptr) {
+    throw 333;
+  }
+
+  Eigen::Vector3d position_d(pose_trajectory_generator->get_desired_position());
+  Eigen::Quaterniond orientation_d(pose_trajectory_generator->get_desired_orientation());
 
   // compute error to desired equilibrium pose
   // position error

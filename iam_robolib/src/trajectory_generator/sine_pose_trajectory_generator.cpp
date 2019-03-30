@@ -11,6 +11,6 @@ void SinePoseTrajectoryGenerator::get_next_step() {
   desired_position_ = initial_position_ + (goal_position_ - initial_position_) * sine_t_;
   desired_orientation_ = initial_orientation_.slerp(sine_t_, goal_orientation_);
 
-  TrajectoryGenerator::calculate_desired_pose();
+  calculate_desired_pose();
 }
 

@@ -5,6 +5,8 @@
 
 #include "iam_robolib/trajectory_generator/min_jerk_joint_trajectory_generator.h"
 
+#include <cmath>
+
 void MinJerkJointTrajectoryGenerator::get_next_step() {
   t_ = std::min(std::max(time_ / run_time_, 0.0), 1.0);
   
