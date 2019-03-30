@@ -17,8 +17,8 @@ void ImpulseTrajectoryGenerator::parse_parameters() {
     acc_time_ = static_cast<double>(params_[3]);
     max_translation_ = static_cast<double>(params_[4]);
     max_rotation_ = static_cast<double>(params_[5]);
-    for (int i = 0; i < force_torque_target_.size(); i++) {
-      force_torque_target_[i] = static_cast<double>(params_[i + 6]);
+    for (int i = 0; i < target_force_torque_.size(); i++) {
+      target_force_torque_[i] = static_cast<double>(params_[i + 6]);
     }
 
   } else {
@@ -50,8 +50,8 @@ void ImpulseTrajectoryGenerator::get_next_step() {
     }
   }
 
-  for (int i = 0; i < force_torque_target_.size(); i++) {
-      force_torque_desired_[i] = coef * force_torque_target_[i];
+  for (int i = 0; i < target_force_torque_.size(); i++) {
+    desired_force_torque_[i] = coef * target_force_torque_[i];
   }
 }
 
@@ -61,22 +61,22 @@ void ImpulseTrajectoryGenerator::check_displacement_cap(const franka::RobotState
     Eigen::Affine3d transform(Eigen::Matrix4d::Map(robot_state.O_T_EE.data()));
     
     if (max_translation_ > 0) {
-        curr_position_ = transform.translation();
-        if ((curr_position_ - initial_position_).norm() > max_translation_) {
-            should_deacc_ = true;
-        }
+      curr_position_ = transform.translation();
+      if ((curr_position_ - initial_position_).norm() > max_translation_) {
+        should_deacc_ = true;
+      }
     }
 
     if (max_rotation_ > 0) {
-        curr_orientation_ = transform.linear();
-        if (curr_orientation_.coeffs().dot(initial_orientation_.coeffs()) < 0.0) {
-            curr_orientation_.coeffs() << -curr_orientation_.coeffs();
-        }
-        Eigen::Quaterniond Q_delta(initial_orientation_ * curr_orientation_.inverse());
-        Eigen::AngleAxisd A_delta(Q_delta);
-        if (A_delta.angle() > max_rotation_) {
-            should_deacc_ = true;
-        }
+      curr_orientation_ = transform.linear();
+      if (curr_orientation_.coeffs().dot(initial_orientation_.coeffs()) < 0.0) {
+        curr_orientation_.coeffs() << -curr_orientation_.coeffs();
+      }
+      Eigen::Quaterniond Q_delta(initial_orientation_ * curr_orientation_.inverse());
+      Eigen::AngleAxisd A_delta(Q_delta);
+      if (A_delta.angle() > max_rotation_) {
+        should_deacc_ = true;
+      }
     }
   }
 }

@@ -17,16 +17,20 @@ class ImpulseTrajectoryGenerator : public TrajectoryGenerator {
 
   void check_displacement_cap(const franka::RobotState &robot_state);
 
+  std::array<double, 6> desired_force_torque_{};
+
  private:
-  double t_ = 0.;
-  double acc_time_ = 0.;
-  std::array<double, 6> force_torque_target_{};
+  double acc_time_ = 0.0;
+
+  std::array<double, 6> target_force_torque_{};
   bool should_deacc_ = false;
 
-  double max_translation_{0.};
-  double max_rotation_{0.}; 
-  Eigen::Vector3d curr_position_;
-  Eigen::Quaterniond curr_orientation_;
+  double max_translation_{0.0};
+  double max_rotation_{0.0}; 
+  Eigen::Vector3d initial_position_;
+  Eigen::Quaterniond initial_orientation_;
+  Eigen::Vector3d current_position_;
+  Eigen::Quaterniond current_orientation_;
 };
 
 #endif	// IAM_ROBOLIB_TRAJECTORY_GENERATOR_IMPULSE_TRAJECTORY_GENERATOR_H_

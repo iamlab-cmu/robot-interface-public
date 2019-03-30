@@ -52,8 +52,8 @@ void ForceAxisImpedenceFeedbackController::get_next_step(const franka::RobotStat
                                              TrajectoryGenerator *traj_generator) {
     
 
-  double* force_torque_desired_ptr = &(traj_generator->force_torque_desired_[0]);
-  Eigen::Map<Eigen::VectorXd> desired_force_torque(force_torque_desired_ptr, 6);
+  double* desired_force_torque_ptr = &(traj_generator->desired_force_torque_[0]);
+  Eigen::Map<Eigen::VectorXd> desired_force_torque(desired_force_torque_ptr, 6);
 
   std::array<double, 7> coriolis_array = model_->coriolis(robot_state);
   std::array<double, 42> jacobian_array = model_->zeroJacobian(franka::Frame::kEndEffector, robot_state);

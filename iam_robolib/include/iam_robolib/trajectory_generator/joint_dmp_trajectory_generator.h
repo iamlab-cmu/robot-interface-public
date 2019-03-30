@@ -10,7 +10,7 @@
 
 #include "iam_robolib/trajectory_generator/trajectory_generator.h"
 
-class JointDmpTrajectoryGenerator : public TrajectoryGenerator {
+class JointDmpTrajectoryGenerator : public JointTrajectoryGenerator {
  public:
   using TrajectoryGenerator::TrajectoryGenerator;
 

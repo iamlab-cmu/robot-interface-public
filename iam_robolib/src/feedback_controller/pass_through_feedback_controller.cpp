@@ -25,8 +25,8 @@ void PassThroughFeedbackController::get_next_step() {
 void PassThroughFeedbackController::get_next_step(const franka::RobotState &robot_state,
                                                   TrajectoryGenerator *traj_generator) {
     
-    double* force_torque_desired_ptr = &(traj_generator->force_torque_desired_[0]);
-    Eigen::Map<Eigen::VectorXd> desired_force_torque(force_torque_desired_ptr, 6);
+    double* desired_force_torque_ptr = &(traj_generator->desired_force_torque_[0]);
+    Eigen::Map<Eigen::VectorXd> desired_force_torque(desired_force_torque_ptr, 6);
 
     // get jacobian
     std::array<double, 42> jacobian_array = model_->zeroJacobian(franka::Frame::kEndEffector, robot_state);
