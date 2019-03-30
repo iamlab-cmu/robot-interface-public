@@ -11,6 +11,8 @@ class PoseTrajectoryGenerator : public TrajectoryGenerator {
  public:
   using TrajectoryGenerator::TrajectoryGenerator;
 
+  void parse_parameters() override;
+
   void initialize_trajectory() override;
 
   void initialize_trajectory(const franka::RobotState &robot_state) override;

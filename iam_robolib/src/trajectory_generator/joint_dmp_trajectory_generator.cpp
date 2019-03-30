@@ -8,24 +8,12 @@
 #include <cmath>
 #include <iostream>
 
-void JointDmpTrajectoryGenerator::getInitialMeanAndStd() {
-  std::array<double, 10> basis_mean{};
-  std::array<double, 10> basis_std{};
-  for (int i = 0; i < num_basis_; i++)  {
-    basis_mean[i] = exp(-(i)*0.5/(num_basis_-1));
-  }
-  for (int i = 0; i < num_basis_ - 1; i++) {
-    basis_std[i] = 0.5 / (0.65 * pow(basis_mean[i+1] - basis_mean[i], 2));
-  }
-  basis_std[num_basis_ - 1] = basis_std[num_basis_ - 2];
-}
-
 void JointDmpTrajectoryGenerator::parse_parameters() {
   int num_params = static_cast<int>(params_[1]);
 
   // Tau (1) + num_basis = 7 (1) + num_sensor_values = 10 (1) + initial_y0(7) + weights (7 joints * 20 basis functions * 10 sensor inputs)
   if(num_params == 109) {
-    run_time_ = params_[2];
+    run_time_ = static_cast<double>(params_[2]);
     tau_ = static_cast<double>(params_[3]);
     alpha_  = static_cast<double>(params_[4]);
     beta_ = static_cast<double>(params_[5]);
@@ -57,16 +45,10 @@ void JointDmpTrajectoryGenerator::parse_parameters() {
   }
 }
 
-void JointDmpTrajectoryGenerator::initialize_trajectory() {
-  // assert(false);
-}
-
 void JointDmpTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
-  TrajectoryGenerator::initialize_initial_states(robot_state);
+  JointTrajectoryGenerator::initialize_initial_and_desired_joints(robot_state);
   // TODO: Should we use desired joint values here?
-  for (size_t i = 0; i < y0_.size(); i++) {
-    y0_[i] = static_cast<double>(robot_state.q_d[i]);
-  }
+  y0_ = robot_state.q_d;
   y_ = robot_state.q;
   dy_ = robot_state.dq;
   x_ = 1.0;
@@ -120,6 +102,17 @@ void JointDmpTrajectoryGenerator::get_next_step() {
   x_ -= (x_ * tau_) * dt_;
 
   // Finally set the joints we want.
-  joint_desired_ = y_;
+  desired_joints_ = y_;
 }
 
+void JointDmpTrajectoryGenerator::getInitialMeanAndStd() {
+  std::array<double, 10> basis_mean{};
+  std::array<double, 10> basis_std{};
+  for (int i = 0; i < num_basis_; i++)  {
+    basis_mean[i] = exp(-(i)*0.5/(num_basis_-1));
+  }
+  for (int i = 0; i < num_basis_ - 1; i++) {
+    basis_std[i] = 0.5 / (0.65 * pow(basis_mean[i+1] - basis_mean[i], 2));
+  }
+  basis_std[num_basis_ - 1] = basis_std[num_basis_ - 2];
+}

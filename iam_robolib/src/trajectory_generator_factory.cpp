@@ -20,7 +20,7 @@
 #include "iam_robolib/trajectory_generator/relative_min_jerk_pose_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/sine_joint_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/sine_pose_trajectory_generator.h"
-#include "iam_robolib/trajectory_generator/stay_in_initial_position_trajectory_generator.h"
+#include "iam_robolib/trajectory_generator/stay_in_initial_pose_trajectory_generator.h"
 
 TrajectoryGenerator* TrajectoryGeneratorFactory::getTrajectoryGeneratorForSkill(
     SharedBufferTypePtr buffer) {
@@ -65,8 +65,8 @@ TrajectoryGenerator* TrajectoryGeneratorFactory::getTrajectoryGeneratorForSkill(
     case TrajectoryGeneratorType::SinePoseTrajectoryGenerator:
       trajectory_generator = new SinePoseTrajectoryGenerator(buffer);
       break;
-    case TrajectoryGeneratorType::StayInInitialPositionTrajectoryGenerator:
-      trajectory_generator = new StayInInitialPositionTrajectoryGenerator(buffer);
+    case TrajectoryGeneratorType::StayInInitialPoseTrajectoryGenerator:
+      trajectory_generator = new StayInInitialPoseTrajectoryGenerator(buffer);
       break;
     default:
       std::cout << "Cannot create Trajectory Generator with type:" << 

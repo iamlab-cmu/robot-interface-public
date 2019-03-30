@@ -13,6 +13,8 @@ class ImpulseTrajectoryGenerator : public TrajectoryGenerator {
 
   void initialize_trajectory(const franka::RobotState &robot_state) override;
 
+  void initialize_initial_states(const franka::RobotState &robot_state);
+
   void get_next_step() override;
 
   void check_displacement_cap(const franka::RobotState &robot_state);

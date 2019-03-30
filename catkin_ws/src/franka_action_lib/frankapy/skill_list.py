@@ -658,7 +658,7 @@ class StayInPositionSkill(BaseSkill):
                 skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=TrajectoryGeneratorType.StayInInitialPositionTrajectoryGenerator,
+                trajectory_generator_type=TrajectoryGeneratorType.StayInInitialPoseTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.CartesianImpedanceFeedbackController,
                 termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):
@@ -681,7 +681,7 @@ class StayInPositionWithSelectiveComplianceSkill(BaseSkill):
                 skill_desc='',
                 meta_skill_type=MetaSkillType.BaseMetaSkill,
                 meta_skill_id=0,
-                trajectory_generator_type=TrajectoryGeneratorType.StayInInitialPositionTrajectoryGenerator,
+                trajectory_generator_type=TrajectoryGeneratorType.StayInInitialPoseTrajectoryGenerator,
                 feedback_controller_type=FeedbackControllerType.JointImpedanceFeedbackController,
                 termination_type=TerminationHandlerType.TimeTerminationHandler,
                 timer_type=1):

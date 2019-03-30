@@ -1,5 +1,21 @@
 #include "iam_robolib/trajectory_generator/joint_trajectory_generator.h"
 
+void JointTrajectoryGenerator::parse_parameters() {
+  // First parameter is reserved for the type
+
+  int num_params = static_cast<int>(params_[1]);
+
+  if(num_params == 8) {
+    run_time_ = static_cast<double>(params_[2]);
+    for (int i = 0; i < goal_joints_.size(); i++) {
+      goal_joints_[i] = static_cast<double>(params_[i + 3]);
+    }
+  }
+  else {
+    std::cout << "Incorrect number of params given: " << num_params << std::endl;
+  }
+}
+
 void JointTrajectoryGenerator::initialize_trajectory() {
   // pass
 }

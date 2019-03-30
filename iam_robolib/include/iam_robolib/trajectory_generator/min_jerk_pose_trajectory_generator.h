@@ -7,14 +7,9 @@ class MinJerkPoseTrajectoryGenerator : public PoseTrajectoryGenerator {
  public:
   using PoseTrajectoryGenerator::PoseTrajectoryGenerator;
 
-  void parse_parameters() override;
-
-  void initialize_trajectory() override;
-
-  void initialize_trajectory(const franka::RobotState &robot_state) override;
-
   void get_next_step() override;
 
+ private:
   double slerp_t_ = 0.0;
 };
 

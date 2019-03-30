@@ -55,16 +55,17 @@ add_library(iam_robolib SHARED
   src/trajectory_generator/gripper_trajectory_generator.cpp
   src/trajectory_generator/impulse_trajectory_generator.cpp
   src/trajectory_generator/joint_dmp_trajectory_generator.cpp
+  src/trajectory_generator/joint_trajectory_generator.cpp
   src/trajectory_generator/linear_joint_trajectory_generator.cpp
   src/trajectory_generator/linear_pose_trajectory_generator.cpp
   src/trajectory_generator/min_jerk_joint_trajectory_generator.cpp
   src/trajectory_generator/min_jerk_pose_trajectory_generator.cpp
+  src/trajectory_generator/pose_trajectory_generator.cpp
   src/trajectory_generator/relative_linear_pose_trajectory_generator.cpp
   src/trajectory_generator/relative_min_jerk_pose_trajectory_generator.cpp
   src/trajectory_generator/sine_joint_trajectory_generator.cpp
   src/trajectory_generator/sine_pose_trajectory_generator.cpp
-  src/trajectory_generator/stay_in_initial_position_trajectory_generator.cpp
-  src/trajectory_generator/trajectory_generator.cpp
+  src/trajectory_generator/stay_in_initial_pose_trajectory_generator.cpp
   src/ur/commander.cpp
   src/ur/master_board.cpp
   src/ur/messages.cpp
