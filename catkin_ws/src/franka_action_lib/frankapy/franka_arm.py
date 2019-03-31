@@ -195,7 +195,7 @@ class FrankaArm:
                                stop_on_contact_forces,
                                ignore_errors,
                                skill_desc,
-                               skill_type=ImpedanceControlSkill)
+                               skill_type=SkillType.ImpedanceControlSkill)
 
     def _goto_pose(self,
                    tool_pose,
@@ -338,7 +338,7 @@ class FrankaArm:
                 cartesian_impedance,
                 ignore_errors,
                 skill_desc,
-                SkillType.CartesianPoseSkill)
+                skill_type=SkillType.CartesianPoseSkill)
 
     def _goto_pose_delta(self,
                         delta_tool_pose,
