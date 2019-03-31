@@ -15,6 +15,7 @@ class RelativePoseTrajectoryGenerator : public PoseTrajectoryGenerator {
                              SkillType skill_type) override;
 
  protected:
+  std::array<double, 16> relative_pose_{};
   Eigen::Vector3d relative_position_;
   Eigen::Quaterniond relative_orientation_;
   

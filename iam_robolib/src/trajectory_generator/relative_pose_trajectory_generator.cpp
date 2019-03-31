@@ -14,10 +14,10 @@ void RelativePoseTrajectoryGenerator::parse_parameters() {
       {
         run_time_ = static_cast<double>(params_[params_idx++]);
 
-        for(size_t i = 0; i < goal_pose_.size(); i++) {
-          goal_pose_[i] = static_cast<double>(params_[params_idx++]);
+        for(size_t i = 0; i < relative_pose_.size(); i++) {
+          relative_pose_[i] = static_cast<double>(params_[params_idx++]);
         }
-        Eigen::Affine3d goal_transform(Eigen::Matrix4d::Map(goal_pose_.data()));
+        Eigen::Affine3d goal_transform(Eigen::Matrix4d::Map(relative_pose_.data()));
         relative_position_ = Eigen::Vector3d(goal_transform.translation());
         relative_orientation_ = Eigen::Quaterniond(goal_transform.linear());
       }
@@ -31,11 +31,14 @@ void RelativePoseTrajectoryGenerator::parse_parameters() {
         relative_position_[1] = static_cast<double>(params_[params_idx++]);
         relative_position_[2] = static_cast<double>(params_[params_idx++]);
 
-        std::array<double,4> goal_quaternion{};
-        for(size_t i = 0; i < goal_quaternion.size(); i++) {
-          goal_quaternion[i] = static_cast<double>(params_[params_idx++]);
+        std::array<double,4> relative_quaternion{};
+        for(size_t i = 0; i < relative_quaternion.size(); i++) {
+          relative_quaternion[i] = static_cast<double>(params_[params_idx++]);
         }
-        relative_orientation_ = Eigen::Quaterniond(goal_quaternion.data());
+        relative_orientation_ = Eigen::Quaterniond(relative_quaternion[0],
+                                                   relative_quaternion[1],
+                                                   relative_quaternion[2],
+                                                   relative_quaternion[3]);
       }
       break;
     case 7:
@@ -47,19 +50,19 @@ void RelativePoseTrajectoryGenerator::parse_parameters() {
         relative_position_[1] = static_cast<double>(params_[params_idx++]);
         relative_position_[2] = static_cast<double>(params_[params_idx++]);
 
-        Eigen::Vector3d goal_axis_angle;
+        Eigen::Vector3d relative_axis_angle;
         for(int i = 0; i < 3; i++) {
-          goal_axis_angle[i] = static_cast<double>(params_[params_idx++]);
+          relative_axis_angle[i] = static_cast<double>(params_[params_idx++]);
         }
 
-        double angle = goal_axis_angle.norm();
+        double angle = relative_axis_angle.norm();
         double sin_angle_divided_by_2 = std::sin(angle/2);
         double cos_angle_divided_by_2 = std::cos(angle/2);
 
-        relative_orientation_ = Eigen::Quaterniond(goal_axis_angle[0] * sin_angle_divided_by_2,
-                                               goal_axis_angle[1] * sin_angle_divided_by_2,
-                                               goal_axis_angle[2] * sin_angle_divided_by_2,
-                                               cos_angle_divided_by_2);
+        relative_orientation_ = Eigen::Quaterniond(relative_axis_angle[0] * sin_angle_divided_by_2,
+                                                   relative_axis_angle[1] * sin_angle_divided_by_2,
+                                                   relative_axis_angle[2] * sin_angle_divided_by_2,
+                                                   cos_angle_divided_by_2);
       }
       break;
     default:

@@ -35,7 +35,10 @@ void PoseTrajectoryGenerator::parse_parameters() {
         for(size_t i = 0; i < goal_quaternion.size(); i++) {
           goal_quaternion[i] = static_cast<double>(params_[params_idx++]);
         }
-        goal_orientation_ = Eigen::Quaterniond(goal_quaternion.data());
+        goal_orientation_ = Eigen::Quaterniond(goal_quaternion[0],
+                                               goal_quaternion[1],
+                                               goal_quaternion[2],
+                                               goal_quaternion[3]);
       }
       break;
     case 7:
