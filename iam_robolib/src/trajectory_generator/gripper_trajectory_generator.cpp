@@ -7,19 +7,33 @@
 #include <iostream>
 
 void GripperTrajectoryGenerator::parse_parameters() {
-  int num_params = static_cast<int>(params_[1]);
+  // First parameter is reserved for the type
 
-  if(num_params == 2) {
-    width_ = static_cast<double >(params_[2]);
-    speed_ = static_cast<double >(params_[3]);
-    is_grasp_skill_ = false;
-  } else if (num_params == 3) {
-    width_ = static_cast<double >(params_[2]);
-    speed_ = static_cast<double >(params_[3]);
-    force_ = static_cast<double> (params_[4]);
-    is_grasp_skill_ = true;
-  } else {
-    std::cout << "GripperTrajGen: Incorrect number of params given: " << num_params << std::endl;
+  int params_idx = 1;
+  int num_params = static_cast<int>(params_[params_idx++]);
+
+  switch(num_params) {
+    case 2:
+      // Width and Speed
+      {
+        width_ = static_cast<double >(params_[params_idx++]);
+        speed_ = static_cast<double >(params_[params_idx++]);
+        is_grasp_skill_ = false;
+      }
+      break;
+    case 3:
+      // Width, Speed, and Force
+      {
+        width_ = static_cast<double >(params_[params_idx++]);
+        speed_ = static_cast<double >(params_[params_idx++]);
+        force_ = static_cast<double> (params_[params_idx++]);
+        is_grasp_skill_ = true;
+      }
+      break;
+    default:
+      std::cout << "GripperTrajectoryGenerator: " <<
+                   "Incorrect number of params given: " << 
+                    num_params << std::endl;
   }
 }
 
@@ -28,6 +42,11 @@ void GripperTrajectoryGenerator::initialize_trajectory() {
 }
 
 void GripperTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
+  // pass
+}
+
+void GripperTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state,
+                                                       SkillType skill_type) {
   // pass
 }
 

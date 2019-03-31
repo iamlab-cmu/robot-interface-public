@@ -9,17 +9,23 @@
 void StayInInitialPoseTrajectoryGenerator::parse_parameters() {
   // First parameter is reserved for the type
 
-  int num_params = static_cast<int>(params_[1]);
+  int params_idx = 1;
+  int num_params = static_cast<int>(params_[params_idx++]);
 
-  if(num_params == 0) {
-    std::cout << "StayInInitialPoseTrajectoryGenerator: No parameters provided. Using default run_time. " << std::endl;
-  } 
-  // Time
-  else if(num_params == 1) {
-    run_time_ = static_cast<double>(params_[2]);
-  } 
-  else {
-    std::cout << "StayInInitialPoseTrajectoryGenerator: Invalid number of params provided: " << num_params << std::endl;
+  switch(num_params) {
+    case 0:
+      std::cout << "StayInInitialPoseTrajectoryGenerator: " <<
+                   "No parameters provided. " <<
+                   "Using default run_time. " << std::endl;
+      break;
+    case 1:
+      // Time (1)
+      run_time_ = static_cast<double>(params_[params_idx++]);
+      break;
+    default:
+      std::cout << "StayInInitialPoseTrajectoryGenerator: " <<
+                   "Invalid number of params provided: " << 
+                    num_params << std::endl;
   }
 }
 

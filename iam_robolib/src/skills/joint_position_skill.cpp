@@ -45,7 +45,7 @@ void JointPositionSkill::execute_skill_on_franka(run_loop* run_loop,
       const franka::RobotState& robot_state,
       franka::Duration period) -> franka::JointPositions {
     if (time == 0.0) {
-      joint_trajectory_generator->initialize_trajectory(robot_state);
+      joint_trajectory_generator->initialize_trajectory(robot_state, SkillType::JointPositionSkill);
       try {
         if (lock.try_lock()) {
           run_loop_info->set_time_skill_started_in_robot_time(robot_state.time.toSec());

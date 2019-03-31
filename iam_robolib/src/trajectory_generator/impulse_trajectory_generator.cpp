@@ -5,24 +5,36 @@
 #include "iam_robolib/trajectory_generator/impulse_trajectory_generator.h"
 
 #include <cassert>
+#include <type_traits>
 #include <iostream>
 #include <memory.h>
+
+#include <iam_robolib_common/definitions.h>
 
 void ImpulseTrajectoryGenerator::parse_parameters() {
   // First parameter is reserved for the type
 
-  int num_params = static_cast<int>(params_[1]);
-  if (num_params == 10) {
-    run_time_ = static_cast<double>(params_[2]);
-    acc_time_ = static_cast<double>(params_[3]);
-    max_translation_ = static_cast<double>(params_[4]);
-    max_rotation_ = static_cast<double>(params_[5]);
-    for (int i = 0; i < target_force_torque_.size(); i++) {
-      target_force_torque_[i] = static_cast<double>(params_[i + 6]);
-    }
+  int params_idx = 1;
+  int num_params = static_cast<int>(params_[params_idx++]);
 
-  } else {
-    std::cout << "Incorrect number of params given: " << num_params << std::endl;
+  switch(num_params) {
+    case 10:
+      // Run Time, Acceleration Time, Max Translation, Max Rotation,
+      // and Target Force Torques (6)
+      {
+        run_time_ = static_cast<double>(params_[params_idx++]);
+        acc_time_ = static_cast<double>(params_[params_idx++]);
+        max_translation_ = static_cast<double>(params_[params_idx++]);
+        max_rotation_ = static_cast<double>(params_[params_idx++]);
+        for (size_t i = 0; i < target_force_torque_.size(); i++) {
+          target_force_torque_[i] = static_cast<double>(params_[params_idx++]);
+        }
+      }
+      break;
+    default:
+      std::cout << "ImpulseTrajectoryGenerator: " <<
+                   "Incorrect number of params given: " << 
+                    num_params << std::endl;
   }
 }
 
@@ -31,11 +43,29 @@ void ImpulseTrajectoryGenerator::initialize_trajectory() {
 }
 
 void ImpulseTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
-  initialize_initial_states(robot_state);
+  initialize_initial_states(robot_state, SkillType::ForceTorqueSkill);
 }
 
-void ImpulseTrajectoryGenerator::initialize_initial_states(const franka::RobotState &robot_state) {
-  Eigen::Affine3d initial_transform(Eigen::Matrix4d::Map(robot_state.O_T_EE.data()));
+void ImpulseTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state,
+                                                       SkillType skill_type) {
+  initialize_initial_states(robot_state, skill_type);
+}
+
+void ImpulseTrajectoryGenerator::initialize_initial_states(const franka::RobotState &robot_state,
+                                                           SkillType skill_type) {
+  switch(skill_type) {
+    case SkillType::ForceTorqueSkill:
+      initial_pose_ = robot_state.O_T_EE;
+      break;
+    default:
+      initial_pose_ = robot_state.O_T_EE;
+      std::cout << "Invalid Skill Type provided: " << 
+                static_cast<std::underlying_type<SkillType>::type>(skill_type) << 
+                "\n";
+      std::cout << "Using default O_T_EE" << std::endl;
+  }
+
+  Eigen::Affine3d initial_transform(Eigen::Matrix4d::Map(initial_pose_.data()));
   initial_position_ = Eigen::Vector3d(initial_transform.translation());
   initial_orientation_ = Eigen::Quaterniond(initial_transform.linear());
 }
@@ -56,7 +86,7 @@ void ImpulseTrajectoryGenerator::get_next_step() {
     }
   }
 
-  for (int i = 0; i < target_force_torque_.size(); i++) {
+  for (size_t i = 0; i < target_force_torque_.size(); i++) {
     desired_force_torque_[i] = coef * target_force_torque_[i];
   }
 }

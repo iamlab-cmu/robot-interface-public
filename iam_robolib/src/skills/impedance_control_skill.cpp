@@ -11,6 +11,7 @@
 #include "iam_robolib/robot_state_data.h"
 #include "iam_robolib/run_loop_shared_memory_handler.h"
 
+#include <iam_robolib_common/definitions.h>
 #include <iam_robolib_common/run_loop_process_info.h>
 
 void ImpedanceControlSkill::execute_skill() {
@@ -45,7 +46,7 @@ void ImpedanceControlSkill::execute_skill_on_franka(run_loop* run_loop,
                                               franka::Duration period) -> franka::Torques {
 
     if (time == 0.0) {
-      traj_generator_->initialize_trajectory(robot_state);
+      traj_generator_->initialize_trajectory(robot_state, SkillType::ImpedanceControlSkill);
       try {
         if (lock.try_lock()) {
           run_loop_info->set_time_skill_started_in_robot_time(robot_state.time.toSec());

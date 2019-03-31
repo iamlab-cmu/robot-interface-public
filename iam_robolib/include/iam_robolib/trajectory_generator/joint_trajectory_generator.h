@@ -15,10 +15,14 @@ class JointTrajectoryGenerator : public TrajectoryGenerator {
 
   void initialize_trajectory(const franka::RobotState &robot_state) override;
 
+  void initialize_trajectory(const franka::RobotState &robot_state,
+                             SkillType skill_type) override;
+
   /**
    * Initialize initial and desired joints from robot state
    */
-  void initialize_initial_and_desired_joints(const franka::RobotState &robot_state);
+  void initialize_initial_and_desired_joints(const franka::RobotState &robot_state,
+                                             SkillType skill_type);
 
   /**
    * Returns the desired joints

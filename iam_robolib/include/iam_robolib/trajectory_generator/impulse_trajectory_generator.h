@@ -16,7 +16,11 @@ class ImpulseTrajectoryGenerator : public TrajectoryGenerator {
 
   void initialize_trajectory(const franka::RobotState &robot_state) override;
 
-  void initialize_initial_states(const franka::RobotState &robot_state);
+  void initialize_trajectory(const franka::RobotState &robot_state,
+                             SkillType skill_type) override;
+
+  void initialize_initial_states(const franka::RobotState &robot_state,
+                                 SkillType skill_type);
 
   void get_next_step() override;
 
@@ -28,6 +32,8 @@ class ImpulseTrajectoryGenerator : public TrajectoryGenerator {
 
  private:
   double acc_time_ = 0.0;
+
+  std::array<double, 16> initial_pose_{};
 
   std::array<double, 6> target_force_torque_{};
   bool should_deacc_ = false;

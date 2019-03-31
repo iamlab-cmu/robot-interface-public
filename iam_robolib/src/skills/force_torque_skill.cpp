@@ -15,6 +15,7 @@
 #include "iam_robolib/run_loop_shared_memory_handler.h"
 #include "iam_robolib/trajectory_generator/impulse_trajectory_generator.h"
 
+#include <iam_robolib_common/definitions.h>
 #include <iam_robolib_common/run_loop_process_info.h>
 
 void ForceTorqueSkill::execute_skill() {
@@ -44,7 +45,7 @@ void ForceTorqueSkill::execute_skill_on_franka(run_loop* run_loop,
   auto force_control_callback = [&](const franka::RobotState& robot_state, 
                     franka::Duration period) -> franka::Torques {
     if (time == 0.0) {
-      impulse_trajectory_generator->initialize_trajectory(robot_state);
+      impulse_trajectory_generator->initialize_trajectory(robot_state, SkillType::ForceTorqueSkill);
       try {
         if (lock.try_lock()) {
           run_loop_info->set_time_skill_started_in_robot_time(robot_state.time.toSec());

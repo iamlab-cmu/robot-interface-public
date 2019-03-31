@@ -9,59 +9,70 @@
 #include <iostream>
 
 void JointDmpTrajectoryGenerator::parse_parameters() {
-  // First element is reserved for trajectory type
+  // First parameter is reserved for the type
 
   int params_idx = 1;
-
   int num_params = static_cast<int>(params_[params_idx++]);
 
-  // Tau (1) + num_basis = 7 (1) + num_sensor_values = 10 (1) + initial_y0(7) + weights (7 joints * 20 basis functions * 10 sensor inputs)
-  if(num_params == 109) {
-    run_time_ = static_cast<double>(params_[params_idx++]);
-    tau_ = static_cast<double>(params_[params_idx++]);
-    alpha_  = static_cast<double>(params_[params_idx++]);
-    beta_ = static_cast<double>(params_[params_idx++]);
-    num_basis_ = static_cast<int>(params_[params_idx++]);
-    num_sensor_values_ = static_cast<int>(params_[params_idx++]);
+  switch(num_params) {
+    case 109:
+      // Tau (1) + num_basis = 7 (1) + num_sensor_values = 10 (1) + 
+      // initial_y0(7) + weights (7 joints * 20 basis functions * 10 sensor inputs)
+      {
+        run_time_ = static_cast<double>(params_[params_idx++]);
+        tau_ = static_cast<double>(params_[params_idx++]);
+        alpha_  = static_cast<double>(params_[params_idx++]);
+        beta_ = static_cast<double>(params_[params_idx++]);
+        num_basis_ = static_cast<int>(params_[params_idx++]);
+        num_sensor_values_ = static_cast<int>(params_[params_idx++]);
 
-    // Get the mean and std for the basis functions
-    for (int i = 0; i < num_basis_; i++) {
-      basis_mean_[i] = static_cast<double>(params_[params_idx++]);
-    }
+        // Get the mean and std for the basis functions
+        for (int i = 0; i < num_basis_; i++) {
+          basis_mean_[i] = static_cast<double>(params_[params_idx++]);
+        }
 
-    for (int i = 0; i < num_basis_; i++) {
-      basis_std_[i] = static_cast<double>(params_[params_idx++]);
-    }
+        for (int i = 0; i < num_basis_; i++) {
+          basis_std_[i] = static_cast<double>(params_[params_idx++]);
+        }
 
-    for (size_t i = 0; i < y0_.size(); i++) {
-      y0_[i] = static_cast<double>(params_[params_idx++]);
-    }
+        for (size_t i = 0; i < y0_.size(); i++) {
+          y0_[i] = static_cast<double>(params_[params_idx++]);
+        }
 
-    // memcpy(&basis_mean_, &params_[8], num_basis_ * sizeof(double));
-    // memcpy(&basis_std_, &params_[8+num_basis_], num_basis_ * sizeof(double));
-    // memcpy(&y0_, &params_[8 + 2*num_basis_], 7 * sizeof(double));
+        for (int i = 0; i < num_dims_; i++) {
+          for (int j = 0; j < num_sensor_values_; j++) {
+            for (int k = 0; k < num_basis_; k++) {
+              weights_[i][j][k] = static_cast<double>(params_[params_idx++]);
+            }
+          }
+        }
 
-    // memcpy(&weights_, &params_[8 + 2*num_basis_ + 7], num_dims_ * num_sensor_values_ * num_basis_ * sizeof(double));
-    // int params_idx = 8 + 2*num_basis_ + 7;
-    for (int i = 0; i < num_dims_; i++) {
-      for (int j = 0; j < num_sensor_values_; j++) {
-        for (int k = 0; k < num_basis_; k++) {
-          weights_[i][j][k] = static_cast<double>(params_[params_idx++]);
+        // TODO(Mohit): We need to start using sensor values in our trajectory generator and feedback controller.
+        for (int i = 0; i < num_sensor_values_; i++) {
+          initial_sensor_values_[i] = 1.0;
         }
       }
-    }
-
-    // TODO(Mohit): We need to start using sensor values in our trajectory generator and feedback controller.
-    for (int i = 0; i < num_sensor_values_; i++) {
-      initial_sensor_values_[i] = 1.0;
-    }
-  } else {
-    std::cout << "JointDmpTrajectoryGenerator Invalid number of parameters: " << num_params << std::endl;
+      break;
+    default:
+      std::cout << "JointDmpTrajectoryGenerator: " <<
+                   "Invalid number of parameters: " << 
+                    num_params << std::endl;
   }
 }
 
 void JointDmpTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
-  initialize_initial_and_desired_joints(robot_state);
+  initialize_initial_and_desired_joints(robot_state, SkillType::JointPositionSkill);
+  
+  // TODO: Should we use desired joint values here?
+  y0_ = robot_state.q_d;
+  y_ = robot_state.q;
+  dy_ = robot_state.dq;
+  x_ = 1.0;
+}
+
+void JointDmpTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state,
+                                                        SkillType skill_type) {
+  initialize_initial_and_desired_joints(robot_state, skill_type);
   
   // TODO: Should we use desired joint values here?
   y0_ = robot_state.q_d;

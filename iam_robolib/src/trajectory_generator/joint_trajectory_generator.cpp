@@ -5,16 +5,24 @@
 void JointTrajectoryGenerator::parse_parameters() {
   // First parameter is reserved for the type
 
-  int num_params = static_cast<int>(params_[1]);
+  int params_idx = 1;
+  int num_params = static_cast<int>(params_[params_idx++]);
 
-  if(num_params == 8) {
-    run_time_ = static_cast<double>(params_[2]);
-    for (size_t i = 0; i < goal_joints_.size(); i++) {
-      goal_joints_[i] = static_cast<double>(params_[i + 3]);
-    }
-  }
-  else {
-    std::cout << "Incorrect number of params given: " << num_params << std::endl;
+  switch(num_params) {
+    case 8:
+      // Run time + 7 joints
+      {
+        run_time_ = static_cast<double>(params_[params_idx++]);
+
+        for (size_t i = 0; i < goal_joints_.size(); i++) {
+          goal_joints_[i] = static_cast<double>(params_[params_idx++]);
+        }
+      }
+      break;
+    default:
+      std::cout << "JointTrajectoryGenerator: " <<
+                   "Incorrect number of params given: " << 
+                   num_params << std::endl;
   }
 }
 
@@ -23,12 +31,29 @@ void JointTrajectoryGenerator::initialize_trajectory() {
 }
 
 void JointTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
-  initialize_initial_and_desired_joints(robot_state);
+  initialize_initial_and_desired_joints(robot_state, SkillType::JointPositionSkill);
 }
 
-void JointTrajectoryGenerator::initialize_initial_and_desired_joints(const franka::RobotState &robot_state) {
-  initial_joints_ = robot_state.q_d;
-  desired_joints_ = robot_state.q_d;
+void JointTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state,
+                                                     SkillType skill_type) {
+  initialize_initial_and_desired_joints(robot_state, skill_type);
+}
+
+void JointTrajectoryGenerator::initialize_initial_and_desired_joints(const franka::RobotState &robot_state,
+                                                                     SkillType skill_type) {
+  switch(skill_type) {
+    case SkillType::JointPositionSkill:
+      initial_joints_ = robot_state.q_d;
+      desired_joints_ = robot_state.q_d;
+      break;
+    case SkillType::ImpedanceControlSkill:
+      initial_joints_ = robot_state.q;
+      desired_joints_ = robot_state.q;
+      break;
+    default:
+      initial_joints_ = robot_state.q_d;
+      desired_joints_ = robot_state.q_d;
+  }
 }
 
 const std::array<double, 7>& JointTrajectoryGenerator::get_desired_joints() const {

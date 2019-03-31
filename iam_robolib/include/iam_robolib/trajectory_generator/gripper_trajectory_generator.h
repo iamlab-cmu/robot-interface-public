@@ -20,6 +20,9 @@ class GripperTrajectoryGenerator : public TrajectoryGenerator {
 
   void initialize_trajectory(const franka::RobotState &robot_state) override;
 
+  void initialize_trajectory(const franka::RobotState &robot_state,
+                             SkillType skill_type) override;
+
   void get_next_step() override;
 
   /**

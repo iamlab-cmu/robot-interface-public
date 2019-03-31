@@ -16,6 +16,7 @@
 #include "iam_robolib/skills/base_skill.h"
 #include "iam_robolib/trajectory_generator/joint_dmp_trajectory_generator.h"
 
+#include <iam_robolib_common/definitions.h>
 #include <iam_robolib_common/run_loop_process_info.h>
 
 bool JointPositionContinuousSkill::isComposableSkill() {
@@ -60,7 +61,7 @@ void JointPositionContinuousSkill::execute_skill_on_franka(run_loop *run_loop,
     }
 
     if (current_skill_time == 0.0) {
-      traj_generator->initialize_trajectory(robot_state);
+      traj_generator->initialize_trajectory(robot_state, SkillType::JointPositionSkill);
       traj_generator->y_ = last_dmp_q;
       traj_generator->dy_ = last_dmp_dq;
       try {

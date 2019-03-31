@@ -24,6 +24,12 @@ class TrajectoryGenerator {
   virtual void initialize_trajectory(const franka::RobotState &robot_state) = 0;
 
   /**
+   * Initialize trajectory generation after parameter parsing.
+   */
+  virtual void initialize_trajectory(const franka::RobotState &robot_state,
+                                     SkillType skill_type) = 0;
+
+  /**
    *  Get next trajectory step.
    */
   virtual void get_next_step() = 0;

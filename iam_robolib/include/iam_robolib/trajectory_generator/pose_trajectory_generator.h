@@ -3,7 +3,6 @@
 
 #include <array>
 #include <Eigen/Dense>
-#include <iam_robolib_common/definitions.h>
 
 #include "iam_robolib/trajectory_generator/trajectory_generator.h"
 
@@ -17,8 +16,8 @@ class PoseTrajectoryGenerator : public TrajectoryGenerator {
 
   void initialize_trajectory(const franka::RobotState &robot_state) override;
 
-  virtual void initialize_trajectory(const franka::RobotState &robot_state,
-                                     SkillType skill_type);
+  void initialize_trajectory(const franka::RobotState &robot_state,
+                             SkillType skill_type) override;
 
   /**
    * Initialize initial and desired positions and orientations from robot state
