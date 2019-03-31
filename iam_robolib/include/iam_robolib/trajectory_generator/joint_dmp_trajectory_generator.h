@@ -5,7 +5,7 @@
 
 class JointDmpTrajectoryGenerator : public JointTrajectoryGenerator {
  public:
-  using TrajectoryGenerator::TrajectoryGenerator;
+  using JointTrajectoryGenerator::JointTrajectoryGenerator;
 
   void parse_parameters() override;
 
