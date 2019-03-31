@@ -1,13 +1,6 @@
 #ifndef IAM_ROBOLIB_SKILLS_IMPEDANCE_CONTROL_SKILL_H_
 #define IAM_ROBOLIB_SKILLS_IMPEDANCE_CONTROL_SKILL_H_
 
-// #include <franka/duration.h>
-// #include <franka/exception.h>
-// #include <franka/gripper.h>
-// #include <franka/model.h>
-// #include <franka/rate_limiting.h>
-// #include <franka/robot.h>
-
 #include "iam_robolib/skills/base_skill.h"
 
 #include "iam_robolib/trajectory_generator/trajectory_generator.h"

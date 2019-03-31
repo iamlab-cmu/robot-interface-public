@@ -2,11 +2,9 @@
 
 #include <cassert>
 #include <iostream>
-#include <vector>
 #include <array>
 
 #include <franka/robot.h>
-#include <franka/exception.h>
 
 #include "iam_robolib/run_loop.h"
 #include "iam_robolib/robot_state_data.h"

@@ -6,18 +6,15 @@
 
 #include <cassert>
 #include <iostream>
-#include <vector>
 #include <array>
 
 #include <franka/robot.h>
-#include <franka/exception.h>
 
 #include "iam_robolib/run_loop.h"
 #include "iam_robolib/robot_state_data.h"
+#include "iam_robolib/run_loop_shared_memory_handler.h"
 #include "iam_robolib/skills/base_skill.h"
 #include "iam_robolib/trajectory_generator/joint_dmp_trajectory_generator.h"
-#include "iam_robolib/run_loop.h"
-#include "iam_robolib/run_loop_shared_memory_handler.h"
 
 #include <iam_robolib_common/run_loop_process_info.h>
 

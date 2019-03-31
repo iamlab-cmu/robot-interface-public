@@ -6,12 +6,6 @@
 
 #include <cassert>
 #include <iostream>
-#include <vector>
-#include <array>
-
-#include <Eigen/Dense>
-
-#include <franka/exception.h>
 
 #include "iam_robolib/run_loop.h"
 #include "iam_robolib/robot_state_data.h"
