@@ -243,8 +243,8 @@ class FrankaArm:
         else:
             skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
 
-        skill.add_trajectory_params([duration]
-                + tool_base_pose.matrix.T.flatten().tolist())
+        skill.add_goal_pose_with_matrix(duration,
+                                        tool_base_pose.matrix.T.flatten().tolist())
         goal = skill.create_goal()
 
         self._send_goal(goal,
@@ -369,9 +369,9 @@ class FrankaArm:
         else:
             skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
 
-        skill.add_trajectory_params([duration]
-                + delta_tool_base_pose.translation.tolist()
-                + delta_tool_base_pose.quaternion.tolist())
+        skill.add_relative_motion_with_quaternion(duration,
+                                                  delta_tool_base_pose.translation.tolist(),
+                                                  delta_tool_base_pose.quaternion.tolist())
         goal = skill.create_goal()
 
         self._send_goal(goal,
@@ -525,7 +525,7 @@ class FrankaArm:
         else:
             skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
 
-        skill.add_trajectory_params([duration] + np.array(joints).tolist())
+        skill.add_goal_joints(duration, joints)
         goal = skill.create_goal()
 
         self._send_goal(goal,
@@ -754,7 +754,7 @@ class FrankaArm:
         else:
             skill.add_feedback_controller_params([translational_stiffness] + [rotational_stiffness]) 
         
-        skill.add_trajectory_params([duration])
+        skill.add_run_time(duration)
         goal = skill.create_goal()
 
         self._send_goal(goal,
@@ -790,7 +790,7 @@ class FrankaArm:
             else:
                 skill.add_feedback_controller_params([])
         
-        skill.add_trajectory_params([duration])
+        skill.add_run_time(duration)
         goal = skill.create_goal()
 
         self._send_goal(goal,
@@ -832,7 +832,7 @@ class FrankaArm:
         skill.add_feedback_controller_params(
                 translational_stiffnesses + rotational_stiffnesses)
 
-        skill.add_trajectory_params([duration])
+        skill.add_run_time(duration)
         goal = skill.create_goal()
 
         self._send_goal(

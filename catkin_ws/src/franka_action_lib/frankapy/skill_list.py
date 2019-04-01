@@ -78,12 +78,14 @@ class BaseSkill(object):
         self._timer_params = params
         self._num_timer_params = len(params)
 
-    def add_pose_goal_with_matrix(self, time, matrix):
+    def add_goal_pose_with_matrix(self, time, matrix):
+        assert type(time) is float or type(time) is int, "Incorrect time type. Should be int or float."
+        assert time >= 0, "Incorrect time. Should be non negative."
         assert type(matrix) is list, "Incorrect matrix type. Should be list."
         assert len(matrix) == 16, "Incorrect matrix len. Should be 16."
         self.add_trajectory_params([time] + matrix)
 
-    def add_pose_goal_with_quaternion(self, time, position, quaternion):
+    def add_goal_pose_with_quaternion(self, time, position, quaternion):
         assert type(time) is float or type(time) is int, "Incorrect time type. Should be int or float."
         assert time >= 0, "Incorrect time. Should be non negative."
         assert type(position) is list, "Incorrect position type. Should be list."
@@ -91,6 +93,34 @@ class BaseSkill(object):
         assert len(position) == 3, "Incorrect position length. Should be 3."
         assert len(quaternion) == 4, "Incorrect quaternion length. Should be 4."
         self.add_trajectory_params([time] + position + quaternion)
+
+    def add_relative_motion_with_matrix(self, time, matrix):
+        assert type(time) is float or type(time) is int, "Incorrect time type. Should be int or float."
+        assert time >= 0, "Incorrect time. Should be non negative."
+        assert type(matrix) is list, "Incorrect matrix type. Should be list."
+        assert len(matrix) == 16, "Incorrect matrix len. Should be 16."
+        self.add_trajectory_params([time] + matrix)
+
+    def add_relative_motion_with_quaternion(self, time, position, quaternion):
+        assert type(time) is float or type(time) is int, "Incorrect time type. Should be int or float."
+        assert time >= 0, "Incorrect time. Should be non negative."
+        assert type(position) is list, "Incorrect position type. Should be list."
+        assert type(quaternion) is list, "Incorrect quaternion type. Should be list."
+        assert len(position) == 3, "Incorrect position length. Should be 3."
+        assert len(quaternion) == 4, "Incorrect quaternion length. Should be 4."
+        self.add_trajectory_params([time] + position + quaternion)
+
+    def add_goal_joints(self, time, joints):
+        assert type(time) is float or type(time) is int, "Incorrect time type. Should be int or float."
+        assert time >= 0, "Incorrect time. Should be non negative."
+        assert type(joints) is list, "Incorrect joints type. Should be list."
+        assert len(joints) == 7, "Incorrect joints len. Should be 7."
+        self.add_trajectory_params([time] + joints)
+
+    def add_run_time(self, time):
+        assert type(time) is float or type(time) is int, "Incorrect time type. Should be int or float."
+        assert time >= 0, "Incorrect time. Should be non negative."
+        self.add_trajectory_params([time])
 
     def add_cartesian_impedances(self, cartesian_impedances):
         assert type(cartesian_impedances) is list, "Incorrect cartesian impedances type. Should be list."
@@ -109,8 +139,10 @@ class BaseSkill(object):
         self.add_feedback_controller_params(joint_impedances)
 
     def add_joint_gains(self, k_gains, d_gains):
-        assert type(joint_impedances) is list, "Incorrect joint impedances type. Should be list."
-        assert len(joint_impedances) == 7, "Incorrect joint impedances len. Should be 7."
+        assert type(k_gains) is list, "Incorrect k_gains type. Should be list."
+        assert type(d_gains) is list, "Incorrect d_gains type. Should be list."
+        assert len(k_gains) == 7, "Incorrect k_gains len. Should be 7."
+        assert len(d_gains) == 7, "Incorrect d_gains len. Should be 7."
         assert self._skill_type == SkillType.ImpedanceControlSkill, "Incorrect skill type. Should be ImpedanceControlSkill"
 
         self.add_feedback_controller_params(k_gains + d_gains)
