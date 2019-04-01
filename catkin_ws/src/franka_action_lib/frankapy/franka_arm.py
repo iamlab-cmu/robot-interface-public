@@ -124,8 +124,10 @@ class FrankaArm:
                   tool_pose,
                   duration=3,
                   stop_on_contact_forces=None,
+                  cartesian_impedances=None,
                   ignore_errors=True,
-                  skill_desc=''):
+                  skill_desc='',
+                  skill_type=SkillType.ImpedanceControlSkill):
         '''Commands Arm to the given pose via linear interpolation
 
         Args:
@@ -140,14 +142,16 @@ class FrankaArm:
         return self._goto_pose(tool_pose,
                                duration,
                                stop_on_contact_forces,
+                               cartesian_impedances,
                                ignore_errors,
                                skill_desc,
-                               skill_type=SkillType.ImpedanceControlSkill)
+                               skill_type)
 
     def goto_pose_with_cartesian_control(self,
                                          tool_pose,
                                          duration=3.,
                                          stop_on_contact_forces=None,
+                                         cartesian_impedances=None,
                                          ignore_errors=True,
                                          skill_desc=''):
         '''Commands Arm to the given pose via min-jerk interpolation.
@@ -166,6 +170,7 @@ class FrankaArm:
         return self._goto_pose(tool_pose,
                                duration,
                                stop_on_contact_forces,
+                               cartesian_impedances,
                                ignore_errors,
                                skill_desc,
                                skill_type=SkillType.CartesianPoseSkill)
@@ -174,6 +179,7 @@ class FrankaArm:
                                          tool_pose,
                                          duration=3.,
                                          stop_on_contact_forces=None,
+                                         cartesian_impedances=None,
                                          ignore_errors=True,
                                          skill_desc=''):
         '''Commands Arm to the given pose via min-jerk interpolation.
@@ -193,6 +199,7 @@ class FrankaArm:
         return self._goto_pose(tool_pose,
                                duration,
                                stop_on_contact_forces,
+                               cartesian_impedances,
                                ignore_errors,
                                skill_desc,
                                skill_type=SkillType.ImpedanceControlSkill)
@@ -201,6 +208,7 @@ class FrankaArm:
                    tool_pose,
                    duration=3,
                    stop_on_contact_forces=None,
+                   cartesian_impedances=None,
                    ignore_errors=True,
                    skill_desc='',
                    skill_type=None):
@@ -219,47 +227,24 @@ class FrankaArm:
 
         tool_base_pose = tool_pose * self._tool_delta_pose.inverse()
 
-        if skill_type == SkillType.ImpedanceControlSkill:
-            if stop_on_contact_forces is None:
-                skill = MinJerkCartesianPoseSkillWithImpedanceControl(
-                        skill_desc=skill_desc)
-            else:
-                skill = MinJerkCartesianPoseSkillWithImpedanceControlToContact(
-                        skill_desc=skill_desc)
-                force_thresholds = np.array(stop_on_contact_forces).tolist()
-                skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
-                                                    force_thresholds,
-                                                    force_thresholds)
-        elif skill_type == SkillType.CartesianPoseSkill:
-            if stop_on_contact_forces is None:
-                skill = MinJerkCartesianPoseSkillWithCartesianPoseControl(
-                        skill_desc=skill_desc)
-            else:
-                skill = MinJerkCartesianPoseSkillWithCartesianPoseControlToContact(
-                        skill_desc=skill_desc)
-                force_thresholds = np.array(stop_on_contact_forces).tolist()
-                skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
-                                                    force_thresholds,
-                                                    force_thresholds)
-        else:
-            if stop_on_contact_forces is None:
-                skill = MinJerkCartesianPoseSkillWithImpedanceControl(
-                        skill_desc=skill_desc)
-            else:
-                skill = MinJerkCartesianPoseSkillWithImpedanceControlToContact(
-                        skill_desc=skill_desc)
-                force_thresholds = np.array(stop_on_contact_forces).tolist()
-                skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
-                                                    force_thresholds,
-                                                    force_thresholds)
+        skill = GoToPoseSkill(skill_desc, skill_type)
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
-        skill.add_feedback_controller_params(FC.DEFAULT_TORQUE_CONTROLLER_PARAMS)
-        if stop_on_contact_forces is None:
+
+        if cartesian_impedances is not None:
+            skill.add_cartesian_impedances(cartesian_impedances)
+        else:
+            skill.add_feedback_controller_params(FC.DEFAULT_TORQUE_CONTROLLER_PARAMS)
+
+        if stop_on_contact_forces is not None:
+            skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
+                                                 stop_on_contact_forces,
+                                                 stop_on_contact_forces)
+        else:
             skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
 
-        skill.add_trajectory_params([duration]
-                + tool_base_pose.matrix.T.flatten().tolist())
+        skill.add_goal_pose_with_matrix(duration,
+                                        tool_base_pose.matrix.T.flatten().tolist())
         goal = skill.create_goal()
 
         self._send_goal(goal,
@@ -270,8 +255,10 @@ class FrankaArm:
                         delta_tool_pose,
                         duration=3,
                         stop_on_contact_forces=None,
+                        cartesian_impedances=None,
                         ignore_errors=True,
-                        skill_desc=''):
+                        skill_desc='',
+                        skill_type=SkillType.ImpedanceControlSkill):
         '''Commands Arm to the given delta pose via linear interpolation and
         uses impedance control.
 
@@ -288,34 +275,34 @@ class FrankaArm:
                 delta_tool_pose,
                 duration,
                 stop_on_contact_forces,
-                None,
+                cartesian_impedances,
                 ignore_errors,
                 skill_desc,
-                skill_type=SkillType.ImpedanceControlSkill)
+                skill_type)
 
     def goto_pose_delta_with_impedance_control(self,
-                        delta_tool_pose,
-                        duration=3,
-                        stop_on_contact_forces=None,
-                        ignore_errors=True,
-                        skill_desc='',
-                        skill_type=SkillType.ImpedanceControlSkill):
+                                               delta_tool_pose,
+                                               duration=3,
+                                               stop_on_contact_forces=None,
+                                               cartesian_impedances=None,
+                                               ignore_errors=True,
+                                               skill_desc=''):
         return self._goto_pose_delta(
                 delta_tool_pose,
                 duration,
                 stop_on_contact_forces,
-                None,
+                cartesian_impedances,
                 ignore_errors,
                 skill_desc,
                 skill_type=SkillType.ImpedanceControlSkill)
 
     def goto_pose_delta_with_cartesian_control(self,
-                        delta_tool_pose,
-                        duration=3,
-                        stop_on_contact_forces=None,
-                        cartesian_impedance=None,
-                        ignore_errors=True,
-                        skill_desc=''):
+                                               delta_tool_pose,
+                                               duration=3,
+                                               stop_on_contact_forces=None,
+                                               cartesian_impedances=None,
+                                               ignore_errors=True,
+                                               skill_desc=''):
         '''Commands Arm to the given delta pose via linear interpolation using
         franka's internal cartesian control.
 
@@ -335,7 +322,7 @@ class FrankaArm:
                 delta_tool_pose,
                 duration,
                 stop_on_contact_forces,
-                cartesian_impedance,
+                cartesian_impedances,
                 ignore_errors,
                 skill_desc,
                 skill_type=SkillType.CartesianPoseSkill)
@@ -344,7 +331,7 @@ class FrankaArm:
                         delta_tool_pose,
                         duration=3,
                         stop_on_contact_forces=None,
-                        cartesian_impedance=None,
+                        cartesian_impedances=None,
                         ignore_errors=True,
                         skill_desc='',
                         skill_type=SkillType.ImpedanceControlSkill):
@@ -366,39 +353,25 @@ class FrankaArm:
         delta_tool_base_pose = self._tool_delta_pose \
                 * delta_tool_pose * self._tool_delta_pose.inverse()
 
-        if skill_type == SkillType.ImpedanceControlSkill:
-            if stop_on_contact_forces is None:
-                skill = RelativeMinJerkCartesianPoseSkillWithImpedanceControl(skill_desc=skill_desc)
-            else:
-                skill = RelativeMinJerkCartesianPoseSkillWithImpedanceControlToContact(skill_desc=skill_desc)
-                force_thresholds = np.array(stop_on_contact_forces).tolist()
-                skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
-                                                    force_thresholds,
-                                                    force_thresholds
-                                                )
-        elif skill_type == SkillType.CartesianPoseSkill:
-            if stop_on_contact_forces is None:
-                skill = RelativeMinJerkCartesianPoseSkillWithCartesianPoseControl(
-                        skill_desc=skill_desc)
-            else:
-                skill = RelativeMinJerkCartesianPoseSkillWithCartesianPoseControlToContact(
-                        skill_desc=skill_desc)
-                force_thresholds = np.array(stop_on_contact_forces).tolist()
-                skill.add_contact_termination_params(
-                        FC.DEFAULT_TERM_BUFFER_TIME,
-                        force_thresholds,
-                        force_thresholds)
-        else:
-            raise ValueError("Incorrect skill type for goto_pose_delta: {}".format(
-                skill_type))
+        skill = GoToPoseDeltaSkill(skill_desc, skill_type)
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
-        skill.add_feedback_controller_params(FC.DEFAULT_TORQUE_CONTROLLER_PARAMS)
-        skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
 
-        skill.add_trajectory_params([duration]
-                + delta_tool_base_pose.translation.tolist()
-                + delta_tool_base_pose.quaternion.tolist())
+        if cartesian_impedances is not None:
+            skill.add_cartesian_impedances(cartesian_impedances)
+        else:
+            skill.add_feedback_controller_params(FC.DEFAULT_TORQUE_CONTROLLER_PARAMS)
+        
+        if stop_on_contact_forces is not None:
+            skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
+                                                 stop_on_contact_forces,
+                                                 stop_on_contact_forces)
+        else:
+            skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
+
+        skill.add_relative_motion_with_quaternion(duration,
+                                                  delta_tool_base_pose.translation.tolist(),
+                                                  delta_tool_base_pose.quaternion.tolist())
         goal = skill.create_goal()
 
         self._send_goal(goal,
@@ -408,9 +381,113 @@ class FrankaArm:
     def goto_joints(self,
                     joints,
                     duration=5,
+                    stop_on_contact_forces=None,
+                    joint_impedances=None,
+                    k_gains=None,
+                    d_gains=None,
                     ignore_errors=True,
                     skill_desc='',
-                    joint_impedance=None):
+                    skill_type=SkillType.JointPositionSkill):
+        '''Commands Arm to the given joint configuration
+
+        Args:
+            joints (list): A list of 7 numbers that correspond to joint angles
+                           in radians
+            duration (float): How much time this robot motion should take
+            joint_impedances (list): A list of 7 numbers that represent the desired
+                                     joint impedances for the internal robot joint
+                                     controller
+
+        Raises:
+            ValueError: If is_joints_reachable(joints) returns False
+        '''
+
+        return self._goto_joints(
+                joints,
+                duration,
+                stop_on_contact_forces,
+                joint_impedances,
+                k_gains,
+                d_gains,
+                ignore_errors,
+                skill_desc,
+                skill_type)
+
+    def goto_joints_with_joint_control(self,
+                                       joints,
+                                       duration=5,
+                                       stop_on_contact_forces=None,
+                                       joint_impedances=None,
+                                       ignore_errors=True,
+                                       skill_desc=''):
+        '''Commands Arm to the given joint configuration
+
+        Args:
+            joints (list): A list of 7 numbers that correspond to joint angles
+                           in radians
+            duration (float): How much time this robot motion should take
+            joint_impedances (list): A list of 7 numbers that represent the desired
+                                     joint impedances for the internal robot joint
+                                     controller
+
+        Raises:
+            ValueError: If is_joints_reachable(joints) returns False
+        '''
+
+        return self._goto_joints(
+                joints,
+                duration,
+                stop_on_contact_forces,
+                joint_impedances,
+                None,
+                None,
+                ignore_errors,
+                skill_desc,
+                skill_type=SkillType.JointPositionSkill)
+
+    def goto_joints_with_impedance_control(self,
+                                           joints,
+                                           duration=5,
+                                           stop_on_contact_forces=None,
+                                           k_gains=None,
+                                           d_gains=None,
+                                           ignore_errors=True,
+                                           skill_desc=''):
+        '''Commands Arm to the given joint configuration
+
+        Args:
+            joints (list): A list of 7 numbers that correspond to joint angles
+                           in radians
+            duration (float): How much time this robot motion should take
+            joint_impedances (list): A list of 7 numbers that represent the desired
+                                     joint impedances for the internal robot joint
+                                     controller
+
+        Raises:
+            ValueError: If is_joints_reachable(joints) returns False
+        '''
+
+        return self._goto_joints(
+                joints,
+                duration,
+                stop_on_contact_forces,
+                None,
+                k_gains,
+                d_gains,
+                ignore_errors,
+                skill_desc,
+                skill_type=SkillType.ImpedanceControlSkill)
+
+    def _goto_joints(self,
+                     joints,
+                     duration=5,
+                     stop_on_contact_forces=None,
+                     joint_impedances=None,
+                     k_gains=None,
+                     d_gains=None,
+                     ignore_errors=True,
+                     skill_desc='',
+                     skill_type=SkillType.JointPositionSkill):
         '''Commands Arm to the given joint configuration
 
         Args:
@@ -427,20 +504,28 @@ class FrankaArm:
         if not self.is_joints_reachable(joints):
             raise ValueError('Joints not reachable!')
 
-        if joint_impedance is not None: 
-            assert type(joint_impedance) is list and len(joint_impedance) == 7,\
-                    "Incorrect value of joint impedance {}".format(
-                            joint_impedance)
-            skill = MinJerkJointPositionSkillWithInternalJointImpedances(
-                    skill_desc=skill_desc)
-            skill.add_feedback_controller_params(joint_impedances)
-        else:
-            skill = MinJerkJointPositionSkill(skill_desc=skill_desc)
+        skill = GoToJointsSkill(skill_desc, skill_type)
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
-        skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
 
-        skill.add_trajectory_params([duration] + np.array(joints).tolist())
+        if joint_impedances is not None:
+            skill.add_joint_impedances(joint_impedances)
+        elif k_gains is not None and d_gains is not None:
+            skill.add_joint_gains(k_gains, d_gains)
+        else:
+            if(skill_type == SkillType.ImpedanceControlSkill):
+                skill.add_joint_gains(FC.DEFAULT_K_GAINS, FC.DEFAULT_D_GAINS)
+            else:
+                skill.add_feedback_controller_params([])
+
+        if stop_on_contact_forces is not None:
+            skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
+                                                 stop_on_contact_forces,
+                                                 stop_on_contact_forces)
+        else:
+            skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
+
+        skill.add_goal_joints(duration, joints)
         goal = skill.create_goal()
 
         self._send_goal(goal,
@@ -467,7 +552,7 @@ class FrankaArm:
             duration (float): A float in the unit of seconds
         '''
 
-        skill = JointDMPSkillWithJointPositionControl(skill_desc=skill_desc)
+        skill = JointDMPSkill(skill_desc=skill_desc)
         skill.add_initial_sensor_values(dmp_info['phi_j'])  # sensor values
         y0 = [-0.282, -0.189, 0.0668, -2.186, 0.0524, 1.916, -1.06273]
         # Run time, tau, alpha, beta, num_basis, num_sensor_value, mu, h, weight
@@ -620,8 +705,11 @@ class FrankaArm:
         sleep(FC.GRIPPER_CMD_SLEEP_TIME)
 
     def stay_in_position(self, duration=3, translational_stiffness=600,
-                         rotational_stiffness=50, ignore_errors=True,
-                         skill_desc=''):
+                         rotational_stiffness=50, k_gains=None, d_gains=None,
+                         cartesian_impedances=None, joint_impedances=None, 
+                         ignore_errors=True, skill_desc='', 
+                         skill_type=SkillType.ImpedanceControlSkill,
+                         feedback_controller_type=FeedbackControllerType.CartesianImpedanceFeedbackController):
         '''Commands the Arm to stay in its current position with provided
         translation and rotation stiffnesses
 
@@ -636,12 +724,37 @@ class FrankaArm:
                 the torque controller.
                 Default is 50. A value of 0 will allow free rotational movement.
         '''
-        skill = StayInInitialPoseSkillWithCartesianImpedance(skill_desc=skill_desc)
+        skill = StayInInitialPoseSkill(skill_desc, skill_type, feedback_controller_type)
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
-        skill.add_feedback_controller_params(
-                [translational_stiffness] + [rotational_stiffness])
-        skill.add_trajectory_params([duration])
+
+        if(skill_type == SkillType.ImpedanceControlSkill):
+            if(feedback_controller_type == FeedbackControllerType.CartesianImpedanceFeedbackController):
+                if cartesian_impedances is not None:
+                    skill.add_cartesian_impedances(cartesian_impedances)
+                else:
+                    skill.add_feedback_controller_params([translational_stiffness] + [rotational_stiffness]) 
+            elif(feedback_controller_type == FeedbackControllerType.JointImpedanceFeedbackController):
+                if k_gains is not None and d_gains is not None:
+                    skill.add_joint_gains(k_gains, d_gains)
+                else:
+                    skill.add_feedback_controller_params([])
+            else:
+                skill.add_feedback_controller_params([translational_stiffness] + [rotational_stiffness])
+        elif(skill_type == SkillType.CartesianPoseSkill):
+            if cartesian_impedances is not None:
+                skill.add_cartesian_impedances(cartesian_impedances)
+            else:
+                skill.add_feedback_controller_params([])
+        elif(skill_type == SkillType.JointPositionSkill):
+            if joint_impedances is not None:
+                skill.add_joint_impedances(joint_impedances)
+            else:
+                skill.add_feedback_controller_params([])
+        else:
+            skill.add_feedback_controller_params([translational_stiffness] + [rotational_stiffness]) 
+        
+        skill.add_run_time(duration)
         goal = skill.create_goal()
 
         self._send_goal(goal,
@@ -650,9 +763,9 @@ class FrankaArm:
 
     def run_guide_mode_with_selective_joint_compliance(
             self,
-            duration=3, k_gains=FC.DEFAULT_K_GAINS,
+            duration=3, joint_impedances=None, k_gains=FC.DEFAULT_K_GAINS,
             d_gains=FC.DEFAULT_D_GAINS,
-            ignore_errors=True):
+            ignore_errors=True, skill_desc='', skill_type=SkillType.ImpedanceControlSkill):
         '''Run guide mode with selective joint compliance given k and d gains
             for each joint
 
@@ -664,11 +777,20 @@ class FrankaArm:
             d_gains (list): list of 7 d gains, one for each joint
                             Default is 50.0, 50.0, 50.0, 50.0, 30.0, 25.0, 15.0.
         '''
-        skill = StayInInitialPoseSkillWithJointImpedance()
+        skill = StayInInitialPoseSkill(skill_desc, skill_type, FeedbackControllerType.JointImpedanceFeedbackController)
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
-        skill.add_feedback_controller_params(k_gains + d_gains)
-        skill.add_trajectory_params([duration])
+
+        if(skill_type == SkillType.ImpedanceControlSkill):
+            if k_gains is not None and d_gains is not None:
+                skill.add_joint_gains(k_gains, d_gains)
+        elif(skill_type == skill_type == SkillType.JointPositionSkill):
+            if joint_impedances is not None:
+                skill.add_joint_impedances(joint_impedances)
+            else:
+                skill.add_feedback_controller_params([])
+        
+        skill.add_run_time(duration)
         goal = skill.create_goal()
 
         self._send_goal(goal,
@@ -679,7 +801,8 @@ class FrankaArm:
             self, duration=3,
             translational_stiffnesses=FC.DEFAULT_TRANSLATIONAL_STIFFNESSES,
             rotational_stiffnesses=FC.DEFAULT_ROTATIONAL_STIFFNESSES,
-            ignore_errors=True):
+            cartesian_impedances=None,
+            ignore_errors=True, skill_type=SkillType.ImpedanceControlSkill):
         '''Run guide mode with selective pose compliance given translational
         and rotational stiffnesses
 
@@ -691,12 +814,25 @@ class FrankaArm:
             rotational_stiffnesses (list): list of 3 rotational stiffnesses,
                 one for axis (roll, pitch, yaw) Default is 50.0, 50.0, 50.0
         '''
-        skill = StayInInitialPoseSkillWithCartesianImpedance()
+        skill = StayInInitialPoseSkill(skill_desc, skill_type, FeedbackControllerType.CartesianImpedanceFeedbackController)
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
+
+        if(skill_type == SkillType.ImpedanceControlSkill):
+            if cartesian_impedances is not None:
+                skill.add_cartesian_impedances(cartesian_impedances)
+            else:
+                skill.add_feedback_controller_params([translational_stiffness] + [rotational_stiffness]) 
+        elif(skill_type == SkillType.CartesianPoseSkill):
+            if cartesian_impedances is not None:
+                skill.add_cartesian_impedances(cartesian_impedances)
+            else:
+                skill.add_feedback_controller_params([])
+
         skill.add_feedback_controller_params(
                 translational_stiffnesses + rotational_stiffnesses)
-        skill.add_trajectory_params([duration])
+
+        skill.add_run_time(duration)
         goal = skill.create_goal()
 
         self._send_goal(

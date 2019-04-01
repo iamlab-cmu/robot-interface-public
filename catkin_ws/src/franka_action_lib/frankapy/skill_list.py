@@ -6,6 +6,7 @@ import rospy
 import actionlib
 import numpy as np
 from .iam_robolib_common_definitions import *
+from .franka_constants import FrankaConstants as FC
 
 from franka_action_lib.msg import ExecuteSkillAction, ExecuteSkillGoal
 
@@ -77,6 +78,99 @@ class BaseSkill(object):
         self._timer_params = params
         self._num_timer_params = len(params)
 
+    def add_goal_pose_with_matrix(self, time, matrix):
+        assert type(time) is float or type(time) is int, "Incorrect time type. Should be int or float."
+        assert time >= 0, "Incorrect time. Should be non negative."
+        assert type(matrix) is list, "Incorrect matrix type. Should be list."
+        assert len(matrix) == 16, "Incorrect matrix len. Should be 16."
+        self.add_trajectory_params([time] + matrix)
+
+    def add_goal_pose_with_quaternion(self, time, position, quaternion):
+        assert type(time) is float or type(time) is int, "Incorrect time type. Should be int or float."
+        assert time >= 0, "Incorrect time. Should be non negative."
+        assert type(position) is list, "Incorrect position type. Should be list."
+        assert type(quaternion) is list, "Incorrect quaternion type. Should be list."
+        assert len(position) == 3, "Incorrect position length. Should be 3."
+        assert len(quaternion) == 4, "Incorrect quaternion length. Should be 4."
+        self.add_trajectory_params([time] + position + quaternion)
+
+    def add_relative_motion_with_matrix(self, time, matrix):
+        assert type(time) is float or type(time) is int, "Incorrect time type. Should be int or float."
+        assert time >= 0, "Incorrect time. Should be non negative."
+        assert type(matrix) is list, "Incorrect matrix type. Should be list."
+        assert len(matrix) == 16, "Incorrect matrix len. Should be 16."
+        self.add_trajectory_params([time] + matrix)
+
+    def add_relative_motion_with_quaternion(self, time, position, quaternion):
+        assert type(time) is float or type(time) is int, "Incorrect time type. Should be int or float."
+        assert time >= 0, "Incorrect time. Should be non negative."
+        assert type(position) is list, "Incorrect position type. Should be list."
+        assert type(quaternion) is list, "Incorrect quaternion type. Should be list."
+        assert len(position) == 3, "Incorrect position length. Should be 3."
+        assert len(quaternion) == 4, "Incorrect quaternion length. Should be 4."
+        self.add_trajectory_params([time] + position + quaternion)
+
+    def add_goal_joints(self, time, joints):
+        assert type(time) is float or type(time) is int, "Incorrect time type. Should be int or float."
+        assert time >= 0, "Incorrect time. Should be non negative."
+        assert type(joints) is list, "Incorrect joints type. Should be list."
+        assert len(joints) == 7, "Incorrect joints len. Should be 7."
+        self.add_trajectory_params([time] + joints)
+
+    def add_run_time(self, time):
+        assert type(time) is float or type(time) is int, "Incorrect time type. Should be int or float."
+        assert time >= 0, "Incorrect time. Should be non negative."
+        self.add_trajectory_params([time])
+
+    def add_cartesian_impedances(self, cartesian_impedances):
+        assert type(cartesian_impedances) is list, "Incorrect cartesian impedances type. Should be list."
+        assert len(cartesian_impedances) == 6, "Incorrect cartesian impedances len. Should be 6."
+        if(self._skill_type == SkillType.CartesianPoseSkill):
+            self._feedback_controller_type = FeedbackControllerType.SetInternalImpedanceFeedbackController
+
+        self.add_feedback_controller_params(cartesian_impedances)
+
+    def add_joint_impedances(self, joint_impedances):
+        assert type(joint_impedances) is list, "Incorrect joint impedances type. Should be list."
+        assert len(joint_impedances) == 7, "Incorrect joint impedances len. Should be 7."
+        assert self._skill_type == SkillType.JointPositionSkill, "Incorrect skill type. Should be JointPositionSkill"
+
+        self._feedback_controller_type = FeedbackControllerType.SetInternalImpedanceFeedbackController
+        self.add_feedback_controller_params(joint_impedances)
+
+    def add_joint_gains(self, k_gains, d_gains):
+        assert type(k_gains) is list, "Incorrect k_gains type. Should be list."
+        assert type(d_gains) is list, "Incorrect d_gains type. Should be list."
+        assert len(k_gains) == 7, "Incorrect k_gains len. Should be 7."
+        assert len(d_gains) == 7, "Incorrect d_gains len. Should be 7."
+        assert self._skill_type == SkillType.ImpedanceControlSkill, "Incorrect skill type. Should be ImpedanceControlSkill"
+
+        self.add_feedback_controller_params(k_gains + d_gains)
+
+    def add_contact_termination_params(self, buffer_time,
+                                       lower_force_thresholds_accel,
+                                       lower_force_thresholds_nominal):
+        assert type(buffer_time) is float or type(buffer_time) is int, "Incorrect buffer time type. Should be int or float."
+        assert buffer_time >= 0, "Incorrect buffer time. Should be non negative."
+        assert type(lower_force_thresholds_accel) is list, "Incorrect lower force thresholds accel type. Should be list."
+        assert type(lower_force_thresholds_nominal) is list, "Incorrect lower force thresholds nominal type. Should be list."
+        assert len(lower_force_thresholds_accel) == 6, "Incorrect lower force thresholds accel length. Should be 6."
+        assert len(lower_force_thresholds_nominal) == 6, "Incorrect lowern force thresholds nominal length. Should be 6."
+
+        self._termination_type = TerminationHandlerType.ContactTerminationHandler
+
+        params = [buffer_time] \
+                + FC.DEFAULT_LOWER_TORQUE_THRESHOLDS_ACCEL \
+                + FC.DEFAULT_UPPER_TORQUE_THRESHOLDS_ACCEL \
+                + FC.DEFAULT_LOWER_TORQUE_THRESHOLDS_NOMINAL \
+                + FC.DEFAULT_UPPER_TORQUE_THRESHOLDS_NOMINAL \
+                + lower_force_thresholds_accel \
+                + FC.DEFAULT_UPPER_FORCE_THRESHOLDS_ACCEL \
+                + lower_force_thresholds_nominal \
+                + FC.DEFAULT_UPPER_FORCE_THRESHOLDS_NOMINAL
+
+        self.add_termination_params(params)
+
     # Add checks for these
     def create_goal(self):
         goal = ExecuteSkillGoal()
@@ -109,6 +203,7 @@ class GripperSkill(BaseSkill):
     def __init__(self, skill_desc=''):
         if len(skill_desc) == 0:
             skill_desc = GripperSkill.__name__
+
         super(GripperSkill, self).__init__(
               SkillType.GripperSkill,
               skill_desc,
@@ -120,542 +215,237 @@ class GripperSkill(BaseSkill):
               TerminationHandlerType.NoopTerminationHandler,
               1)
 
-class JointDMPSkillWithJointPositionControl(BaseSkill):
-    def __init__(self, skill_desc=''):
+class JointDMPSkill(BaseSkill):
+    def __init__(self, skill_desc='', skill_type=SkillType.JointPositionSkill):
         if len(skill_desc) == 0:
-            skill_desc = JointDMPSkillWithJointPositionControl.__name__
-        super(JointDMPSkillWithJointPositionControl, self).__init__(
-              SkillType.JointPositionSkill,
-              skill_desc,
-              MetaSkillType.BaseMetaSkill,
-              0,
-              ['/franka_robot/camera'],
-              TrajectoryGeneratorType.JointDmpTrajectoryGenerator,
-              FeedbackControllerType.NoopFeedbackController,
-              TerminationHandlerType.TimeTerminationHandler,
-              1)
+            skill_desc = JointDMPSkill.__name__
 
-class JointDMPSkillWithImpedanceControl(BaseSkill):
-    def __init__(self, skill_desc=''):
-        if len(skill_desc) == 0:
-            skill_desc = \
-                    JointDMPSkillWithImpedanceControl.__name__
-        super(JointDMPSkillWithImpedanceControl, self).__init__(
-              SkillType.ImpedanceControlSkill,
-              skill_desc,
-              MetaSkillType.BaseMetaSkill,
-              0,
-              ['/franka_robot/camera'],
-              TrajectoryGeneratorType.JointDmpTrajectoryGenerator,
-              FeedbackControllerType.JointImpedanceFeedbackController,
-              TerminationHandlerType.TimeTerminationHandler,
-              1)
-
-class MinJerkJointPositionSkill(BaseSkill):
-    def __init__(self, skill_desc=''):
-        if len(skill_desc) == 0:
-            skill_desc = MinJerkJointPositionSkill.__name__
-        super(MinJerkJointPositionSkill, self).__init__(
-              SkillType.JointPositionSkill,
-              skill_desc,
-              MetaSkillType.BaseMetaSkill,
-              0,
-              ['/franka_robot/camera'],
-              TrajectoryGeneratorType.MinJerkJointTrajectoryGenerator,
-              FeedbackControllerType.NoopFeedbackController,
-              TerminationHandlerType.FinalJointTerminationHandler,
-              1)
-
-class MinJerkJointPositionSkillWithInternalJointImpedances(BaseSkill):
-    def __init__(self, skill_desc=''):
-        if len(skill_desc) == 0:
-            skill_desc = MinJerkJointPositionSkillWithInternalJointImpedances.__name__
-        super(MinJerkJointPositionSkillWithInternalJointImpedances, self).__init__(
-              SkillType.JointPositionSkill,
-              skill_desc,
-              MetaSkillType.BaseMetaSkill,
-              0,
-              ['/franka_robot/camera'],
-              TrajectoryGeneratorType.MinJerkJointTrajectoryGenerator,
-              FeedbackControllerType.SetInternalImpedanceFeedbackController,
-              TerminationHandlerType.FinalJointTerminationHandler,
-              1)
-
-class MinJerkCartesianPoseSkillWithImpedanceControl(BaseSkill):
-    def __init__(self, skill_desc=''):
-        if len(skill_desc) == 0:
-            skill_desc = MinJerkCartesianPoseSkillWithImpedanceControl.__name__
-        super(MinJerkCartesianPoseSkillWithImpedanceControl, self).__init__(
-              SkillType.ImpedanceControlSkill,
-              skill_desc,
-              MetaSkillType.BaseMetaSkill,
-              0,
-              ['/franka_robot/camera'],
-              TrajectoryGeneratorType.MinJerkPoseTrajectoryGenerator,
-              FeedbackControllerType.CartesianImpedanceFeedbackController,
-              TerminationHandlerType.FinalPoseTerminationHandler,
-              1)
-
-    def add_buffer_time_for_termination(self, buffer_time):
-        self.add_termination_params([buffer_time])
-
-class MinJerkCartesianPoseSkillWithCartesianPoseControl(BaseSkill):
-    def __init__(self, skill_desc=''):
-        if len(skill_desc) == 0:
-            skill_desc = MinJerkCartesianPoseSkillWithCartesianPoseControl.__name__
-        super(MinJerkCartesianPoseSkillWithCartesianPoseControl, self).__init__(
-              SkillType.CartesianPoseSkill,
-              skill_desc,
-              MetaSkillType.BaseMetaSkill,
-              0,
-              ['/franka_robot/camera'],
-              TrajectoryGeneratorType.MinJerkPoseTrajectoryGenerator,
-              FeedbackControllerType.SetInternalImpedanceFeedbackController,
-              TerminationHandlerType.FinalPoseTerminationHandler,
-              1)
-
-    def add_buffer_time_for_termination(self, buffer_time):
-        self.add_termination_params([buffer_time])
-
-class RelativeMinJerkCartesianPoseSkillWithImpedanceControl(BaseSkill):
-    def __init__(self, skill_desc=''):
-        if len(skill_desc) == 0:
-            skill_desc = RelativeMinJerkCartesianPoseSkillWithImpedanceControl.__name__
-        super(RelativeMinJerkCartesianPoseSkillWithImpedanceControl, self).__init__(
-              SkillType.ImpedanceControlSkill,
-              skill_desc,
-              MetaSkillType.BaseMetaSkill,
-              0,
-              ['/franka_robot/camera'],
-              TrajectoryGeneratorType.RelativeMinJerkPoseTrajectoryGenerator,
-              FeedbackControllerType.CartesianImpedanceFeedbackController,
-              TerminationHandlerType.FinalPoseTerminationHandler,
-              1)
-
-    def add_relative_motion_with_quaternion(self, time, position, quaternion):
-        assert len(position) == 3, "Incorrect position to move to."
-        assert len(quaternion) == 4, "Incorrect quaternion representation."
-        self.add_trajectory_params([time] + position + quaternion)
-
-class RelativeMinJerkCartesianPoseSkillWithImpedanceControlToContact(BaseSkill):
-    def __init__(self, skill_desc=''):
-        if len(skill_desc) == 0:
-            skill_desc = \
-                    RelativeMinJerkCartesianPoseSkillWithImpedanceControlToContact.__name__
-        super(RelativeMinJerkCartesianPoseSkillWithImpedanceControlToContact, self).__init__(
-              SkillType.ImpedanceControlSkill,
-              skill_desc,
-              MetaSkillType.BaseMetaSkill,
-              0,
-              ['/franka_robot/camera'],
-              TrajectoryGeneratorType.RelativeMinJerkPoseTrajectoryGenerator,
-              FeedbackControllerType.CartesianImpedanceFeedbackController,
-              TerminationHandlerType.ContactTerminationHandler,
-              1)
-
-    @staticmethod
-    def get_default_torque_thresholds():
-        lower_torque_thresholds_accel = \
-                [20.0,20.0,18.0,18.0,16.0,14.0,12.0]
-        upper_torque_thresholds_accel = \
-                [120.0,120.0,120.0,118.0,116.0,114.0,112.0]
-        lower_torque_thresholds_nominal = \
-                [20.0,20.0,18.0,18.0,16.0,14.0,12.0]
-        upper_torque_thresholds_nominal = \
-                [120.0,120.0,118.0,118.0,116.0,114.0,112.0]
-
-        return {
-            'lower_torque_thresholds_accel': lower_torque_thresholds_accel,
-            'upper_torque_thresholds_accel': upper_torque_thresholds_accel,
-            'lower_torque_thresholds_nominal': lower_torque_thresholds_nominal,
-            'upper_torque_thresholds_nominal': upper_torque_thresholds_nominal,
-        }
-
-    @staticmethod
-    def get_default_force_thresholds():
-        lower_force_thresholds_accel = \
-                [10.0,10.0,10.0,10.0,10.0,10.0]
-        upper_force_thresholds_accel = \
-                [120.0,120.0,120.0,125.0,125.0,125.0]
-        lower_force_thresholds_nominal = \
-                [10.0,10.0,10.0,10.0,10.0,10.0]
-        upper_force_thresholds_nominal = \
-                [120.0,120.0,120.0,125.0,125.0,125.0]
-        return {
-            'lower_force_thresholds_accel': lower_force_thresholds_accel,
-            'upper_force_thresholds_accel': upper_force_thresholds_accel,
-            'lower_force_thresholds_nominal': lower_force_thresholds_nominal,
-            'upper_force_thresholds_nominal': upper_force_thresholds_nominal
-        }
-
-    def add_controller_stiffness_params(self,
-                                        translational_stiffness=600,
-                                        rotational_stiffness=50):
-        self.add_feedback_controller_params(
-                [translational_stiffness, rotational_stiffness])
-
-    def add_traj_params_with_quaternion(self, time, position, quaternion):
-        '''Add trajectory parameters with desired orientation as quaternion
-
-        time: time for the trajectory.
-        position: Relative movement for the trajectory.
-        quaternion: Desired orientation for the trajectory.
-        '''
-        assert len(position) == 3, "Incorrect position given"
-        assert len(quaternion) == 4, "Incorrect quaternion representation"
-        assert type(position) is list, "Incorrect position type"
-        assert type(quaternion) is list, "Incorrect quaternion type"
-        self.add_trajectory_params([time] + position + quaternion)
-
-    def add_collision_termination_params(self, buffer_time,
-            lower_torque_thresholds_accel=[10.0,10.0,10.0,10.0,10.0,10.0,10.0],
-            upper_torque_thresholds_accel=[120.0,120.0,118.0,118.0,116.0,114.0,112.0],
-            lower_torque_thresholds_nominal=[10.0,10.0,10.0,10.0,10.0,10.0,10.0],
-            upper_torque_thresholds_nominal=[120.0,120.0,118.0,118.0,116.0,114.0,112.0],
-            lower_force_thresholds_accel=[10.0,10.0,10.0,10.0,10.0,10.0],
-            upper_force_thresholds_accel=[120.0,120.0,120.0,125.0,125.0,125.0],
-            lower_force_thresholds_nominal=[10.0,10.0,10.0,10.0,10.0,10.0],
-            upper_force_thresholds_nominal=[120.0,120.0,120.0,125.0,125.0,125.0]):
-        collision_termination_params = lower_torque_thresholds_accel \
-                + upper_torque_thresholds_accel \
-                + lower_torque_thresholds_nominal \
-                + upper_torque_thresholds_nominal \
-                + lower_force_thresholds_accel \
-                + upper_force_thresholds_accel \
-                + lower_force_thresholds_nominal \
-                + upper_force_thresholds_nominal
-
-        self.add_termination_params([buffer_time] + collision_termination_params)
+        if(skill_type == SkillType.JointPositionSkill):
+            super(JointDMPSkill, self).__init__(
+                  SkillType.JointPositionSkill,
+                  skill_desc,
+                  MetaSkillType.BaseMetaSkill,
+                  0,
+                  ['/franka_robot/camera'],
+                  TrajectoryGeneratorType.JointDmpTrajectoryGenerator,
+                  FeedbackControllerType.NoopFeedbackController,
+                  TerminationHandlerType.TimeTerminationHandler,
+                  1)
+        elif(skill_type == SkillType.ImpedanceControlSkill):
+            super(JointDMPSkill, self).__init__(
+                  SkillType.ImpedanceControlSkill,
+                  skill_desc,
+                  MetaSkillType.BaseMetaSkill,
+                  0,
+                  ['/franka_robot/camera'],
+                  TrajectoryGeneratorType.JointDmpTrajectoryGenerator,
+                  FeedbackControllerType.JointImpedanceFeedbackController,
+                  TerminationHandlerType.TimeTerminationHandler,
+                  1)
+        else:
+            super(JointDMPSkill, self).__init__(
+                  SkillType.JointPositionSkill,
+                  skill_desc,
+                  MetaSkillType.BaseMetaSkill,
+                  0,
+                  ['/franka_robot/camera'],
+                  TrajectoryGeneratorType.JointDmpTrajectoryGenerator,
+                  FeedbackControllerType.NoopFeedbackController,
+                  TerminationHandlerType.TimeTerminationHandler,
+                  1)
     
-    def add_contact_termination_params(self, 
-            buffer_time,
-            lower_force_thresholds_accel,
-            lower_force_thresholds_nominal):
-        torque_thresholds = \
-                RelativeMinJerkCartesianPoseSkillWithImpedanceControlToContact.get_default_torque_thresholds()
-        force_thresholds = \
-                RelativeMinJerkCartesianPoseSkillWithImpedanceControlToContact.get_default_force_thresholds()
-        params = [buffer_time] \
-                + torque_thresholds['lower_torque_thresholds_accel'] \
-                + torque_thresholds['upper_torque_thresholds_accel'] \
-                + torque_thresholds['lower_torque_thresholds_nominal'] \
-                + torque_thresholds['upper_torque_thresholds_nominal'] \
-                + lower_force_thresholds_accel \
-                + force_thresholds['upper_force_thresholds_accel'] \
-                + lower_force_thresholds_nominal \
-                + force_thresholds['upper_force_thresholds_nominal']
 
-        self.add_termination_params(params)
-
-class RelativeMinJerkCartesianPoseSkillWithCartesianPoseControl(BaseSkill):
-    def __init__(self, skill_desc=''):
+class GoToJointsSkill(BaseSkill):
+    def __init__(self, skill_desc='', skill_type=SkillType.JointPositionSkill):
         if len(skill_desc) == 0:
-            skill_desc = RelativeMinJerkCartesianPoseSkillWithCartesianPoseControl.__name__
-        super(RelativeMinJerkCartesianPoseSkillWithCartesianPoseControl, self).__init__(
-              SkillType.CartesianPoseSkill,
-              skill_desc,
-              MetaSkillType.BaseMetaSkill,
-              0,
-              ['/franka_robot/camera'],
-              # Default options, we can later maybe provide options for user
-              # to change these.
-              TrajectoryGeneratorType.RelativeMinJerkPoseTrajectoryGenerator,
-              FeedbackControllerType.SetInternalImpedanceFeedbackController,
-              TerminationHandlerType.FinalPoseTerminationHandler,
-              1)
+            skill_desc = GoToJointsSkill.__name__
 
-    def add_relative_motion_with_quaternion(self, time, position, quaternion):
-        assert len(position) == 3, "Incorrect position to move to."
-        assert len(quaternion) == 4, "Incorrect quaternion representation."
-        self.add_trajectory_params([time] + position + quaternion)
-
-class RelativeMinJerkCartesianPoseSkillWithCartesianPoseControlToContact(BaseSkill):
-    def __init__(self, skill_desc=''):
-        if len(skill_desc) == 0:
-            skill_desc = \
-                    RelativeMinJerkCartesianPoseSkillWithCartesianPoseControlToContact.__name__
-        super(RelativeMinJerkCartesianPoseSkillWithCartesianPoseControlToContact, self).__init__(
-              SkillType.CartesianPoseSkill,
-              skill_desc,
-              MetaSkillType.BaseMetaSkill,
-              0,
-              ['/franka_robot/camera'],
-              TrajectoryGeneratorType.RelativeMinJerkPoseTrajectoryGenerator,
-              FeedbackControllerType.SetInternalImpedanceFeedbackController,
-              TerminationHandlerType.ContactTerminationHandler,
-              1)
-
-    @staticmethod
-    def get_default_torque_thresholds():
-        lower_torque_thresholds_accel = \
-                [20.0,20.0,18.0,18.0,16.0,14.0,12.0]
-        upper_torque_thresholds_accel = \
-                [120.0,120.0,120.0,118.0,116.0,114.0,112.0]
-        lower_torque_thresholds_nominal = \
-                [20.0,20.0,18.0,18.0,16.0,14.0,12.0]
-        upper_torque_thresholds_nominal = \
-                [120.0,120.0,118.0,118.0,116.0,114.0,112.0]
-
-        return {
-            'lower_torque_thresholds_accel': lower_torque_thresholds_accel,
-            'upper_torque_thresholds_accel': upper_torque_thresholds_accel,
-            'lower_torque_thresholds_nominal': lower_torque_thresholds_nominal,
-            'upper_torque_thresholds_nominal': upper_torque_thresholds_nominal,
-        }
-
-    @staticmethod
-    def get_default_force_thresholds():
-        lower_force_thresholds_accel = \
-                [10.0,10.0,10.0,10.0,10.0,10.0]
-        upper_force_thresholds_accel = \
-                [120.0,120.0,120.0,125.0,125.0,125.0]
-        lower_force_thresholds_nominal = \
-                [10.0,10.0,10.0,10.0,10.0,10.0]
-        upper_force_thresholds_nominal = \
-                [120.0,120.0,120.0,125.0,125.0,125.0]
-        return {
-            'lower_force_thresholds_accel': lower_force_thresholds_accel,
-            'upper_force_thresholds_accel': upper_force_thresholds_accel,
-            'lower_force_thresholds_nominal': lower_force_thresholds_nominal,
-            'upper_force_thresholds_nominal': upper_force_thresholds_nominal
-        }
-
-    def add_controller_stiffness_params(self,
-                                        translational_stiffness=600,
-                                        rotational_stiffness=50):
-        self.add_feedback_controller_params(
-                [translational_stiffness, rotational_stiffness])
-
-    def add_traj_params_with_quaternion(self, time, position, quaternion):
-        '''Add trajectory parameters with desired orientation as quaternion
-
-        time: time for the trajectory.
-        position: Relative movement for the trajectory.
-        quaternion: Desired orientation for the trajectory.
-        '''
-        assert len(position) == 3, "Incorrect position given"
-        assert len(quaternion) == 4, "Incorrect quaternion representation"
-        assert type(position) is list, "Incorrect position type"
-        assert type(quaternion) is list, "Incorrect quaternion type"
-        self.add_trajectory_params([time] + position + quaternion)
-
-    def add_collision_termination_params(self, buffer_time,
-            lower_torque_thresholds_accel=[10.0,10.0,10.0,10.0,10.0,10.0,10.0],
-            upper_torque_thresholds_accel=[120.0,120.0,118.0,118.0,116.0,114.0,112.0],
-            lower_torque_thresholds_nominal=[10.0,10.0,10.0,10.0,10.0,10.0,10.0],
-            upper_torque_thresholds_nominal=[120.0,120.0,118.0,118.0,116.0,114.0,112.0],
-            lower_force_thresholds_accel=[10.0,10.0,10.0,10.0,10.0,10.0],
-            upper_force_thresholds_accel=[120.0,120.0,120.0,125.0,125.0,125.0],
-            lower_force_thresholds_nominal=[10.0,10.0,10.0,10.0,10.0,10.0],
-            upper_force_thresholds_nominal=[120.0,120.0,120.0,125.0,125.0,125.0]):
-        collision_termination_params = lower_torque_thresholds_accel \
-                + upper_torque_thresholds_accel \
-                + lower_torque_thresholds_nominal \
-                + upper_torque_thresholds_nominal \
-                + lower_force_thresholds_accel \
-                + upper_force_thresholds_accel \
-                + lower_force_thresholds_nominal \
-                + upper_force_thresholds_nominal
-
-        self.add_termination_params([buffer_time] + collision_termination_params)
+        if(skill_type == SkillType.JointPositionSkill):
+            super(GoToJointsSkill, self).__init__(
+                  SkillType.JointPositionSkill,
+                  skill_desc,
+                  MetaSkillType.BaseMetaSkill,
+                  0,
+                  ['/franka_robot/camera'],
+                  TrajectoryGeneratorType.MinJerkJointTrajectoryGenerator,
+                  FeedbackControllerType.NoopFeedbackController,
+                  TerminationHandlerType.FinalJointTerminationHandler,
+                  1)
+        elif(skill_type == SkillType.ImpedanceControlSkill):
+            super(GoToJointsSkill, self).__init__(
+                  SkillType.ImpedanceControlSkill,
+                  skill_desc,
+                  MetaSkillType.BaseMetaSkill,
+                  0,
+                  ['/franka_robot/camera'],
+                  TrajectoryGeneratorType.MinJerkJointTrajectoryGenerator,
+                  FeedbackControllerType.JointImpedanceFeedbackController,
+                  TerminationHandlerType.FinalJointTerminationHandler,
+                  1)
+        else:
+            super(GoToJointsSkill, self).__init__(
+                  SkillType.JointPositionSkill,
+                  skill_desc,
+                  MetaSkillType.BaseMetaSkill,
+                  0,
+                  ['/franka_robot/camera'],
+                  TrajectoryGeneratorType.MinJerkJointTrajectoryGenerator,
+                  FeedbackControllerType.NoopFeedbackController,
+                  TerminationHandlerType.FinalJointTerminationHandler,
+                  1)
     
-    def add_contact_termination_params(self, 
-            buffer_time,
-            lower_force_thresholds_accel,
-            lower_force_thresholds_nominal):
-        torque_thresholds = \
-                RelativeMinJerkCartesianPoseSkillWithCartesianPoseControlToContact.get_default_torque_thresholds()
-        force_thresholds = \
-                RelativeMinJerkCartesianPoseSkillWithCartesianPoseControlToContact.get_default_force_thresholds()
-        params = [buffer_time] \
-                + torque_thresholds['lower_torque_thresholds_accel'] \
-                + torque_thresholds['upper_torque_thresholds_accel'] \
-                + torque_thresholds['lower_torque_thresholds_nominal'] \
-                + torque_thresholds['upper_torque_thresholds_nominal'] \
-                + lower_force_thresholds_accel \
-                + force_thresholds['upper_force_thresholds_accel'] \
-                + lower_force_thresholds_nominal \
-                + force_thresholds['upper_force_thresholds_nominal']
 
-        self.add_termination_params(params)
-
-class MinJerkCartesianPoseSkillWithImpedanceControlToContact(BaseSkill):
-    def __init__(self, skill_desc=''):
+class GoToPoseSkill(BaseSkill):
+    def __init__(self, skill_desc='', skill_type=SkillType.ImpedanceControlSkill):
         if len(skill_desc) == 0:
-            skill_desc = \
-                    MinJerkCartesianPoseSkillWithImpedanceControlToContact.__name__
-        super(MinJerkCartesianPoseSkillWithImpedanceControlToContact, self).__init__(
-              SkillType.ImpedanceControlSkill,
-              skill_desc,
-              MetaSkillType.BaseMetaSkill,
-              0,
-              ['/franka_robot/camera'],
-              TrajectoryGeneratorType.MinJerkPoseTrajectoryGenerator,
-              FeedbackControllerType.CartesianImpedanceFeedbackController,
-              TerminationHandlerType.ContactTerminationHandler,
-              1)
+            skill_desc = GoToPoseSkill.__name__
 
-    @staticmethod
-    def get_default_torque_thresholds():
-        lower_torque_thresholds_accel = \
-                [20.0,20.0,18.0,18.0,16.0,14.0,12.0]
-        upper_torque_thresholds_accel = \
-                [120.0,120.0,120.0,118.0,116.0,114.0,112.0]
-        lower_torque_thresholds_nominal = \
-                [20.0,20.0,18.0,18.0,16.0,14.0,12.0]
-        upper_torque_thresholds_nominal = \
-                [120.0,120.0,118.0,118.0,116.0,114.0,112.0]
+        if(skill_type == SkillType.ImpedanceControlSkill):
+            super(GoToPoseSkill, self).__init__(
+                  SkillType.ImpedanceControlSkill,
+                  skill_desc,
+                  MetaSkillType.BaseMetaSkill,
+                  0,
+                  ['/franka_robot/camera'],
+                  TrajectoryGeneratorType.MinJerkPoseTrajectoryGenerator,
+                  FeedbackControllerType.CartesianImpedanceFeedbackController,
+                  TerminationHandlerType.FinalPoseTerminationHandler,
+                  1)
+        elif(skill_type == SkillType.CartesianPoseSkill):
+            super(GoToPoseSkill, self).__init__(
+                  SkillType.CartesianPoseSkill,
+                  skill_desc,
+                  MetaSkillType.BaseMetaSkill,
+                  0,
+                  ['/franka_robot/camera'],
+                  TrajectoryGeneratorType.MinJerkPoseTrajectoryGenerator,
+                  FeedbackControllerType.NoopFeedbackController,
+                  TerminationHandlerType.FinalPoseTerminationHandler,
+                  1)
+        else:
+            super(GoToPoseSkill, self).__init__(
+                  SkillType.ImpedanceControlSkill,
+                  skill_desc,
+                  MetaSkillType.BaseMetaSkill,
+                  0,
+                  ['/franka_robot/camera'],
+                  TrajectoryGeneratorType.MinJerkPoseTrajectoryGenerator,
+                  FeedbackControllerType.CartesianImpedanceFeedbackController,
+                  TerminationHandlerType.FinalPoseTerminationHandler,
+                  1)
 
-        return {
-            'lower_torque_thresholds_accel': lower_torque_thresholds_accel,
-            'upper_torque_thresholds_accel': upper_torque_thresholds_accel,
-            'lower_torque_thresholds_nominal': lower_torque_thresholds_nominal,
-            'upper_torque_thresholds_nominal': upper_torque_thresholds_nominal,
-        }
 
-    @staticmethod
-    def get_default_force_thresholds():
-        lower_force_thresholds_accel = \
-                [10.0,10.0,10.0,10.0,10.0,10.0]
-        upper_force_thresholds_accel = \
-                [120.0,120.0,120.0,125.0,125.0,125.0]
-        lower_force_thresholds_nominal = \
-                [10.0,10.0,10.0,10.0,10.0,10.0]
-        upper_force_thresholds_nominal = \
-                [120.0,120.0,120.0,125.0,125.0,125.0]
-        return {
-            'lower_force_thresholds_accel': lower_force_thresholds_accel,
-            'upper_force_thresholds_accel': upper_force_thresholds_accel,
-            'lower_force_thresholds_nominal': lower_force_thresholds_nominal,
-            'upper_force_thresholds_nominal': upper_force_thresholds_nominal
-        }
-
-    def add_buffer_time_for_termination(self, buffer_time):
-        self.add_termination_params([buffer_time])
-
-    def add_contact_termination_params(self, 
-            buffer_time,
-            lower_force_thresholds_accel,
-            lower_force_thresholds_nominal):
-        torque_thresholds = \
-                MinJerkCartesianPoseSkillWithImpedanceControlToContact.get_default_torque_thresholds()
-        force_thresholds = \
-                MinJerkCartesianPoseSkillWithImpedanceControlToContact.get_default_force_thresholds()
-        params = [buffer_time] \
-                + torque_thresholds['lower_torque_thresholds_accel'] \
-                + torque_thresholds['upper_torque_thresholds_accel'] \
-                + torque_thresholds['lower_torque_thresholds_nominal'] \
-                + torque_thresholds['upper_torque_thresholds_nominal'] \
-                + lower_force_thresholds_accel \
-                + force_thresholds['upper_force_thresholds_accel'] \
-                + lower_force_thresholds_nominal \
-                + force_thresholds['upper_force_thresholds_nominal']
-
-        self.add_termination_params(params)
-
-class MinJerkCartesianPoseSkillWithCartesianPoseControlToContact(BaseSkill):
-    def __init__(self, skill_desc=''):
+class GoToPoseDeltaSkill(BaseSkill):
+    def __init__(self, skill_desc='', skill_type=SkillType.ImpedanceControlSkill):
         if len(skill_desc) == 0:
-            skill_desc = \
-                    MinJerkCartesianPoseSkillWithCartesianPoseControlToContact.__name__
-        super(MinJerkCartesianPoseSkillWithCartesianPoseControlToContact, self).__init__(
-              SkillType.CartesianPoseSkill,
-              skill_desc,
-              MetaSkillType.BaseMetaSkill,
-              0,
-              ['/franka_robot/camera'],
-              TrajectoryGeneratorType.MinJerkPoseTrajectoryGenerator,
-              FeedbackControllerType.NoopFeedbackController,
-              TerminationHandlerType.ContactTerminationHandler,
-              1)
+            skill_desc = GoToPoseDeltaSkill.__name__
 
-    @staticmethod
-    def get_default_torque_thresholds():
-        lower_torque_thresholds_accel = \
-                [20.0,20.0,18.0,18.0,16.0,14.0,12.0]
-        upper_torque_thresholds_accel = \
-                [120.0,120.0,120.0,118.0,116.0,114.0,112.0]
-        lower_torque_thresholds_nominal = \
-                [20.0,20.0,18.0,18.0,16.0,14.0,12.0]
-        upper_torque_thresholds_nominal = \
-                [120.0,120.0,118.0,118.0,116.0,114.0,112.0]
+        if(skill_type == SkillType.ImpedanceControlSkill):
+            super(GoToPoseDeltaSkill, self).__init__(
+                  SkillType.ImpedanceControlSkill,
+                  skill_desc,
+                  MetaSkillType.BaseMetaSkill,
+                  0,
+                  ['/franka_robot/camera'],
+                  TrajectoryGeneratorType.RelativeMinJerkPoseTrajectoryGenerator,
+                  FeedbackControllerType.CartesianImpedanceFeedbackController,
+                  TerminationHandlerType.FinalPoseTerminationHandler,
+                  1)
+        elif(skill_type == SkillType.CartesianPoseSkill):
+            super(GoToPoseDeltaSkill, self).__init__(
+                  SkillType.CartesianPoseSkill,
+                  skill_desc,
+                  MetaSkillType.BaseMetaSkill,
+                  0,
+                  ['/franka_robot/camera'],
+                  TrajectoryGeneratorType.RelativeMinJerkPoseTrajectoryGenerator,
+                  FeedbackControllerType.NoopFeedbackController,
+                  TerminationHandlerType.FinalPoseTerminationHandler,
+                  1)
+        else:
+            super(GoToPoseDeltaSkill, self).__init__(
+                  SkillType.ImpedanceControlSkill,
+                  skill_desc,
+                  MetaSkillType.BaseMetaSkill,
+                  0,
+                  ['/franka_robot/camera'],
+                  TrajectoryGeneratorType.RelativeMinJerkPoseTrajectoryGenerator,
+                  FeedbackControllerType.CartesianImpedanceFeedbackController,
+                  TerminationHandlerType.FinalPoseTerminationHandler,
+                  1)
 
-        return {
-            'lower_torque_thresholds_accel': lower_torque_thresholds_accel,
-            'upper_torque_thresholds_accel': upper_torque_thresholds_accel,
-            'lower_torque_thresholds_nominal': lower_torque_thresholds_nominal,
-            'upper_torque_thresholds_nominal': upper_torque_thresholds_nominal,
-        }
-
-    @staticmethod
-    def get_default_force_thresholds():
-        lower_force_thresholds_accel = \
-                [10.0,10.0,10.0,10.0,10.0,10.0]
-        upper_force_thresholds_accel = \
-                [120.0,120.0,120.0,125.0,125.0,125.0]
-        lower_force_thresholds_nominal = \
-                [10.0,10.0,10.0,10.0,10.0,10.0]
-        upper_force_thresholds_nominal = \
-                [120.0,120.0,120.0,125.0,125.0,125.0]
-        return {
-            'lower_force_thresholds_accel': lower_force_thresholds_accel,
-            'upper_force_thresholds_accel': upper_force_thresholds_accel,
-            'lower_force_thresholds_nominal': lower_force_thresholds_nominal,
-            'upper_force_thresholds_nominal': upper_force_thresholds_nominal
-        }
-
-    def add_buffer_time_for_termination(self, buffer_time):
-        self.add_termination_params([buffer_time])
-
-    def add_contact_termination_params(self, 
-            buffer_time,
-            lower_force_thresholds_accel,
-            lower_force_thresholds_nominal):
-        torque_thresholds = \
-                MinJerkCartesianPoseSkillWithCartesianPoseControlToContact.get_default_torque_thresholds()
-        force_thresholds = \
-                MinJerkCartesianPoseSkillWithCartesianPoseControlToContact.get_default_force_thresholds()
-        params = [buffer_time] \
-                + torque_thresholds['lower_torque_thresholds_accel'] \
-                + torque_thresholds['upper_torque_thresholds_accel'] \
-                + torque_thresholds['lower_torque_thresholds_nominal'] \
-                + torque_thresholds['upper_torque_thresholds_nominal'] \
-                + lower_force_thresholds_accel \
-                + force_thresholds['upper_force_thresholds_accel'] \
-                + lower_force_thresholds_nominal \
-                + force_thresholds['upper_force_thresholds_nominal']
-
-        self.add_termination_params(params)
-
-class StayInInitialPoseSkillWithCartesianImpedance(BaseSkill):
-    def __init__(self, skill_desc=''):
+class StayInInitialPoseSkill(BaseSkill):
+    def __init__(self, skill_desc='', skill_type=SkillType.ImpedanceControlSkill,
+                 feedback_controller_type=FeedbackControllerType.CartesianImpedanceFeedbackController):
         if len(skill_desc) == 0:
-            skill_desc = StayInInitialPoseSkillWithCartesianImpedance.__name__
-        super(StayInInitialPoseSkillWithCartesianImpedance, self).__init__(
-              SkillType.ImpedanceControlSkill,
-              skill_desc,
-              MetaSkillType.BaseMetaSkill,
-              0,
-              ['/franka_robot/camera'],
-              TrajectoryGeneratorType.StayInInitialPoseTrajectoryGenerator,
-              FeedbackControllerType.CartesianImpedanceFeedbackController,
-              TerminationHandlerType.TimeTerminationHandler,
-              1)
-
-class StayInInitialPoseSkillWithJointImpedance(BaseSkill):
-    def __init__(self, skill_desc=''):
-        if len(skill_desc) == 0:
-            skill_desc = StayInInitialPoseSkillWithJointImpedance.__name__
-        super(StayInInitialPoseSkillWithJointImpedance, self).__init__(
-              SkillType.ImpedanceControlSkill,
-              skill_desc,
-              MetaSkillType.BaseMetaSkill,
-              0,
-              ['/franka_robot/camera'],
-              TrajectoryGeneratorType.StayInInitialPoseTrajectoryGenerator,
-              FeedbackControllerType.JointImpedanceFeedbackController,
-              TerminationHandlerType.TimeTerminationHandler,
-              1)
+            skill_desc = StayInInitialPoseSkill.__name__
+        if(skill_type == SkillType.ImpedanceControlSkill):
+            if(feedback_controller_type == FeedbackControllerType.CartesianImpedanceFeedbackController):
+                super(StayInInitialPoseSkill, self).__init__(
+                      SkillType.ImpedanceControlSkill,
+                      skill_desc,
+                      MetaSkillType.BaseMetaSkill,
+                      0,
+                      ['/franka_robot/camera'],
+                      TrajectoryGeneratorType.StayInInitialPoseTrajectoryGenerator,
+                      FeedbackControllerType.CartesianImpedanceFeedbackController,
+                      TerminationHandlerType.TimeTerminationHandler,
+                      1)
+            elif(feedback_controller_type == FeedbackControllerType.JointImpedanceFeedbackController):
+                super(StayInInitialPoseSkill, self).__init__(
+                      SkillType.ImpedanceControlSkill,
+                      skill_desc,
+                      MetaSkillType.BaseMetaSkill,
+                      0,
+                      ['/franka_robot/camera'],
+                      TrajectoryGeneratorType.StayInInitialJointsTrajectoryGenerator,
+                      FeedbackControllerType.JointImpedanceFeedbackController,
+                      TerminationHandlerType.TimeTerminationHandler,
+                      1)
+            else:
+                super(StayInInitialPoseSkill, self).__init__(
+                      SkillType.ImpedanceControlSkill,
+                      skill_desc,
+                      MetaSkillType.BaseMetaSkill,
+                      0,
+                      ['/franka_robot/camera'],
+                      TrajectoryGeneratorType.StayInInitialPoseTrajectoryGenerator,
+                      FeedbackControllerType.CartesianImpedanceFeedbackController,
+                      TerminationHandlerType.TimeTerminationHandler,
+                      1)
+        elif(skill_type == SkillType.CartesianPoseSkill):
+            super(StayInInitialPoseSkill, self).__init__(
+                  SkillType.CartesianPoseSkill,
+                  skill_desc,
+                  MetaSkillType.BaseMetaSkill,
+                  0,
+                  ['/franka_robot/camera'],
+                  TrajectoryGeneratorType.StayInInitialPoseTrajectoryGenerator,
+                  FeedbackControllerType.NoopFeedbackController,
+                  TerminationHandlerType.TimeTerminationHandler,
+                  1)
+        elif(skill_type == SkillType.JointPositionSkill):
+            super(StayInInitialPoseSkill, self).__init__(
+                  SkillType.JointPositionSkill,
+                  skill_desc,
+                  MetaSkillType.BaseMetaSkill,
+                  0,
+                  ['/franka_robot/camera'],
+                  TrajectoryGeneratorType.StayInInitialJointsTrajectoryGenerator,
+                  FeedbackControllerType.NoopFeedbackController,
+                  TerminationHandlerType.TimeTerminationHandler,
+                  1)
+        else:
+            super(StayInInitialPoseSkill, self).__init__(
+                  SkillType.ImpedanceControlSkill,
+                  skill_desc,
+                  MetaSkillType.BaseMetaSkill,
+                  0,
+                  ['/franka_robot/camera'],
+                  TrajectoryGeneratorType.StayInInitialPoseTrajectoryGenerator,
+                  FeedbackControllerType.CartesianImpedanceFeedbackController,
+                  TerminationHandlerType.TimeTerminationHandler,
+                  1)
 
 class ForceTorqueSkill(BaseSkill):
     def __init__(self, skill_desc=''):

@@ -66,6 +66,7 @@ add_library(iam_robolib SHARED
   src/trajectory_generator/relative_pose_trajectory_generator.cpp
   src/trajectory_generator/sine_joint_trajectory_generator.cpp
   src/trajectory_generator/sine_pose_trajectory_generator.cpp
+  src/trajectory_generator/stay_in_initial_joints_trajectory_generator.cpp
   src/trajectory_generator/stay_in_initial_pose_trajectory_generator.cpp
   src/ur/commander.cpp
   src/ur/master_board.cpp

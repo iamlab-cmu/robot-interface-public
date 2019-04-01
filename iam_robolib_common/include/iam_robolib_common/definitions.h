@@ -48,7 +48,8 @@ enum class TrajectoryGeneratorType : uint8_t {
     RelativeMinJerkPoseTrajectoryGenerator = 8,
     SineJointTrajectoryGenerator = 9,
     SinePoseTrajectoryGenerator = 10,
-    StayInInitialPoseTrajectoryGenerator = 11
+    StayInInitialJointsTrajectoryGenerator = 11,
+    StayInInitialPoseTrajectoryGenerator = 12
 };
 
 // Enum for Feedback Controller Types
