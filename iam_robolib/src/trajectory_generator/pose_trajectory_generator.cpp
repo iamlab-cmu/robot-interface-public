@@ -108,6 +108,12 @@ void PoseTrajectoryGenerator::initialize_initial_and_desired_poses(const franka:
   initial_orientation_ = Eigen::Quaterniond(initial_transform.linear());
   desired_position_ = Eigen::Vector3d(initial_transform.translation());
   desired_orientation_ = Eigen::Quaterniond(initial_transform.linear());
+
+  // Flip the goal quaternion if the initial orientation dotted with the goal
+  // orientation is negative.
+  if (initial_orientation_.coeffs().dot(goal_orientation_.coeffs()) < 0.0) {
+    goal_orientation_.coeffs() << -goal_orientation_.coeffs();
+  }
 }
 
 void PoseTrajectoryGenerator::calculate_desired_pose() {
