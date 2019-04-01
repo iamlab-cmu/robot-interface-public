@@ -45,7 +45,7 @@ void JointPositionContinuousSkill::execute_skill_on_franka(run_loop *run_loop,
 
   franka::RobotState initial_robot_state = robot->getRobotState();
   std::array<double, 7> last_dmp_q = initial_robot_state.q_d;
-  std::array<double, 7> last_dmp_dq = initial_robot_state.dq;
+  std::array<double, 7> last_dmp_dq = initial_robot_state.dq_d;
 
   std::function<franka::JointPositions(const franka::RobotState&, franka::Duration)>
       joint_pose_callback = [&](

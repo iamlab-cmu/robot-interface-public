@@ -60,10 +60,9 @@ void JointDmpTrajectoryGenerator::parse_parameters() {
 void JointDmpTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
   initialize_initial_and_desired_joints(robot_state, SkillType::JointPositionSkill);
   
-  // TODO: Should we use desired joint values here?
   y0_ = robot_state.q_d;
-  y_ = robot_state.q;
-  dy_ = robot_state.dq;
+  y_ = robot_state.q_d;
+  dy_ = robot_state.dq_d;
   x_ = 1.0;
 }
 
@@ -71,10 +70,9 @@ void JointDmpTrajectoryGenerator::initialize_trajectory(const franka::RobotState
                                                         SkillType skill_type) {
   initialize_initial_and_desired_joints(robot_state, skill_type);
   
-  // TODO: Should we use desired joint values here?
   y0_ = robot_state.q_d;
-  y_ = robot_state.q;
-  dy_ = robot_state.dq;
+  y_ = robot_state.q_d;
+  dy_ = robot_state.dq_d;
   x_ = 1.0;
 }
 
