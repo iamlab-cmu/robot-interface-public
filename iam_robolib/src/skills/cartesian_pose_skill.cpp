@@ -83,6 +83,6 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
     return desired_pose;
   };
 
-  robot->robot_.control(cartesian_pose_callback);
+  robot->robot_.control(cartesian_pose_callback, franka::ControllerMode::kCartesianImpedance);
 }
 
