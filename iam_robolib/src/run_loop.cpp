@@ -354,7 +354,6 @@ void run_loop::setup_save_robot_state_thread() {
                   double duration = std::chrono::duration_cast<std::chrono::milliseconds>(
                       std::chrono::steady_clock::now() - start_time).count();
 
-                  robot_state_data_->log_pose_desired(robot_state.O_T_EE_d); // Fictitious call to log pose desired so pose_desired buffer length matches during non-skill execution
                   // Make sure update_current_gripper_state is before log_robot_state because log_robot_state will
                   // push_back gripper_state info from the current gripper_state
                   robot_state_data_->update_current_gripper_state(gripper_state);

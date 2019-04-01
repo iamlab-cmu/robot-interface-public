@@ -4,6 +4,8 @@
 
 #include <franka/rate_limiting.h>
 
+#include "iam_robolib/trajectory_generator/joint_trajectory_generator.h"
+
 void JointImpedanceFeedbackController::parse_parameters() {
   // First parameter is reserved for the type
 
@@ -37,17 +39,25 @@ void JointImpedanceFeedbackController::initialize_controller(FrankaRobot *robot)
 void JointImpedanceFeedbackController::get_next_step() {}
 
 void JointImpedanceFeedbackController::get_next_step(const franka::RobotState &robot_state,
-                                               TrajectoryGenerator *traj_generator) {
+                                                     TrajectoryGenerator *traj_generator) {
 
   // Read current coriolis terms from model.
   std::array<double, 7> coriolis = model_->coriolis(robot_state);
+
+  JointTrajectoryGenerator* joint_trajectory_generator = dynamic_cast<JointTrajectoryGenerator*>(traj_generator);
+
+  if(joint_trajectory_generator == nullptr) {
+    throw std::bad_cast();
+  }
+
+  std::array<double, 7> desired_joints = joint_trajectory_generator->get_desired_joints();
 
   // Compute torque command from joint impedance control law.
   // Note: The answer to our Cartesian pose inverse kinematics is always in state.q_d with one
   // time step delay.
   std::array<double, 7> tau_d_calculated;
   for (size_t i = 0; i < 7; i++) {
-    tau_d_calculated[i] = k_gains_[i] * (robot_state.q_d[i] - robot_state.q[i])
+    tau_d_calculated[i] = k_gains_[i] * (desired_joints[i] - robot_state.q[i])
           - d_gains_[i] * robot_state.dq[i] + coriolis[i];
   }
 

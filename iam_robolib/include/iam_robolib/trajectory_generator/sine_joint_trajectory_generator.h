@@ -7,12 +7,6 @@ class SineJointTrajectoryGenerator : public JointTrajectoryGenerator {
  public:
   using JointTrajectoryGenerator::JointTrajectoryGenerator;
 
-  void parse_parameters() override;
-
-  void initialize_trajectory() override;
-
-  void initialize_trajectory(const franka::RobotState &robot_state) override;
-
   void get_next_step() override;
 
   double sine_t_ = 0.0;

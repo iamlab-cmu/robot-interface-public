@@ -195,7 +195,7 @@ class FrankaArm:
                                stop_on_contact_forces,
                                ignore_errors,
                                skill_desc,
-                               skill_type=ImpedanceControlSkill)
+                               skill_type=SkillType.ImpedanceControlSkill)
 
     def _goto_pose(self,
                    tool_pose,
@@ -221,10 +221,10 @@ class FrankaArm:
 
         if skill_type == SkillType.ImpedanceControlSkill:
             if stop_on_contact_forces is None:
-                skill = ArmMoveToGoalSkill(
+                skill = MinJerkCartesianPoseSkillWithImpedanceControl(
                         skill_desc=skill_desc)
             else:
-                skill = ArmMoveToGoalContactSkill(
+                skill = MinJerkCartesianPoseSkillWithImpedanceControlToContact(
                         skill_desc=skill_desc)
                 force_thresholds = np.array(stop_on_contact_forces).tolist()
                 skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
@@ -232,10 +232,10 @@ class FrankaArm:
                                                     force_thresholds)
         elif skill_type == SkillType.CartesianPoseSkill:
             if stop_on_contact_forces is None:
-                skill = ArmMoveToGoalPositionControlSkill(
+                skill = MinJerkCartesianPoseSkillWithCartesianPoseControl(
                         skill_desc=skill_desc)
             else:
-                skill = ArmMoveToGoalContactPositionControlSkill(
+                skill = MinJerkCartesianPoseSkillWithCartesianPoseControlToContact(
                         skill_desc=skill_desc)
                 force_thresholds = np.array(stop_on_contact_forces).tolist()
                 skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
@@ -243,10 +243,10 @@ class FrankaArm:
                                                     force_thresholds)
         else:
             if stop_on_contact_forces is None:
-                skill = ArmMoveToGoalSkill(
+                skill = MinJerkCartesianPoseSkillWithImpedanceControl(
                         skill_desc=skill_desc)
             else:
-                skill = ArmMoveToGoalContactSkill(
+                skill = MinJerkCartesianPoseSkillWithImpedanceControlToContact(
                         skill_desc=skill_desc)
                 force_thresholds = np.array(stop_on_contact_forces).tolist()
                 skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
@@ -338,7 +338,7 @@ class FrankaArm:
                 cartesian_impedance,
                 ignore_errors,
                 skill_desc,
-                SkillType.CartesianPoseSkill)
+                skill_type=SkillType.CartesianPoseSkill)
 
     def _goto_pose_delta(self,
                         delta_tool_pose,
@@ -368,9 +368,9 @@ class FrankaArm:
 
         if skill_type == SkillType.ImpedanceControlSkill:
             if stop_on_contact_forces is None:
-                skill = ArmRelativeMotionSkill(skill_desc=skill_desc)
+                skill = RelativeMinJerkCartesianPoseSkillWithImpedanceControl(skill_desc=skill_desc)
             else:
-                skill = ArmRelativeMotionToContactSkill(skill_desc=skill_desc)
+                skill = RelativeMinJerkCartesianPoseSkillWithImpedanceControlToContact(skill_desc=skill_desc)
                 force_thresholds = np.array(stop_on_contact_forces).tolist()
                 skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
                                                     force_thresholds,
@@ -378,10 +378,10 @@ class FrankaArm:
                                                 )
         elif skill_type == SkillType.CartesianPoseSkill:
             if stop_on_contact_forces is None:
-                skill = ArmRelativeMotionPositionControlSkill(
+                skill = RelativeMinJerkCartesianPoseSkillWithCartesianPoseControl(
                         skill_desc=skill_desc)
             else:
-                skill = ArmRelativeMotionToContactPositionControlSkill(
+                skill = RelativeMinJerkCartesianPoseSkillWithCartesianPoseControlToContact(
                         skill_desc=skill_desc)
                 force_thresholds = np.array(stop_on_contact_forces).tolist()
                 skill.add_contact_termination_params(
@@ -431,11 +431,11 @@ class FrankaArm:
             assert type(joint_impedance) is list and len(joint_impedance) == 7,\
                     "Incorrect value of joint impedance {}".format(
                             joint_impedance)
-            skill = JointPoseMinJerkWithJointImpedancesSkill(
+            skill = MinJerkJointPositionSkillWithInternalJointImpedances(
                     skill_desc=skill_desc)
             skill.add_feedback_controller_params(joint_impedances)
         else:
-            skill = JointPoseMinJerkSkill(skill_desc=skill_desc)
+            skill = MinJerkJointPositionSkill(skill_desc=skill_desc)
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
@@ -467,7 +467,7 @@ class FrankaArm:
             duration (float): A float in the unit of seconds
         '''
 
-        skill = JointPoseDMPSkill(skill_desc=skill_desc)
+        skill = JointDMPSkillWithJointPositionControl(skill_desc=skill_desc)
         skill.add_initial_sensor_values(dmp_info['phi_j'])  # sensor values
         y0 = [-0.282, -0.189, 0.0668, -2.186, 0.0524, 1.916, -1.06273]
         # Run time, tau, alpha, beta, num_basis, num_sensor_value, mu, h, weight
@@ -636,7 +636,7 @@ class FrankaArm:
                 the torque controller.
                 Default is 50. A value of 0 will allow free rotational movement.
         '''
-        skill = StayInPositionSkill(skill_desc=skill_desc)
+        skill = StayInInitialPoseSkillWithCartesianImpedance(skill_desc=skill_desc)
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_feedback_controller_params(
@@ -664,7 +664,7 @@ class FrankaArm:
             d_gains (list): list of 7 d gains, one for each joint
                             Default is 50.0, 50.0, 50.0, 50.0, 30.0, 25.0, 15.0.
         '''
-        skill = StayInPositionWithSelectiveComplianceSkill()
+        skill = StayInInitialPoseSkillWithJointImpedance()
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_feedback_controller_params(k_gains + d_gains)
@@ -691,7 +691,7 @@ class FrankaArm:
             rotational_stiffnesses (list): list of 3 rotational stiffnesses,
                 one for axis (roll, pitch, yaw) Default is 50.0, 50.0, 50.0
         '''
-        skill = StayInPositionSkill()
+        skill = StayInInitialPoseSkillWithCartesianImpedance()
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
         skill.add_feedback_controller_params(

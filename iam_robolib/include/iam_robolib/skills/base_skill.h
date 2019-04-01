@@ -1,15 +1,18 @@
 #ifndef IAM_ROBOLIB_SKILLS_BASE_SKILL_H_
 #define IAM_ROBOLIB_SKILLS_BASE_SKILL_H_
 
-#include "iam_robolib/robots/franka_robot.h"
 #include <iam_robolib_common/definitions.h>
+
+#include "iam_robolib/robots/franka_robot.h"
+
+#include "iam_robolib/feedback_controller/feedback_controller.h"
+#include "iam_robolib/termination_handler/termination_handler.h"
+#include "iam_robolib/trajectory_generator/trajectory_generator.h"
 
 class run_loop;
 
 class RobotStateData;
-class FeedbackController;
-class TerminationHandler;
-class TrajectoryGenerator;
+
 namespace franka {
   class RobotState;
   class Duration;

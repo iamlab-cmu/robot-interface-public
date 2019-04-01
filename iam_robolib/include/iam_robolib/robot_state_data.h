@@ -30,7 +30,6 @@ class RobotStateData {
   std::vector<std::string> log_skill_info_0_{};
   std::vector<std::string> log_skill_info_1_{};
 
-  std::vector<std::array<double, 16>> log_pose_desired_0_{};
   std::vector<double> log_time_since_skill_started_0_{};
 
   std::vector<std::array<double, 16>> log_O_T_EE_0_{};
@@ -84,7 +83,6 @@ class RobotStateData {
   std::vector<uint16_t> log_gripper_temperature_0_{};
   std::vector<double> log_gripper_time_0_{};
 
-  std::vector<std::array<double, 16>> log_pose_desired_1_{};
   std::vector<double> log_time_since_skill_started_1_{};
 
   std::vector<std::array<double, 16>> log_O_T_EE_1_{};
@@ -184,7 +182,6 @@ class RobotStateData {
   /*
    * Helper methods for logging.
    */
-  void log_pose_desired(std::array<double, 16> pose_desired_);
   void log_robot_state(franka::RobotState robot_state, 
                        double time_since_skill_started);
   void update_current_gripper_state(franka::GripperState gripper_state);

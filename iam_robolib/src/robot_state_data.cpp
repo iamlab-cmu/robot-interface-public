@@ -51,7 +51,6 @@ void RobotStateData::writeBufferData_0() {
         }
 
         bool result = file_logger_->writeData(log_time_since_skill_started_0_,
-                                              log_pose_desired_0_,
                                               log_O_T_EE_0_,
                                               log_O_T_EE_d_0_,
                                               log_F_T_EE_0_,
@@ -110,7 +109,6 @@ void RobotStateData::writeBufferData_0() {
 
     // For now just clear them
     log_skill_info_0_.clear();
-    log_pose_desired_0_.clear();
     log_time_since_skill_started_0_.clear();
 
     log_O_T_EE_0_.clear();
@@ -181,7 +179,6 @@ void RobotStateData::writeBufferData_1() {
           }
         }
         bool result = file_logger_->writeData(log_time_since_skill_started_1_,
-                                              log_pose_desired_1_,
                                               log_O_T_EE_1_,
                                               log_O_T_EE_d_1_,
                                               log_F_T_EE_1_,
@@ -239,7 +236,6 @@ void RobotStateData::writeBufferData_1() {
     }
 
     log_skill_info_1_.clear();
-    log_pose_desired_1_.clear();
     log_time_since_skill_started_1_.clear();
 
     log_O_T_EE_1_.clear();
@@ -301,7 +297,6 @@ void RobotStateData::clearAllBuffers() {
   std::lock_guard<std::mutex> lock_1(buffer_1_mutex_);
   
   log_skill_info_0_.clear();
-  log_pose_desired_0_.clear();
   log_time_since_skill_started_0_.clear();
 
   log_O_T_EE_0_.clear();
@@ -356,7 +351,6 @@ void RobotStateData::clearAllBuffers() {
   log_gripper_time_0_.clear();
 
   log_skill_info_1_.clear();
-  log_pose_desired_1_.clear();
   log_time_since_skill_started_1_.clear();
 
   log_O_T_EE_1_.clear();
@@ -462,7 +456,7 @@ void RobotStateData::printData(int print_count) {
     printListOfVectors<16>(log_O_T_EE_0_, print_count);
 
     std::cout << "===== Desired Pose ======\n";
-    printListOfVectors<16>(log_pose_desired_0_, print_count);
+    printListOfVectors<16>(log_O_T_EE_d_0_, print_count);
 
     std::cout << "===== Measured link-side joint torque sensor signals ======\n";
     printListOfVectors<7>(log_tau_J_0_, print_count);
@@ -477,7 +471,7 @@ void RobotStateData::printData(int print_count) {
     printListOfVectors<16>(log_O_T_EE_1_, print_count);
 
     std::cout << "===== Desired Pose ======\n";
-    printListOfVectors<16>(log_pose_desired_1_, print_count);
+    printListOfVectors<16>(log_O_T_EE_d_1_, print_count);
 
     std::cout << "===== Measured link-side joint torque sensor signals ======\n";
     printListOfVectors<7>(log_tau_J_1_, print_count);
@@ -487,21 +481,6 @@ void RobotStateData::printData(int print_count) {
 
     std::cout << "===== Measured external force and torque ======\n";
     printListOfVectors<6>(log_O_F_ext_hat_K_1_, print_count);
-  }
-}
-
-void RobotStateData::log_pose_desired(std::array<double, 16> pose_desired) {
-  // Should we try to get lock or just remain lock free and fast (we might lose some data in that case).
-  if (use_buffer_0) {
-    if (buffer_0_mutex_.try_lock()) {
-      log_pose_desired_0_.push_back(pose_desired);
-      buffer_0_mutex_.unlock();
-    }
-  } else {
-    if (buffer_1_mutex_.try_lock()) {
-      log_pose_desired_1_.push_back(pose_desired);
-      buffer_1_mutex_.unlock();
-    }
   }
 }
 

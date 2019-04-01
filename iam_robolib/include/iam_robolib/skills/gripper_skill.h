@@ -3,10 +3,6 @@
 
 #include "iam_robolib/skills/base_skill.h"
 
-class TrajectoryGenerator;
-class FeedbackController;
-class TerminationHandler;
-
 class GripperSkill : public BaseSkill {
  public:
   GripperSkill(int skill_idx, int meta_skill_idx, std::string description) : 

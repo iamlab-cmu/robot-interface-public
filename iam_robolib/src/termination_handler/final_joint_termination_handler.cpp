@@ -5,6 +5,7 @@
 #include "iam_robolib/termination_handler/final_joint_termination_handler.h"
 
 #include <iostream>
+#include <exception>
 
 #include "iam_robolib/trajectory_generator/joint_trajectory_generator.h"
 
@@ -33,15 +34,22 @@ bool FinalJointTerminationHandler::should_terminate(TrajectoryGenerator *traject
 
   if (!done_) {
     JointTrajectoryGenerator *joint_traj_generator =
-        static_cast<JointTrajectoryGenerator *>(trajectory_generator);
+        dynamic_cast<JointTrajectoryGenerator *>(trajectory_generator);
+
+    if(joint_traj_generator == nullptr) {
+      throw std::bad_cast();
+    }
 
     if(joint_traj_generator->time_ > joint_traj_generator->run_time_ + buffer_time_) {
       done_ = true;
       return true;
     }
 
-    for(size_t i = 0; i < joint_traj_generator->joint_goal_.size(); i++) {
-      if(fabs(joint_traj_generator->joint_goal_[i] - joint_traj_generator->joint_desired_[i]) > 0.0001) {
+    std::array<double, 7> desired_joints = joint_traj_generator->get_desired_joints();
+    std::array<double, 7> goal_joints = joint_traj_generator->get_goal_joints();
+
+    for(size_t i = 0; i < goal_joints.size(); i++) {
+      if(fabs(goal_joints[i] - desired_joints[i]) > 0.0001) {
         return false;
       }
     }
