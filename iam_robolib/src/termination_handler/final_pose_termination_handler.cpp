@@ -76,7 +76,7 @@ bool FinalPoseTerminationHandler::should_terminate(TrajectoryGenerator *trajecto
           dynamic_cast<PoseTrajectoryGenerator *>(trajectory_generator);
 
     if(pose_trajectory_generator == nullptr) {
-      throw 333;
+      throw std::bad_cast();
     }
 
     if(pose_trajectory_generator->time_ > pose_trajectory_generator->run_time_ + buffer_time_) {
@@ -129,7 +129,7 @@ bool FinalPoseTerminationHandler::should_terminate_on_franka(const franka::Robot
           dynamic_cast<PoseTrajectoryGenerator *>(trajectory_generator);
 
     if(pose_trajectory_generator == nullptr) {
-      throw 333;
+      throw std::bad_cast();
     }
 
     // Terminate if the skill time_ has exceeded the provided run_time_ + buffer_time_ 

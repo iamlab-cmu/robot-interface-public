@@ -20,9 +20,7 @@ void JointTrajectoryGenerator::parse_parameters() {
       }
       break;
     default:
-      std::cout << "JointTrajectoryGenerator: " <<
-                   "Incorrect number of params given: " << 
-                   num_params << std::endl;
+      std::cout << "JointTrajectoryGenerator: Incorrect number of params given: " << num_params << std::endl;
   }
 }
 

@@ -4,7 +4,6 @@
 
 #include "iam_robolib/trajectory_generator/joint_dmp_trajectory_generator.h"
 
-//#include <cstdlib>
 #include <cmath>
 #include <iostream>
 
@@ -54,9 +53,7 @@ void JointDmpTrajectoryGenerator::parse_parameters() {
       }
       break;
     default:
-      std::cout << "JointDmpTrajectoryGenerator: " <<
-                   "Invalid number of parameters: " << 
-                    num_params << std::endl;
+      std::cout << "JointDmpTrajectoryGenerator: Invalid number of parameters: " << num_params << std::endl;
   }
 }
 

@@ -16,14 +16,12 @@ class PoseTrajectoryGenerator : public TrajectoryGenerator {
 
   void initialize_trajectory(const franka::RobotState &robot_state) override;
 
-  void initialize_trajectory(const franka::RobotState &robot_state,
-                             SkillType skill_type) override;
+  void initialize_trajectory(const franka::RobotState &robot_state, SkillType skill_type) override;
 
   /**
    * Initialize initial and desired positions and orientations from robot state
    */
-  void initialize_initial_and_desired_poses(const franka::RobotState &robot_state,
-                                            SkillType skill_type);
+  void initialize_initial_and_desired_poses(const franka::RobotState &robot_state, SkillType skill_type);
 
   /**
    * Calculate desired pose using the desired position and orientation

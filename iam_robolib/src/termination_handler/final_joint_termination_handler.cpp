@@ -37,7 +37,7 @@ bool FinalJointTerminationHandler::should_terminate(TrajectoryGenerator *traject
         dynamic_cast<JointTrajectoryGenerator *>(trajectory_generator);
 
     if(joint_traj_generator == nullptr) {
-      throw 333;
+      throw std::bad_cast();
     }
 
     if(joint_traj_generator->time_ > joint_traj_generator->run_time_ + buffer_time_) {

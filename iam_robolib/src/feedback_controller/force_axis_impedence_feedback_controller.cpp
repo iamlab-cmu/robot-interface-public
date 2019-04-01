@@ -56,11 +56,11 @@ void ForceAxisImpedenceFeedbackController::get_next_step(const franka::RobotStat
   ImpulseTrajectoryGenerator* impulse_trajectory_generator = dynamic_cast<ImpulseTrajectoryGenerator*>(traj_generator);
 
   if(impulse_trajectory_generator == nullptr) {
-    throw 333;
+    throw std::bad_cast();
   }  
 
-  double* desired_force_torque_ptr = &(impulse_trajectory_generator->desired_force_torque_[0]);
-  Eigen::Map<Eigen::VectorXd> desired_force_torque(desired_force_torque_ptr, 6);
+  std::array<double, 6> desired_force_torque_array = impulse_trajectory_generator->get_desired_force_torque();
+  Eigen::Map<Eigen::VectorXd> desired_force_torque(desired_force_torque_array.data(), 6);
 
   std::array<double, 7> coriolis_array = model_->coriolis(robot_state);
   std::array<double, 42> jacobian_array = model_->zeroJacobian(franka::Frame::kEndEffector, robot_state);
@@ -72,8 +72,8 @@ void ForceAxisImpedenceFeedbackController::get_next_step(const franka::RobotStat
   Eigen::Affine3d transform(Eigen::Matrix4d::Map(robot_state.O_T_EE.data()));
   Eigen::Vector3d position(transform.translation());
   Eigen::Quaterniond orientation(transform.linear());
-  Eigen::Quaterniond orientation_d(impulse_trajectory_generator->initial_orientation_);
-  Eigen::Vector3d position_d(impulse_trajectory_generator->initial_position_);
+  Eigen::Quaterniond orientation_d(impulse_trajectory_generator->get_initial_orientation());
+  Eigen::Vector3d position_d(impulse_trajectory_generator->get_initial_position());
 
   // compute position error to given axis through the initial position
   Eigen::Matrix<double, 6, 1> error;

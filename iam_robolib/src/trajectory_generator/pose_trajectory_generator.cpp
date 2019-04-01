@@ -66,9 +66,7 @@ void PoseTrajectoryGenerator::parse_parameters() {
       }
       break;
     default:
-      std::cout << "PoseTrajectoryGenerator: " <<
-                   "Invalid number of params provided: " << 
-                   num_params << std::endl;
+      std::cout << "PoseTrajectoryGenerator: Invalid number of params provided: " << num_params << std::endl;
   }
 }
 

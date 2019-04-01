@@ -47,7 +47,7 @@ void JointImpedanceFeedbackController::get_next_step(const franka::RobotState &r
   JointTrajectoryGenerator* joint_trajectory_generator = dynamic_cast<JointTrajectoryGenerator*>(traj_generator);
 
   if(joint_trajectory_generator == nullptr) {
-    throw 333;
+    throw std::bad_cast();
   }
 
   std::array<double, 7> desired_joints = joint_trajectory_generator->get_desired_joints();

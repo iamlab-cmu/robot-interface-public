@@ -7,8 +7,8 @@
 #include <cassert>
 #include <iostream>
 
-#include "iam_robolib/run_loop.h"
 #include "iam_robolib/robot_state_data.h"
+#include "iam_robolib/run_loop.h"
 #include "iam_robolib/run_loop_shared_memory_handler.h"
 
 #include <iam_robolib_common/definitions.h>

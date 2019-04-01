@@ -5,10 +5,6 @@
 
 #include <iostream>
 
-#include "iam_robolib/feedback_controller/feedback_controller.h"
-#include "iam_robolib/termination_handler/termination_handler.h"
-#include "iam_robolib/trajectory_generator/trajectory_generator.h"
-
 int BaseSkill::get_skill_id() {
   return skill_idx_;
 }

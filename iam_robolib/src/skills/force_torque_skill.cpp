@@ -39,7 +39,7 @@ void ForceTorqueSkill::execute_skill_on_franka(run_loop* run_loop,
   ImpulseTrajectoryGenerator* impulse_trajectory_generator = dynamic_cast<ImpulseTrajectoryGenerator*>(traj_generator_);
 
   if(impulse_trajectory_generator == nullptr) {
-    throw 333;
+    throw std::bad_cast();
   } 
 
   auto force_control_callback = [&](const franka::RobotState& robot_state, 

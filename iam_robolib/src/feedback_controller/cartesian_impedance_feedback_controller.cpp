@@ -107,7 +107,7 @@ void CartesianImpedanceFeedbackController::get_next_step(const franka::RobotStat
   PoseTrajectoryGenerator* pose_trajectory_generator = dynamic_cast<PoseTrajectoryGenerator*>(traj_generator);
 
   if(pose_trajectory_generator == nullptr) {
-    throw 333;
+    throw std::bad_cast();
   }
 
   Eigen::Vector3d position_d(pose_trajectory_generator->get_desired_position());

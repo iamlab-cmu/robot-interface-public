@@ -31,9 +31,7 @@ void GripperTrajectoryGenerator::parse_parameters() {
       }
       break;
     default:
-      std::cout << "GripperTrajectoryGenerator: " <<
-                   "Incorrect number of params given: " << 
-                    num_params << std::endl;
+      std::cout << "GripperTrajectoryGenerator: Incorrect number of params given: " << num_params << std::endl;
   }
 }
 

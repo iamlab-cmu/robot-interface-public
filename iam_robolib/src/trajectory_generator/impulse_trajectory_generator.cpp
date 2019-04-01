@@ -32,9 +32,7 @@ void ImpulseTrajectoryGenerator::parse_parameters() {
       }
       break;
     default:
-      std::cout << "ImpulseTrajectoryGenerator: " <<
-                   "Incorrect number of params given: " << 
-                    num_params << std::endl;
+      std::cout << "ImpulseTrajectoryGenerator: Incorrect number of params given: " << num_params << std::endl;
   }
 }
 
@@ -59,9 +57,7 @@ void ImpulseTrajectoryGenerator::initialize_initial_states(const franka::RobotSt
       break;
     default:
       initial_pose_ = robot_state.O_T_EE;
-      std::cout << "Invalid Skill Type provided: " << 
-                static_cast<std::underlying_type<SkillType>::type>(skill_type) << 
-                "\n";
+      std::cout << "Invalid Skill Type provided: " << static_cast<std::underlying_type<SkillType>::type>(skill_type) << "\n";
       std::cout << "Using default O_T_EE" << std::endl;
   }
 
@@ -117,3 +113,14 @@ void ImpulseTrajectoryGenerator::check_displacement_cap(const franka::RobotState
   }
 }
   
+const std::array<double, 6>& ImpulseTrajectoryGenerator::get_desired_force_torque() const {
+  return desired_force_torque_;
+}
+
+const Eigen::Vector3d& ImpulseTrajectoryGenerator::get_initial_position() const {
+  return initial_position_;
+}
+
+const Eigen::Quaterniond& ImpulseTrajectoryGenerator::get_initial_orientation() const {
+  return initial_orientation_;
+}

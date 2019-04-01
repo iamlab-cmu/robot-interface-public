@@ -10,10 +10,9 @@
 
 #include <franka/robot.h>
 
-#include "iam_robolib/run_loop.h"
 #include "iam_robolib/robot_state_data.h"
+#include "iam_robolib/run_loop.h"
 #include "iam_robolib/run_loop_shared_memory_handler.h"
-#include "iam_robolib/skills/base_skill.h"
 #include "iam_robolib/trajectory_generator/joint_dmp_trajectory_generator.h"
 
 #include <iam_robolib_common/definitions.h>
@@ -57,7 +56,7 @@ void JointPositionContinuousSkill::execute_skill_on_franka(run_loop *run_loop,
         current_skill->get_trajectory_generator());
 
     if(traj_generator == nullptr) {
-      throw 333;
+      throw std::bad_cast();
     }
 
     if (current_skill_time == 0.0) {

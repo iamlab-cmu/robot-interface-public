@@ -66,9 +66,7 @@ void RelativePoseTrajectoryGenerator::parse_parameters() {
       }
       break;
     default:
-      std::cout << "RelativePoseTrajectoryGenerator: " <<
-                   "Invalid number of params provided: " << 
-                   num_params << std::endl;
+      std::cout << "RelativePoseTrajectoryGenerator: Invalid number of params provided: " << num_params << std::endl;
   }
 }
 

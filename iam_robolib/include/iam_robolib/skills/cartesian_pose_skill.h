@@ -3,10 +3,6 @@
 
 #include "iam_robolib/skills/base_skill.h"
 
-#include "iam_robolib/trajectory_generator/trajectory_generator.h"
-#include "iam_robolib/feedback_controller/feedback_controller.h"
-#include "iam_robolib/termination_handler/termination_handler.h"
-
 class CartesianPoseSkill : public BaseSkill {
  public:
   CartesianPoseSkill(int skill_idx, int meta_skill_idx, std::string description) : 

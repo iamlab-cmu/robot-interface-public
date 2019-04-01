@@ -6,10 +6,10 @@
 
 #include <franka/robot.h>
 
-#include "iam_robolib/run_loop.h"
 #include "iam_robolib/robot_state_data.h"
-#include "iam_robolib/trajectory_generator/pose_trajectory_generator.h"
+#include "iam_robolib/run_loop.h"
 #include "iam_robolib/run_loop_shared_memory_handler.h"
+#include "iam_robolib/trajectory_generator/pose_trajectory_generator.h"
 
 #include <iam_robolib_common/definitions.h>
 #include <iam_robolib_common/run_loop_process_info.h>
@@ -33,7 +33,7 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
   PoseTrajectoryGenerator* pose_trajectory_generator = dynamic_cast<PoseTrajectoryGenerator*>(traj_generator_);
 
   if(pose_trajectory_generator == nullptr) {
-    throw 333;
+    throw std::bad_cast();
   }
 
   std::function<franka::CartesianPose(const franka::RobotState&, franka::Duration)>

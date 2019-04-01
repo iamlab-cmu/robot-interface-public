@@ -9,8 +9,8 @@
 
 #include <franka/robot.h>
 
-#include "iam_robolib/run_loop.h"
 #include "iam_robolib/robot_state_data.h"
+#include "iam_robolib/run_loop.h"
 #include "iam_robolib/run_loop_shared_memory_handler.h"
 #include "iam_robolib/trajectory_generator/joint_trajectory_generator.h"
 
@@ -37,7 +37,7 @@ void JointPositionSkill::execute_skill_on_franka(run_loop* run_loop,
   JointTrajectoryGenerator* joint_trajectory_generator = dynamic_cast<JointTrajectoryGenerator*>(traj_generator_);
 
   if(joint_trajectory_generator == nullptr) {
-    throw 333;
+    throw std::bad_cast();
   }
 
   std::function<franka::JointPositions(const franka::RobotState&, franka::Duration)>
