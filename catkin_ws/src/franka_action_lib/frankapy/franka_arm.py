@@ -504,7 +504,7 @@ class FrankaArm:
         if not self.is_joints_reachable(joints):
             raise ValueError('Joints not reachable!')
 
-        skill = GoToJointsSkill(skill_type)
+        skill = GoToJointsSkill(skill_desc, skill_type)
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
 
@@ -705,8 +705,11 @@ class FrankaArm:
         sleep(FC.GRIPPER_CMD_SLEEP_TIME)
 
     def stay_in_position(self, duration=3, translational_stiffness=600,
-                         rotational_stiffness=50, ignore_errors=True,
-                         skill_desc=''):
+                         rotational_stiffness=50, k_gains=None, d_gains=None,
+                         cartesian_impedances=None, joint_impedances=None, 
+                         ignore_errors=True, skill_desc='', 
+                         skill_type=SkillType.ImpedanceControlSkill,
+                         feedback_controller_type=FeedbackControllerType.CartesianImpedanceFeedbackController):
         '''Commands the Arm to stay in its current position with provided
         translation and rotation stiffnesses
 
@@ -721,11 +724,36 @@ class FrankaArm:
                 the torque controller.
                 Default is 50. A value of 0 will allow free rotational movement.
         '''
-        skill = StayInInitialPoseSkillWithCartesianImpedance(skill_desc=skill_desc)
+        skill = StayInInitialPoseSkill(skill_desc, skill_type, feedback_controller_type)
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
-        skill.add_feedback_controller_params(
-                [translational_stiffness] + [rotational_stiffness])
+
+        if(skill_type == SkillType.ImpedanceControlSkill):
+            if(feedback_controller_type == FeedbackControllerType.CartesianImpedanceFeedbackController):
+                if cartesian_impedances is not None:
+                    skill.add_cartesian_impedances(cartesian_impedances)
+                else:
+                    skill.add_feedback_controller_params([translational_stiffness] + [rotational_stiffness]) 
+            elif(feedback_controller_type == FeedbackControllerType.JointImpedanceFeedbackController):
+                if k_gains is not None and d_gains is not None:
+                    skill.add_joint_gains(k_gains, d_gains)
+                else:
+                    skill.add_feedback_controller_params([])
+            else:
+                skill.add_feedback_controller_params([translational_stiffness] + [rotational_stiffness])
+        elif(skill_type == SkillType.CartesianPoseSkill):
+            if cartesian_impedances is not None:
+                skill.add_cartesian_impedances(cartesian_impedances)
+            else:
+                skill.add_feedback_controller_params([])
+        elif(skill_type == SkillType.JointPositionSkill):
+            if joint_impedances is not None:
+                skill.add_joint_impedances(joint_impedances)
+            else:
+                skill.add_feedback_controller_params([])
+        else:
+            skill.add_feedback_controller_params([translational_stiffness] + [rotational_stiffness]) 
+        
         skill.add_trajectory_params([duration])
         goal = skill.create_goal()
 
@@ -735,9 +763,9 @@ class FrankaArm:
 
     def run_guide_mode_with_selective_joint_compliance(
             self,
-            duration=3, k_gains=FC.DEFAULT_K_GAINS,
+            duration=3, joint_impedances=None, k_gains=FC.DEFAULT_K_GAINS,
             d_gains=FC.DEFAULT_D_GAINS,
-            ignore_errors=True):
+            ignore_errors=True, skill_desc='', skill_type=SkillType.ImpedanceControlSkill):
         '''Run guide mode with selective joint compliance given k and d gains
             for each joint
 
@@ -749,10 +777,19 @@ class FrankaArm:
             d_gains (list): list of 7 d gains, one for each joint
                             Default is 50.0, 50.0, 50.0, 50.0, 30.0, 25.0, 15.0.
         '''
-        skill = StayInInitialPoseSkillWithJointImpedance()
+        skill = StayInInitialPoseSkill(skill_desc, skill_type, FeedbackControllerType.JointImpedanceFeedbackController)
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
-        skill.add_feedback_controller_params(k_gains + d_gains)
+
+        if(skill_type == SkillType.ImpedanceControlSkill):
+            if k_gains is not None and d_gains is not None:
+                skill.add_joint_gains(k_gains, d_gains)
+        elif(skill_type == skill_type == SkillType.JointPositionSkill):
+            if joint_impedances is not None:
+                skill.add_joint_impedances(joint_impedances)
+            else:
+                skill.add_feedback_controller_params([])
+        
         skill.add_trajectory_params([duration])
         goal = skill.create_goal()
 
@@ -764,7 +801,8 @@ class FrankaArm:
             self, duration=3,
             translational_stiffnesses=FC.DEFAULT_TRANSLATIONAL_STIFFNESSES,
             rotational_stiffnesses=FC.DEFAULT_ROTATIONAL_STIFFNESSES,
-            ignore_errors=True):
+            cartesian_impedances=None,
+            ignore_errors=True, skill_type=SkillType.ImpedanceControlSkill):
         '''Run guide mode with selective pose compliance given translational
         and rotational stiffnesses
 
@@ -776,11 +814,24 @@ class FrankaArm:
             rotational_stiffnesses (list): list of 3 rotational stiffnesses,
                 one for axis (roll, pitch, yaw) Default is 50.0, 50.0, 50.0
         '''
-        skill = StayInInitialPoseSkillWithCartesianImpedance()
+        skill = StayInInitialPoseSkill(skill_desc, skill_type, FeedbackControllerType.CartesianImpedanceFeedbackController)
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
+
+        if(skill_type == SkillType.ImpedanceControlSkill):
+            if cartesian_impedances is not None:
+                skill.add_cartesian_impedances(cartesian_impedances)
+            else:
+                skill.add_feedback_controller_params([translational_stiffness] + [rotational_stiffness]) 
+        elif(skill_type == SkillType.CartesianPoseSkill):
+            if cartesian_impedances is not None:
+                skill.add_cartesian_impedances(cartesian_impedances)
+            else:
+                skill.add_feedback_controller_params([])
+
         skill.add_feedback_controller_params(
                 translational_stiffnesses + rotational_stiffnesses)
+
         skill.add_trajectory_params([duration])
         goal = skill.create_goal()
 

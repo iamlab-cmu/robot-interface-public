@@ -268,7 +268,7 @@ class GoToPoseSkill(BaseSkill):
         if len(skill_desc) == 0:
             skill_desc = GoToPoseSkill.__name__
 
-        if(skill_type == SkillType.ImpedanceControlSkill)
+        if(skill_type == SkillType.ImpedanceControlSkill):
             super(GoToPoseSkill, self).__init__(
                   SkillType.ImpedanceControlSkill,
                   skill_desc,
@@ -308,7 +308,7 @@ class GoToPoseDeltaSkill(BaseSkill):
         if len(skill_desc) == 0:
             skill_desc = GoToPoseDeltaSkill.__name__
 
-        if(skill_type == SkillType.ImpedanceControlSkill)
+        if(skill_type == SkillType.ImpedanceControlSkill):
             super(GoToPoseDeltaSkill, self).__init__(
                   SkillType.ImpedanceControlSkill,
                   skill_desc,
@@ -366,7 +366,7 @@ class StayInInitialPoseSkill(BaseSkill):
                       MetaSkillType.BaseMetaSkill,
                       0,
                       ['/franka_robot/camera'],
-                      TrajectoryGeneratorType.StayInInitialPoseTrajectoryGenerator,
+                      TrajectoryGeneratorType.StayInInitialJointsTrajectoryGenerator,
                       FeedbackControllerType.JointImpedanceFeedbackController,
                       TerminationHandlerType.TimeTerminationHandler,
                       1)
@@ -389,6 +389,17 @@ class StayInInitialPoseSkill(BaseSkill):
                   0,
                   ['/franka_robot/camera'],
                   TrajectoryGeneratorType.StayInInitialPoseTrajectoryGenerator,
+                  FeedbackControllerType.NoopFeedbackController,
+                  TerminationHandlerType.TimeTerminationHandler,
+                  1)
+        elif(skill_type == SkillType.JointPositionSkill):
+            super(StayInInitialPoseSkill, self).__init__(
+                  SkillType.JointPositionSkill,
+                  skill_desc,
+                  MetaSkillType.BaseMetaSkill,
+                  0,
+                  ['/franka_robot/camera'],
+                  TrajectoryGeneratorType.StayInInitialJointsTrajectoryGenerator,
                   FeedbackControllerType.NoopFeedbackController,
                   TerminationHandlerType.TimeTerminationHandler,
                   1)
