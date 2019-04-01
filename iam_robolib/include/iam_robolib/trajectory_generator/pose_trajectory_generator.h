@@ -29,6 +29,11 @@ class PoseTrajectoryGenerator : public TrajectoryGenerator {
   void calculate_desired_pose();
 
   /**
+   * Fix goal quaternion by flipping it if the result is negative when dotted with the initial quaternion.
+   */
+  void fix_goal_quaternion();
+
+  /**
    * Returns the desired pose
    */
   const std::array<double, 16>& get_desired_pose() const;

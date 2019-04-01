@@ -76,11 +76,13 @@ void PoseTrajectoryGenerator::initialize_trajectory() {
 
 void PoseTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
   initialize_initial_and_desired_poses(robot_state, SkillType::ImpedanceControlSkill);
+  fix_goal_quaternion();
 }
 
 void PoseTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state,
                                                     SkillType skill_type) {
   initialize_initial_and_desired_poses(robot_state, skill_type);
+  fix_goal_quaternion();
 }
 
 void PoseTrajectoryGenerator::initialize_initial_and_desired_poses(const franka::RobotState &robot_state,
@@ -108,7 +110,9 @@ void PoseTrajectoryGenerator::initialize_initial_and_desired_poses(const franka:
   initial_orientation_ = Eigen::Quaterniond(initial_transform.linear());
   desired_position_ = Eigen::Vector3d(initial_transform.translation());
   desired_orientation_ = Eigen::Quaterniond(initial_transform.linear());
+}
 
+void PoseTrajectoryGenerator::fix_goal_quaternion(){
   // Flip the goal quaternion if the initial orientation dotted with the goal
   // orientation is negative.
   if (initial_orientation_.coeffs().dot(goal_orientation_.coeffs()) < 0.0) {
