@@ -58,7 +58,9 @@ void JointPositionSkill::execute_skill_on_franka(run_loop* run_loop,
     time += period.toSec();
     traj_generator_->time_ = time;
     traj_generator_->dt_ = period.toSec();
-    traj_generator_->get_next_step();
+    if(time > 0.0) {
+      traj_generator_->get_next_step();
+    }
 
     bool done = termination_handler_->should_terminate_on_franka(robot_state, 
                                                                  traj_generator_);
