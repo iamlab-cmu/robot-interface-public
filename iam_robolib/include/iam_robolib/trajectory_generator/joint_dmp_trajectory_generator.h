@@ -21,17 +21,17 @@ class JointDmpTrajectoryGenerator : public JointTrajectoryGenerator {
 
  private:
   // Variables initialized from shared memory should be doubles.
-  double alpha_=25.0;
-  double beta_=25.0/4.0;
+  double alpha_=5.0;
+  double beta_=5.0/4.0;
   double tau_=0.0;
   double x_=1.0;
-  int num_basis_;
+  int num_basis_=6;
   int num_dims_=7;
-  int num_sensor_values_=10;
-  std::array<double, 10> basis_mean_{};
-  std::array<double, 10> basis_std_{};
-  std::array<std::array<std::array<double, 7>, 10>, 20> weights_{};
-  std::array<double, 10> initial_sensor_values_{{1., 0., 0., 0., 1., 1., 0., 0., 1., 0.}};
+  int num_sensor_values_=2;
+  std::array<double, 6> basis_mean_{};
+  std::array<double, 6> basis_std_{};
+  std::array<std::array<std::array<double, 6>, 2>, 7> weights_{};
+  std::array<double, 2> initial_sensor_values_{{1.0, 1.0}};
   std::array<double, 7> y0_={};
 
   void getInitialMeanAndStd();
