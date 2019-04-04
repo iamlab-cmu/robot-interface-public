@@ -1,11 +1,11 @@
-#ifndef IAM_ROBOLIB_TRAJECTORY_GENERATOR_JOINT_DMP_TRAJECTORY_GENERATOR_H_
-#define IAM_ROBOLIB_TRAJECTORY_GENERATOR_JOINT_DMP_TRAJECTORY_GENERATOR_H_
+#ifndef IAM_ROBOLIB_TRAJECTORY_GENERATOR_POSE_DMP_TRAJECTORY_GENERATOR_H_
+#define IAM_ROBOLIB_TRAJECTORY_GENERATOR_POSE_DMP_TRAJECTORY_GENERATOR_H_
 
-#include "iam_robolib/trajectory_generator/joint_trajectory_generator.h"
+#include "iam_robolib/trajectory_generator/pose_trajectory_generator.h"
 
-class JointDmpTrajectoryGenerator : public JointTrajectoryGenerator {
+class PoseDmpTrajectoryGenerator : public PoseTrajectoryGenerator {
  public:
-  using JointTrajectoryGenerator::JointTrajectoryGenerator;
+  using PoseTrajectoryGenerator::PoseTrajectoryGenerator;
 
   void parse_parameters() override;
 
@@ -16,8 +16,8 @@ class JointDmpTrajectoryGenerator : public JointTrajectoryGenerator {
 
   void get_next_step() override;
 
-  std::array<double, 7> y_={};
-  std::array<double, 7> dy_={};
+  std::array<double, 3> y_={};
+  std::array<double, 3> dy_={};
 
  private:
   // Variables initialized from shared memory should be doubles.
@@ -26,15 +26,15 @@ class JointDmpTrajectoryGenerator : public JointTrajectoryGenerator {
   double tau_=0.0;
   double x_=1.0;
   int num_basis_=6;
-  int num_dims_=7;
+  int num_dims_=3;
   int num_sensor_values_=2;
   std::array<double, 6> basis_mean_{};
   std::array<double, 6> basis_std_{};
-  std::array<std::array<std::array<double, 6>, 2>, 7> weights_{};
+  std::array<std::array<std::array<double, 6>, 2>, 3> weights_{};
   std::array<double, 2> initial_sensor_values_{{1.0, 1.0}};
-  std::array<double, 7> y0_={};
+  std::array<double, 3> y0_={};
 
   void getInitialMeanAndStd();
 };
 
-#endif  // IAM_ROBOLIB_TRAJECTORY_GENERATOR_JOINT_DMP_TRAJECTORY_GENERATOR_H_
+#endif  // IAM_ROBOLIB_TRAJECTORY_GENERATOR_POSE_DMP_TRAJECTORY_GENERATOR_H_

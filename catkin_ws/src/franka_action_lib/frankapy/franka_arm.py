@@ -541,8 +541,8 @@ class FrankaArm:
         '''
         pass
 
-    def execute_dmp(self, dmp_info, meta_skill_id, duration, ignore_errors=True,
-                    skill_desc=''):
+    def execute_joint_dmp(self, dmp_info, duration, ignore_errors=True,
+                          skill_desc='', skill_type=SkillType.JointPositionSkill):
         '''Commands Arm to execute a given dmp for duration seconds
 
         Args:
@@ -552,8 +552,9 @@ class FrankaArm:
             duration (float): A float in the unit of seconds
         '''
 
-        skill = JointDMPSkill(skill_desc=skill_desc)
+        skill = JointDMPSkill(skill_desc, skill_type)
         skill.add_initial_sensor_values(dmp_info['phi_j'])  # sensor values
+        # Doesn't matter because we overwrite it with the initial joint positions anyway
         y0 = [-0.282, -0.189, 0.0668, -2.186, 0.0524, 1.916, -1.06273]
         # Run time, tau, alpha, beta, num_basis, num_sensor_value, mu, h, weight
         trajectory_params = [
@@ -565,8 +566,39 @@ class FrankaArm:
                 + np.array(dmp_info['weights']).reshape(-1).tolist()
 
         skill.add_trajectory_params(trajectory_params)
-        skill.set_meta_skill_id(meta_skill_id)
-        skill.set_meta_skill_type(MetaSkillType.JointPositionContinuousSkill)
+        skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
+
+        goal = skill.create_goal()
+
+        self._send_goal(goal,
+                        cb=lambda x: skill.feedback_callback(x),
+                        ignore_errors=ignore_errors)
+
+    def execute_pose_dmp(self, dmp_info, duration, ignore_errors=True,
+                         skill_desc='', skill_type=SkillType.CartesianPoseSkill):
+        '''Commands Arm to execute a given dmp for duration seconds
+
+        Args:
+            dmp_info (dict): Contains all the parameters of a DMP
+                (phi_j, tau, alpha, beta, num_basis, num_sensors, mu, h,
+                and weights)
+            duration (float): A float in the unit of seconds
+        '''
+
+        skill = PoseDMPSkill(skill_desc, skill_type)
+        skill.add_initial_sensor_values(dmp_info['phi_j'])  # sensor values
+        # Doesn't matter because we overwrite it with the initial position anyways
+        y0 = [0.0, 0.0, 0.0]
+        # Run time, tau, alpha, beta, num_basis, num_sensor_value, mu, h, weight
+        trajectory_params = [
+                duration, dmp_info['tau'], dmp_info['alpha'], dmp_info['beta'],
+                float(dmp_info['num_basis']), float(dmp_info['num_sensors'])] \
+                + dmp_info['mu'] \
+                + dmp_info['h'] \
+                + y0 \
+                + np.array(dmp_info['weights']).reshape(-1).tolist()
+
+        skill.add_trajectory_params(trajectory_params)
         skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
 
         goal = skill.create_goal()
@@ -728,25 +760,25 @@ class FrankaArm:
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
 
-        if(skill_type == SkillType.ImpedanceControlSkill):
-            if(feedback_controller_type == FeedbackControllerType.CartesianImpedanceFeedbackController):
+        if skill_type == SkillType.ImpedanceControlSkill:
+            if feedback_controller_type == FeedbackControllerType.CartesianImpedanceFeedbackController:
                 if cartesian_impedances is not None:
                     skill.add_cartesian_impedances(cartesian_impedances)
                 else:
                     skill.add_feedback_controller_params([translational_stiffness] + [rotational_stiffness]) 
-            elif(feedback_controller_type == FeedbackControllerType.JointImpedanceFeedbackController):
+            elif feedback_controller_type == FeedbackControllerType.JointImpedanceFeedbackController:
                 if k_gains is not None and d_gains is not None:
                     skill.add_joint_gains(k_gains, d_gains)
                 else:
                     skill.add_feedback_controller_params([])
             else:
                 skill.add_feedback_controller_params([translational_stiffness] + [rotational_stiffness])
-        elif(skill_type == SkillType.CartesianPoseSkill):
+        elif skill_type == SkillType.CartesianPoseSkill:
             if cartesian_impedances is not None:
                 skill.add_cartesian_impedances(cartesian_impedances)
             else:
                 skill.add_feedback_controller_params([])
-        elif(skill_type == SkillType.JointPositionSkill):
+        elif skill_type == SkillType.JointPositionSkill:
             if joint_impedances is not None:
                 skill.add_joint_impedances(joint_impedances)
             else:
@@ -781,10 +813,10 @@ class FrankaArm:
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
 
-        if(skill_type == SkillType.ImpedanceControlSkill):
+        if skill_type == SkillType.ImpedanceControlSkill:
             if k_gains is not None and d_gains is not None:
                 skill.add_joint_gains(k_gains, d_gains)
-        elif(skill_type == skill_type == SkillType.JointPositionSkill):
+        elif skill_type == SkillType.JointPositionSkill:
             if joint_impedances is not None:
                 skill.add_joint_impedances(joint_impedances)
             else:
@@ -818,12 +850,12 @@ class FrankaArm:
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
 
-        if(skill_type == SkillType.ImpedanceControlSkill):
+        if skill_type == SkillType.ImpedanceControlSkill:
             if cartesian_impedances is not None:
                 skill.add_cartesian_impedances(cartesian_impedances)
             else:
                 skill.add_feedback_controller_params([translational_stiffness] + [rotational_stiffness]) 
-        elif(skill_type == SkillType.CartesianPoseSkill):
+        elif skill_type == SkillType.CartesianPoseSkill:
             if cartesian_impedances is not None:
                 skill.add_cartesian_impedances(cartesian_impedances)
             else:

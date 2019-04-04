@@ -28,12 +28,13 @@ class TrajectoryGeneratorType:
     LinearJointTrajectoryGenerator = 4
     MinJerkJointTrajectoryGenerator = 5
     MinJerkPoseTrajectoryGenerator = 6
-    RelativeLinearPoseTrajectoryGenerator = 7
-    RelativeMinJerkPoseTrajectoryGenerator = 8
-    SineJointTrajectoryGenerator = 9
-    SinePoseTrajectoryGenerator = 10
-    StayInInitialJointsTrajectoryGenerator = 11
-    StayInInitialPoseTrajectoryGenerator = 12
+    PoseDmpTrajectoryGenerator = 7
+    RelativeLinearPoseTrajectoryGenerator = 8
+    RelativeMinJerkPoseTrajectoryGenerator = 9
+    SineJointTrajectoryGenerator = 10
+    SinePoseTrajectoryGenerator = 11
+    StayInInitialJointsTrajectoryGenerator = 12
+    StayInInitialPoseTrajectoryGenerator = 13
 
 class FeedbackControllerType:
     CartesianImpedanceFeedbackController = 0

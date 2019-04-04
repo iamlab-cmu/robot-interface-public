@@ -135,6 +135,13 @@ void PoseTrajectoryGenerator::calculate_desired_pose() {
     }
 }
 
+void PoseTrajectoryGenerator::calculate_desired_position() {
+  // Just change the desired position and not the orientation.
+  for (int i = 0; i < 3; i++) {
+    desired_pose_[12 + i] = desired_position_(i);
+  }
+}
+
 const std::array<double, 16>& PoseTrajectoryGenerator::get_desired_pose() const {
   return desired_pose_;
 }

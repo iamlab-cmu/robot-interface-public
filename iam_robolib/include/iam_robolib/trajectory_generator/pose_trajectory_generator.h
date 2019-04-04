@@ -29,6 +29,11 @@ class PoseTrajectoryGenerator : public TrajectoryGenerator {
   void calculate_desired_pose();
 
   /**
+   * Calculate desired position (x, y, z) for the robot to move.
+   */
+  void calculate_desired_position();
+
+  /**
    * Fix goal quaternion by flipping it if the result is negative when dotted with the initial quaternion.
    */
   void fix_goal_quaternion();

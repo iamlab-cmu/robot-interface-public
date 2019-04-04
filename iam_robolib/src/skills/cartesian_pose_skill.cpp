@@ -56,7 +56,7 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
     time += period.toSec();
     traj_generator_->time_ = time;
     traj_generator_->dt_ = period.toSec();
-    if(time > 0.0) {
+    if (time > 0.0) {
       traj_generator_->get_next_step();
     }
 
