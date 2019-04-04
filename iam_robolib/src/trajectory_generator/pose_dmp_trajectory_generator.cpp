@@ -1,23 +1,23 @@
 //
-// Created by mohit on 12/3/18.
+// Created by kevin on 4/3/18.
 //
 
-#include "iam_robolib/trajectory_generator/joint_dmp_trajectory_generator.h"
+#include "iam_robolib/trajectory_generator/pose_dmp_trajectory_generator.h"
 
 #include <cmath>
 #include <iostream>
 
-void JointDmpTrajectoryGenerator::parse_parameters() {
+void PoseDmpTrajectoryGenerator::parse_parameters() {
   // First parameter is reserved for the type
 
   int params_idx = 1;
   int num_params = static_cast<int>(params_[params_idx++]);
 
   switch(num_params) {
-    case 109:
+    case 57:
       // Run time(1) + Tau (1) + alpha(1) + beta(1) + num_basis = 6 (1) + 
       // num_sensor_values = 2 (1) + basis_mean (6) + basis_std(6) + 
-      // initial_y0(7) + weights (7 joints * 6 basis functions * 2 sensor inputs)
+      // initial_y0(3) + weights (3 axes * 6 basis functions * 2 sensor inputs)
       {
         run_time_ = static_cast<double>(params_[params_idx++]);
         tau_ = static_cast<double>(params_[params_idx++]);
@@ -54,31 +54,45 @@ void JointDmpTrajectoryGenerator::parse_parameters() {
       }
       break;
     default:
-      std::cout << "JointDmpTrajectoryGenerator: Invalid number of parameters: " << num_params << std::endl;
+      std::cout << "PoseDmpTrajectoryGenerator: Invalid number of parameters: " << num_params << std::endl;
   }
 }
 
-void JointDmpTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
-  initialize_initial_and_desired_joints(robot_state, SkillType::JointPositionSkill);
+void PoseDmpTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state) {
+  initialize_initial_and_desired_poses(robot_state, SkillType::CartesianPoseSkill);
   
-  y0_ = robot_state.q_d;
-  y_ = robot_state.q_d;
-  dy_ = robot_state.dq_d;
+  for(size_t i = 0; i < y0_.size(); i++) {
+    y0_[i] = initial_position_(i);
+  }
+  for(size_t i = 0; i < y_.size(); i++) {
+    y_[i] = initial_position_(i);
+  }
+  for(size_t i = 0; i < dy_.size(); i++) {
+    dy_[i] = robot_state.O_dP_EE_c[i];
+  }
+
   x_ = 1.0;
 }
 
-void JointDmpTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state,
+void PoseDmpTrajectoryGenerator::initialize_trajectory(const franka::RobotState &robot_state,
                                                         SkillType skill_type) {
-  initialize_initial_and_desired_joints(robot_state, skill_type);
+  initialize_initial_and_desired_poses(robot_state, skill_type);
   
-  y0_ = robot_state.q_d;
-  y_ = robot_state.q_d;
-  dy_ = robot_state.dq_d;
+  for(size_t i = 0; i < y0_.size(); i++) {
+    y0_[i] = initial_position_(i);
+  }
+  for(size_t i = 0; i < y_.size(); i++) {
+    y_[i] = initial_position_(i);
+  }
+  for(size_t i = 0; i < dy_.size(); i++) {
+    dy_[i] = robot_state.O_dP_EE_c[i];
+  }
+
   x_ = 1.0;
 }
 
 
-void JointDmpTrajectoryGenerator::get_next_step() {
+void PoseDmpTrajectoryGenerator::get_next_step() {
   static int i, j, k;
   static double ddy, t;
 
@@ -124,11 +138,15 @@ void JointDmpTrajectoryGenerator::get_next_step() {
   // Update canonical system.
   x_ -= (x_ * tau_) * dt_;
 
-  // Finally set the joints we want.
-  desired_joints_ = y_;
+  // Finally set the position we want.
+  desired_position_(0) = y_[0];
+  desired_position_(1) = y_[1];
+  desired_position_(2) = y_[2];
+
+  calculate_desired_pose();
 }
 
-void JointDmpTrajectoryGenerator::getInitialMeanAndStd() {
+void PoseDmpTrajectoryGenerator::getInitialMeanAndStd() {
   std::array<double, 10> basis_mean{};
   std::array<double, 10> basis_std{};
   for (int i = 0; i < num_basis_; i++)  {
