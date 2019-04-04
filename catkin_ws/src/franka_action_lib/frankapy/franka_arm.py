@@ -542,7 +542,7 @@ class FrankaArm:
         pass
 
     def execute_joint_dmp(self, dmp_info, meta_skill_id, duration, ignore_errors=True,
-                          skill_desc=''):
+                          skill_desc='', skill_type=SkillType.JointPositionSkill):
         '''Commands Arm to execute a given dmp for duration seconds
 
         Args:
@@ -552,7 +552,7 @@ class FrankaArm:
             duration (float): A float in the unit of seconds
         '''
 
-        skill = JointDMPSkill(skill_desc=skill_desc)
+        skill = JointDMPSkill(skill_desc, skill_type)
         skill.add_initial_sensor_values(dmp_info['phi_j'])  # sensor values
         # Doesn't matter because we overwrite it with the initial joint positions anyway
         y0 = [-0.282, -0.189, 0.0668, -2.186, 0.0524, 1.916, -1.06273]
@@ -577,7 +577,7 @@ class FrankaArm:
                         ignore_errors=ignore_errors)
 
     def execute_pose_dmp(self, dmp_info, duration, ignore_errors=True,
-                         skill_desc=''):
+                         skill_desc='', skill_type=SkillType.CartesianPoseSkill):
         '''Commands Arm to execute a given dmp for duration seconds
 
         Args:
@@ -587,7 +587,7 @@ class FrankaArm:
             duration (float): A float in the unit of seconds
         '''
 
-        skill = PoseDMPSkill(skill_desc=skill_desc)
+        skill = PoseDMPSkill(skill_desc, skill_type)
         skill.add_initial_sensor_values(dmp_info['phi_j'])  # sensor values
         # Doesn't matter because we overwrite it with the initial position anyways
         y0 = [0.0, 0.0, 0.0]
