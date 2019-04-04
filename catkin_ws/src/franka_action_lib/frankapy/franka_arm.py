@@ -541,7 +541,7 @@ class FrankaArm:
         '''
         pass
 
-    def execute_joint_dmp(self, dmp_info, meta_skill_id, duration, ignore_errors=True,
+    def execute_joint_dmp(self, dmp_info, duration, ignore_errors=True,
                           skill_desc='', skill_type=SkillType.JointPositionSkill):
         '''Commands Arm to execute a given dmp for duration seconds
 
@@ -566,8 +566,6 @@ class FrankaArm:
                 + np.array(dmp_info['weights']).reshape(-1).tolist()
 
         skill.add_trajectory_params(trajectory_params)
-        skill.set_meta_skill_id(meta_skill_id)
-        skill.set_meta_skill_type(MetaSkillType.JointPositionContinuousSkill)
         skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
 
         goal = skill.create_goal()
