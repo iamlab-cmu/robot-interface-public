@@ -152,7 +152,7 @@ void PoseDmpTrajectoryGenerator::get_next_step() {
     std::cout << "Desired Position: " << y_[0] << ", " << y_[1] << ", " << y_[2] << std::endl;
   }
 
-  calculate_desired_pose();
+  calculate_desired_position();
 }
 
 void PoseDmpTrajectoryGenerator::getInitialMeanAndStd() {
