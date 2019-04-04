@@ -30,7 +30,7 @@ class PoseDmpTrajectoryGenerator : public PoseTrajectoryGenerator {
   int num_sensor_values_=10;
   std::array<double, 10> basis_mean_{};
   std::array<double, 10> basis_std_{};
-  std::array<std::array<std::array<double, 3>, 10>, 20> weights_{};
+  std::array<std::array<std::array<double, 20>, 10>, 3> weights_{};
   std::array<double, 10> initial_sensor_values_{{1., 0., 0., 0., 1., 1., 0., 0., 1., 0.}};
   std::array<double, 3> y0_={};
 

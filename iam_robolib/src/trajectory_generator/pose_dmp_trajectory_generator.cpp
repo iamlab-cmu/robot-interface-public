@@ -95,7 +95,6 @@ void PoseDmpTrajectoryGenerator::initialize_trajectory(const franka::RobotState 
   std::cout << "Initial Position: " << y_[0] << ", " << y_[1] << ", " << y_[2] << std::endl;
 }
 
-
 void PoseDmpTrajectoryGenerator::get_next_step() {
   static int i, j, k;
   static double ddy, t;
@@ -147,7 +146,11 @@ void PoseDmpTrajectoryGenerator::get_next_step() {
   desired_position_(1) = y_[1];
   desired_position_(2) = y_[2];
 
-  std::cout << "Desired Position: " << y_[0] << ", " << y_[1] << ", " << y_[2] << std::endl;
+  int temp_time = static_cast<int>(x_ * 1000);
+
+  if(temp_time % 100 == 0) {
+    std::cout << "Desired Position: " << y_[0] << ", " << y_[1] << ", " << y_[2] << std::endl;
+  }
 
   calculate_desired_pose();
 }
