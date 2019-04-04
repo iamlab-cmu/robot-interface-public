@@ -220,7 +220,7 @@ class JointDMPSkill(BaseSkill):
         if len(skill_desc) == 0:
             skill_desc = JointDMPSkill.__name__
 
-        if(skill_type == SkillType.JointPositionSkill):
+        if skill_type == SkillType.JointPositionSkill:
             super(JointDMPSkill, self).__init__(
                   SkillType.JointPositionSkill,
                   skill_desc,
@@ -231,7 +231,7 @@ class JointDMPSkill(BaseSkill):
                   FeedbackControllerType.NoopFeedbackController,
                   TerminationHandlerType.TimeTerminationHandler,
                   1)
-        elif(skill_type == SkillType.ImpedanceControlSkill):
+        elif skill_type == SkillType.ImpedanceControlSkill:
             super(JointDMPSkill, self).__init__(
                   SkillType.ImpedanceControlSkill,
                   skill_desc,
@@ -259,7 +259,7 @@ class PoseDMPSkill(BaseSkill):
         if len(skill_desc) == 0:
             skill_desc = PoseDMPSkill.__name__
 
-        if(skill_type == SkillType.CartesianPoseSkill):
+        if skill_type == SkillType.CartesianPoseSkill:
             super(PoseDMPSkill, self).__init__(
                   SkillType.CartesianPoseSkill,
                   skill_desc,
@@ -270,7 +270,7 @@ class PoseDMPSkill(BaseSkill):
                   FeedbackControllerType.NoopFeedbackController,
                   TerminationHandlerType.TimeTerminationHandler,
                   1)
-        elif(skill_type == SkillType.ImpedanceControlSkill):
+        elif skill_type == SkillType.ImpedanceControlSkill:
             super(PoseDMPSkill, self).__init__(
                   SkillType.ImpedanceControlSkill,
                   skill_desc,
@@ -299,7 +299,7 @@ class GoToJointsSkill(BaseSkill):
         if len(skill_desc) == 0:
             skill_desc = GoToJointsSkill.__name__
 
-        if(skill_type == SkillType.JointPositionSkill):
+        if skill_type == SkillType.JointPositionSkill:
             super(GoToJointsSkill, self).__init__(
                   SkillType.JointPositionSkill,
                   skill_desc,
@@ -310,7 +310,7 @@ class GoToJointsSkill(BaseSkill):
                   FeedbackControllerType.NoopFeedbackController,
                   TerminationHandlerType.FinalJointTerminationHandler,
                   1)
-        elif(skill_type == SkillType.ImpedanceControlSkill):
+        elif skill_type == SkillType.ImpedanceControlSkill:
             super(GoToJointsSkill, self).__init__(
                   SkillType.ImpedanceControlSkill,
                   skill_desc,
@@ -339,7 +339,7 @@ class GoToPoseSkill(BaseSkill):
         if len(skill_desc) == 0:
             skill_desc = GoToPoseSkill.__name__
 
-        if(skill_type == SkillType.ImpedanceControlSkill):
+        if skill_type == SkillType.ImpedanceControlSkill:
             super(GoToPoseSkill, self).__init__(
                   SkillType.ImpedanceControlSkill,
                   skill_desc,
@@ -350,7 +350,7 @@ class GoToPoseSkill(BaseSkill):
                   FeedbackControllerType.CartesianImpedanceFeedbackController,
                   TerminationHandlerType.FinalPoseTerminationHandler,
                   1)
-        elif(skill_type == SkillType.CartesianPoseSkill):
+        elif skill_type == SkillType.CartesianPoseSkill:
             super(GoToPoseSkill, self).__init__(
                   SkillType.CartesianPoseSkill,
                   skill_desc,
@@ -379,7 +379,7 @@ class GoToPoseDeltaSkill(BaseSkill):
         if len(skill_desc) == 0:
             skill_desc = GoToPoseDeltaSkill.__name__
 
-        if(skill_type == SkillType.ImpedanceControlSkill):
+        if skill_type == SkillType.ImpedanceControlSkill:
             super(GoToPoseDeltaSkill, self).__init__(
                   SkillType.ImpedanceControlSkill,
                   skill_desc,
@@ -390,7 +390,7 @@ class GoToPoseDeltaSkill(BaseSkill):
                   FeedbackControllerType.CartesianImpedanceFeedbackController,
                   TerminationHandlerType.FinalPoseTerminationHandler,
                   1)
-        elif(skill_type == SkillType.CartesianPoseSkill):
+        elif skill_type == SkillType.CartesianPoseSkill:
             super(GoToPoseDeltaSkill, self).__init__(
                   SkillType.CartesianPoseSkill,
                   skill_desc,
@@ -418,8 +418,8 @@ class StayInInitialPoseSkill(BaseSkill):
                  feedback_controller_type=FeedbackControllerType.CartesianImpedanceFeedbackController):
         if len(skill_desc) == 0:
             skill_desc = StayInInitialPoseSkill.__name__
-        if(skill_type == SkillType.ImpedanceControlSkill):
-            if(feedback_controller_type == FeedbackControllerType.CartesianImpedanceFeedbackController):
+        if skill_type == SkillType.ImpedanceControlSkill:
+            if feedback_controller_type == FeedbackControllerType.CartesianImpedanceFeedbackController:
                 super(StayInInitialPoseSkill, self).__init__(
                       SkillType.ImpedanceControlSkill,
                       skill_desc,
@@ -430,7 +430,7 @@ class StayInInitialPoseSkill(BaseSkill):
                       FeedbackControllerType.CartesianImpedanceFeedbackController,
                       TerminationHandlerType.TimeTerminationHandler,
                       1)
-            elif(feedback_controller_type == FeedbackControllerType.JointImpedanceFeedbackController):
+            elif feedback_controller_type == FeedbackControllerType.JointImpedanceFeedbackController:
                 super(StayInInitialPoseSkill, self).__init__(
                       SkillType.ImpedanceControlSkill,
                       skill_desc,
@@ -452,7 +452,7 @@ class StayInInitialPoseSkill(BaseSkill):
                       FeedbackControllerType.CartesianImpedanceFeedbackController,
                       TerminationHandlerType.TimeTerminationHandler,
                       1)
-        elif(skill_type == SkillType.CartesianPoseSkill):
+        elif skill_type == SkillType.CartesianPoseSkill:
             super(StayInInitialPoseSkill, self).__init__(
                   SkillType.CartesianPoseSkill,
                   skill_desc,
@@ -463,7 +463,7 @@ class StayInInitialPoseSkill(BaseSkill):
                   FeedbackControllerType.NoopFeedbackController,
                   TerminationHandlerType.TimeTerminationHandler,
                   1)
-        elif(skill_type == SkillType.JointPositionSkill):
+        elif skill_type == SkillType.JointPositionSkill:
             super(StayInInitialPoseSkill, self).__init__(
                   SkillType.JointPositionSkill,
                   skill_desc,

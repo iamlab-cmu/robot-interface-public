@@ -762,25 +762,25 @@ class FrankaArm:
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
 
-        if(skill_type == SkillType.ImpedanceControlSkill):
-            if(feedback_controller_type == FeedbackControllerType.CartesianImpedanceFeedbackController):
+        if skill_type == SkillType.ImpedanceControlSkill:
+            if feedback_controller_type == FeedbackControllerType.CartesianImpedanceFeedbackController:
                 if cartesian_impedances is not None:
                     skill.add_cartesian_impedances(cartesian_impedances)
                 else:
                     skill.add_feedback_controller_params([translational_stiffness] + [rotational_stiffness]) 
-            elif(feedback_controller_type == FeedbackControllerType.JointImpedanceFeedbackController):
+            elif feedback_controller_type == FeedbackControllerType.JointImpedanceFeedbackController:
                 if k_gains is not None and d_gains is not None:
                     skill.add_joint_gains(k_gains, d_gains)
                 else:
                     skill.add_feedback_controller_params([])
             else:
                 skill.add_feedback_controller_params([translational_stiffness] + [rotational_stiffness])
-        elif(skill_type == SkillType.CartesianPoseSkill):
+        elif skill_type == SkillType.CartesianPoseSkill:
             if cartesian_impedances is not None:
                 skill.add_cartesian_impedances(cartesian_impedances)
             else:
                 skill.add_feedback_controller_params([])
-        elif(skill_type == SkillType.JointPositionSkill):
+        elif skill_type == SkillType.JointPositionSkill:
             if joint_impedances is not None:
                 skill.add_joint_impedances(joint_impedances)
             else:
@@ -815,10 +815,10 @@ class FrankaArm:
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
 
-        if(skill_type == SkillType.ImpedanceControlSkill):
+        if skill_type == SkillType.ImpedanceControlSkill:
             if k_gains is not None and d_gains is not None:
                 skill.add_joint_gains(k_gains, d_gains)
-        elif(skill_type == skill_type == SkillType.JointPositionSkill):
+        elif skill_type == SkillType.JointPositionSkill:
             if joint_impedances is not None:
                 skill.add_joint_impedances(joint_impedances)
             else:
@@ -852,12 +852,12 @@ class FrankaArm:
 
         skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
 
-        if(skill_type == SkillType.ImpedanceControlSkill):
+        if skill_type == SkillType.ImpedanceControlSkill:
             if cartesian_impedances is not None:
                 skill.add_cartesian_impedances(cartesian_impedances)
             else:
                 skill.add_feedback_controller_params([translational_stiffness] + [rotational_stiffness]) 
-        elif(skill_type == SkillType.CartesianPoseSkill):
+        elif skill_type == SkillType.CartesianPoseSkill:
             if cartesian_impedances is not None:
                 skill.add_cartesian_impedances(cartesian_impedances)
             else:
