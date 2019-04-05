@@ -64,7 +64,7 @@ class PoseTrajectoryGenerator : public TrajectoryGenerator {
   const Eigen::Quaterniond& get_goal_orientation() const;
 
  protected:
-  double quaternion_dist_threshold = 0.005;
+  double quaternion_dist_threshold = 0.9995;
   bool same_orientation = false;
 
   std::array<double, 16> initial_pose_{};

@@ -116,12 +116,15 @@ void PoseTrajectoryGenerator::fix_goal_quaternion(){
   // Flip the goal quaternion if the initial orientation dotted with the goal
   // orientation is negative.
 
+  initial_orientation_.normalize();
+  goal_orientation_.normalize();
+
   double quaternion_dot_product = initial_orientation_.coeffs().dot(goal_orientation_.coeffs());
   if (quaternion_dot_product < 0.0) {
     goal_orientation_.coeffs() << -goal_orientation_.coeffs();
   }
 
-  if((1 - pow(quaternion_dot_product, 2.0)) < quaternion_dist_threshold) {
+  if(abs(quaternion_dot_product) > quaternion_dist_threshold) {
     same_orientation = true;
   } else {
     same_orientation = false;
