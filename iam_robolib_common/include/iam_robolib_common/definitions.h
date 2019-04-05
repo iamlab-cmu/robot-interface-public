@@ -37,20 +37,21 @@ enum class MetaSkillType : uint8_t {
 
 // Enum for Trajectory Generator Types
 enum class TrajectoryGeneratorType : uint8_t {
-    GripperTrajectoryGenerator = 0,
-    ImpulseTrajectoryGenerator = 1,
-    JointDmpTrajectoryGenerator = 2,
-    LinearPoseTrajectoryGenerator = 3,
-    LinearJointTrajectoryGenerator = 4,
-    MinJerkJointTrajectoryGenerator = 5,
-    MinJerkPoseTrajectoryGenerator = 6,
-    PoseDmpTrajectoryGenerator = 7,
-    RelativeLinearPoseTrajectoryGenerator = 8,
-    RelativeMinJerkPoseTrajectoryGenerator = 9,
-    SineJointTrajectoryGenerator = 10,
-    SinePoseTrajectoryGenerator = 11,
-    StayInInitialJointsTrajectoryGenerator = 12,
-    StayInInitialPoseTrajectoryGenerator = 13
+    GoalPoseDmpTrajectoryGenerator = 0,
+    GripperTrajectoryGenerator = 1,
+    ImpulseTrajectoryGenerator = 2,
+    JointDmpTrajectoryGenerator = 3,
+    LinearPoseTrajectoryGenerator = 4,
+    LinearJointTrajectoryGenerator = 5,
+    MinJerkJointTrajectoryGenerator = 6,
+    MinJerkPoseTrajectoryGenerator = 7,
+    PoseDmpTrajectoryGenerator = 8,
+    RelativeLinearPoseTrajectoryGenerator = 9,
+    RelativeMinJerkPoseTrajectoryGenerator = 10,
+    SineJointTrajectoryGenerator = 11,
+    SinePoseTrajectoryGenerator = 12,
+    StayInInitialJointsTrajectoryGenerator = 13,
+    StayInInitialPoseTrajectoryGenerator = 14
 };
 
 // Enum for Feedback Controller Types
