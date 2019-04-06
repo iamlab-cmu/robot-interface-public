@@ -607,6 +607,41 @@ class FrankaArm:
                         cb=lambda x: skill.feedback_callback(x),
                         ignore_errors=ignore_errors)
 
+    def execute_goal_pose_dmp(self, dmp_info, duration, ignore_errors=True,
+                              skill_desc='', skill_type=SkillType.CartesianPoseSkill):
+        '''Commands Arm to execute a given dmp for duration seconds
+
+        Args:
+            dmp_info (dict): Contains all the parameters of a DMP
+                (phi_j, tau, alpha, beta, num_basis, num_sensors, mu, h,
+                and weights)
+            duration (float): A float in the unit of seconds
+        '''
+
+        skill = GoalPoseDMPSkill(skill_desc, skill_type)
+        skill.add_initial_sensor_values(dmp_info['phi_j'])  # sensor values
+        # Doesn't matter because we overwrite it with the initial position anyways
+        y0 = [0.0, 0.0, 0.0]
+        phi_j = np.array([[-0.025, 1.], [0, 0.], [-0.05, 1.0]])
+        # Run time, tau, alpha, beta, num_basis, num_sensor_value, mu, h, weight
+        trajectory_params = [
+                duration, dmp_info['tau'], dmp_info['alpha'], dmp_info['beta'],
+                float(dmp_info['num_basis']), float(dmp_info['num_sensors'])] \
+                + dmp_info['mu'] \
+                + dmp_info['h'] \
+                + y0 \
+                + np.array(dmp_info['weights']).reshape(-1).tolist() \
+                + np.array(phi_j).reshape(-1).tolist()
+
+        skill.add_trajectory_params(trajectory_params)
+        skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
+
+        goal = skill.create_goal()
+
+        self._send_goal(goal,
+                        cb=lambda x: skill.feedback_callback(x),
+                        ignore_errors=ignore_errors)
+
     def apply_effector_forces_torques(self,
                                       run_duration,
                                       acc_duration,

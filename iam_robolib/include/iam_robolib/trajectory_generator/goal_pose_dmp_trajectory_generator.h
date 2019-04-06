@@ -19,6 +19,9 @@ class GoalPoseDmpTrajectoryGenerator : public PoseTrajectoryGenerator {
   std::array<double, 3> y_={};
   std::array<double, 3> dy_={};
 
+  double min_z = 0.193;
+  double eps = 0.01;
+
  private:
   // Variables initialized from shared memory should be doubles.
   double alpha_=5.0;
