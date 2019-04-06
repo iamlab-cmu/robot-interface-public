@@ -9,8 +9,7 @@
 
 #include <iam_robolib_common/definitions.h>
 
-void save_robot_state_data_to_shared_memory_buffer(RunLoopSharedMemoryHandler* shared_memory_handler,
-                                                   RobotStateData* robot_state_data,
-                                                   int buffer_num);
+void save_current_robot_state_data_to_shared_memory_buffer(RunLoopSharedMemoryHandler* shared_memory_handler,
+                                                           RobotStateData* robot_state_data);
 
 #endif  // IAM_ROBOLIB_SAVE_ROBOT_STATE_TO_SHARED_MEMORY_BUFFER_H_

@@ -485,6 +485,8 @@ void RobotStateData::printData(int print_count) {
 }
 
 void RobotStateData::log_robot_state(franka::RobotState robot_state, double time_since_skill_started) {
+  current_robot_state = robot_state;
+
   std::array<bool, 37> current_errors;
   current_errors[0] = robot_state.current_errors.joint_position_limits_violation;
   current_errors[1] = robot_state.current_errors.cartesian_position_limits_violation;
@@ -681,6 +683,8 @@ void RobotStateData::log_robot_state(franka::RobotState robot_state, double time
 }
 
 void RobotStateData::update_current_gripper_state(franka::GripperState gripper_state) {
+  current_gripper_state = gripper_state;
+
   current_gripper_width_ = gripper_state.width;
   current_gripper_max_width_ = gripper_state.max_width;
   current_gripper_is_grasped_ = gripper_state.is_grasped;

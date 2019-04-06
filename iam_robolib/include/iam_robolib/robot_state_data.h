@@ -142,6 +142,9 @@ class RobotStateData {
   uint16_t current_gripper_temperature_{0};
   double current_gripper_time_{-1.0};
 
+  franka::RobotState current_robot_state;
+  franka::GripperState current_gripper_state;
+
   // Utils for printing
   const int print_rate_=10;
 
