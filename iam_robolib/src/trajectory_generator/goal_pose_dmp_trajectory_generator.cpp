@@ -86,7 +86,7 @@ void GoalPoseDmpTrajectoryGenerator::initialize_trajectory(const franka::RobotSt
 
   if(min_z > initial_position_(2) + eps){
     for (int j = 0; j < num_sensor_values_; j++) {
-      initial_sensor_values_[i][j] = 0.0;
+      initial_sensor_values_[2][j] = 0.0;
     }
   } else if(min_z > initial_position_(2) + dmp_z_dist){
     initial_sensor_values_[2][0] = (initial_position_(2) - min_z) * 2;
@@ -119,7 +119,7 @@ void GoalPoseDmpTrajectoryGenerator::initialize_trajectory(const franka::RobotSt
 
   if(min_z > initial_position_(2) + eps){
     for (int j = 0; j < num_sensor_values_; j++) {
-      initial_sensor_values_[i][j] = 0.0;
+      initial_sensor_values_[2][j] = 0.0;
     }
   } else if(min_z > initial_position_(2) + dmp_z_dist){
     initial_sensor_values_[2][0] = (initial_position_(2) - min_z) * 2;
