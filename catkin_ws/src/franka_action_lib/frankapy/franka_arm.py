@@ -607,8 +607,9 @@ class FrankaArm:
                         cb=lambda x: skill.feedback_callback(x),
                         ignore_errors=ignore_errors)
 
-    def execute_goal_pose_dmp(self, dmp_info, duration, ignore_errors=True,
-                              skill_desc='', skill_type=SkillType.CartesianPoseSkill):
+    def execute_goal_pose_dmp(self, dmp_info, duration, ignore_errors=True, 
+                              phi_j=None, skill_desc='', 
+                              skill_type=SkillType.CartesianPoseSkill):
         '''Commands Arm to execute a given dmp for duration seconds
 
         Args:
@@ -622,7 +623,8 @@ class FrankaArm:
         skill.add_initial_sensor_values(dmp_info['phi_j'])  # sensor values
         # Doesn't matter because we overwrite it with the initial position anyways
         y0 = [0.0, 0.0, 0.0]
-        phi_j = np.array([[-0.025, 1.], [0, 0.], [-0.05, 1.0]])
+        if phi_j is None:
+            phi_j = np.array([[-0.025, 1.], [0, 0.], [-0.05, 1.0]])
         # Run time, tau, alpha, beta, num_basis, num_sensor_value, mu, h, weight
         trajectory_params = [
                 duration, dmp_info['tau'], dmp_info['alpha'], dmp_info['beta'],

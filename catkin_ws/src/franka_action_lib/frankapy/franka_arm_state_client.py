@@ -24,8 +24,6 @@ class FrankaArmStateClient:
         '''
         ros_data = self._get_current_robot_state().robot_state
 
-        print(ros_data)
-
         data = {
             'pose': franka_pose_to_rigid_transform(ros_data.O_T_EE),
             'joint_torques': np.array(ros_data.tau_J),
