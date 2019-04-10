@@ -9,6 +9,7 @@
 
 #include "iam_robolib/skills/base_meta_skill.h"
 #include "iam_robolib/skills/base_skill.h"
+#include "iam_robolib/trajectory_generator/goal_pose_dmp_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/gripper_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/impulse_trajectory_generator.h"
 #include "iam_robolib/trajectory_generator/joint_dmp_trajectory_generator.h"
@@ -34,6 +35,9 @@ TrajectoryGenerator* TrajectoryGeneratorFactory::getTrajectoryGeneratorForSkill(
   "\n";
 
   switch (trajectory_generator_type) {
+    case TrajectoryGeneratorType::GoalPoseDmpTrajectoryGenerator:
+      trajectory_generator = new GoalPoseDmpTrajectoryGenerator(buffer);
+      break;
     case TrajectoryGeneratorType::GripperTrajectoryGenerator:
       trajectory_generator = new GripperTrajectoryGenerator(buffer);
       break;

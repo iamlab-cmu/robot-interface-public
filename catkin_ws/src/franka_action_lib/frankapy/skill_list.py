@@ -292,6 +292,45 @@ class PoseDMPSkill(BaseSkill):
                   FeedbackControllerType.NoopFeedbackController,
                   TerminationHandlerType.TimeTerminationHandler,
                   1)
+
+class GoalPoseDMPSkill(BaseSkill):
+    def __init__(self, skill_desc='', skill_type=SkillType.CartesianPoseSkill):
+        if len(skill_desc) == 0:
+            skill_desc = GoalPoseDMPSkill.__name__
+
+        if skill_type == SkillType.CartesianPoseSkill:
+            super(GoalPoseDMPSkill, self).__init__(
+                  SkillType.CartesianPoseSkill,
+                  skill_desc,
+                  MetaSkillType.BaseMetaSkill,
+                  0,
+                  ['/franka_robot/camera'],
+                  TrajectoryGeneratorType.GoalPoseDmpTrajectoryGenerator,
+                  FeedbackControllerType.NoopFeedbackController,
+                  TerminationHandlerType.TimeTerminationHandler,
+                  1)
+        elif skill_type == SkillType.ImpedanceControlSkill:
+            super(GoalPoseDMPSkill, self).__init__(
+                  SkillType.ImpedanceControlSkill,
+                  skill_desc,
+                  MetaSkillType.BaseMetaSkill,
+                  0,
+                  ['/franka_robot/camera'],
+                  TrajectoryGeneratorType.GoalPoseDmpTrajectoryGenerator,
+                  FeedbackControllerType.CartesianImpedanceFeedbackController,
+                  TerminationHandlerType.TimeTerminationHandler,
+                  1)
+        else:
+            super(GoalPoseDMPSkill, self).__init__(
+                  SkillType.CartesianPoseSkill,
+                  skill_desc,
+                  MetaSkillType.BaseMetaSkill,
+                  0,
+                  ['/franka_robot/camera'],
+                  TrajectoryGeneratorType.GoalPoseDmpTrajectoryGenerator,
+                  FeedbackControllerType.NoopFeedbackController,
+                  TerminationHandlerType.TimeTerminationHandler,
+                  1)
     
 
 class GoToJointsSkill(BaseSkill):

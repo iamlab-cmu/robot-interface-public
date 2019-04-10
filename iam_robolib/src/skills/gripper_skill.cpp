@@ -23,10 +23,11 @@ void GripperSkill::execute_skill_on_franka(run_loop* run_loop,
                             boost::interprocess::defer_lock);
 
   franka::GripperState gripper_state = robot->getGripperState();
+  franka::RobotState robot_state = robot->getRobotState();
 
   try {
     if (lock.try_lock()) {
-      run_loop_info->set_time_skill_started_in_robot_time(gripper_state.time.toSec());
+      run_loop_info->set_time_skill_started_in_robot_time(robot_state.time.toSec());
       lock.unlock();
     } 
   } catch (boost::interprocess::lock_exception) {
@@ -58,9 +59,10 @@ void GripperSkill::execute_skill_on_franka(run_loop* run_loop,
   }
 
   gripper_state = robot->getGripperState();
+  robot_state = robot->getRobotState();
   try {
     if (lock.try_lock()) {
-      run_loop_info->set_time_skill_finished_in_robot_time(gripper_state.time.toSec());
+      run_loop_info->set_time_skill_finished_in_robot_time(robot_state.time.toSec());
       lock.unlock();
     } 
   } catch (boost::interprocess::lock_exception) {

@@ -383,12 +383,7 @@ void run_loop::setup_current_robot_state_io_thread() {
         continue;
       }
       
-      if (robot_state_data_->use_buffer_0) {
-        save_robot_state_data_to_shared_memory_buffer(shared_memory_handler_, robot_state_data_, 0);
-      }
-      else {
-        save_robot_state_data_to_shared_memory_buffer(shared_memory_handler_, robot_state_data_, 1);
-      }
+      save_current_robot_state_data_to_shared_memory_buffer(shared_memory_handler_, robot_state_data_);
     }
   });
 }
