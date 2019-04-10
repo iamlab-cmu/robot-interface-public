@@ -19,6 +19,9 @@ class GoalPoseDmpTrajectoryGenerator : public PoseTrajectoryGenerator {
   std::array<double, 3> y_={};
   std::array<double, 3> dy_={};
 
+  // min_z was found by attaching the knife to the robot arm and 
+  // placing it on the cutting board. Then I used the print_joint_poses
+  // in libfranka/examples to see the actual min z
   double min_z = 0.0308;
   double eps = -0.01;
 
@@ -33,6 +36,9 @@ class GoalPoseDmpTrajectoryGenerator : public PoseTrajectoryGenerator {
   int num_sensor_values_=2;
   std::array<double, 6> basis_mean_{};
   std::array<double, 6> basis_std_{};
+  // 20 represents number of basis functions and 10 represent the number
+  // of sensor values
+  // std::array<std::array<std::array<double, 20>, 10>, 3> weights_{};
   std::array<std::array<std::array<double, 6>, 2>, 3> weights_{};
   std::array<std::array<double, 2>, 3> initial_sensor_values_{};
   std::array<double, 3> y0_={};

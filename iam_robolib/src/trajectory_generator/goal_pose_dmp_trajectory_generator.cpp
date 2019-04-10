@@ -164,6 +164,10 @@ void GoalPoseDmpTrajectoryGenerator::get_next_step() {
     }
     ddy += (alpha_ * beta_ * net_sensor_force);
     ddy /= (tau_ * tau_);
+    // NOTE: dt_ used below can sometimes be greater than 0.001 
+    // (e.g. 0.003, 0.006), we believe this might be because of some 
+    // low-pass filtering that franka implements. We should theoretically 
+    // use a fixed dt, but this works fine for now.
     dy_[i] += (ddy * dt_);
     y_[i] += (dy_[i] * dt_);
   }
