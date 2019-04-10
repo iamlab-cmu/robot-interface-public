@@ -115,12 +115,23 @@ void PoseTrajectoryGenerator::initialize_initial_and_desired_poses(const franka:
 void PoseTrajectoryGenerator::fix_goal_quaternion(){
   // Flip the goal quaternion if the initial orientation dotted with the goal
   // orientation is negative.
-  if (initial_orientation_.coeffs().dot(goal_orientation_.coeffs()) < 0.0) {
+
+  initial_orientation_.normalize();
+  goal_orientation_.normalize();
+
+  double quaternion_dot_product = initial_orientation_.coeffs().dot(goal_orientation_.coeffs());
+  if (quaternion_dot_product < 0.0) {
     goal_orientation_.coeffs() << -goal_orientation_.coeffs();
   }
+
+  same_orientation = abs(quaternion_dot_product) > quaternion_dist_threshold;
+  std::cout << "PoseTrajectoryGenerator: same_orientation = " << same_orientation << std::endl;
 }
 
 void PoseTrajectoryGenerator::calculate_desired_pose() {
+  if(same_orientation) {
+    calculate_desired_position();
+  } else {
     Eigen::Affine3d desired_pose_affine = Eigen::Affine3d::Identity();
     desired_pose_affine.translate(desired_position_);
     // Normalize desired orientation quaternion to avoid precision issues
@@ -129,10 +140,11 @@ void PoseTrajectoryGenerator::calculate_desired_pose() {
     Eigen::Matrix4d desired_pose_matrix = desired_pose_affine.matrix();
 
     for(int i = 0; i < 4; i++) {
-        for(int j = 0; j < 4; j++) {
-            desired_pose_[4*i+j] = desired_pose_matrix(j,i); // Column wise
-        }
+      for(int j = 0; j < 4; j++) {
+        desired_pose_[4*i+j] = desired_pose_matrix(j,i); // Column wise
+      }
     }
+  }
 }
 
 void PoseTrajectoryGenerator::calculate_desired_position() {
