@@ -3,25 +3,26 @@
 control_pc_uname=$1
 control_pc_ip_address=$2
 workstation_ip_address=$3
-control_pc_use_passwd=$4
-control_pc_robot_lib_path=$5
+control_pc_use_password=$4
+control_pc_password=$5
+control_pc_robolib_path=$6
+robot_number=$7
 
-rosmaster_path="/bash_scripts/set_rosmaster.sh"
+rosmaster_path="bash_scripts/set_rosmaster.sh"
+catkin_ws_setup_path="catkin_ws/devel/setup.bash"
 
-echo $control_pc_uname
-echo $control_pc_ip_address
-echo $control_pc_robot_lib_path
-
-if [ "$control_pc_use_passwd" = "0" ]; then
-ssh -T $control_pc_uname@$control_pc_ip_address << EOSSH
-source $control_pc_robot_lib_path$rosmaster_path $control_pc_ip_address $workstation_ip_address
-source $control_pc_robot_lib_path"/catkin_ws/devel/setup.zsh"
-roslaunch franka_action_lib franka_ros_interface.launch
+if [ "$control_pc_use_password" = "0" ]; then
+ssh -tt $control_pc_uname@$control_pc_ip_address << EOSSH
+cd $control_pc_robolib_path
+source $rosmaster_path $control_pc_ip_address $workstation_ip_address
+source $catkin_ws_setup_path
+roslaunch franka_action_lib franka_ros_interface.launch robot_num:=$robot_number
 EOSSH
 else
-sshpass -p "!@m-guardians" ssh -tt -o StrictHostKeyChecking=no $control_pc_uname@$control_pc_ip_address << EOSSH
-source ~/Documents/robot-interface/bash_scripts/set_rosmaster.sh $control_pc_ip_address $workstation_ip_address
-source ~/Documents/robot-interface/catkin_ws/devel/setup.bash
-roslaunch franka_action_lib franka_ros_interface.launch
+sshpass -p "$control_pc_password" ssh -tt -o StrictHostKeyChecking=no $control_pc_uname@$control_pc_ip_address << EOSSH
+cd $control_pc_robolib_path
+source $rosmaster_path $control_pc_ip_address $workstation_ip_address
+source $catkin_ws_setup_path
+roslaunch franka_action_lib franka_ros_interface.launch robot_num:=$robot_number
 EOSSH
 fi

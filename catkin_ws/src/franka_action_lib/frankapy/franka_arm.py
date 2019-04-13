@@ -16,20 +16,20 @@ from .franka_arm_state_client import FrankaArmStateClient
 from .franka_constants import FrankaConstants as FC
 from .iam_robolib_common_definitions import *
 
-_EXECUTE_SKILL_ACTION_SERVER_NAME = \
-        '/execute_skill_action_server_node/execute_skill'
-_ROBOT_STATE_SERVER_NAME = \
-        '/get_current_robot_state_server_node/get_current_robot_state_server'
-_ROBOLIB_STATUS_SERVER_NAME = \
-        '/get_current_robolib_status_server_node/get_current_robolib_status_server'
 class FrankaArm:
 
     def __init__(
             self,
             rosnode_name='franka_arm_client', ros_log_level=rospy.INFO,
-            execute_skill_action_server_name=_EXECUTE_SKILL_ACTION_SERVER_NAME,
-            robot_state_server_name=_ROBOT_STATE_SERVER_NAME,
-            robolib_status_server_name=_ROBOLIB_STATUS_SERVER_NAME):
+            robot_num=1):
+
+        self._execute_skill_action_server_name = \
+                '/execute_skill_action_server_node_'+str(robot_num)+'/execute_skill'
+        self._robot_state_server_name = 
+                '/get_current_robot_state_server_node_'+str(robot_num)+'/get_current_robot_state_server'
+        self._robolib_status_server_name = \
+                '/get_current_robolib_status_server_node_'+str(robot_num)+'/get_current_robolib_status_server'
+
         self._connected = False
         self._in_skill = False
 
@@ -41,15 +41,15 @@ class FrankaArm:
                         disable_signals=True,
                         log_level=ros_log_level)
 
-        rospy.wait_for_service(robolib_status_server_name)
+        rospy.wait_for_service(self._robolib_status_server_name)
         self._get_current_robolib_status = rospy.ServiceProxy(
-                robolib_status_server_name, GetCurrentRobolibStatusCmd)
+                self._robolib_status_server_name, GetCurrentRobolibStatusCmd)
 
         self._state_client = FrankaArmStateClient(
                 new_ros_node=False,
-                robot_state_server_name=robot_state_server_name)
+                robot_state_server_name=self._robot_state_server_name)
         self._client = actionlib.SimpleActionClient(
-                execute_skill_action_server_name, ExecuteSkillAction)
+                self._execute_skill_action_server_name, ExecuteSkillAction)
         self._client.wait_for_server()
         self.wait_for_robolib()
 
