@@ -25,7 +25,7 @@ class FrankaArm:
 
         self._execute_skill_action_server_name = \
                 '/execute_skill_action_server_node_'+str(robot_num)+'/execute_skill'
-        self._robot_state_server_name = 
+        self._robot_state_server_name = \
                 '/get_current_robot_state_server_node_'+str(robot_num)+'/get_current_robot_state_server'
         self._robolib_status_server_name = \
                 '/get_current_robolib_status_server_node_'+str(robot_num)+'/get_current_robolib_status_server'
