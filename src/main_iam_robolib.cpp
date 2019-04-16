@@ -12,6 +12,7 @@ int main(int argc, char *argv[]) {
 
   try {
     int robot_type_int;
+    int stop_robolib_on_error;
     RobotType robot_type;
     std::string robot_ip;
     po::options_description desc("Allowed options");
@@ -21,6 +22,8 @@ int main(int argc, char *argv[]) {
             "robot type: 0 for Franka and 1 for UR5e")
       ("robot_ip,ip_addr,ip", po::value<std::string>(&robot_ip)->default_value("172.16.0.2"),
             "robot's ip address")
+      ("stop_on_error", po::value<int>(&stop_robolib_on_error)->default_value(0),
+            "Stop robo-lib on error, i.e. any exception thrown by libfranka.")
     ;
 
     po::positional_options_description p;
@@ -42,7 +45,8 @@ int main(int argc, char *argv[]) {
     std::cout << "IAM Robolib\n";
     std::mutex m;
     std::mutex robot_loop_data_mutex;
-    run_loop rl = run_loop(std::ref(m), std::ref(robot_loop_data_mutex), robot_type, robot_ip);
+    run_loop rl = run_loop(std::ref(m), std::ref(robot_loop_data_mutex), robot_type, robot_ip,
+        stop_robolib_on_error);
     std::cout << "Will start run loop.\n";
     
     switch(robot_type)

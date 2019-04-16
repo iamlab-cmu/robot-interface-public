@@ -587,7 +587,15 @@ void run_loop::run_on_franka() {
       // Giving franka_action_lib some time to react
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-      continue;
+      if (stop_on_error_ == 1) {
+        // Stop robolib immediately on error. This is important when there are unforeseen errors
+        // during continuous data collection, which might corrupt the data and recording such events
+        // might be hard. By default, we do not stop on error.
+        std::cout << "Flag stop_on_error enabled. Will stop robolib." << std::endl;
+        break;
+      } else {
+        continue;
+      }
     }
   }
 

@@ -38,11 +38,13 @@ class run_loop {
   run_loop(std::mutex& logger_mutex,
            std::mutex& robot_loop_data_mutex,
            RobotType robot_type,
-           std::string robot_ip)  : limit_rate_(false),
+           std::string robot_ip,
+           int stop_on_error)  :    limit_rate_(false),
                                     cutoff_frequency_(0.0),
                                     logger_(logger_mutex),
                                     elapsed_time_(0.0),
-                                    process_info_requires_update_(false)
+                                    process_info_requires_update_(false),
+                                    stop_on_error_(stop_on_error)
   {
 
     robot_state_data_ = new RobotStateData(robot_loop_data_mutex);
@@ -154,6 +156,7 @@ class run_loop {
 
   const double cutoff_frequency_; // NOLINT(readability-identifier-naming)
   uint32_t elapsed_time_;
+  int stop_on_error_;
 
   TrajectoryGeneratorFactory traj_gen_factory_={};
   FeedbackControllerFactory feedback_controller_factory_={};
