@@ -22,6 +22,7 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
                                                  FrankaRobot* robot,
                                                  RobotStateData *robot_state_data) {
   double time = 0.0;
+  double skill_termination_handler_end_time = 0.0;
   int log_counter = 0;
 
   RunLoopSharedMemoryHandler* shared_memory_handler = run_loop->get_shared_memory_handler();
@@ -69,7 +70,15 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
 
     std::array<double, 16> desired_pose = pose_trajectory_generator->get_desired_pose();
 	
-    if(time > 0.0 && done) {
+    if((time > 0.0 && done) || skill_termination_handler_end_time > 0.0) {
+      if (skill_termination_handler_end_time == 0.0) {
+        skill_termination_handler_end_time = time;
+      }
+     
+      if (time - skill_termination_handler_end_time < 0.1) {
+	return robot_state.O_T_EE_d;
+      }
+     
       try {
         if (lock.try_lock()) {
           run_loop_info->set_time_skill_finished_in_robot_time(robot_state.time.toSec());
@@ -78,6 +87,7 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
       } catch (boost::interprocess::lock_exception) {
         // Do nothing
       }
+      
       return franka::MotionFinished(desired_pose);
     }
 
