@@ -62,7 +62,7 @@ void ForceTorqueSkill::execute_skill_on_franka(run_loop* run_loop,
 
     bool done = termination_handler_->should_terminate_on_franka(robot_state, 
                                                                  traj_generator_);
-    if (done) {
+    if (done && time > 0.0) {
       try {
         if (lock.try_lock()) {
           run_loop_info->set_time_skill_finished_in_robot_time(robot_state.time.toSec());

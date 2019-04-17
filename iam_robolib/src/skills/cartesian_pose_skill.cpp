@@ -60,7 +60,6 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
       traj_generator_->get_next_step();
     }
 
-
     bool done = termination_handler_->should_terminate_on_franka(robot_state, traj_generator_);
 
     log_counter += 1;
@@ -69,8 +68,8 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
     }
 
     std::array<double, 16> desired_pose = pose_trajectory_generator->get_desired_pose();
-
-    if(done) {
+	
+    if(time > 0.0 && done) {
       try {
         if (lock.try_lock()) {
           run_loop_info->set_time_skill_finished_in_robot_time(robot_state.time.toSec());

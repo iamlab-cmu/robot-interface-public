@@ -71,7 +71,7 @@ void JointPositionSkill::execute_skill_on_franka(run_loop* run_loop,
       robot_state_data->log_robot_state(robot_state, time);
     }
     
-    if(done) {
+    if (done && time > 0.0) {
       try {
         if (lock.try_lock()) {
           run_loop_info->set_time_skill_finished_in_robot_time(robot_state.time.toSec());

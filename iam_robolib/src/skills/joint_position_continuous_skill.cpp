@@ -93,7 +93,7 @@ void JointPositionContinuousSkill::execute_skill_on_franka(run_loop *run_loop,
                                                                 traj_generator);
     franka::JointPositions joint_desired(traj_generator->get_desired_joints());
 
-    if(done) {
+    if (done && time > 0.0) {
       if(!wrote_finished_time_to_run_loop_process_info) {
         try {
           if (lock.try_lock()) {
