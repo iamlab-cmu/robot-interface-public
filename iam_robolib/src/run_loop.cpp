@@ -136,15 +136,7 @@ void run_loop::finish_current_skill(BaseSkill* skill) {
   SkillStatus status = skill->get_current_skill_status();
 
   if (skill->has_terminated(robot_) && status != SkillStatus::FINISHED) {
-    skill->set_skill_status(SkillStatus::FINISHED);
-
-    // Write results to memory
-    int memory_index = skill->get_skill_id() % 2;
-
-    std::cout << "Writing to execution result buffer number: " << memory_index << std::endl;
-
-    SharedBufferTypePtr buffer = shared_memory_handler_->getExecutionResultBuffer(memory_index);
-    skill->write_result_to_shared_memory(buffer, robot_);
+    write_skill_result_to_shared_memory(skill);
   }
 
   status = skill->get_current_skill_status();
@@ -154,9 +146,23 @@ void run_loop::finish_current_skill(BaseSkill* skill) {
   // TODO(Mohit): Do any other-preprocessing if required
 }
 
+void run_loop::write_skill_result_to_shared_memory(BaseSkill* skill) {
+  skill->set_skill_status(SkillStatus::FINISHED);
+
+  // Write results to memory
+  int memory_index = skill->get_skill_id() % 2;
+
+  std::cout << "Writing to execution result buffer number: " << memory_index << std::endl;
+
+  SharedBufferTypePtr buffer = shared_memory_handler_->getExecutionResultBuffer(memory_index);
+  skill->write_result_to_shared_memory(buffer, robot_);
+}
+
 void run_loop::update_process_info() {
   BaseSkill* skill = skill_manager_.get_current_skill();
+  
   int current_skill_id = -1;
+
   if (skill != nullptr) {
     current_skill_id = skill->get_skill_id();
   }
@@ -499,6 +505,7 @@ void run_loop::run_on_franka() {
   setup_save_robot_state_thread();
 
   while (true) {
+    BaseSkill* skill;
     try {
       run_loop_ok_ = true;
       set_robolib_status(true, "");
@@ -507,7 +514,7 @@ void run_loop::run_on_franka() {
         start = std::chrono::high_resolution_clock::now();
 
         // Execute the current skill (traj_generator, FBC are here)
-        BaseSkill* skill = skill_manager_.get_current_skill();
+        skill = skill_manager_.get_current_skill();
         BaseMetaSkill *meta_skill = skill_manager_.get_current_meta_skill();
 
         // NOTE: We keep on running the last skill even if it is finished!!
@@ -556,28 +563,41 @@ void run_loop::run_on_franka() {
       set_robolib_status(false, error_description);
       std::cerr << error_description << std::endl;
 
+      // Uncommend below to print the last 50 timesteps for debugging.
+      //robot_state_data_->printData(50);
+
       // Log data
       robot_state_data_->writeCurrentBufferData();
-      robot_state_data_->printData(50);
 
       // Clear buffers and reset stateful variables about skills
       RunLoopProcessInfo* run_loop_info = shared_memory_handler_->getRunLoopProcessInfo();
       boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> run_loop_info_lock(
           *(shared_memory_handler_->getRunLoopProcessInfoMutex())
         );
-      run_loop_info->reset_skill_vars();
+
+      if(reset_skill_numbering_on_error_ == 1) {
+        std::cout << "Resetting skill variables. \n";
+        run_loop_info->reset_skill_vars();
+      } else {
+        // Set done_skill_id in run loop info
+        std::cout << "Setting done skill id to " << skill->get_skill_id() << ".\n";
+        write_skill_result_to_shared_memory(skill);
+        run_loop_info->set_skill_done_when_error_occurs(skill->get_skill_id());
+      }
 
       skill_manager_.clear_skill_and_meta_skill_list();
       shared_memory_handler_->clearAllBuffers();
       robot_state_data_->clearAllBuffers();
 
-      // Write new logs to a new log file.
-      int logger_integer_suffix = LoggerUtils::integer_suffix_for_new_log_file();
-      std::string filename = "./robot_state_data_" + std::to_string(logger_integer_suffix) + ".txt";
-      std::cout << "Will save data to: " << filename << std::endl;
-      robot_state_data_->updateFileStreamLogger(filename);
+      if(use_new_filestream_on_error_ == 1) {
+        // Write new logs to a new log file.
+        int logger_integer_suffix = LoggerUtils::integer_suffix_for_new_log_file();
+        std::string filename = "./robot_state_data_" + std::to_string(logger_integer_suffix) + ".txt";
+        std::cout << "Will save data to: " << filename << std::endl;
+        robot_state_data_->updateFileStreamLogger(filename);
+      }
 
-      // Perform error recovery
+      // Perform automatic error recovery
       std::cout << "Performing automatic error recovery\n";
       robot_->automaticErrorRecovery();
       robot_access_mutex_.unlock();

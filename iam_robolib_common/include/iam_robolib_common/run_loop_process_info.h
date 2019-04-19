@@ -116,6 +116,8 @@ class RunLoopProcessInfo {
   // reset internal variables about skills to their default values. used by robolib for error recovery
   void reset_skill_vars();
 
+  void set_skill_done_when_error_occurs(int skill_id);
+
  private:
   int current_memory_region_{1}; 
   int current_sensor_region_{1};

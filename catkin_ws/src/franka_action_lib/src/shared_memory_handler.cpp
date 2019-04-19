@@ -325,6 +325,9 @@ namespace franka_action_lib
     int current_skill_id = getCurrentSkillIdInSharedMemoryUnprotected();
     int new_skill_id = getNewSkillIdInSharedMemoryUnprotected();
 
+    ROS_DEBUG("Current skill id: %d", current_skill_id);
+    ROS_DEBUG("New skill id: %d", new_skill_id);
+
     if(current_skill_id != new_skill_id)
     {
       ROS_ERROR("Error with the current_skill_id and new_skill_id. current_skill_id = %d, new_skill_id = %d", current_skill_id, new_skill_id);

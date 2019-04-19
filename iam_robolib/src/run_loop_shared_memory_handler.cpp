@@ -94,33 +94,33 @@ void RunLoopSharedMemoryHandler::clearAllBuffers() {
     boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> shared_execution_result_1_lock(*shared_execution_result_mutex_1_);
     boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> shared_current_robot_state_lock(*shared_current_robot_state_mutex_);
 
-    memset(traj_gen_buffer_0_, 0.f, shared_memory_info_.getSizeForTrajectoryParameters() * sizeof(double));
-    memset(feedback_controller_buffer_0_, 0.f, shared_memory_info_.getSizeForFeedbackControllerParameters() * sizeof(double));
-    memset(termination_buffer_0_, 0.f, shared_memory_info_.getSizeForTerminationParameters() * sizeof(double));
-    memset(timer_buffer_0_, 0.f, shared_memory_info_.getSizeForTimerParameters() * sizeof(double));
+    memset(traj_gen_buffer_0_, 0.0, shared_memory_info_.getSizeForTrajectoryParameters());
+    memset(feedback_controller_buffer_0_, 0.0, shared_memory_info_.getSizeForFeedbackControllerParameters());
+    memset(termination_buffer_0_, 0.0, shared_memory_info_.getSizeForTerminationParameters());
+    memset(timer_buffer_0_, 0.0, shared_memory_info_.getSizeForTimerParameters());
 
-    memset(traj_gen_buffer_1_, 0.f, shared_memory_info_.getSizeForTrajectoryParameters() * sizeof(double));
-    memset(feedback_controller_buffer_1_, 0.f, shared_memory_info_.getSizeForFeedbackControllerParameters() * sizeof(double));
-    memset(termination_buffer_1_, 0.f, shared_memory_info_.getSizeForTerminationParameters() * sizeof(double));
-    memset(timer_buffer_1_, 0.f, shared_memory_info_.getSizeForTimerParameters() * sizeof(double));
+    memset(traj_gen_buffer_1_, 0.0, shared_memory_info_.getSizeForTrajectoryParameters());
+    memset(feedback_controller_buffer_1_, 0.0, shared_memory_info_.getSizeForFeedbackControllerParameters());
+    memset(termination_buffer_1_, 0.0, shared_memory_info_.getSizeForTerminationParameters());
+    memset(timer_buffer_1_, 0.0, shared_memory_info_.getSizeForTimerParameters());
 
-    memset(traj_gen_sensor_buffer_0_, 0.f, shared_memory_info_.getSizeForTrajectorySensorData() * sizeof(double));
-    memset(feedback_controller_sensor_buffer_0_, 0.f, shared_memory_info_.getSizeForFeedbackControllerSensorData() * sizeof(double));
-    memset(termination_sensor_buffer_0_, 0.f, shared_memory_info_.getSizeForTerminationSensorData() * sizeof(double));
-    memset(timer_sensor_buffer_0_, 0.f, shared_memory_info_.getSizeForTimerSensorData() * sizeof(double));
+    memset(traj_gen_sensor_buffer_0_, 0.0, shared_memory_info_.getSizeForTrajectorySensorData());
+    memset(feedback_controller_sensor_buffer_0_, 0.0, shared_memory_info_.getSizeForFeedbackControllerSensorData());
+    memset(termination_sensor_buffer_0_, 0.0, shared_memory_info_.getSizeForTerminationSensorData());
+    memset(timer_sensor_buffer_0_, 0.0, shared_memory_info_.getSizeForTimerSensorData());
 
-    memset(traj_gen_sensor_buffer_1_, 0.f, shared_memory_info_.getSizeForTrajectorySensorData() * sizeof(double));
-    memset(feedback_controller_sensor_buffer_1_, 0.f, shared_memory_info_.getSizeForFeedbackControllerSensorData() * sizeof(double));
-    memset(termination_sensor_buffer_1_, 0.f, shared_memory_info_.getSizeForTerminationSensorData() * sizeof(double));
-    memset(timer_sensor_buffer_1_, 0.f, shared_memory_info_.getSizeForTimerSensorData() * sizeof(double));
+    memset(traj_gen_sensor_buffer_1_, 0.0, shared_memory_info_.getSizeForTrajectorySensorData());
+    memset(feedback_controller_sensor_buffer_1_, 0.0, shared_memory_info_.getSizeForFeedbackControllerSensorData());
+    memset(termination_sensor_buffer_1_, 0.0, shared_memory_info_.getSizeForTerminationSensorData());
+    memset(timer_sensor_buffer_1_, 0.0, shared_memory_info_.getSizeForTimerSensorData());
 
-    memset(execution_result_buffer_0_, 0.f, shared_memory_info_.getSizeForExecutionResultData() * sizeof(double));
-    memset(execution_feedback_buffer_0_, 0.f, shared_memory_info_.getSizeForExecutionFeedbackData() * sizeof(double));
+    memset(execution_result_buffer_0_, 0.0, shared_memory_info_.getSizeForExecutionResultData());
+    memset(execution_feedback_buffer_0_, 0.0, shared_memory_info_.getSizeForExecutionFeedbackData());
 
-    memset(execution_result_buffer_1_, 0.f, shared_memory_info_.getSizeForExecutionResultData() * sizeof(double));
-    memset(execution_feedback_buffer_1_, 0.f, shared_memory_info_.getSizeForExecutionFeedbackData() * sizeof(double));
+    memset(execution_result_buffer_1_, 0.0, shared_memory_info_.getSizeForExecutionResultData());
+    memset(execution_feedback_buffer_1_, 0.0, shared_memory_info_.getSizeForExecutionFeedbackData());
 
-    memset(current_robot_state_buffer_, 0.f, shared_memory_info_.getSizeForCurrentRobotState() * sizeof(double));
+    memset(current_robot_state_buffer_, 0.0, shared_memory_info_.getSizeForCurrentRobotState());
 }
 
 void RunLoopSharedMemoryHandler::start() {
