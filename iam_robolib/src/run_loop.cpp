@@ -161,7 +161,7 @@ void run_loop::write_skill_result_to_shared_memory(BaseSkill* skill) {
 void run_loop::update_process_info() {
   BaseSkill* skill = skill_manager_.get_current_skill();
   
-  int current_skill_id;
+  int current_skill_id = -1;
 
   if (skill != nullptr) {
     current_skill_id = skill->get_skill_id();
