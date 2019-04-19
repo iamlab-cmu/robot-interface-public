@@ -113,7 +113,7 @@ std::string RunLoopProcessInfo::get_current_skill_description() {
 void RunLoopProcessInfo::set_current_skill_description(std::string current_skill_description) {
   // Make sure we are updating to the latest available skill.
   // assert(strcmp(current_skill_description.c_str(), new_skill_description_) == 0);
-  // assert(current_skill_description.size() == new_skill_description_len_);
+  assert(current_skill_description.size() == new_skill_description_len_);
   
   std::memcpy(&current_skill_description_, current_skill_description.c_str(), current_skill_description.size());
   current_skill_description_len_  = current_skill_description.size();

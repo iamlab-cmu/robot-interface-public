@@ -161,8 +161,10 @@ void run_loop::write_skill_result_to_shared_memory(BaseSkill* skill) {
 void run_loop::update_process_info() {
   BaseSkill* skill = skill_manager_.get_current_skill();
   
+  int current_skill_id;
+
   if (skill != nullptr) {
-    current_skill_id_ = skill->get_skill_id();
+    current_skill_id = skill->get_skill_id();
   }
   bool is_executing_skill = skill_manager_.is_currently_executing_skill();
 
@@ -180,25 +182,25 @@ void run_loop::update_process_info() {
 
         // We have a skill that we have finished. Make sure we update this in RunLoopProcessInfo.
         if (skill != nullptr && !is_executing_skill) {
-          if (run_loop_info->get_done_skill_id() > current_skill_id_) {
+          if (run_loop_info->get_done_skill_id() > current_skill_id) {
             // Make sure get done skill id is not ahead of us.
             std::cout << string_format("INVALID: RunLoopProcInfo has done skill id %d "
                                                 " greater than current skill id %d\n",
                                                 run_loop_info->get_done_skill_id(),
-                                                current_skill_id_);
-          } else if (run_loop_info->get_result_skill_id() + 2 <= current_skill_id_) {
+                                                current_skill_id);
+          } else if (run_loop_info->get_result_skill_id() + 2 <= current_skill_id) {
             // Make sure that ActionLib has read the skill results before we overwrite them.
             std::cout << string_format("ActionLib server has not read previous result %d. "
                               "Cannot write new result %d\n",
                               run_loop_info->get_result_skill_id(),
-                              current_skill_id_);
-          } else if (run_loop_info->get_done_skill_id() != current_skill_id_ - 1) {
+                              current_skill_id);
+          } else if (run_loop_info->get_done_skill_id() != current_skill_id - 1) {
             // Make sure we are only updating skill sequentially.
             std::cout << string_format("RunLoopProcInfo done skill id: %d current skill id: %d\n",
-                    run_loop_info->get_done_skill_id(), current_skill_id_);
+                    run_loop_info->get_done_skill_id(), current_skill_id);
           } else {
-            run_loop_info->set_done_skill_id(current_skill_id_);
-            std::cout << string_format("Did set done_skill_id %d\n", current_skill_id_);
+            run_loop_info->set_done_skill_id(current_skill_id);
+            std::cout << string_format("Did set done_skill_id %d\n", current_skill_id);
           }
         }
         process_info_requires_update_ = false;
@@ -576,20 +578,16 @@ void run_loop::run_on_franka() {
       if(reset_skill_numbering_on_error_ == 1) {
         std::cout << "Resetting skill variables. \n";
         run_loop_info->reset_skill_vars();
-
-        skill_manager_.clear_skill_and_meta_skill_list();
-        shared_memory_handler_->clearAllBuffers();
-        robot_state_data_->clearAllBuffers();
       } else {
         // Set done_skill_id in run loop info
         std::cout << "Setting done skill id to " << skill->get_skill_id() << ".\n";
         write_skill_result_to_shared_memory(skill);
         run_loop_info->set_skill_done_when_error_occurs(skill->get_skill_id());
-
-        skill_manager_.clear_skill_and_meta_skill_list();
-        shared_memory_handler_->clearAllBuffers();
-        robot_state_data_->clearAllBuffers();
       }
+
+      skill_manager_.clear_skill_and_meta_skill_list();
+      shared_memory_handler_->clearAllBuffers();
+      robot_state_data_->clearAllBuffers();
 
       if(use_new_filestream_on_error_ == 1) {
         // Write new logs to a new log file.

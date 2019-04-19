@@ -165,7 +165,6 @@ class run_loop {
   int stop_on_error_;
   int reset_skill_numbering_on_error_;
   int use_new_filestream_on_error_;
-  int current_skill_id_ = -1;
 
   TrajectoryGeneratorFactory traj_gen_factory_={};
   FeedbackControllerFactory feedback_controller_factory_={};
