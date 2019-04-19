@@ -39,12 +39,16 @@ class run_loop {
            std::mutex& robot_loop_data_mutex,
            RobotType robot_type,
            std::string robot_ip,
-           int stop_on_error)  :    limit_rate_(false),
-                                    cutoff_frequency_(0.0),
-                                    logger_(logger_mutex),
-                                    elapsed_time_(0.0),
-                                    process_info_requires_update_(false),
-                                    stop_on_error_(stop_on_error)
+           int stop_on_error,
+           int reset_skill_numbering_on_error,
+           int use_new_filestream_on_error)  :  limit_rate_(false),
+                                                cutoff_frequency_(0.0),
+                                                logger_(logger_mutex),
+                                                elapsed_time_(0.0),
+                                                process_info_requires_update_(false),
+                                                stop_on_error_(stop_on_error),
+                                                reset_skill_numbering_on_error_(reset_skill_numbering_on_error),
+                                                use_new_filestream_on_error_(use_new_filestream_on_error)
   {
 
     robot_state_data_ = new RobotStateData(robot_loop_data_mutex);
@@ -131,6 +135,8 @@ class run_loop {
    */
   void finish_current_skill(BaseSkill* skill);
 
+  void write_skill_result_to_shared_memory(BaseSkill* skill);
+
   RunLoopSharedMemoryHandler* get_shared_memory_handler();
 
   static std::atomic<bool> run_loop_ok_;
@@ -157,6 +163,9 @@ class run_loop {
   const double cutoff_frequency_; // NOLINT(readability-identifier-naming)
   uint32_t elapsed_time_;
   int stop_on_error_;
+  int reset_skill_numbering_on_error_;
+  int use_new_filestream_on_error_;
+  int current_skill_id_ = -1;
 
   TrajectoryGeneratorFactory traj_gen_factory_={};
   FeedbackControllerFactory feedback_controller_factory_={};
