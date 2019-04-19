@@ -51,6 +51,7 @@ void RobotStateData::writeBufferData_0() {
         }
 
         bool result = file_logger_->writeData(log_time_since_skill_started_0_,
+                                              log_pose_desired_0_,
                                               log_O_T_EE_0_,
                                               log_O_T_EE_d_0_,
                                               log_F_T_EE_0_,
@@ -111,6 +112,7 @@ void RobotStateData::writeBufferData_0() {
     log_skill_info_0_.clear();
     log_time_since_skill_started_0_.clear();
 
+    log_pose_desired_0_.clear();
     log_O_T_EE_0_.clear();
     log_O_T_EE_d_0_.clear();
     log_F_T_EE_0_.clear();
@@ -179,6 +181,7 @@ void RobotStateData::writeBufferData_1() {
           }
         }
         bool result = file_logger_->writeData(log_time_since_skill_started_1_,
+                                              log_pose_desired_1_,
                                               log_O_T_EE_1_,
                                               log_O_T_EE_d_1_,
                                               log_F_T_EE_1_,
@@ -238,6 +241,7 @@ void RobotStateData::writeBufferData_1() {
     log_skill_info_1_.clear();
     log_time_since_skill_started_1_.clear();
 
+    log_pose_desired_1_.clear();
     log_O_T_EE_1_.clear();
     log_O_T_EE_d_1_.clear();
     log_F_T_EE_1_.clear();
@@ -299,6 +303,7 @@ void RobotStateData::clearAllBuffers() {
   log_skill_info_0_.clear();
   log_time_since_skill_started_0_.clear();
 
+  log_pose_desired_0_.clear();
   log_O_T_EE_0_.clear();
   log_O_T_EE_d_0_.clear();
   log_F_T_EE_0_.clear();
@@ -353,6 +358,7 @@ void RobotStateData::clearAllBuffers() {
   log_skill_info_1_.clear();
   log_time_since_skill_started_1_.clear();
 
+  log_pose_desired_1_.clear();
   log_O_T_EE_1_.clear();
   log_O_T_EE_d_1_.clear();
   log_F_T_EE_1_.clear();
@@ -484,8 +490,10 @@ void RobotStateData::printData(int print_count) {
   }
 }
 
-void RobotStateData::log_robot_state(franka::RobotState robot_state, double time_since_skill_started) {
-  current_robot_state = robot_state;
+void RobotStateData::log_robot_state(std::array<double, 16> &desired_pose, franka::RobotState robot_state, double time_since_skill_started) {
+  current_robot_state_ = robot_state;
+
+  current_pose_desired_ = desired_pose;
 
   std::array<bool, 37> current_errors;
   current_errors[0] = robot_state.current_errors.joint_position_limits_violation;
@@ -569,6 +577,7 @@ void RobotStateData::log_robot_state(franka::RobotState robot_state, double time
     if (buffer_0_mutex_.try_lock()) {
       log_time_since_skill_started_0_.push_back(time_since_skill_started);
 
+      log_pose_desired_0_.push_back(desired_pose);
       log_O_T_EE_0_.push_back(robot_state.O_T_EE);
       log_O_T_EE_d_0_.push_back(robot_state.O_T_EE_d);
       log_F_T_EE_0_.push_back(robot_state.F_T_EE);
@@ -626,6 +635,7 @@ void RobotStateData::log_robot_state(franka::RobotState robot_state, double time
     if (buffer_1_mutex_.try_lock()) {
       log_time_since_skill_started_1_.push_back(time_since_skill_started);
 
+      log_pose_desired_1_.push_back(desired_pose);
       log_O_T_EE_1_.push_back(robot_state.O_T_EE);
       log_O_T_EE_d_1_.push_back(robot_state.O_T_EE_d);
       log_F_T_EE_1_.push_back(robot_state.F_T_EE);
@@ -682,8 +692,9 @@ void RobotStateData::log_robot_state(franka::RobotState robot_state, double time
   }
 }
 
+
 void RobotStateData::update_current_gripper_state(franka::GripperState gripper_state) {
-  current_gripper_state = gripper_state;
+  current_gripper_state_ = gripper_state;
 
   current_gripper_width_ = gripper_state.width;
   current_gripper_max_width_ = gripper_state.max_width;

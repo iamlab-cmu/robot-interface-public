@@ -7,6 +7,7 @@
 #include <iostream>
 
 bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_vector,
+                                 std::vector<std::array<double, 16>>& pose_desired_vector,
                                  std::vector<std::array<double, 16>>& O_T_EE_vector,
                                  std::vector<std::array<double, 16>>& O_T_EE_d_vector,
                                  std::vector<std::array<double, 16>>& F_T_EE_vector,
@@ -62,7 +63,10 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
 
     bool all_sizes_equal = true;
     size_t time_since_skill_started_vector_size = time_since_skill_started_vector.size();
-    if (time_since_skill_started_vector_size != O_T_EE_vector.size()) {
+    if (write_pose_desired_ && time_since_skill_started_vector_size != pose_desired_vector.size()) {
+        all_sizes_equal = false;
+        std::cout << "Time since skill started vector size and pose_desired vector size do not match\n";
+    } else if (time_since_skill_started_vector_size != O_T_EE_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and O_T_EE vector size do not match\n";
     } else if (time_since_skill_started_vector_size != O_T_EE_d_vector.size()) {
@@ -219,6 +223,13 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
 
     for (int i = 0; i < time_since_skill_started_vector_size; i++) {
         open_file_stream_ << time_since_skill_started_vector[i] << ",";
+
+        if(write_pose_desired_) {
+            for (const auto &e : pose_desired_vector[i]) {
+                open_file_stream_ << e << ",";
+            } 
+        }
+        
 
         for (const auto &e : O_T_EE_vector[i]) {
             open_file_stream_ << e << ",";
@@ -451,6 +462,10 @@ void FileStreamLogger::initializeFile() {
     }
 
     open_file_stream_ << "time_since_skill_started(1)" << ",";
+
+    if(write_pose_desired_) {
+        open_file_stream_ << "pose_desired(16)" << ",";
+    }
 
     open_file_stream_ << "O_T_EE(16)" << ",";
 

@@ -31,6 +31,7 @@ void ImpedanceControlSkill::execute_skill_on_franka(run_loop* run_loop,
 
   double time = 0.0;
   int log_counter = 0;
+  std::array<double, 16> pose_desired;
 
   RunLoopSharedMemoryHandler* shared_memory_handler = run_loop->get_shared_memory_handler();
   RunLoopProcessInfo* run_loop_info = shared_memory_handler->getRunLoopProcessInfo();
@@ -74,7 +75,8 @@ void ImpedanceControlSkill::execute_skill_on_franka(run_loop* run_loop,
     }
 
     if (log_counter % 1 == 0) {
-      robot_state_data->log_robot_state(robot_state, time);
+      pose_desired = robot_state.O_T_EE_d;
+      robot_state_data->log_robot_state(pose_desired, robot_state, time);
     }
 
     feedback_controller_->get_next_step(robot_state, traj_generator_);

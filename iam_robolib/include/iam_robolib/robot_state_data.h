@@ -32,6 +32,8 @@ class RobotStateData {
 
   std::vector<double> log_time_since_skill_started_0_{};
 
+  
+  std::vector<std::array<double, 16>> log_pose_desired_0_{};
   std::vector<std::array<double, 16>> log_O_T_EE_0_{};
   std::vector<std::array<double, 16>> log_O_T_EE_d_0_{};
   std::vector<std::array<double, 16>> log_F_T_EE_0_{};
@@ -85,6 +87,7 @@ class RobotStateData {
 
   std::vector<double> log_time_since_skill_started_1_{};
 
+  std::vector<std::array<double, 16>> log_pose_desired_1_{};
   std::vector<std::array<double, 16>> log_O_T_EE_1_{};
   std::vector<std::array<double, 16>> log_O_T_EE_d_1_{};
   std::vector<std::array<double, 16>> log_F_T_EE_1_{};
@@ -142,8 +145,10 @@ class RobotStateData {
   uint16_t current_gripper_temperature_{0};
   double current_gripper_time_{-1.0};
 
-  franka::RobotState current_robot_state;
-  franka::GripperState current_gripper_state;
+  franka::RobotState current_robot_state_;
+  franka::GripperState current_gripper_state_;
+
+  std::array<double, 16> current_pose_desired_;
 
   // Utils for printing
   const int print_rate_=10;
@@ -185,8 +190,10 @@ class RobotStateData {
   /*
    * Helper methods for logging.
    */
-  void log_robot_state(franka::RobotState robot_state, 
+  void log_robot_state(std::array<double, 16> &desired_pose, 
+                       franka::RobotState robot_state, 
                        double time_since_skill_started);
+
   void update_current_gripper_state(franka::GripperState gripper_state);
   void log_skill_info(std::string skill_info);
 

@@ -25,6 +25,7 @@ void JointPositionSkill::execute_skill_on_franka(run_loop* run_loop,
                                                  RobotStateData *robot_state_data) {
   double time = 0.0;
   int log_counter = 0;
+  std::array<double, 16> pose_desired;
 
   RunLoopSharedMemoryHandler* shared_memory_handler = run_loop->get_shared_memory_handler();
   RunLoopProcessInfo* run_loop_info = shared_memory_handler->getRunLoopProcessInfo();
@@ -68,7 +69,8 @@ void JointPositionSkill::execute_skill_on_franka(run_loop* run_loop,
 
     log_counter += 1;
     if (log_counter % 1 == 0) {
-      robot_state_data->log_robot_state(robot_state, time);
+      pose_desired = robot_state.O_T_EE_d;
+      robot_state_data->log_robot_state(pose_desired, robot_state, time);
     }
     
     if (done && time > 0.0) {
