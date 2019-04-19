@@ -268,12 +268,13 @@ bool ContactTerminationHandler::should_terminate_on_franka(const franka::RobotSt
     if(trajectory_generator->time_ > trajectory_generator->run_time_ + buffer_time_) {
       done_ = true;
       return done_;
-    }
+    } 
 
     std::array<double, 6> cartesian_contact = robot_state.cartesian_contact;
 
     for(int i = 0; i < 6; i++) {
       if(cartesian_contacts_to_use_[i] != 0 && cartesian_contact[i] != 0) {
+      //if(robot_state.O_F_ext_hat_K[i] > lower_force_thresholds_acceleration_[i] - 20.0 || robot_state.O_F_ext_hat_K[i] > lower_force_thresholds_nominal_[i] - 20.0) {
         done_ = true;
         return  done_;
       }
