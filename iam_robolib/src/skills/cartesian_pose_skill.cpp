@@ -27,7 +27,7 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
   std::array<double, 16> last_desired_pose; 
   std::array<double, 16> last_2_desired_pose; 
   std::array<double, 16> last_3_desired_pose; 
-  double D = 1.0;
+  double D = 0.5;
   double tau = 0.0;
   std::array<double, 3> initial_position;
   std::array<double, 3> initial_velocity;
@@ -40,7 +40,7 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
   std::array<double, 3> cur_accel;
   std::array<double, 3> cur_vel;
   std::array<double, 3> cur_pos;
-  double velocity_factor = 0.5;
+  double velocity_factor = 0.25;
   double D_pow_2 = pow(D,2);
   double D_pow_3 = pow(D,3);
 
@@ -94,19 +94,15 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
     // std::cout << "O_T_EE_c: " << robot_state.O_T_EE_c[12] << ", " << robot_state.O_T_EE_c[13] << ", " << robot_state.O_T_EE_c[14] << std::endl;
     // std::cout << "desired pos: " << desired_pose[12] << ", " << desired_pose[13] << ", " << desired_pose[14] << std::endl;
 
-    // // std::cout << "O_force: " << robot_state.O_F_ext_hat_K[0] << ", " << robot_state.O_F_ext_hat_K[1] << ", " << robot_state.O_F_ext_hat_K[2] << std::endl;
-    // // std::cout << "K_force: " << robot_state.K_F_ext_hat_K[0] << ", " << robot_state.K_F_ext_hat_K[1] << ", " << robot_state.K_F_ext_hat_K[2] << std::endl;
+    // std::cout << "O_force: " << robot_state.O_F_ext_hat_K[0] << ", " << robot_state.O_F_ext_hat_K[1] << ", " << robot_state.O_F_ext_hat_K[2] << std::endl;
+    // std::cout << "K_force: " << robot_state.K_F_ext_hat_K[0] << ", " << robot_state.K_F_ext_hat_K[1] << ", " << robot_state.K_F_ext_hat_K[2] << std::endl;
     // std::cout << "commanded accel: " << robot_state.O_ddP_EE_c[0] << ", " << robot_state.O_ddP_EE_c[1] << ", " << robot_state.O_ddP_EE_c[2] << std::endl;
     // std::cout << "commanded vel: " << robot_state.O_dP_EE_c[0] << ", " << robot_state.O_dP_EE_c[1] << ", " << robot_state.O_dP_EE_c[2] << std::endl;
     // std::cout << "commanded pos: " << robot_state.O_T_EE_c[12] << ", " << robot_state.O_T_EE_c[13] << ", " << robot_state.O_T_EE_c[14] << std::endl;
-  
-    if(time > 2.0) {
-      done = true;
-    }
 
     if((time > 0.0 && done) || skill_termination_handler_end_time > 0.0) {
 
-      //std::cout << "\n===== SKill terimination end time: " << skill_termination_handler_end_time << " ===== "<<std::endl;
+      std::cout << "\n===== Skill termination end time: " << skill_termination_handler_end_time << " ===== "<<std::endl;
 
       if (skill_termination_handler_end_time == 0.0) {
         skill_termination_handler_end_time = time;
