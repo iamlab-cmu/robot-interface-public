@@ -17,7 +17,7 @@ class FrankaConstants:
     DEFAULT_FORCE_AXIS_CONTROLLER_PARAMS = [600, 20]
 
     # buffer time
-    DEFAULT_TERM_BUFFER_TIME = 1
+    DEFAULT_TERM_BUFFER_TIME = 0.2
 
     HOME_JOINTS = [0, -math.pi / 4, 0, -3 * math.pi / 4, 0, math.pi / 2, math.pi / 4]
     HOME_POSE = RigidTransform(rotation=np.array([

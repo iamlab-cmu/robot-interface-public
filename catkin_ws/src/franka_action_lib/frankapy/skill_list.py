@@ -79,14 +79,16 @@ class BaseSkill(object):
         self._num_timer_params = len(params)
 
     def add_goal_pose_with_matrix(self, time, matrix):
-        assert type(time) is float or type(time) is int, "Incorrect time type. Should be int or float."
+        assert type(time) is float or type(time) is int, \
+                "Incorrect time type. Should be int or float."
         assert time >= 0, "Incorrect time. Should be non negative."
         assert type(matrix) is list, "Incorrect matrix type. Should be list."
         assert len(matrix) == 16, "Incorrect matrix len. Should be 16."
         self.add_trajectory_params([time] + matrix)
 
     def add_goal_pose_with_quaternion(self, time, position, quaternion):
-        assert type(time) is float or type(time) is int, "Incorrect time type. Should be int or float."
+        assert type(time) is float or type(time) is int, \
+                "Incorrect time type. Should be int or float."
         assert time >= 0, "Incorrect time. Should be non negative."
         assert type(position) is list, "Incorrect position type. Should be list."
         assert type(quaternion) is list, "Incorrect quaternion type. Should be list."
@@ -95,14 +97,16 @@ class BaseSkill(object):
         self.add_trajectory_params([time] + position + quaternion)
 
     def add_relative_motion_with_matrix(self, time, matrix):
-        assert type(time) is float or type(time) is int, "Incorrect time type. Should be int or float."
+        assert type(time) is float or type(time) is int, \
+                "Incorrect time type. Should be int or float."
         assert time >= 0, "Incorrect time. Should be non negative."
         assert type(matrix) is list, "Incorrect matrix type. Should be list."
         assert len(matrix) == 16, "Incorrect matrix len. Should be 16."
         self.add_trajectory_params([time] + matrix)
 
     def add_relative_motion_with_quaternion(self, time, position, quaternion):
-        assert type(time) is float or type(time) is int, "Incorrect time type. Should be int or float."
+        assert type(time) is float or type(time) is int, \
+                "Incorrect time type. Should be int or float."
         assert time >= 0, "Incorrect time. Should be non negative."
         assert type(position) is list, "Incorrect position type. Should be list."
         assert type(quaternion) is list, "Incorrect quaternion type. Should be list."
@@ -111,31 +115,41 @@ class BaseSkill(object):
         self.add_trajectory_params([time] + position + quaternion)
 
     def add_goal_joints(self, time, joints):
-        assert type(time) is float or type(time) is int, "Incorrect time type. Should be int or float."
+        assert type(time) is float or type(time) is int,\
+                "Incorrect time type. Should be int or float."
         assert time >= 0, "Incorrect time. Should be non negative."
         assert type(joints) is list, "Incorrect joints type. Should be list."
         assert len(joints) == 7, "Incorrect joints len. Should be 7."
         self.add_trajectory_params([time] + joints)
 
     def add_run_time(self, time):
-        assert type(time) is float or type(time) is int, "Incorrect time type. Should be int or float."
+        assert type(time) is float or type(time) is int, \
+                "Incorrect time type. Should be int or float."
         assert time >= 0, "Incorrect time. Should be non negative."
         self.add_trajectory_params([time])
 
     def add_cartesian_impedances(self, cartesian_impedances):
-        assert type(cartesian_impedances) is list, "Incorrect cartesian impedances type. Should be list."
-        assert len(cartesian_impedances) == 6, "Incorrect cartesian impedances len. Should be 6."
+        assert type(cartesian_impedances) is list, \
+                "Incorrect cartesian impedances type. Should be list."
+        assert len(cartesian_impedances) == 6, \
+                "Incorrect cartesian impedances len. Should be 6."
         if(self._skill_type == SkillType.CartesianPoseSkill):
-            self._feedback_controller_type = FeedbackControllerType.SetInternalImpedanceFeedbackController
+            self._feedback_controller_type = \
+                    FeedbackControllerType.SetInternalImpedanceFeedbackController
 
         self.add_feedback_controller_params(cartesian_impedances)
 
     def add_joint_impedances(self, joint_impedances):
-        assert type(joint_impedances) is list, "Incorrect joint impedances type. Should be list."
-        assert len(joint_impedances) == 7, "Incorrect joint impedances len. Should be 7."
-        assert self._skill_type == SkillType.JointPositionSkill, "Incorrect skill type. Should be JointPositionSkill"
+        assert type(joint_impedances) is list, \
+                "Incorrect joint impedances type. Should be list."
+        assert len(joint_impedances) == 7, \
+                "Incorrect joint impedances len. Should be 7."
+        assert self._skill_type == SkillType.JointPositionSkill, \
+                "Incorrect skill type. Should be JointPositionSkill"
 
-        self._feedback_controller_type = FeedbackControllerType.SetInternalImpedanceFeedbackController
+        self._feedback_controller_type = \
+                FeedbackControllerType.SetInternalImpedanceFeedbackController
+
         self.add_feedback_controller_params(joint_impedances)
 
     def add_joint_gains(self, k_gains, d_gains):
@@ -143,19 +157,25 @@ class BaseSkill(object):
         assert type(d_gains) is list, "Incorrect d_gains type. Should be list."
         assert len(k_gains) == 7, "Incorrect k_gains len. Should be 7."
         assert len(d_gains) == 7, "Incorrect d_gains len. Should be 7."
-        assert self._skill_type == SkillType.ImpedanceControlSkill, "Incorrect skill type. Should be ImpedanceControlSkill"
+        assert self._skill_type == SkillType.ImpedanceControlSkill, \
+                "Incorrect skill type. Should be ImpedanceControlSkill"
 
         self.add_feedback_controller_params(k_gains + d_gains)
 
     def add_contact_termination_params(self, buffer_time,
                                        lower_force_thresholds_accel,
                                        lower_force_thresholds_nominal):
-        assert type(buffer_time) is float or type(buffer_time) is int, "Incorrect buffer time type. Should be int or float."
+        assert type(buffer_time) is float or type(buffer_time) is int, \
+                "Incorrect buffer time type. Should be int or float."
         assert buffer_time >= 0, "Incorrect buffer time. Should be non negative."
-        assert type(lower_force_thresholds_accel) is list, "Incorrect lower force thresholds accel type. Should be list."
-        assert type(lower_force_thresholds_nominal) is list, "Incorrect lower force thresholds nominal type. Should be list."
-        assert len(lower_force_thresholds_accel) == 6, "Incorrect lower force thresholds accel length. Should be 6."
-        assert len(lower_force_thresholds_nominal) == 6, "Incorrect lowern force thresholds nominal length. Should be 6."
+        assert type(lower_force_thresholds_accel) is list, \
+                "Incorrect lower force thresholds accel type. Should be list."
+        assert type(lower_force_thresholds_nominal) is list, \
+                "Incorrect lower force thresholds nominal type. Should be list."
+        assert len(lower_force_thresholds_accel) == 6, \
+                "Incorrect lower force thresholds accel length. Should be 6."
+        assert len(lower_force_thresholds_nominal) == 6, \
+                "Incorrect lowern force thresholds nominal length. Should be 6."
 
         self._termination_type = TerminationHandlerType.ContactTerminationHandler
 
