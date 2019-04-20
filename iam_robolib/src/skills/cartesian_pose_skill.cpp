@@ -22,8 +22,9 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
   double time = 0.0;
   double skill_termination_handler_end_time = 0.0;
   int log_counter = 0;
-  std::array<double, 16> last_O_T_EE_c; 
-  std::array<double, 16> final_O_T_EE;
+  double last_period = 0.0;
+  std::array<double, 16> last_desired_pose; 
+  std::array<double, 16> last_2_desired_pose; 
   double D = 1.0;
   double tau = 0.0;
   std::array<double, 3> initial_position;
@@ -86,31 +87,35 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
       robot_state_data->log_robot_state(desired_pose, robot_state, time);
     } 
 
+    std::cout << " \n==== Time: " << time << " ==== \n";
     std::cout << "O_T_EE_d: " << robot_state.O_T_EE_d[12] << ", " << robot_state.O_T_EE_d[13] << ", " << robot_state.O_T_EE_d[14] << std::endl;
     std::cout << "O_T_EE_c: " << robot_state.O_T_EE_c[12] << ", " << robot_state.O_T_EE_c[13] << ", " << robot_state.O_T_EE_c[14] << std::endl;
     std::cout << "desired pos: " << desired_pose[12] << ", " << desired_pose[13] << ", " << desired_pose[14] << std::endl;
 
     // std::cout << "O_force: " << robot_state.O_F_ext_hat_K[0] << ", " << robot_state.O_F_ext_hat_K[1] << ", " << robot_state.O_F_ext_hat_K[2] << std::endl;
     // std::cout << "K_force: " << robot_state.K_F_ext_hat_K[0] << ", " << robot_state.K_F_ext_hat_K[1] << ", " << robot_state.K_F_ext_hat_K[2] << std::endl;
-    // std::cout << "commanded accel: " << robot_state.O_ddP_EE_c[0] << ", " << robot_state.O_ddP_EE_c[1] << ", " << robot_state.O_ddP_EE_c[2] << std::endl;
-    // std::cout << "commanded vel: " << robot_state.O_dP_EE_c[0] << ", " << robot_state.O_dP_EE_c[1] << ", " << robot_state.O_dP_EE_c[2] << std::endl;
-    // std::cout << "commanded pos: " << robot_state.O_T_EE_c[12] << ", " << robot_state.O_T_EE_c[13] << ", " << robot_state.O_T_EE_c[14] << std::endl;
+    std::cout << "commanded accel: " << robot_state.O_ddP_EE_c[0] << ", " << robot_state.O_ddP_EE_c[1] << ", " << robot_state.O_ddP_EE_c[2] << std::endl;
+    std::cout << "commanded vel: " << robot_state.O_dP_EE_c[0] << ", " << robot_state.O_dP_EE_c[1] << ", " << robot_state.O_dP_EE_c[2] << std::endl;
+    std::cout << "commanded pos: " << robot_state.O_T_EE_c[12] << ", " << robot_state.O_T_EE_c[13] << ", " << robot_state.O_T_EE_c[14] << std::endl;
   
-    if(time > 3.0) {
+    if(time > 1.0) {
       done = true;
     }
 
     if((time > 0.0 && done) || skill_termination_handler_end_time > 0.0) {
 
+      std::cout << "\n===== SKill terimination end time: " << skill_termination_handler_end_time << " ===== "<<std::endl;
+
       if (skill_termination_handler_end_time == 0.0) {
         skill_termination_handler_end_time = time;
-        final_O_T_EE = robot_state.O_T_EE_c;
+        // final_O_T_EE = robot_state.O_T_EE_c;
         for(int i = 0; i < 3; i++) {
-          final_O_T_EE[12+i] += 0.001 * robot_state.O_dP_EE_c[i];
+          // final_O_T_EE[12+i] += 0.001 * robot_state.O_dP_EE_c[i];
 
           // From http://courses.shadmehrlab.org/Shortcourse/minimumjerk.pdf?fbclid=IwAR1-DaPEDKdYdbrQ5m5Bcm4WfWbVJJT8cLD6XhsRnKY4oPNRmpqoOnEB5os
-          initial_position[i] = robot_state.O_T_EE_c[12+i];
-          initial_velocity[i] = robot_state.O_dP_EE_c[i];
+          //initial_position[i] = robot_state.O_T_EE_c[12+i];
+          initial_position[i] = last_desired_pose[12+i];
+          initial_velocity[i] = (last_desired_pose[12+i] - last_2_desired_pose[12+i]) / last_period;
           initial_acceleration[i] = robot_state.O_ddP_EE_c[i];
 
           cur_accel[i] = initial_acceleration[i];
@@ -123,8 +128,8 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
           a_5[i] = -0.5 * D_pow_2 * initial_acceleration[i] - 3 * D * initial_velocity[i] + 6 * (final_position[i] - initial_position[i]);
         }
         
+        /*
         std::cout << "============= Forward =================\n";
-
         for(double tau = 0.0; tau < 0.01; tau += 0.001) {
           for(int i = 0; i < 3; i++) {
             cur_jerk[i] = 6 * a_3[i] / D_pow_3 + 24 * a_4[i] * tau / D_pow_3 + 60 * a_5[i] * pow(tau,2) / D_pow_3;
@@ -144,6 +149,7 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
           cur_vel[i] = initial_velocity[i];
           cur_pos[i] = initial_position[i];
         }
+         */
       }
 
       // if (time - skill_termination_handler_end_time < 0.1) {
@@ -173,26 +179,28 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
       // }
 
       if (time - skill_termination_handler_end_time < D) {
-        tau = std::min(std::max((time - skill_termination_handler_end_time) / D, 0.001), 1.0);
+        tau = std::min(std::max((time - skill_termination_handler_end_time) / D, 0.0), 1.0);
 
         desired_pose = robot_state.O_T_EE_c;
 
         for (int i = 0; i < 3; i++) {
-          cur_jerk[i] = 6 * a_3[i] / D_pow_3 + 24 * a_4[i] * tau / D_pow_3 + 60 * a_5[i] * pow(tau,2) / D_pow_3;
-          cur_accel[i] += cur_jerk[i] * period.toSec();
-          cur_vel[i] += cur_accel[i] * period.toSec();
+          //cur_jerk[i] = 6 * a_3[i] / D_pow_3 + 24 * a_4[i] * tau / D_pow_3 + 60 * a_5[i] * pow(tau,2) / D_pow_3;
+          //cur_accel[i] += cur_jerk[i] * period.toSec();
+          // cur_vel[i] += cur_accel[i] * period.toSec();
+
+          // cur_vel[i] += 0;
           cur_pos[i] += cur_vel[i] * period.toSec();
 
           desired_pose[12 + i] = cur_pos[i];
         }
 
-        std::cout << "====\n";
         std::cout << "old commanded accel: " << robot_state.O_ddP_EE_c[0] << ", " << robot_state.O_ddP_EE_c[1] << ", " << robot_state.O_ddP_EE_c[2] << std::endl;
         std::cout << "old desired vel: " << robot_state.O_dP_EE_d[0] << ", " << robot_state.O_dP_EE_d[1] << ", " << robot_state.O_dP_EE_d[2] << std::endl;
-        std::cout << "new desired accel: " << cur_accel[0] << ", " << cur_accel[1] << ", " << cur_accel[2] << std::endl;
+        // std::cout << "new desired accel: " << cur_accel[0] << ", " << cur_accel[1] << ", " << cur_accel[2] << std::endl;
         std::cout << "new desired vel: " << cur_vel[0] << ", " << cur_vel[1] << ", " << cur_vel[2] << std::endl;
-        std::cout << "new desired jerk: " << cur_jerk[0] << ", " << cur_jerk[1] << ", " << cur_jerk[2] << std::endl;
+        // std::cout << "new desired jerk: " << cur_jerk[0] << ", " << cur_jerk[1] << ", " << cur_jerk[2] << std::endl;
         std::cout << "new desired pose: " << desired_pose[12] << ", " << desired_pose[13] << ", " << desired_pose[14] << std::endl;
+        std::cout << "====\n\n";
 
         return desired_pose;
       }
@@ -273,7 +281,9 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
       
       return franka::MotionFinished(desired_pose);
     }
-    last_O_T_EE_c = robot_state.O_T_EE_c;
+    last_2_desired_pose = last_desired_pose;
+    last_desired_pose = desired_pose;
+    last_period = period.toSec();
     return desired_pose;
   };
 
