@@ -251,7 +251,7 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
       last_pose_cb.push_back(desired_pose);
     }
     while (!last_periods_cb.full()) {
-      last_pose_cb.push_back(desired_pose);
+      last_periods_cb.push_back(period.toSec());
     }
     return desired_pose;
   };
