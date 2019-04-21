@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
             "robot type: 0 for Franka and 1 for UR5e")
       ("robot_ip,ip_addr,ip", po::value<std::string>(&robot_ip)->default_value("172.16.0.2"),
             "robot's ip address")
-      ("stop_on_error", po::value<int>(&stop_robolib_on_error)->default_value(1),
+      ("stop_on_error", po::value<int>(&stop_robolib_on_error)->default_value(0),
             "Stop robo-lib on error, i.e. any exception thrown by libfranka.")
       ("reset_skill_numbering_on_error", po::value<int>(&reset_skill_numbering_on_error)->default_value(0),
             "Reset skill numbering on error, i.e. any exception thrown by libfranka.")
