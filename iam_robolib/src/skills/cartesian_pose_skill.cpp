@@ -33,10 +33,11 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
 
   // Time for smooth deacceleration after abrupt stopping after feeling contact.
   // TODO: Can we reduce this time further?
-  double D = 0.0;
+  double D = 0.1;
   double extra_time_factor = 1.3;
-  double max_accel = 10.0;
-  double max_jerk = 5000.0;
+  double max_accel = 3.0;
+  double max_jerk = 3000.0;
+  double eps = 0.001;
 
   std::array<double, 3> cur_jerk;
   std::array<double, 3> cur_accel;
@@ -104,10 +105,10 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
 
     if((time > 0.0 && done) || skill_termination_handler_end_time > 0.0) {
 
-      std::cout << "\n===== Skill termination end time: " << skill_termination_handler_end_time <<
-          " actual time: " << time << " ===== "<<std::endl;
-      double last_period = last_periods_cb[2] - last_periods_cb[1];
-      double second_last_period = last_periods_cb[1] - last_periods_cb[0];
+      // std::cout << "\n===== Skill termination end time: " << skill_termination_handler_end_time <<
+      //     " actual time: " << time << " ===== "<<std::endl;
+      double last_period = last_periods_cb[2];
+      double second_last_period = last_periods_cb[1];
 
       if (skill_termination_handler_end_time == 0.0) {
         skill_termination_handler_end_time = time;
@@ -121,9 +122,7 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
           cur_vel[i] = initial_velocity[i];
           cur_pos[i] = initial_position[i];
 
-          if(cur_vel[i] != 0.0){
-            D = std::max(D, abs(cur_vel[i] / max_accel));
-          }
+          D = std::max(D, abs(cur_vel[i] / max_accel));
         }
 
         D *= extra_time_factor;
@@ -138,51 +137,64 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
         D_pow_7 = pow(D,7);
 
         for(int i = 0; i < 3; i++) {
-          if(cur_vel[i] > 0) {
-            final_position[i] = (120.0 * initial_position[i] + 66.0 * D * initial_velocity[i] - 
-                                 192.0 * D_pow_3 * initial_velocity[i] + 96.0 * D_pow_5 * initial_velocity[i] - 
-                                 360.0 * D_pow_2 * initial_position[i] + 180.0 * D_pow_4 * initial_position[i] + 
-                                 14.0 * D_pow_2 * initial_acceleration[i] - 36.0 * D_pow_4 * initial_acceleration[i] + 
-                                 18.0 * D_pow_6 * initial_acceleration[i] + D_pow_3 * max_jerk + 
-                                 D * pow((6.0 * D_pow_7 * initial_acceleration[i] * max_jerk + 
-                                      12.0 * D_pow_6 * initial_velocity[i] * max_jerk + 
-                                      18.0 * D_pow_6 * pow(initial_acceleration[i],2) + 
-                                      60.0 * D_pow_5 * initial_velocity[i] * initial_acceleration[i] - 
-                                      12.0 * D_pow_5 * initial_acceleration[i] * max_jerk + 
-                                      48.0 * D_pow_4 * pow(initial_velocity[i],2) - 
-                                      24.0 * D_pow_4 * initial_velocity[i] * max_jerk - 
-                                      36.0 * D_pow_4 * pow(initial_acceleration[i],2) + 
-                                      D_pow_4 * pow(max_jerk,2) - 
-                                      120.0 * D_pow_3 * initial_velocity[i] * initial_acceleration[i] + 
-                                      8.0 * D_pow_3 * initial_acceleration[i] * max_jerk - 
-                                      96.0 * D_pow_2 * pow(initial_velocity[i],2) + 
-                                      12.0 * D_pow_2 * initial_velocity[i] * max_jerk + 
-                                      16.0 * D_pow_2 * pow(initial_acceleration[i],2) + 
-                                      48.0 * D * initial_velocity[i] * initial_acceleration[i] + 
-                                      36.0 * pow(initial_velocity[i],2)),(0.5))) / (60 * (3 * D_pow_4 - 6 * D_pow_2 + 2));
-          } else {
-            final_position[i] = (120.0 * initial_position[i] + 66.0 * D * initial_velocity[i] - 
-                                 192.0 * D_pow_3 * initial_velocity[i] + 96.0 * D_pow_5 * initial_velocity[i] - 
-                                 360.0 * D_pow_2 * initial_position[i] + 180.0 * D_pow_4 * initial_position[i] + 
-                                 14.0 * D_pow_2 * initial_acceleration[i] - 36.0 * D_pow_4 * initial_acceleration[i] + 
-                                 18.0 * D_pow_6 * initial_acceleration[i] + D_pow_3 * max_jerk - 
-                                 D * pow((6.0 * D_pow_7 * initial_acceleration[i] * max_jerk + 
-                                      12.0 * D_pow_6 * initial_velocity[i] * max_jerk + 
-                                      18.0 * D_pow_6 * pow(initial_acceleration[i],2) + 
-                                      60.0 * D_pow_5 * initial_velocity[i] * initial_acceleration[i] - 
-                                      12.0 * D_pow_5 * initial_acceleration[i] * max_jerk + 
-                                      48.0 * D_pow_4 * pow(initial_velocity[i],2) - 
-                                      24.0 * D_pow_4 * initial_velocity[i] * max_jerk - 
-                                      36.0 * D_pow_4 * pow(initial_acceleration[i],2) + 
-                                      D_pow_4 * pow(max_jerk,2) - 
-                                      120.0 * D_pow_3 * initial_velocity[i] * initial_acceleration[i] + 
-                                      8.0 * D_pow_3 * initial_acceleration[i] * max_jerk - 
-                                      96.0 * D_pow_2 * pow(initial_velocity[i],2) + 
-                                      12.0 * D_pow_2 * initial_velocity[i] * max_jerk + 
-                                      16.0 * D_pow_2 * pow(initial_acceleration[i],2) + 
-                                      48.0 * D * initial_velocity[i] * initial_acceleration[i] + 
-                                      36.0 * pow(initial_velocity[i],2)),(0.5))) / (60 * (3 * D_pow_4 - 6 * D_pow_2 + 2));
+          // if(abs(cur_vel[i]) < eps) {
+          //   final_position[i] = initial_position[i] + initial_velocity[i] * D;
+          // }
+          // else if(cur_vel[i] > 0) {
+          //   final_position[i] = (120.0 * initial_position[i] + 66.0 * D * initial_velocity[i] - 
+          //                        192.0 * D_pow_3 * initial_velocity[i] + 96.0 * D_pow_5 * initial_velocity[i] - 
+          //                        360.0 * D_pow_2 * initial_position[i] + 180.0 * D_pow_4 * initial_position[i] + 
+          //                        14.0 * D_pow_2 * initial_acceleration[i] - 36.0 * D_pow_4 * initial_acceleration[i] + 
+          //                        18.0 * D_pow_6 * initial_acceleration[i] + D_pow_3 * max_jerk + 
+          //                        D * pow((6.0 * D_pow_7 * initial_acceleration[i] * max_jerk + 
+          //                             12.0 * D_pow_6 * initial_velocity[i] * max_jerk + 
+          //                             18.0 * D_pow_6 * pow(initial_acceleration[i],2) + 
+          //                             60.0 * D_pow_5 * initial_velocity[i] * initial_acceleration[i] - 
+          //                             12.0 * D_pow_5 * initial_acceleration[i] * max_jerk + 
+          //                             48.0 * D_pow_4 * pow(initial_velocity[i],2) - 
+          //                             24.0 * D_pow_4 * initial_velocity[i] * max_jerk - 
+          //                             36.0 * D_pow_4 * pow(initial_acceleration[i],2) + 
+          //                             D_pow_4 * pow(max_jerk,2) - 
+          //                             120.0 * D_pow_3 * initial_velocity[i] * initial_acceleration[i] + 
+          //                             8.0 * D_pow_3 * initial_acceleration[i] * max_jerk - 
+          //                             96.0 * D_pow_2 * pow(initial_velocity[i],2) + 
+          //                             12.0 * D_pow_2 * initial_velocity[i] * max_jerk + 
+          //                             16.0 * D_pow_2 * pow(initial_acceleration[i],2) + 
+          //                             48.0 * D * initial_velocity[i] * initial_acceleration[i] + 
+          //                             36.0 * pow(initial_velocity[i],2)),(0.5))) / (60 * (3 * D_pow_4 - 6 * D_pow_2 + 2));
+          // } else {
+          //   final_position[i] = (120.0 * initial_position[i] + 66.0 * D * initial_velocity[i] - 
+          //                        192.0 * D_pow_3 * initial_velocity[i] + 96.0 * D_pow_5 * initial_velocity[i] - 
+          //                        360.0 * D_pow_2 * initial_position[i] + 180.0 * D_pow_4 * initial_position[i] + 
+          //                        14.0 * D_pow_2 * initial_acceleration[i] - 36.0 * D_pow_4 * initial_acceleration[i] + 
+          //                        18.0 * D_pow_6 * initial_acceleration[i] + D_pow_3 * max_jerk - 
+          //                        D * pow((6.0 * D_pow_7 * initial_acceleration[i] * max_jerk + 
+          //                             12.0 * D_pow_6 * initial_velocity[i] * max_jerk + 
+          //                             18.0 * D_pow_6 * pow(initial_acceleration[i],2) + 
+          //                             60.0 * D_pow_5 * initial_velocity[i] * initial_acceleration[i] - 
+          //                             12.0 * D_pow_5 * initial_acceleration[i] * max_jerk + 
+          //                             48.0 * D_pow_4 * pow(initial_velocity[i],2) - 
+          //                             24.0 * D_pow_4 * initial_velocity[i] * max_jerk - 
+          //                             36.0 * D_pow_4 * pow(initial_acceleration[i],2) + 
+          //                             D_pow_4 * pow(max_jerk,2) - 
+          //                             120.0 * D_pow_3 * initial_velocity[i] * initial_acceleration[i] + 
+          //                             8.0 * D_pow_3 * initial_acceleration[i] * max_jerk - 
+          //                             96.0 * D_pow_2 * pow(initial_velocity[i],2) + 
+          //                             12.0 * D_pow_2 * initial_velocity[i] * max_jerk + 
+          //                             16.0 * D_pow_2 * pow(initial_acceleration[i],2) + 
+          //                             48.0 * D * initial_velocity[i] * initial_acceleration[i] + 
+          //                             36.0 * pow(initial_velocity[i],2)),(0.5))) / (60 * (3 * D_pow_4 - 6 * D_pow_2 + 2));
+          // }
+          if(abs(cur_vel[i]) < eps) {
+            final_position[i] = initial_position[i] + initial_velocity[i] * D;
           }
+          else if (cur_vel[i] > 0) {
+            final_position[i] = initial_position[i] + pow(initial_velocity[i],2) * extra_time_factor / max_accel;
+          } else {
+            final_position[i] = initial_position[i] - pow(initial_velocity[i],2) * extra_time_factor / max_accel;
+          }
+          
+          
           std::cout << "Initial position: " << initial_position[i] << " Initial velocity: " << initial_velocity[i] << " Final position: " << final_position[i] << std::endl;
         }
 
