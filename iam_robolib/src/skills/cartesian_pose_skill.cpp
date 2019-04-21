@@ -16,8 +16,6 @@
 #include <iam_robolib_common/definitions.h>
 #include <iam_robolib_common/run_loop_process_info.h>
 
-
-
 void CartesianPoseSkill::execute_skill() { assert(false); 
 } 
 void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
@@ -36,7 +34,6 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
   double D = 0.1;
   double extra_time_factor = 1.3;
   double max_accel = 3.0;
-  double max_jerk = 3000.0;
   double eps = 0.001;
 
   std::array<double, 3> cur_jerk;
@@ -104,9 +101,6 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
     } 
 
     if((time > 0.0 && done) || skill_termination_handler_end_time > 0.0) {
-
-      // std::cout << "\n===== Skill termination end time: " << skill_termination_handler_end_time <<
-      //     " actual time: " << time << " ===== "<<std::endl;
       double last_period = last_periods_cb[2];
       double second_last_period = last_periods_cb[1];
 
@@ -127,8 +121,6 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
 
         D *= extra_time_factor;
 
-        std::cout << "D = " << D << std::endl;
-
         D_pow_2 = pow(D,2);
         D_pow_3 = pow(D,3);
         D_pow_4 = pow(D,4);
@@ -137,54 +129,6 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
         D_pow_7 = pow(D,7);
 
         for(int i = 0; i < 3; i++) {
-          // if(abs(cur_vel[i]) < eps) {
-          //   final_position[i] = initial_position[i] + initial_velocity[i] * D;
-          // }
-          // else if(cur_vel[i] > 0) {
-          //   final_position[i] = (120.0 * initial_position[i] + 66.0 * D * initial_velocity[i] - 
-          //                        192.0 * D_pow_3 * initial_velocity[i] + 96.0 * D_pow_5 * initial_velocity[i] - 
-          //                        360.0 * D_pow_2 * initial_position[i] + 180.0 * D_pow_4 * initial_position[i] + 
-          //                        14.0 * D_pow_2 * initial_acceleration[i] - 36.0 * D_pow_4 * initial_acceleration[i] + 
-          //                        18.0 * D_pow_6 * initial_acceleration[i] + D_pow_3 * max_jerk + 
-          //                        D * pow((6.0 * D_pow_7 * initial_acceleration[i] * max_jerk + 
-          //                             12.0 * D_pow_6 * initial_velocity[i] * max_jerk + 
-          //                             18.0 * D_pow_6 * pow(initial_acceleration[i],2) + 
-          //                             60.0 * D_pow_5 * initial_velocity[i] * initial_acceleration[i] - 
-          //                             12.0 * D_pow_5 * initial_acceleration[i] * max_jerk + 
-          //                             48.0 * D_pow_4 * pow(initial_velocity[i],2) - 
-          //                             24.0 * D_pow_4 * initial_velocity[i] * max_jerk - 
-          //                             36.0 * D_pow_4 * pow(initial_acceleration[i],2) + 
-          //                             D_pow_4 * pow(max_jerk,2) - 
-          //                             120.0 * D_pow_3 * initial_velocity[i] * initial_acceleration[i] + 
-          //                             8.0 * D_pow_3 * initial_acceleration[i] * max_jerk - 
-          //                             96.0 * D_pow_2 * pow(initial_velocity[i],2) + 
-          //                             12.0 * D_pow_2 * initial_velocity[i] * max_jerk + 
-          //                             16.0 * D_pow_2 * pow(initial_acceleration[i],2) + 
-          //                             48.0 * D * initial_velocity[i] * initial_acceleration[i] + 
-          //                             36.0 * pow(initial_velocity[i],2)),(0.5))) / (60 * (3 * D_pow_4 - 6 * D_pow_2 + 2));
-          // } else {
-          //   final_position[i] = (120.0 * initial_position[i] + 66.0 * D * initial_velocity[i] - 
-          //                        192.0 * D_pow_3 * initial_velocity[i] + 96.0 * D_pow_5 * initial_velocity[i] - 
-          //                        360.0 * D_pow_2 * initial_position[i] + 180.0 * D_pow_4 * initial_position[i] + 
-          //                        14.0 * D_pow_2 * initial_acceleration[i] - 36.0 * D_pow_4 * initial_acceleration[i] + 
-          //                        18.0 * D_pow_6 * initial_acceleration[i] + D_pow_3 * max_jerk - 
-          //                        D * pow((6.0 * D_pow_7 * initial_acceleration[i] * max_jerk + 
-          //                             12.0 * D_pow_6 * initial_velocity[i] * max_jerk + 
-          //                             18.0 * D_pow_6 * pow(initial_acceleration[i],2) + 
-          //                             60.0 * D_pow_5 * initial_velocity[i] * initial_acceleration[i] - 
-          //                             12.0 * D_pow_5 * initial_acceleration[i] * max_jerk + 
-          //                             48.0 * D_pow_4 * pow(initial_velocity[i],2) - 
-          //                             24.0 * D_pow_4 * initial_velocity[i] * max_jerk - 
-          //                             36.0 * D_pow_4 * pow(initial_acceleration[i],2) + 
-          //                             D_pow_4 * pow(max_jerk,2) - 
-          //                             120.0 * D_pow_3 * initial_velocity[i] * initial_acceleration[i] + 
-          //                             8.0 * D_pow_3 * initial_acceleration[i] * max_jerk - 
-          //                             96.0 * D_pow_2 * pow(initial_velocity[i],2) + 
-          //                             12.0 * D_pow_2 * initial_velocity[i] * max_jerk + 
-          //                             16.0 * D_pow_2 * pow(initial_acceleration[i],2) + 
-          //                             48.0 * D * initial_velocity[i] * initial_acceleration[i] + 
-          //                             36.0 * pow(initial_velocity[i],2)),(0.5))) / (60 * (3 * D_pow_4 - 6 * D_pow_2 + 2));
-          // }
           if(abs(cur_vel[i]) < eps) {
             final_position[i] = initial_position[i] + initial_velocity[i] * D;
           }
@@ -193,9 +137,6 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
           } else {
             final_position[i] = initial_position[i] - pow(initial_velocity[i],2) * extra_time_factor / max_accel;
           }
-          
-          
-          std::cout << "Initial position: " << initial_position[i] << " Initial velocity: " << initial_velocity[i] << " Final position: " << final_position[i] << std::endl;
         }
 
         for(int i = 0; i < 3; i++) {
@@ -204,27 +145,6 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
           a_5[i] = -0.5 * D_pow_2 * initial_acceleration[i] - 3 * D * initial_velocity[i] + 6 * (final_position[i] - initial_position[i]);
         }
       }
-
-      // if (time - skill_termination_handler_end_time < D) {
-      //   tau = std::min(std::max((time - skill_termination_handler_end_time) / D, 0.0), 1.0);
-      //   slerp_t = (10 * std::pow(tau, 3) - 15 * std::pow(tau, 4) + 6 * std::pow(tau, 5));
-
-      //   desired_pose = robot_state.O_T_EE_c;
-
-      //   for (int i = 0; i < 3; i++) {
-      //     cur_vel[i] = initial_vel[i] * (1 - slerp_t);
-      //     cur_pos[12 + i] += cur_vel[i] * period.toSec();
-      //     desired_pose[12 + i] = cur_pos[i];
-      //   }
-
-      //   std::cout << "====\n";
-      //   std::cout << "commanded accel: " << robot_state.O_ddP_EE_c[0] << ", " << robot_state.O_ddP_EE_c[1] << ", " << robot_state.O_ddP_EE_c[2] << std::endl;
-      //   std::cout << "commanded vel: " << robot_state.O_dP_EE_c[0] << ", " << robot_state.O_dP_EE_c[1] << ", " << robot_state.O_dP_EE_c[2] << std::endl;
-      //   std::cout << "desired vel: " << robot_state.O_dP_EE_d[0] << ", " << robot_state.O_dP_EE_d[1] << ", " << robot_state.O_dP_EE_d[2] << std::endl;
-      //   std::cout << "desired pose: " << desired_pose[12] << ", " << desired_pose[13] << ", " << desired_pose[14] << std::endl;
-
-      //   return desired_pose;
-      // }
 
       if (time - skill_termination_handler_end_time < D) {
         double tau = std::min(std::max((time - skill_termination_handler_end_time) / D, 0.0), 1.0);
@@ -264,7 +184,7 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
       last_pose_cb.push_back(desired_pose);
     }
     while (!last_periods_cb.full()) {
-      last_periods_cb.push_back(period.toSec());
+      last_periods_cb.push_back(0.001);
     }
     return desired_pose;
   };
