@@ -6,6 +6,8 @@
 
 #include <franka/robot.h>
 
+#include <boost/circular_buffer.hpp>
+
 #include "iam_robolib/robot_state_data.h"
 #include "iam_robolib/run_loop.h"
 #include "iam_robolib/run_loop_shared_memory_handler.h"
@@ -13,6 +15,8 @@
 
 #include <iam_robolib_common/definitions.h>
 #include <iam_robolib_common/run_loop_process_info.h>
+
+
 
 void CartesianPoseSkill::execute_skill() { assert(false); 
 } 
@@ -22,13 +26,17 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
   double time = 0.0;
   double skill_termination_handler_end_time = 0.0;
   int log_counter = 0;
-  double last_period = 0.0;
-  double last_2_period = 0.0;
-  std::array<double, 16> last_desired_pose; 
-  std::array<double, 16> last_2_desired_pose; 
-  std::array<double, 16> last_3_desired_pose; 
+
+  // Circular buffers for smooth deacceleration after stopping.
+  boost::circular_buffer<double> last_periods_cb(3);
+  boost::circular_buffer<std::array<double, 16>> last_pose_cb(3);
+
+  std::vector<double> last_periods;
+  std::vector<std::array<double, 16>> last_poses;
+
+  // Time for smooth deacceleration after abrupt stopping after feeling contact.
+  // TODO: Can we reduce this time further?
   double D = 0.5;
-  double tau = 0.0;
   std::array<double, 3> initial_position;
   std::array<double, 3> initial_velocity;
   std::array<double, 3> initial_acceleration;
@@ -36,10 +44,6 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
   std::array<double, 3> a_3;
   std::array<double, 3> a_4;
   std::array<double, 3> a_5;
-  std::array<double, 3> cur_jerk;
-  std::array<double, 3> cur_accel;
-  std::array<double, 3> cur_vel;
-  std::array<double, 3> cur_pos;
   double velocity_factor = 0.25;
   double D_pow_2 = pow(D,2);
   double D_pow_3 = pow(D,3);
@@ -91,16 +95,23 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
 
     if((time > 0.0 && done) || skill_termination_handler_end_time > 0.0) {
 
-      std::cout << "\n===== Skill termination end time: " << skill_termination_handler_end_time << " ===== "<<std::endl;
+      std::array<double, 3> cur_jerk;
+      std::array<double, 3> cur_accel;
+      std::array<double, 3> cur_vel;
+      std::array<double, 3> cur_pos;
+
+      std::cout << "\n===== Skill termination end time: " << skill_termination_handler_end_time <<
+          " actual time: " << time << " ===== "<<std::endl;
+      double last_period = last_periods_cb[2] - last_periods_cb[1];
+      double second_last_period = last_periods_cb[1] - last_periods_cb[0];
 
       if (skill_termination_handler_end_time == 0.0) {
         skill_termination_handler_end_time = time;
         for(int i = 0; i < 3; i++) {
-
           // From http://courses.shadmehrlab.org/Shortcourse/minimumjerk.pdf?fbclid=IwAR1-DaPEDKdYdbrQ5m5Bcm4WfWbVJJT8cLD6XhsRnKY4oPNRmpqoOnEB5os
-          initial_position[i] = last_desired_pose[12+i];
-          initial_velocity[i] = (last_desired_pose[12+i] - last_2_desired_pose[12+i]) / last_period;
-          initial_acceleration[i] = (((last_2_desired_pose[12+i] - last_3_desired_pose[12+i]) / last_2_period) - initial_velocity[i]) / last_period;
+          initial_position[i] = last_pose_cb[2][12+i];
+          initial_velocity[i] = (last_pose_cb[2][12+i] - last_pose_cb[1][12+i]) / last_period;
+          initial_acceleration[i] = (((last_pose_cb[1][12+i] - last_pose_cb[0][12+i]) / second_last_period) - initial_velocity[i]) / last_period;
 
           cur_accel[i] = initial_acceleration[i];
           cur_vel[i] = initial_velocity[i];
@@ -111,7 +122,6 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
           a_4[i] = 1.5 * D_pow_2 * initial_acceleration[i] + 8 * D * initial_velocity[i] - 15 * (final_position[i] - initial_position[i]);
           a_5[i] = -0.5 * D_pow_2 * initial_acceleration[i] - 3 * D * initial_velocity[i] + 6 * (final_position[i] - initial_position[i]);
         }
-        
       }
 
       // if (time - skill_termination_handler_end_time < D) {
@@ -136,7 +146,7 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
       // }
 
       if (time - skill_termination_handler_end_time < D) {
-        tau = std::min(std::max((time - skill_termination_handler_end_time) / D, 0.0), 1.0);
+        double tau = std::min(std::max((time - skill_termination_handler_end_time) / D, 0.0), 1.0);
 
         desired_pose = robot_state.O_T_EE_c;
 
@@ -164,11 +174,17 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
       
       return franka::MotionFinished(desired_pose);
     }
-    last_3_desired_pose = last_2_desired_pose;
-    last_2_desired_pose = last_desired_pose;
-    last_desired_pose = desired_pose;
-    last_2_period = last_period;
-    last_period = period.toSec();
+    // Add items to circular buffer.
+    last_pose_cb.push_back(desired_pose);
+    last_periods_cb.push_back(period.toSec());
+    // Just fill the buffers initially with whatever we currently have. Prevents the edge case of stopping
+    // right when we begin.
+    while (!last_pose_cb.full()) {
+      last_pose_cb.push_back(desired_pose);
+    }
+    while (!last_periods_cb.full()) {
+      last_pose_cb.push_back(desired_pose);
+    }
     return desired_pose;
   };
 
