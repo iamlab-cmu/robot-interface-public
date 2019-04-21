@@ -153,12 +153,12 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
                                       36.0 * D_pow_4 * pow(initial_acceleration[i],2) + 
                                       D_pow_4 * pow(max_jerk,2) - 
                                       120.0 * D_pow_3 * initial_velocity[i] * initial_acceleration[i] + 
-                                      8.0 * D_pow_3 * initial_acceleration[i] * max_jerk[i] - 
+                                      8.0 * D_pow_3 * initial_acceleration[i] * max_jerk - 
                                       96.0 * D_pow_2 * pow(initial_velocity[i],2) + 
                                       12.0 * D_pow_2 * initial_velocity[i] * max_jerk + 
-                                      16.0 * D_pow_2 * pow(initial_acceleration,2) + 
+                                      16.0 * D_pow_2 * pow(initial_acceleration[i],2) + 
                                       48.0 * D * initial_velocity[i] * initial_acceleration[i] + 
-                                      36.0 * pow(initial_velocity,2)),(0.5))) / (60 * (3 * D_pow_4 - 6 * D_pow_2 + 2));
+                                      36.0 * pow(initial_velocity[i],2)),(0.5))) / (60 * (3 * D_pow_4 - 6 * D_pow_2 + 2));
           } else {
             final_position[i] = (120.0 * initial_position[i] + 66.0 * D * initial_velocity[i] - 
                                  192.0 * D_pow_3 * initial_velocity[i] + 96.0 * D_pow_5 * initial_velocity[i] - 
@@ -175,12 +175,12 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
                                       36.0 * D_pow_4 * pow(initial_acceleration[i],2) + 
                                       D_pow_4 * pow(max_jerk,2) - 
                                       120.0 * D_pow_3 * initial_velocity[i] * initial_acceleration[i] + 
-                                      8.0 * D_pow_3 * initial_acceleration[i] * max_jerk[i] - 
+                                      8.0 * D_pow_3 * initial_acceleration[i] * max_jerk - 
                                       96.0 * D_pow_2 * pow(initial_velocity[i],2) + 
                                       12.0 * D_pow_2 * initial_velocity[i] * max_jerk + 
-                                      16.0 * D_pow_2 * pow(initial_acceleration,2) + 
+                                      16.0 * D_pow_2 * pow(initial_acceleration[i],2) + 
                                       48.0 * D * initial_velocity[i] * initial_acceleration[i] + 
-                                      36.0 * pow(initial_velocity,2)),(0.5))) / (60 * (3 * D_pow_4 - 6 * D_pow_2 + 2));
+                                      36.0 * pow(initial_velocity[i],2)),(0.5))) / (60 * (3 * D_pow_4 - 6 * D_pow_2 + 2));
           }
           std::cout << "Initial position: " << initial_position[i] << " Initial velocity: " << initial_velocity[i] << " Final position: " << final_position[i] << std::endl;
         }
