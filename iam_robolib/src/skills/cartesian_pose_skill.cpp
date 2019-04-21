@@ -31,12 +31,15 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
   boost::circular_buffer<double> last_periods_cb(3);
   boost::circular_buffer<std::array<double, 16>> last_pose_cb(3);
 
-  std::vector<double> last_periods;
-  std::vector<std::array<double, 16>> last_poses;
-
   // Time for smooth deacceleration after abrupt stopping after feeling contact.
   // TODO: Can we reduce this time further?
   double D = 0.5;
+
+  std::array<double, 3> cur_jerk;
+  std::array<double, 3> cur_accel;
+  std::array<double, 3> cur_vel;
+  std::array<double, 3> cur_pos;
+
   std::array<double, 3> initial_position;
   std::array<double, 3> initial_velocity;
   std::array<double, 3> initial_acceleration;
@@ -94,11 +97,6 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
     } 
 
     if((time > 0.0 && done) || skill_termination_handler_end_time > 0.0) {
-
-      std::array<double, 3> cur_jerk;
-      std::array<double, 3> cur_accel;
-      std::array<double, 3> cur_vel;
-      std::array<double, 3> cur_pos;
 
       std::cout << "\n===== Skill termination end time: " << skill_termination_handler_end_time <<
           " actual time: " << time << " ===== "<<std::endl;
