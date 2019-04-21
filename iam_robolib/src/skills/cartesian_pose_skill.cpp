@@ -121,8 +121,9 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
           cur_vel[i] = initial_velocity[i];
           cur_pos[i] = initial_position[i];
 
-          D = std::max(D, abs(cur_vel[i] / max_accel));
-          
+          if(cur_vel[i] != 0.0){
+            D = std::max(D, abs(cur_vel[i] / max_accel));
+          }
         }
 
         D *= extra_time_factor;
