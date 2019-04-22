@@ -50,10 +50,6 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
   std::array<double, 3> a_5;
   double D_pow_2 = pow(D,2);
   double D_pow_3 = pow(D,3);
-  double D_pow_4 = pow(D,4);
-  double D_pow_5 = pow(D,5);
-  double D_pow_6 = pow(D,6);
-  double D_pow_7 = pow(D,7);
 
   RunLoopSharedMemoryHandler* shared_memory_handler = run_loop->get_shared_memory_handler();
   RunLoopProcessInfo* run_loop_info = shared_memory_handler->getRunLoopProcessInfo();
@@ -123,10 +119,6 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
 
         D_pow_2 = pow(D,2);
         D_pow_3 = pow(D,3);
-        D_pow_4 = pow(D,4);
-        D_pow_5 = pow(D,5);
-        D_pow_6 = pow(D,6);
-        D_pow_7 = pow(D,7);
 
         for(int i = 0; i < 3; i++) {
           if(abs(cur_vel[i]) < eps) {
