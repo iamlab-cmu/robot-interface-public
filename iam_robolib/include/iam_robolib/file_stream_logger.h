@@ -12,6 +12,7 @@ class FileStreamLogger {
                    open_file_stream_(filename, std::ofstream::out | std::ofstream::app) 
   {};
 
+  bool write_pose_desired_ = true;
   bool write_F_T_EE_ = true;
   bool write_m_ee_ = true;
   bool write_I_ee = true;
@@ -29,6 +30,7 @@ class FileStreamLogger {
   bool write_gripper_max_width_=true;
 
   bool writeData(std::vector<double>& time_since_skill_started_vector,
+                 std::vector<std::array<double, 16>>& pose_desired_vector,
                  std::vector<std::array<double, 16>>& O_T_EE_vector,
                  std::vector<std::array<double, 16>>& O_T_EE_d_vector,
                  std::vector<std::array<double, 16>>& F_T_EE_vector,

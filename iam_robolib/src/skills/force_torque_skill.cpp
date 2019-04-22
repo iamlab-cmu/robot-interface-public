@@ -27,6 +27,7 @@ void ForceTorqueSkill::execute_skill_on_franka(run_loop* run_loop,
                                                RobotStateData *robot_state_data) {
   double time = 0.0;
   int log_counter = 0;
+  std::array<double, 16> pose_desired;
 
   std::cout << "Will run the control loop\n";
 
@@ -57,7 +58,8 @@ void ForceTorqueSkill::execute_skill_on_franka(run_loop* run_loop,
     }
     log_counter += 1;
     if (log_counter % 1 == 0) {
-      robot_state_data->log_robot_state(robot_state, time);
+      pose_desired = robot_state.O_T_EE_d;
+      robot_state_data->log_robot_state(pose_desired, robot_state, time);
     }
 
     bool done = termination_handler_->should_terminate_on_franka(robot_state, 

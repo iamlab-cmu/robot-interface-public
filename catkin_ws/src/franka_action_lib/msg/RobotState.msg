@@ -2,6 +2,7 @@
 # For more information about each field, look at robot_state.h here: 
 # https://github.com/frankaemika/libfranka/blob/master/include/franka/robot_state.h
 std_msgs/Header header
+float64[16] pose_desired
 float64[16] O_T_EE 
 float64[16] O_T_EE_d
 float64[16] F_T_EE

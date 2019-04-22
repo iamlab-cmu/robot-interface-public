@@ -532,6 +532,9 @@ namespace franka_action_lib
 
       int num_elements = static_cast<int>(current_robot_state_buffer_[offset++]);
 
+      memcpy(&robot_state.pose_desired, &current_robot_state_buffer_[offset], robot_state.pose_desired.size() * sizeof(SharedBufferType));
+      offset += robot_state.pose_desired.size();
+
       memcpy(&robot_state.O_T_EE, &current_robot_state_buffer_[offset], robot_state.O_T_EE.size() * sizeof(SharedBufferType));
       offset += robot_state.O_T_EE.size();
 
