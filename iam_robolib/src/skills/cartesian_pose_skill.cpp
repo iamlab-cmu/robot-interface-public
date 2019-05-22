@@ -56,6 +56,12 @@ std::array<double, 16> CartesianPoseSkill::limit_position(std::array<double, 16>
     limited_desired_pose[12+i] = next_position_[i];
   }
 
+  if(period > 0.001) {
+    std::cout << "Period = " << period << std::endl;
+    std::cout << "Original desired_pose = " << desired_pose[12] << ", " << desired_pose[13] << ", " << desired_pose[14] << std::endl;
+    std::cout << "Limited desired_pose = " << limited_desired_pose[12] << ", " << limited_desired_pose[13] << ", " << limited_desired_pose[14] << std::endl;
+  }
+
   return limited_desired_pose;
 }
 
@@ -174,9 +180,11 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
       }
     }
 
-    time += period.toSec();
+    current_period_ = period.toSec();
+
+    time += current_period_;
     traj_generator_->time_ = time;
-    traj_generator_->dt_ = period.toSec();
+    traj_generator_->dt_ = current_period_;
     if (time > 0.0) {
       traj_generator_->get_next_step();
     }
@@ -184,7 +192,10 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
     bool done = termination_handler_->should_terminate_on_franka(robot_state, traj_generator_);
 
     std::array<double, 16> desired_pose = pose_trajectory_generator->get_desired_pose();
-    std::array<double, 16> limited_desired_pose = limit_position(desired_pose, period.toSec());
+    std::array<double, 16> limited_desired_pose = desired_pose;
+    if(current_period_ > 0.0) {
+      limited_desired_pose = limit_position(desired_pose, current_period_);
+    }
 
     log_counter += 1;
     if (log_counter % 1 == 0) {
@@ -240,9 +251,9 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
 
       //   for (int i = 0; i < 3; i++) {
       //     cur_jerk[i] = 6 * a_3[i] / D_pow_3 + 24 * a_4[i] * tau / D_pow_3 + 60 * a_5[i] * pow(tau,2) / D_pow_3;
-      //     cur_accel[i] += cur_jerk[i] * period.toSec();
-      //     cur_vel[i] += cur_accel[i] * period.toSec();
-      //     cur_pos[i] += cur_vel[i] * period.toSec();
+      //     cur_accel[i] += cur_jerk[i] * current_period_;
+      //     cur_vel[i] += cur_accel[i] * current_period_;
+      //     cur_pos[i] += cur_vel[i] * current_period_;
 
       //     desired_pose[12 + i] = cur_pos[i];
       //   }
@@ -253,12 +264,11 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
     if(time > 0.0 && done) {
       
       if(current_velocity_[0] != 0.0 || current_velocity_[1] != 0.0 || current_velocity_[2] != 0.0) {
-        current_period_ = period.toSec();
 
         limited_desired_pose = limit_position_to_stop(last_pose_cb_[2], current_period_);
 
         last_pose_cb_.push_back(limited_desired_pose);
-        last_periods_cb_.push_back(period.toSec());
+        last_periods_cb_.push_back(current_period_);
         // Just fill the buffers initially with whatever we currently have. Prevents the edge case of stopping
         // right when we begin.
         while (!last_pose_cb_.full()) {
@@ -295,7 +305,7 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
     }
     // Add items to circular buffer.
     last_pose_cb_.push_back(limited_desired_pose);
-    last_periods_cb_.push_back(period.toSec());
+    last_periods_cb_.push_back(current_period_);
     // Just fill the buffers initially with whatever we currently have. Prevents the edge case of stopping
     // right when we begin.
     while (!last_pose_cb_.full()) {
@@ -305,22 +315,22 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
       last_periods_cb_.push_back(0.001);
     }
 
-    current_period_ = period.toSec();
+    if(current_period_ > 0.0) {
+      for(int i = 0; i < 3; i++) {
+        previous_position_[i] = current_position_[i];
+        previous_velocity_[i] = current_velocity_[i];
+        previous_acceleration_[i] = current_acceleration_[i];
 
-    for(int i = 0; i < 3; i++) {
-      previous_position_[i] = current_position_[i];
-      previous_velocity_[i] = current_velocity_[i];
-      previous_acceleration_[i] = current_acceleration_[i];
-
-      current_position_[i] = limited_desired_pose[12+i];
-      current_velocity_[i] = (current_position_[i] - previous_position_[i]) / current_period_;
-      current_acceleration_[i] = (current_velocity_[i] - previous_velocity_[i]) / current_period_;
-      current_jerk_[i] = (current_acceleration_[i] - previous_acceleration_[i]) / current_period_;
+        current_position_[i] = limited_desired_pose[12+i];
+        current_velocity_[i] = (current_position_[i] - previous_position_[i]) / current_period_;
+        current_acceleration_[i] = (current_velocity_[i] - previous_velocity_[i]) / current_period_;
+        current_jerk_[i] = (current_acceleration_[i] - previous_acceleration_[i]) / current_period_;
+      }
     }
 
     return limited_desired_pose;
   };
 
-  robot->robot_.control(cartesian_pose_callback, franka::ControllerMode::kCartesianImpedance);
+  robot->robot_.control(cartesian_pose_callback, franka::ControllerMode::kCartesianImpedance, true, 30.0); // franka::ControllerMode::kJointImpedance, false, franka::kMaxCutoffFrequency);
 }
 
