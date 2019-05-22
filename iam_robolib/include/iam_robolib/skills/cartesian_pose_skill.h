@@ -3,8 +3,6 @@
 
 #include "iam_robolib/skills/base_skill.h"
 
-#include <boost/circular_buffer.hpp>
-
 class CartesianPoseSkill : public BaseSkill {
  public:
   CartesianPoseSkill(int skill_idx, int meta_skill_idx, std::string description) : 
