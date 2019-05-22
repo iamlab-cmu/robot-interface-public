@@ -16,6 +16,7 @@ class CartesianPoseSkill : public BaseSkill {
       current_velocity_[i] = 0.0;
       current_acceleration_[i] = 0.0;
       current_jerk_[i] = 0.0;
+      previous_error_[i] = 0.0;
     }
     
   };
@@ -35,6 +36,13 @@ class CartesianPoseSkill : public BaseSkill {
 
   double current_period_;
 
+  std::array<double, 16> previous_desired_pose_;
+
+  std::array<double, 3> current_error_;
+  std::array<double, 3> previous_error_;
+  std::array<double, 3> integral_;
+  std::array<double, 3> derivative_;
+
   std::array<double, 3> previous_position_;
   std::array<double, 3> previous_velocity_;
   std::array<double, 3> previous_acceleration_;
@@ -49,7 +57,11 @@ class CartesianPoseSkill : public BaseSkill {
   std::array<double, 3> next_acceleration_;
   std::array<double, 3> next_jerk_;
 
-  double safety_factor = 0.8;
+  double safety_factor = 0.1;
+  double Kp_ = 30.0;
+  double Ki_ = 0.1;
+  double Kd_ = 0.01;
+  double eps_ = 0.0001;
 
   // Franka Parameters from https://frankaemika.github.io/docs/control_parameters.html
   const double max_cartesian_translation_velocity_ = 1.7; // m / s

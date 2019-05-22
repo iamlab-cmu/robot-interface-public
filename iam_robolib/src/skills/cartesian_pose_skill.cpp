@@ -21,7 +21,25 @@ std::array<double, 16> CartesianPoseSkill::limit_position(std::array<double, 16>
   for(int i = 0; i < 3; i++) {
     next_position_[i] = desired_pose[12+i];
     next_velocity_[i] = (next_position_[i] - current_position_[i]) / period;
+
+    if(std::abs(next_velocity_[i]) > max_cartesian_translation_velocity_) {
+      if(next_velocity_[i] > 0) {
+        next_velocity_[i] = max_cartesian_translation_velocity_ * safety_factor;
+      } else {
+        next_velocity_[i] = -max_cartesian_translation_velocity_ * safety_factor;
+      }
+    }
+
     next_acceleration_[i] = (next_velocity_[i] - current_velocity_[i]) / period;
+
+    if(std::abs(next_acceleration_[i]) > max_cartesian_translation_acceleration_) {
+      if(next_acceleration_[i] > 0) {
+        next_acceleration_[i] = max_cartesian_translation_acceleration_ * safety_factor;
+      } else {
+        next_acceleration_[i] = -max_cartesian_translation_acceleration_ * safety_factor;
+      }
+    }
+
     next_jerk_[i] = (next_acceleration_[i] - current_acceleration_[i]) / period;
 
     if(std::abs(next_jerk_[i]) > max_cartesian_translation_jerk_) {
@@ -56,12 +74,6 @@ std::array<double, 16> CartesianPoseSkill::limit_position(std::array<double, 16>
     limited_desired_pose[12+i] = next_position_[i];
   }
 
-  if(period > 0.001) {
-    std::cout << "Period = " << period << std::endl;
-    std::cout << "Original desired_pose = " << desired_pose[12] << ", " << desired_pose[13] << ", " << desired_pose[14] << std::endl;
-    std::cout << "Limited desired_pose = " << limited_desired_pose[12] << ", " << limited_desired_pose[13] << ", " << limited_desired_pose[14] << std::endl;
-  }
-
   return limited_desired_pose;
 }
 
@@ -70,11 +82,25 @@ std::array<double, 16> CartesianPoseSkill::limit_position_to_stop(std::array<dou
   std::array<double, 16> limited_desired_pose = current_pose;
 
   for(int i = 0; i < 3; i++) {
-    if(current_velocity_[i] = 0.0) {
+    if(std::abs(current_velocity_[i]) < eps_) {
       continue;
     } else {
-      next_velocity_[i] = 0.0;
-      next_acceleration_[i] = (next_velocity_[i] - current_velocity_[i]) / period;
+      current_error_[i] = -current_velocity_[i];
+      integral_[i] += current_error_[i] * period; 
+      derivative_[i] = (current_error_[i] - previous_error_[i]) / period;
+
+      next_acceleration_[i] = Kp_ * current_error_[i] + Ki_ * integral_[i] + Kd_ * derivative_[i];
+
+      previous_error_ = current_error_;
+
+      if(std::abs(next_acceleration_[i]) > max_cartesian_translation_acceleration_) {
+        if(next_acceleration_[i] > 0) {
+          next_acceleration_[i] = max_cartesian_translation_acceleration_ * safety_factor;
+        } else {
+          next_acceleration_[i] = -max_cartesian_translation_acceleration_ * safety_factor;
+        }
+      }
+
       next_jerk_[i] = (next_acceleration_[i] - current_acceleration_[i]) / period;
 
       if(std::abs(next_jerk_[i]) > max_cartesian_translation_jerk_) {
@@ -108,6 +134,7 @@ std::array<double, 16> CartesianPoseSkill::limit_position_to_stop(std::array<dou
       next_position_[i] = current_position_[i] + next_velocity_[i] * period;
       limited_desired_pose[12+i] = next_position_[i];
     }
+    
   }
 
   return limited_desired_pose;
@@ -119,34 +146,7 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
                                                  FrankaRobot* robot,
                                                  RobotStateData *robot_state_data) {
   double time = 0.0;
-  double skill_termination_handler_end_time = 0.0;
   int log_counter = 0;
-
-  // Time for smooth deacceleration after abrupt stopping after feeling contact.
-  // TODO: Can we reduce this time further?
-  double D = 0.1;
-  double extra_time_factor = 1.3;
-  double max_accel = 3.0;
-  double eps = 0.001;
-
-  // Circular buffers for smooth deacceleration after stopping.
-  boost::circular_buffer<double> last_periods_cb_(3);
-  boost::circular_buffer<std::array<double, 16>> last_pose_cb_(3);
-
-  std::array<double, 3> cur_jerk;
-  std::array<double, 3> cur_accel;
-  std::array<double, 3> cur_vel;
-  std::array<double, 3> cur_pos;
-
-  std::array<double, 3> initial_position;
-  std::array<double, 3> initial_velocity;
-  std::array<double, 3> initial_acceleration;
-  std::array<double, 3> final_position;
-  std::array<double, 3> a_3;
-  std::array<double, 3> a_4;
-  std::array<double, 3> a_5;
-  double D_pow_2 = pow(D,2);
-  double D_pow_3 = pow(D,3);
 
   RunLoopSharedMemoryHandler* shared_memory_handler = run_loop->get_shared_memory_handler();
   RunLoopProcessInfo* run_loop_info = shared_memory_handler->getRunLoopProcessInfo();
@@ -202,81 +202,12 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
       robot_state_data->log_robot_state(desired_pose, robot_state, time);
     } 
 
-    //if((time > 0.0 && done) || skill_termination_handler_end_time > 0.0) {
-      // double last_period = last_periods_cb_[2];
-      // double second_last_period = last_periods_cb_[1];
-
-      // if (skill_termination_handler_end_time == 0.0) {
-      //   skill_termination_handler_end_time = time;
-      //   for(int i = 0; i < 3; i++) {
-      //     // From http://courses.shadmehrlab.org/Shortcourse/minimumjerk.pdf?fbclid=IwAR1-DaPEDKdYdbrQ5m5Bcm4WfWbVJJT8cLD6XhsRnKY4oPNRmpqoOnEB5os
-      //     initial_position[i] = last_pose_cb_[2][12+i];
-      //     initial_velocity[i] = (last_pose_cb_[2][12+i] - last_pose_cb_[1][12+i]) / last_period;
-      //     initial_acceleration[i] = (((last_pose_cb_[1][12+i] - last_pose_cb_[0][12+i]) / second_last_period) - initial_velocity[i]) / last_period;
-
-      //     cur_accel[i] = initial_acceleration[i];
-      //     cur_vel[i] = initial_velocity[i];
-      //     cur_pos[i] = initial_position[i];
-
-      //     D = std::max(D, abs(cur_vel[i] / max_accel));
-      //   }
-
-      //   D *= extra_time_factor;
-
-      //   D_pow_2 = pow(D,2);
-      //   D_pow_3 = pow(D,3);
-
-      //   for(int i = 0; i < 3; i++) {
-      //     if(abs(cur_vel[i]) < eps) {
-      //       final_position[i] = initial_position[i] + initial_velocity[i] * D;
-      //     }
-      //     else if (cur_vel[i] > 0) {
-      //       final_position[i] = initial_position[i] + pow(initial_velocity[i],2) * extra_time_factor / max_accel;
-      //     } else {
-      //       final_position[i] = initial_position[i] - pow(initial_velocity[i],2) * extra_time_factor / max_accel;
-      //     }
-      //   }
-
-      //   for(int i = 0; i < 3; i++) {
-      //     a_3[i] = -1.5 * D_pow_2 * initial_acceleration[i] - 6 * D * initial_velocity[i] + 10 * (final_position[i] - initial_position[i]);
-      //     a_4[i] = 1.5 * D_pow_2 * initial_acceleration[i] + 8 * D * initial_velocity[i] - 15 * (final_position[i] - initial_position[i]);
-      //     a_5[i] = -0.5 * D_pow_2 * initial_acceleration[i] - 3 * D * initial_velocity[i] + 6 * (final_position[i] - initial_position[i]);
-      //   }
-      // }
-
-      // if (time - skill_termination_handler_end_time < D) {
-      //   double tau = std::min(std::max((time - skill_termination_handler_end_time) / D, 0.0), 1.0);
-
-      //   desired_pose = robot_state.O_T_EE_c;
-
-      //   for (int i = 0; i < 3; i++) {
-      //     cur_jerk[i] = 6 * a_3[i] / D_pow_3 + 24 * a_4[i] * tau / D_pow_3 + 60 * a_5[i] * pow(tau,2) / D_pow_3;
-      //     cur_accel[i] += cur_jerk[i] * current_period_;
-      //     cur_vel[i] += cur_accel[i] * current_period_;
-      //     cur_pos[i] += cur_vel[i] * current_period_;
-
-      //     desired_pose[12 + i] = cur_pos[i];
-      //   }
-
-      //   return desired_pose;
-      // }
-
     if(time > 0.0 && done) {
       
-      if(current_velocity_[0] != 0.0 || current_velocity_[1] != 0.0 || current_velocity_[2] != 0.0) {
+      if(current_velocity_[0] != 0.0 || current_velocity_[1] != 0.0 || current_velocity_[2] != 0.0 ||
+         current_acceleration_[0] != 0.0 || current_acceleration_[1] != 0.0 || current_acceleration_[2] != 0.0) {
 
-        limited_desired_pose = limit_position_to_stop(last_pose_cb_[2], current_period_);
-
-        last_pose_cb_.push_back(limited_desired_pose);
-        last_periods_cb_.push_back(current_period_);
-        // Just fill the buffers initially with whatever we currently have. Prevents the edge case of stopping
-        // right when we begin.
-        while (!last_pose_cb_.full()) {
-          last_pose_cb_.push_back(limited_desired_pose);
-        }
-        while (!last_periods_cb_.full()) {
-          last_periods_cb_.push_back(0.001);
-        }
+        limited_desired_pose = limit_position_to_stop(previous_desired_pose_, current_period_);
 
         for(int i = 0; i < 3; i++) {
           previous_position_[i] = current_position_[i];
@@ -288,6 +219,8 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
           current_acceleration_[i] = (current_velocity_[i] - previous_velocity_[i]) / current_period_;
           current_jerk_[i] = (current_acceleration_[i] - previous_acceleration_[i]) / current_period_;
         }
+
+        previous_desired_pose_ = limited_desired_pose;
 
         return limited_desired_pose;
       }
@@ -301,18 +234,7 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
         // Do nothing
       }
       
-      return franka::MotionFinished(last_pose_cb_[2]);
-    }
-    // Add items to circular buffer.
-    last_pose_cb_.push_back(limited_desired_pose);
-    last_periods_cb_.push_back(current_period_);
-    // Just fill the buffers initially with whatever we currently have. Prevents the edge case of stopping
-    // right when we begin.
-    while (!last_pose_cb_.full()) {
-      last_pose_cb_.push_back(limited_desired_pose);
-    }
-    while (!last_periods_cb_.full()) {
-      last_periods_cb_.push_back(0.001);
+      return franka::MotionFinished(previous_desired_pose_);
     }
 
     if(current_period_ > 0.0) {
@@ -327,6 +249,8 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
         current_jerk_[i] = (current_acceleration_[i] - previous_acceleration_[i]) / current_period_;
       }
     }
+
+    previous_desired_pose_ = limited_desired_pose;
 
     return limited_desired_pose;
   };
