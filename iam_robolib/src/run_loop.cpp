@@ -433,10 +433,10 @@ void run_loop::setup_robot_default_behavior() {
 
       dynamic_cast<FrankaRobot* >(robot_)->robot_.setJointImpedance({{3000, 3000, 3000, 2500, 2500, 2000, 2000}});
       dynamic_cast<FrankaRobot* >(robot_)->robot_.setCartesianImpedance({{3000, 3000, 3000, 300, 300, 300}});
-	    // double m_load = 0.1;
-  	  //   std::array<double, 3> F_x_Cload{0.03, 0.03, -0.12};
-	    // std::array<double, 9> I_load{1, 0, 0, 0, 1, 0, 0, 0, 1};
-	    // dynamic_cast<FrankaRobot* >(robot_)->robot_.setLoad(m_load, F_x_Cload, I_load);
+      double m_load = 0.333;
+      std::array<double, 3> F_x_Cload{0.05, 0.05, -0.12};
+      std::array<double, 9> I_load{1, 0, 0, 0, 1, 0, 0, 0, 1};
+      dynamic_cast<FrankaRobot* >(robot_)->robot_.setLoad(m_load, F_x_Cload, I_load);
       }
       break;
     case RobotType::UR5E:

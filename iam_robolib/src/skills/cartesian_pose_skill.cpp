@@ -255,6 +255,6 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
     return limited_desired_pose;
   };
 
-  robot->robot_.control(cartesian_pose_callback, franka::ControllerMode::kCartesianImpedance, true, 30.0); // franka::ControllerMode::kJointImpedance, false, franka::kMaxCutoffFrequency);
+  robot->robot_.control(cartesian_pose_callback, franka::ControllerMode::kJointImpedance, true, 30.0); // franka::ControllerMode::kCartesianImpedance, true, 30.0); false, franka::kMaxCutoffFrequency);
 }
 

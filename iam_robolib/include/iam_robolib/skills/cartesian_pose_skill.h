@@ -57,7 +57,7 @@ class CartesianPoseSkill : public BaseSkill {
 
   double safety_factor = 0.1;
   double Kp_ = 30.0;
-  double Ki_ = 0.1;
+  double Ki_ = 0.0; // 0.1;
   double Kd_ = 0.01;
   double eps_ = 0.0001;
 
