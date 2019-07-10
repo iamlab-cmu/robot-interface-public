@@ -45,7 +45,13 @@ Once catkin_make has finished there should be a build and devel folder in the ca
 5. Install FrankaPy
 ```bash
 cd catkin_ws/src/franka_action_lib
-pip install -e .
+pip3 install -e . --user
+```
+
+6. Errors
+You may need to run the following command in order to get Frankapy to work on python3.
+```
+pip3 install rospkg
 ```
 
 ## Running on the Franka Robot
