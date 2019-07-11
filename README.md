@@ -34,7 +34,8 @@ bash ./bash_scripts/make_iam_robolib.sh
 Once it has finished building, you should see an application named `main_iam_robolib` in the build folder.
 
 4. Build ROS Node franka_action_lib
-Make sure that you have installed ROS Kinetic already and have added the `source /opt/ros/kinetic/setup.bash` into your `~/.bashrc` file.
+
+   Make sure that you have installed ROS Kinetic already and have added the `source /opt/ros/kinetic/setup.bash` into your `~/.bashrc` file.
 
 ```bash
 cd catkin_ws
@@ -49,9 +50,10 @@ pip3 install -e . --user
 ```
 
 6. Errors
-You may need to run the following command in order to get Frankapy to work on python3.
+
+   You may need to run the following command in order to get Frankapy to work on python3.
 ```
-pip3 install rospkg
+pip3 install rospkg --user
 ```
 
 ## Running on the Franka Robot
