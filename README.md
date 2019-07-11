@@ -17,44 +17,44 @@ This is a software package used for controlling and learning skills on the Frank
 
 1. Clone Repo and its Submodules:
 
-```bash
-git clone --recurse-submodules https://github.com/iamlab-cmu/robot-interface.git
-```
+   ```bash
+   git clone --recurse-submodules https://github.com/iamlab-cmu/robot-interface.git
+   ```
 All directories below are given relative to `/robot-interface`.
 
 2. Build LibFranka
-```bash
-bash ./bash_scripts/make_libfranka.sh
-```
+   ```bash
+   bash ./bash_scripts/make_libfranka.sh
+   ```
 
 3. Build iam_robolib
-```bash
-bash ./bash_scripts/make_iam_robolib.sh
-```
-Once it has finished building, you should see an application named `main_iam_robolib` in the build folder.
+   ```bash
+   bash ./bash_scripts/make_iam_robolib.sh
+   ```
+   Once it has finished building, you should see an application named `main_iam_robolib` in the build folder.
 
 4. Build ROS Node franka_action_lib
 
    Make sure that you have installed ROS Kinetic already and have added the `source /opt/ros/kinetic/setup.bash` into your `~/.bashrc` file.
 
-```bash
-cd catkin_ws
-catkin_make
-```
+   ```bash
+   cd catkin_ws
+   catkin_make
+   ```
 Once catkin_make has finished there should be a build and devel folder in the catkin_ws folder.
 
 5. Install FrankaPy
-```bash
-cd catkin_ws/src/franka_action_lib
-pip3 install -e . --user
-```
+   ```bash
+   cd catkin_ws/src/franka_action_lib
+   pip3 install -e . --user
+   ```
 
 6. Errors
 
    You may need to run the following command in order to get Frankapy to work on python3.
-```
-pip3 install rospkg --user
-```
+   ```
+   pip3 install rospkg --user
+   ```
 
 ## Running on the Franka Robot
 
