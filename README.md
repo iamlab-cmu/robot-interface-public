@@ -70,11 +70,11 @@ Once catkin_make has finished there should be a build and devel folder in the ca
       ```bash
       vim ~/.ssh/authorized_keys
       ```
-   3. In a separate terminal on your Workhorse PC, use your favorite text editor to open your rsa.pub file.
+   3. In a separate terminal on your Workhorse PC, use your favorite text editor to open your id_rsa.pub file.
       ```bash
       vim ~/.ssh/id_rsa.pub
       ```
-   4. Copy the contents from your rsa.pub file to a new line on the authorized_keys file on the Control PC. Then save. 
+   4. Copy the contents from your id_rsa.pub file to a new line on the authorized_keys file on the Control PC. Then save. 
    5. Open a new terminal and try sshing to the control PC and it should no longer require a password. 
 3. (Optional) Upload your ssh key to github by following instructions here: https://help.github.com/en/articles/adding-a-new-ssh-key-to-your-github-account
 
@@ -103,7 +103,10 @@ Once catkin_make has finished there should be a build and devel folder in the ca
    ```bash
    source catkin_ws/devel/setup.sh
    cd catkin_ws/src/franka_action_lib/scripts
-   python3 reset_arm.py
+   ```
+4. Place your hand on top of the e-stop. Reset the robot pose with the following command.
+   ```bash
+   python3 reset_arm.py -u
    ```
    
 See `catkin_ws/src/franka_action_lib/scripts/reset_arm.py` for an example of how to use the `FrankaPy` python package.
