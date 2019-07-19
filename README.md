@@ -47,35 +47,63 @@ Once catkin_make has finished there should be a build and devel folder in the ca
    ```bash
    cd catkin_ws/src/franka_action_lib
    pip3 install -e . --user
-   ```
-
-6. Errors
-
-   You may need to run the following command in order to get Frankapy to work on python3.
-   ```
    pip3 install rospkg --user
    ```
 
-## Running on the Franka Robot
+## Setting Up SSH Key to Control PC
+1. Generate an ssh key by executing the following commands or reading the instructions here: https://help.github.com/en/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
+   ```bash
+   ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+   [Press enter]
+   [Press enter]
+   [Press enter]
+   eval "$(ssh-agent -s)"
+   ssh-add ~/.ssh/id_rsa
+   ```
+2. Upload your public ssh key to the control pc.
+   1. In a new terminal, ssh to the control PC.
+      ```bash
+      ssh iam-lab@iam-[control-pc-name]
+      Input password to control-pc.
+      ```
+   2. Use your favorite text editor to open the authorized_keys file.
+      ```bash
+      vim ~/.ssh/authorized_keys
+      ```
+   3. In a separate terminal on your Workhorse PC, use your favorite text editor to open your rsa.pub file.
+      ```bash
+      vim ~/.ssh/id_rsa.pub
+      ```
+   4. Copy the contents from your rsa.pub file to a new line on the authorized_keys file on the Control PC. Then save. 
+   5. Open a new terminal and try sshing to the control PC and it should no longer require a password. 
+3. (Optional) Upload your ssh key to github by following instructions here: https://help.github.com/en/articles/adding-a-new-ssh-key-to-your-github-account
+
+## Unlocking the Franka Robot
+1. In a new terminal, ssh to the control PC with option -X.
+   ```bash
+   ssh -X iam-lab@iam-[control-pc-name]
+   ```
+2. Open a web browser, either firefox or google chrome.
+   ```bash
+   firefox
+   ```
+3. Go to 172.16.0.2 in the web browser.
+4. (Optional) Input the username admin and the password to login to the Franka Desk GUI.
+5. Unlock the robot by clicking the unlock button on the bottom right of the web interface.
+6. If the robot has pink lights, press down on the e-stop and then release it and the robot should turn blue. If the robot is white, just release the e-stop and it should also turn blue.
+
+## Running the Franka Robot
 
 1. Make sure that both the user stop and the brakes of the Franka robot have been unlocked in the Franka Desk GUI.
-2. Open up 3 separate terminals.
-
-Terminal 1:
-```bash
-bash ./bash_scripts/run_iam_robolib.sh
-```
-
-Terminal 2:
-```bash
-source catkin_ws/devel/setup.sh
-roslaunch franka_action_lib franka_ros_interface.launch
-```
-
-Terminal 3:
-```bash
-source catkin_ws/devel/setup.sh
-```
-Now in terminal 3 you can run any of the scripts in `catkin_ws/src/examples` and `catkin_ws/src/scripts`.
-
+2. Open up a new terminal and go to the robot-interface directory.
+   ```bash
+   bash ./bash_scripts/start_control_pc.sh -i iam-[control-pc-name]
+   ```
+3. Open up a new terminal and go to the robot-interface directory.
+   ```bash
+   source catkin_ws/devel/setup.sh
+   cd catkin_ws/src/franka_action_lib/scripts
+   python3 reset_arm.py
+   ```
+   
 See `catkin_ws/src/franka_action_lib/scripts/reset_arm.py` for an example of how to use the `FrankaPy` python package.
