@@ -22,7 +22,7 @@ class GoalPoseDmpTrajectoryGenerator : public PoseTrajectoryGenerator {
   // min_z was found by attaching the knife to the robot arm and 
   // placing it on the cutting board. Then I used the print_joint_poses
   // in libfranka/examples to see the actual min z
-  double min_z = 0.0308;
+  double min_z = 0.02653;
   double eps = -0.01;
 
  private:
