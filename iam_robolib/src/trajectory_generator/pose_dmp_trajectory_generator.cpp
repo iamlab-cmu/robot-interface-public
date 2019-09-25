@@ -12,49 +12,51 @@ void PoseDmpTrajectoryGenerator::parse_parameters() {
 
   int params_idx = 1;
   int num_params = static_cast<int>(params_[params_idx++]);
+    
+  run_time_ = static_cast<double>(params_[params_idx++]);
+  tau_ = static_cast<double>(params_[params_idx++]);
+  alpha_  = static_cast<double>(params_[params_idx++]);
+  beta_ = static_cast<double>(params_[params_idx++]);
+  num_basis_ = static_cast<int>(params_[params_idx++]);
+  num_sensor_values_ = static_cast<int>(params_[params_idx++]);
 
-  switch(num_params) {
-    case 57:
-      // Run time(1) + Tau (1) + alpha(1) + beta(1) + num_basis = 6 (1) + 
-      // num_sensor_values = 2 (1) + basis_mean (6) + basis_std(6) + 
-      // initial_y0(3) + weights (3 axes * 6 basis functions * 2 sensor inputs)
-      {
-        run_time_ = static_cast<double>(params_[params_idx++]);
-        tau_ = static_cast<double>(params_[params_idx++]);
-        alpha_  = static_cast<double>(params_[params_idx++]);
-        beta_ = static_cast<double>(params_[params_idx++]);
-        num_basis_ = static_cast<int>(params_[params_idx++]);
-        num_sensor_values_ = static_cast<int>(params_[params_idx++]);
 
-        // Get the mean and std for the basis functions
-        for (int i = 0; i < num_basis_; i++) {
-          basis_mean_[i] = static_cast<double>(params_[params_idx++]);
-        }
+  // Run time(1) + Tau (1) + alpha(1) + beta(1) + num_basis = 5 (1) + 
+  // num_sensor_values = 2 (1) + basis_mean (6) + basis_std(6) + 
+  // initial_y0(3) + weights (3 axes * 6 basis functions * 2 sensor inputs)
 
-        for (int i = 0; i < num_basis_; i++) {
-          basis_std_[i] = static_cast<double>(params_[params_idx++]);
-        }
+  std::cout << num_basis_ << std::endl;
 
-        for (size_t i = 0; i < y0_.size(); i++) {
-          y0_[i] = static_cast<double>(params_[params_idx++]);
-        }
+  int actual_required_num_params = 6 + (2 * num_basis_) + num_dims_ + (num_dims_ * num_basis_ * num_sensor_values_);
 
-        for (int i = 0; i < num_dims_; i++) {
-          for (int j = 0; j < num_sensor_values_; j++) {
-            for (int k = 0; k < num_basis_; k++) {
-              weights_[i][j][k] = static_cast<double>(params_[params_idx++]);
-            }
-          }
-        }
+  if(actual_required_num_params == num_params) {
+    // Get the mean and std for the basis functions
+    for (int i = 0; i < num_basis_; i++) {
+      basis_mean_[i] = static_cast<double>(params_[params_idx++]);
+    }
 
-        // TODO(Mohit): We need to start using sensor values in our trajectory generator and feedback controller.
-        for (int i = 0; i < num_sensor_values_; i++) {
-          initial_sensor_values_[i] = 1.0;
+    for (int i = 0; i < num_basis_; i++) {
+      basis_std_[i] = static_cast<double>(params_[params_idx++]);
+    }
+
+    for (size_t i = 0; i < y0_.size(); i++) {
+      y0_[i] = static_cast<double>(params_[params_idx++]);
+    }
+
+    for (int i = 0; i < num_dims_; i++) {
+      for (int j = 0; j < num_sensor_values_; j++) {
+        for (int k = 0; k < num_basis_; k++) {
+          weights_[i][j][k] = static_cast<double>(params_[params_idx++]);
         }
       }
-      break;
-    default:
-      std::cout << "PoseDmpTrajectoryGenerator: Invalid number of parameters: " << num_params << std::endl;
+    }
+
+    // TODO(Mohit): We need to start using sensor values in our trajectory generator and feedback controller.
+    for (int i = 0; i < num_sensor_values_; i++) {
+      initial_sensor_values_[i] = 1.0;
+    }
+  } else {
+    std::cout << "PoseDmpTrajectoryGenerator: Invalid number of parameters: " << num_params << std::endl;
   }
 }
 
@@ -145,8 +147,8 @@ void PoseDmpTrajectoryGenerator::get_next_step() {
 }
 
 void PoseDmpTrajectoryGenerator::getInitialMeanAndStd() {
-  std::array<double, 10> basis_mean{};
-  std::array<double, 10> basis_std{};
+  std::array<double, 20> basis_mean{};
+  std::array<double, 20> basis_std{};
   for (int i = 0; i < num_basis_; i++)  {
     basis_mean[i] = exp(-(i)*0.5/(num_basis_-1));
   }

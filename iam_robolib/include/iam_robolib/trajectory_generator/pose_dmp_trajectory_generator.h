@@ -25,13 +25,13 @@ class PoseDmpTrajectoryGenerator : public PoseTrajectoryGenerator {
   double beta_=5.0/4.0;
   double tau_=0.0;
   double x_=1.0;
-  int num_basis_=6;
+  int num_basis_=20;
   int num_dims_=3;
-  int num_sensor_values_=2;
-  std::array<double, 6> basis_mean_{};
-  std::array<double, 6> basis_std_{};
-  std::array<std::array<std::array<double, 6>, 2>, 3> weights_{};
-  std::array<double, 2> initial_sensor_values_{{1.0, 1.0}};
+  int num_sensor_values_=10;
+  std::array<double, 20> basis_mean_{};
+  std::array<double, 20> basis_std_{};
+  std::array<std::array<std::array<double, 20>, 10>, 3> weights_{};
+  std::array<double, 10> initial_sensor_values_{{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}};
   std::array<double, 3> y0_={};
 
   void getInitialMeanAndStd();
