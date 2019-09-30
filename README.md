@@ -43,11 +43,11 @@ All directories below are given relative to `/robot-interface`.
    ```
 Once catkin_make has finished there should be a build and devel folder in the catkin_ws folder.
 
-5. Install FrankaPy
+5. Install FrankaPy. First source into your virtualenv or conda env (should be Python 3.6). Then:
    ```bash
    cd catkin_ws/src/franka_action_lib
-   pip3 install -e . --user
-   pip3 install rospkg --user
+   pip install -e .
+   pip install rospkg
    ```
 
 ## Setting Up SSH Key to Control PC
@@ -101,12 +101,12 @@ Once catkin_make has finished there should be a build and devel folder in the ca
    ```
 3. Open up a new terminal and go to the robot-interface directory.
    ```bash
-   source catkin_ws/devel/setup.sh
+   source catkin_ws/devel/setup.bash
    cd catkin_ws/src/franka_action_lib/scripts
    ```
-4. Place your hand on top of the e-stop. Reset the robot pose with the following command.
+4. Be in the same virtualenv or Conda env that FrankaPy was installed in. Place your hand on top of the e-stop. Reset the robot pose with the following command.
    ```bash
-   python3 reset_arm.py -u
+   python reset_arm.py
    ```
    
 See `catkin_ws/src/franka_action_lib/scripts/reset_arm.py` for an example of how to use the `FrankaPy` python package.
