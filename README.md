@@ -110,3 +110,13 @@ Once catkin_make has finished there should be a build and devel folder in the ca
    ```
    
 See `catkin_ws/src/franka_action_lib/scripts/reset_arm.py` for an example of how to use the `FrankaPy` python package.
+
+
+
+## Issues
+
+#### LibPoco issue
+
+libFranka requires libPoco, which can be installed using `sudo apt-get install libpoco-doc libpoco-dev`. However, trying to build libFranka might still fail since `CMAKE` cannot run ` find_package(Poco)` since there doesn't exist `/usr/local/lib/cmake/Poco/PocoConfig.cmake`. To fix this we have copied the `libPoco.cmake` file in `{robot-interface-dir}/cmake`, and we add the following line to the CMakeLists.txt
+
+`list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake`
