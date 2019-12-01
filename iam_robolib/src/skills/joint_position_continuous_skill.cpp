@@ -79,7 +79,7 @@ void JointPositionContinuousSkill::execute_skill_on_franka(run_loop *run_loop,
     }
     
     current_skill_time += current_period_;
-    traj_generator->time_ = time;
+    traj_generator->time_ = current_skill_time;
     traj_generator->dt_ = current_period_;
     if(time > 0.0) {
       traj_generator->get_next_step();
