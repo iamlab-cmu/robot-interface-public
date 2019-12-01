@@ -165,6 +165,9 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
       const franka::RobotState& robot_state,
       franka::Duration period) -> franka::CartesianPose {
 
+    current_period_ = period.toSec();
+    time += current_period_;
+
     if (time == 0.0) {
       pose_trajectory_generator->initialize_trajectory(robot_state, SkillType::CartesianPoseSkill);
       try {
@@ -180,9 +183,6 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
       }
     }
 
-    current_period_ = period.toSec();
-
-    time += current_period_;
     traj_generator_->time_ = time;
     traj_generator_->dt_ = current_period_;
     if (time > 0.0) {
