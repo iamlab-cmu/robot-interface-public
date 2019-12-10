@@ -39,6 +39,7 @@ class TerminationHandler {
    * Should we terminate the current skill.
    */
   virtual bool should_terminate_on_franka(const franka::RobotState &robot_state, 
+                                          franka::Model* robot_model,
                                           TrajectoryGenerator *traj_generator) = 0;
 
   /**
@@ -52,6 +53,8 @@ class TerminationHandler {
    * Sets done_ to true if preempt flag is true.
    */
   void check_terminate_preempt();
+
+  void check_terminate_virtual_wall_collisions(const franka::RobotState &robot_state, franka::Model *robot_model);
 
   bool done_ = false;
  protected:

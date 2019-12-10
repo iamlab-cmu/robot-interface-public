@@ -101,6 +101,7 @@ class BaseSkill {
   TrajectoryGenerator* traj_generator_= nullptr;
   FeedbackController* feedback_controller_= nullptr;
   TerminationHandler* termination_handler_= nullptr;
+  franka::Model* model_= nullptr;
 };
 
 #endif  // IAM_ROBOLIB_SKILLS_BASE_SKILL_H_

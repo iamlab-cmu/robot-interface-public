@@ -121,8 +121,10 @@ bool FinalPoseTerminationHandler::should_terminate(TrajectoryGenerator *trajecto
 
 
 bool FinalPoseTerminationHandler::should_terminate_on_franka(const franka::RobotState &robot_state, 
+                                                            franka::Model *model,
                                                              TrajectoryGenerator *trajectory_generator) {
   check_terminate_preempt();
+  check_terminate_virtual_wall_collisions(robot_state, model);
 
   if(!done_){
     PoseTrajectoryGenerator *pose_trajectory_generator =

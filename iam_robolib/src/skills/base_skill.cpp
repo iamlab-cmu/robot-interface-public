@@ -53,6 +53,7 @@ void BaseSkill::start_skill(Robot* robot,
     case RobotType::FRANKA:
       termination_handler_->initialize_handler_on_franka(dynamic_cast<FrankaRobot *>(robot));
       feedback_controller_->initialize_controller(dynamic_cast<FrankaRobot *>(robot));
+      model_ = dynamic_cast<FrankaRobot *>(robot)->getModel();
       break;
     case RobotType::UR5E:
       break;
