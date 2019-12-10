@@ -1,0 +1,38 @@
+#ifndef FRANKA_ACTION_LIB_SENSOR_SUBSCRIBER_HANDLER_H
+#define FRANKA_ACTION_LIB_SENSOR_SUBSCRIBER_HANDLER_H
+
+#include <iostream>
+#include <thread>
+#include <array>
+#include <chrono>
+#include <vector>
+#include <ros/ros.h>
+#include <std_msgs/String.h>
+
+#include "franka_action_lib/RobolibStatus.h"
+#include "franka_action_lib/shared_memory_handler.h"
+
+namespace franka_action_lib  
+{ 
+  class SensorSubscriberHandler
+  {
+    protected:
+
+      ros::NodeHandle nh_;
+
+      double write_frequency_;
+      SharedMemoryHandler *shared_memory_handler_;
+
+    public:
+
+      SensorSubscriberHandler(ros::NodeHandle& nh_);
+
+      ~SensorSubscriberHandler(){};
+      
+      void dummyTimeCallback(const std_msgs::String::ConstPtr& msg);
+
+
+  };
+}
+
+#endif // 

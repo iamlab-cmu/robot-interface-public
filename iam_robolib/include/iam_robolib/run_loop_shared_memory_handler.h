@@ -90,6 +90,8 @@ class RunLoopSharedMemoryHandler {
   SharedBufferTypePtr feedback_controller_buffer_0_=0;
   SharedBufferTypePtr termination_buffer_0_=0;
   SharedBufferTypePtr timer_buffer_0_=0;
+  SharedBufferTypePtr sensor_data_buffer_0_=0;
+
 
   SharedBufferTypePtr traj_gen_buffer_1_=0;
   SharedBufferTypePtr feedback_controller_buffer_1_=0;
@@ -100,26 +102,6 @@ class RunLoopSharedMemoryHandler {
   boost::interprocess::shared_memory_object shared_sensor_data_1_{};
   boost::interprocess::interprocess_mutex *shared_sensor_data_mutex_0_= nullptr;
   boost::interprocess::interprocess_mutex *shared_sensor_data_mutex_1_= nullptr;
-
-  boost::interprocess::mapped_region region_traj_sensor_data_0_{};
-  boost::interprocess::mapped_region region_feedback_controller_sensor_data_0_{};
-  boost::interprocess::mapped_region region_termination_sensor_data_0_{};
-  boost::interprocess::mapped_region region_timer_sensor_data_0_{};
-
-  boost::interprocess::mapped_region region_traj_sensor_data_1_{};
-  boost::interprocess::mapped_region region_feedback_controller_sensor_data_1_{};
-  boost::interprocess::mapped_region region_termination_sensor_data_1_{};
-  boost::interprocess::mapped_region region_timer_sensor_data_1_{};
-
-  SharedBufferTypePtr traj_gen_sensor_buffer_0_=0;
-  SharedBufferTypePtr feedback_controller_sensor_buffer_0_=0;
-  SharedBufferTypePtr termination_sensor_buffer_0_=0;
-  SharedBufferTypePtr timer_sensor_buffer_0_=0;
-
-  SharedBufferTypePtr traj_gen_sensor_buffer_1_=0;
-  SharedBufferTypePtr feedback_controller_sensor_buffer_1_=0;
-  SharedBufferTypePtr termination_sensor_buffer_1_=0;
-  SharedBufferTypePtr timer_sensor_buffer_1_=0;
 
   boost::interprocess::shared_memory_object shared_execution_result_0_{};
   boost::interprocess::shared_memory_object shared_execution_result_1_{};

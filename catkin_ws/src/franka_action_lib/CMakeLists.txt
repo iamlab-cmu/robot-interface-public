@@ -155,11 +155,27 @@ add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 # add_executable(${PROJECT_NAME}_node src/franka_action_lib_node.cpp)
 add_executable(example_execute_skill_action_client_node src/example_execute_skill_action_client.cpp)
 add_executable(execute_skill_action_server_node src/execute_skill_action_server.cpp src/execute_skill_action_server_node.cpp)
-add_executable(robot_state_publisher_node src/robot_state_publisher.cpp src/robot_state_publisher_node.cpp)
+
+add_executable(robot_state_publisher_node 
+  src/robot_state_publisher.cpp 
+  src/robot_state_publisher_node.cpp
+)
+ 
 add_executable(robolib_status_publisher_node src/robolib_status_publisher.cpp src/robolib_status_publisher_node.cpp)
 add_executable(run_loop_process_info_state_publisher_node src/run_loop_process_info_state_publisher.cpp src/run_loop_process_info_state_publisher_node.cpp)
 add_executable(get_current_robot_state_server_node src/get_current_robot_state_server.cpp src/get_current_robot_state_server_node.cpp)
 add_executable(get_current_robolib_status_server_node src/get_current_robolib_status_server.cpp src/get_current_robolib_status_server_node.cpp)
+
+# Sensor data 
+add_executable(sensor_data_publisher_node 
+  src/sensor_data/sensor_publisher.cpp
+)
+
+add_executable(sensor_data_subscriber_node 
+  src/sensor_data/sensor_subscriber.cpp
+  src/sensor_data/sensor_subscriber_handler.cpp
+)
+
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -233,6 +249,24 @@ target_link_libraries(
   ${Boost_LIBRARIES}
   ${catkin_LIBRARIES}
   rt
+  ${PROJECT_NAME}
+)
+target_link_libraries(
+  sensor_data_publisher_node
+  Threads::Threads
+  ${Boost_LIBRARIES}
+  ${catkin_LIBRARIES}
+  rt
+  iam_robolib_common
+  ${PROJECT_NAME}
+)
+target_link_libraries(
+  sensor_data_subscriber_node
+  Threads::Threads
+  ${Boost_LIBRARIES}
+  ${catkin_LIBRARIES}
+  rt
+  iam_robolib_common
   ${PROJECT_NAME}
 )
 
