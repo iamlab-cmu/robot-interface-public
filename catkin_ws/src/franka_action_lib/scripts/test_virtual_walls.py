@@ -7,7 +7,8 @@ if __name__ == '__main__':
     fa.reset_joints()
 
     pose = fa.get_pose()
-    pose.translation[0] = 0.5
+    pose.translation[0] = 0.75
 
+    # This should trigger an error
     fa.goto_pose(pose)
     

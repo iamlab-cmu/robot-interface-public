@@ -28,6 +28,7 @@ Compiled source #
 *.log
 *.sql
 *.sqlite
+*.txt
 
 # OS generated files #
 ######################

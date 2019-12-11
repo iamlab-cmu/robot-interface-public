@@ -1,6 +1,9 @@
 #ifndef IAM_ROBOLIB_TERMINATION_HANDLER_TERMINATION_HANDLER_H_
 #define IAM_ROBOLIB_TERMINATION_HANDLER_TERMINATION_HANDLER_H_
 
+#include <vector>
+#include <array>
+#include <Eigen/Dense>
 #include <franka/robot_state.h>
 
 #include <iam_robolib_common/definitions.h>
@@ -60,6 +63,25 @@ class TerminationHandler {
  protected:
   SharedBufferTypePtr params_ = 0;
   RunLoopProcessInfo *run_loop_info_ = nullptr;
+
+  // Create hyperplanes
+  std::vector<Eigen::Hyperplane<double,3>> planes_ = {
+    // Front
+    Eigen::Hyperplane<double,3>(Eigen::Vector3d(1., 0., 0.), Eigen::Vector3d(0.75, 0., 0.)),
+    // Sides 
+    Eigen::Hyperplane<double,3>(Eigen::Vector3d(0., 1., 0.), Eigen::Vector3d(0., 0.47, 0.)),
+    Eigen::Hyperplane<double,3>(Eigen::Vector3d(0., 1., 0.), Eigen::Vector3d(0., -0.47, 0.)),
+    // Bottom
+    Eigen::Hyperplane<double,3>(Eigen::Vector3d(0., 0., 1.), Eigen::Vector3d(0., 0., -0.015)),
+    // Top
+    Eigen::Hyperplane<double,3>(Eigen::Vector3d(0., 0., 1.), Eigen::Vector3d(0., 0., 1.25)),
+    // Back
+    Eigen::Hyperplane<double,3>(Eigen::Vector3d(1., 0., 0.), Eigen::Vector3d(-0.46, 0., 0.))
+  };
+
+  // Create dist thresholds
+  std::array<double, 7> dist_thresholds_ = std::array<double, 7>{0.11, 0.11, 0.08, 0.08, 0.07, 0.07, 0.1};
+
 };
 
 #endif  // IAM_ROBOLIB_TERMINATION_HANDLER_TERMINATION_HANDLER_H_
