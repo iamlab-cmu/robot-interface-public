@@ -71,6 +71,10 @@ void run_loop::start() {
   // Start processing, might want to do some pre-processing 
   std::cout << "start run loop.\n";
   shared_memory_handler_->start();
+
+  sensor_data_wrapper_ = new SensorDataManager(
+      shared_memory_handler_->getSensorDataBuffer(0),
+      shared_memory_handler_->getSensorDataBufferMutex());
 }
 
 void run_loop::start_ur5e() {

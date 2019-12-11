@@ -18,16 +18,13 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
 find_package(Boost COMPONENTS REQUIRED filesystem system thread)
+find_package(Protobuf REQUIRED)
 
-include_directories(${Boost_INCLUDE_DIRS})
+add_subdirectory(proto)
+
+include_directories( ${Boost_INCLUDE_DIRS} )
 
 # find_library(iam_robolib_common PATHS ../)
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../iam_robolib_common")
-
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../libfranka")
-
-include_directories(include)
-
 ## Library
 
 add_library(iam_robolib SHARED
@@ -92,18 +89,28 @@ add_library(iam_robolib SHARED
   src/termination_handler_factory.cpp
   src/trajectory_generator_factory.cpp
   src/utils/logger_utils.cpp
-  src/base_sensor_data_wrapper.cpp)
+  src/sensor_data_manager.cpp
+)
+
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../iam_robolib_common")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../libfranka")
+include_directories("${CMAKE_CURRENT_BINARY_DIR}")
+include_directories(${PROTOBUF_INCLUDE_DIR})
+include_directories(include)
+
 
 # Add namespace
 # add_library(IAM_RoboLib::IAM_RoboLib ALIAS iam_robolib)
 
-target_link_libraries(iam_robolib PRIVATE
+target_link_libraries(iam_robolib PUBLIC
   Eigen3::Eigen3
   Threads::Threads
-  ${Boost_LIBRARIES}
   rt
+  proto
   iam_robolib_common
   Franka::Franka
+  ${Boost_LIBRARIES}
+  ${Protobuf_LIBRARIES}
 )
 
 
@@ -115,6 +122,7 @@ target_include_directories(iam_robolib PUBLIC
 set_target_properties(iam_robolib PROPERTIES PUBLIC_HEADER include/run_loop.h)
 
 target_include_directories(iam_robolib PRIVATE src)
+# target_include_directories(iam_robolib PUBLIC proto)
 target_include_directories(iam_robolib PRIVATE include)
 
 ## Installation
@@ -125,5 +133,5 @@ install(TARGETS iam_robolib
   PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   # RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
-
 install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+

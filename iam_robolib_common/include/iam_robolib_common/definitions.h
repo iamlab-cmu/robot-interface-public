@@ -81,4 +81,11 @@ enum class SkillStatus : uint8_t {
   VIRT_COLL_ERR = 3
 }; 
 
+
+enum class SensorDataManagerReadStatus : uint8_t {
+  FAIL_TO_GET_LOCK = 0,
+  FAIL_TO_READ = 1,
+  SUCCESS = 2,
+};
+
 #endif  // IAM_ROBOLIB_COMMON_DEFINITIONS_H_
