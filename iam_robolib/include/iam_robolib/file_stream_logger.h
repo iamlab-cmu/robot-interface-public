@@ -70,6 +70,7 @@ class FileStreamLogger {
                  std::vector<std::array<double, 6>>& O_ddP_EE_c_vector,
                  std::vector<std::array<double, 7>>& theta_vector,
                  std::vector<std::array<double, 7>>& dtheta_vector,
+                 std::vector<std::array<double, 144>>& frames_vector,
                  std::vector<std::array<bool, 37>>& current_errors_vector,
                  std::vector<std::array<bool, 37>>& last_motion_errors_vector,
                  std::vector<double>& control_command_success_rate_vector,

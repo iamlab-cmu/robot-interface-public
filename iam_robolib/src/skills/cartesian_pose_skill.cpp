@@ -93,7 +93,7 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
 
     log_counter += 1;
     if (log_counter % 1 == 0) {
-      robot_state_data->log_robot_state(desired_pose, robot_state, time);
+      robot_state_data->log_robot_state(desired_pose, robot_state, robot->getModel(), time);
     } 
 
     if((time > 0.0 && done) || skill_termination_handler_end_time > 0.0) {

@@ -364,7 +364,7 @@ void run_loop::setup_save_robot_state_thread() {
                   // Make sure update_current_gripper_state is before log_robot_state because log_robot_state will
                   // push_back gripper_state info from the current gripper_state
                   robot_state_data_->update_current_gripper_state(gripper_state);
-                  robot_state_data_->log_robot_state(robot_state.O_T_EE_d, robot_state, duration / 1000.0);
+                  robot_state_data_->log_robot_state(robot_state.O_T_EE_d, robot_state, franka_robot->getModel(), duration / 1000.0);
                 } catch (const franka::Exception& ex) {
                   robot_access_mutex_.unlock();
                   std::cerr << "Robot state save thread encountered Franka exception. Will not log for now.\n";

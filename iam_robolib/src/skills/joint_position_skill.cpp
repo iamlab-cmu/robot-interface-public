@@ -70,7 +70,7 @@ void JointPositionSkill::execute_skill_on_franka(run_loop* run_loop,
     log_counter += 1;
     if (log_counter % 1 == 0) {
       pose_desired = robot_state.O_T_EE_d;
-      robot_state_data->log_robot_state(pose_desired, robot_state, time);
+      robot_state_data->log_robot_state(pose_desired, robot_state, robot->getModel(), time);
     }
     
     if (done && time > 0.0) {
