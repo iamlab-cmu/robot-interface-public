@@ -1,0 +1,25 @@
+rs:
+  id: 0
+  frame: realsense
+  filter_depth: True
+
+april_tag:
+  detector:
+    families: tag36h11
+    border: 1
+    nthreads: 4
+    quad_decimate: 1.0
+    quad_blur: 0.0
+    refine_edges: True
+    refine_decode: False
+    refine_pose: False
+    debug: False
+    quad_contours: True
+  tag_size: 0.0254   
+  path_to_april_tag: /home/jacky/ws/apriltag
+
+camera_ee_tra: [-0.03472, -0.04649, -0.08327]
+
+cube_size: 0.04
+
+vis_detect: False
