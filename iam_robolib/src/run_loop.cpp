@@ -124,12 +124,12 @@ void run_loop::start_new_skill(BaseSkill* new_skill) {
   SharedBufferTypePtr termination_handler_buffer = shared_memory_handler_->getTerminationParametersBuffer(
       memory_index);
   TerminationHandler* termination_handler =
-      termination_handler_factory_.getTerminationHandlerForSkill(termination_handler_buffer, run_loop_info);
+      termination_handler_factory_.getTerminationHandlerForSkill(termination_handler_buffer, run_loop_info); //add one for sensor_data
   std::cout << "Did get TerminationHandler\n";
 
   // Start skill, does any pre-processing if required.
   
-  new_skill->start_skill(robot_, traj_generator, feedback_controller, termination_handler);
+  new_skill->start_skill(robot_, traj_generator, feedback_controller, termination_handler); //pass in sensor_data
 }
 
 void run_loop::finish_current_skill(BaseSkill* skill) {
@@ -337,6 +337,7 @@ void run_loop::run() {
       start_new_skill(new_skill);
     }
 
+
     // Sleep to maintain 1Khz frequency, not sure if this is required or not.
     auto finish = std::chrono::high_resolution_clock::now();
     // Wait for start + milli - finish
@@ -522,6 +523,7 @@ void run_loop::run_on_franka() {
       run_loop_ok_ = true;
       set_robolib_status(true, "");
 
+
       while (true) {
         start = std::chrono::high_resolution_clock::now();
 
@@ -557,6 +559,12 @@ void run_loop::run_on_franka() {
           start_new_skill(new_skill);
           robot_access_mutex_.unlock();
         }
+
+
+        SharedBufferTypePtr buffer_sensor = shared_memory_handler_->getSensorDataBuffer(0);
+        SharedBufferType buf =  static_cast<SharedBufferType>(buffer_sensor[0]);
+        std::cout << "sensor data:" <<  std::setprecision(10) << buf << std::endl;
+        std::cout << "hi" << std::endl;
 
         // Sleep to maintain 1Khz frequency, not sure if this is required or not.
         auto finish = std::chrono::high_resolution_clock::now();

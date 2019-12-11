@@ -92,7 +92,7 @@ add_library(iam_robolib SHARED
   src/termination_handler_factory.cpp
   src/trajectory_generator_factory.cpp
   src/utils/logger_utils.cpp
-)
+  src/base_sensor_data_wrapper.cpp)
 
 # Add namespace
 # add_library(IAM_RoboLib::IAM_RoboLib ALIAS iam_robolib)

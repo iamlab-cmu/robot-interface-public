@@ -7,7 +7,8 @@
 #include <chrono>
 #include <vector>
 #include <ros/ros.h>
-#include <std_msgs/String.h>
+//#include <std_msgs/String.h>
+#include <std_msgs/Float64.h>
 
 #include "franka_action_lib/RobolibStatus.h"
 #include "franka_action_lib/shared_memory_handler.h"
@@ -21,15 +22,14 @@ namespace franka_action_lib
       ros::NodeHandle nh_;
 
       double write_frequency_;
-      SharedMemoryHandler *shared_memory_handler_;
+      SharedMemoryHandler shared_memory_handler_;
 
     public:
 
-      SensorSubscriberHandler(ros::NodeHandle& nh_);
-
+      SensorSubscriberHandler(ros::NodeHandle& nh);
       ~SensorSubscriberHandler(){};
       
-      void dummyTimeCallback(const std_msgs::String::ConstPtr& msg);
+      void dummyTimeCallback(const std_msgs::Float64::ConstPtr& msg);
 
 
   };

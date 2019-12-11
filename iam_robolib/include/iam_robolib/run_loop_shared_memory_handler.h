@@ -43,6 +43,8 @@ class RunLoopSharedMemoryHandler {
 
   boost::interprocess::interprocess_mutex* getIAMRobolibStateInfoMutex();
 
+  boost::interprocess::interprocess_mutex* getSensorDataBufferMutex();
+
   SharedBufferTypePtr getTrajectoryGeneratorBuffer(int memory_region);
 
   SharedBufferTypePtr getFeedbackControllerBuffer(int memory_region);
@@ -54,6 +56,9 @@ class RunLoopSharedMemoryHandler {
   SharedBufferTypePtr getFeedbackResultBuffer(int memory_region);
 
   SharedBufferTypePtr getCurrentRobotStateBuffer();
+
+  SharedBufferTypePtr getSensorDataBuffer(int memory_region);
+
 
   void clearAllBuffers();
 
@@ -100,8 +105,8 @@ class RunLoopSharedMemoryHandler {
 
   boost::interprocess::shared_memory_object shared_sensor_data_0_{};
   boost::interprocess::shared_memory_object shared_sensor_data_1_{};
-  boost::interprocess::interprocess_mutex *shared_sensor_data_mutex_0_= nullptr;
-  boost::interprocess::interprocess_mutex *shared_sensor_data_mutex_1_= nullptr;
+  boost::interprocess::interprocess_mutex *sensor_data_mutex_0_= nullptr;
+
 
   boost::interprocess::shared_memory_object shared_execution_result_0_{};
   boost::interprocess::shared_memory_object shared_execution_result_1_{};
@@ -112,6 +117,9 @@ class RunLoopSharedMemoryHandler {
   boost::interprocess::mapped_region region_execution_result_buffer_0_{};
   boost::interprocess::mapped_region region_execution_feedback_buffer_1_{};
   boost::interprocess::mapped_region region_execution_result_buffer_1_{};
+
+  boost::interprocess::mapped_region region_sensor_data_0_{};
+  boost::interprocess::mapped_region region_shared_sensor_data_0_{};
 
   SharedBufferTypePtr execution_feedback_buffer_0_=0;
   SharedBufferTypePtr execution_result_buffer_0_=0;

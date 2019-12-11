@@ -7,6 +7,7 @@
 #include <franka_action_lib/RunLoopProcessInfoState.h>
 
 #include "ros/ros.h" // For ROS::ERROR messages
+#include <std_msgs/Float64.h>
 
 #include <array>
 #include <vector>
@@ -33,6 +34,7 @@ namespace franka_action_lib
       ~SharedMemoryHandler(void){}
 
       int loadSkillParametersIntoSharedMemory(const franka_action_lib::ExecuteSkillGoalConstPtr &goal);
+      void loadSensorData_dummy_Unprotected(const std_msgs::Float64::ConstPtr &ptr, int current_free_shared_memory_index);
 
       // void startSensorSubscribers(const franka_action_lib::ExecuteSkillGoalConstPtr &goal);
 
@@ -105,6 +107,7 @@ namespace franka_action_lib
       boost::interprocess::mapped_region region_feedback_controller_sensor_data_0_;
       boost::interprocess::mapped_region region_termination_sensor_data_0_;
       boost::interprocess::mapped_region region_timer_sensor_data_0_;
+      boost::interprocess::mapped_region region_sensor_data_0_;
 
       boost::interprocess::mapped_region region_traj_sensor_data_1_;
       boost::interprocess::mapped_region region_feedback_controller_sensor_data_1_;
@@ -127,15 +130,17 @@ namespace franka_action_lib
       SharedBufferTypePtr termination_buffer_1_;
       SharedBufferTypePtr timer_buffer_1_;
 
-      SharedBufferTypePtr traj_gen_sensor_buffer_0_;
-      SharedBufferTypePtr feedback_controller_sensor_buffer_0_;
-      SharedBufferTypePtr termination_sensor_buffer_0_;
-      SharedBufferTypePtr timer_sensor_buffer_0_;
+      SharedBufferTypePtr sensor_data_buffer_0_ ;
 
-      SharedBufferTypePtr traj_gen_sensor_buffer_1_;
-      SharedBufferTypePtr feedback_controller_sensor_buffer_1_;
-      SharedBufferTypePtr termination_sensor_buffer_1_;
-      SharedBufferTypePtr timer_sensor_buffer_1_;
+//      SharedBufferTypePtr traj_gen_sensor_buffer_0_; //want to remove this later
+//      SharedBufferTypePtr feedback_controller_sensor_buffer_0_;
+//      SharedBufferTypePtr termination_sensor_buffer_0_;
+//      SharedBufferTypePtr timer_sensor_buffer_0_;
+
+//      SharedBufferTypePtr traj_gen_sensor_buffer_1_;
+//      SharedBufferTypePtr feedback_controller_sensor_buffer_1_;
+//      SharedBufferTypePtr termination_sensor_buffer_1_;
+//      SharedBufferTypePtr timer_sensor_buffer_1_;
 
       SharedBufferTypePtr execution_feedback_buffer_0_;
       SharedBufferTypePtr execution_result_buffer_0_;
@@ -158,6 +163,9 @@ namespace franka_action_lib
       void setResultSkillIdInSharedMemoryUnprotected(int result_skill_id);
 
       void loadSensorDataUnprotected(const franka_action_lib::ExecuteSkillGoalConstPtr &goal, int current_free_shared_memory_index);
+
+
+
       void loadTrajGenParamsUnprotected(const franka_action_lib::ExecuteSkillGoalConstPtr &goal, int current_free_shared_memory_index);
       void loadFeedbackControllerParamsUnprotected(const franka_action_lib::ExecuteSkillGoalConstPtr &goal, int current_free_shared_memory_index);
       void loadTerminationParamsUnprotected(const franka_action_lib::ExecuteSkillGoalConstPtr &goal, int current_free_shared_memory_index);

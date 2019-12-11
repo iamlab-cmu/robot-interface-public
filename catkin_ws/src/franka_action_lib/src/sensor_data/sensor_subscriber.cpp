@@ -1,5 +1,6 @@
 #include <ros/ros.h>
-#include <std_msgs/String.h>
+//#include <std_msgs/String.h>
+#include <std_msgs/Float64.h>
 
 #include "franka_action_lib/sensor_data/sensor_subscriber_handler.h"
 
@@ -41,7 +42,7 @@ int main(int argc, char **argv)
    * is the number of messages that will be buffered up before beginning to throw
    * away the oldest ones.
    */
-  franka_action_lib::SensorSubscriberHandler handler = franka_action_lib::SensorSubscriberHandler(n);
+  franka_action_lib::SensorSubscriberHandler handler(n);
   ros::Subscriber sub = n.subscribe("dummy_time", 1000, &franka_action_lib::SensorSubscriberHandler::dummyTimeCallback, &handler);
 
   /**

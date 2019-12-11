@@ -1,5 +1,6 @@
 #include "ros/ros.h"
-#include "std_msgs/String.h"
+//#include "std_msgs/String.h"
+#include <std_msgs/Float64.h>
 
 #include <sstream>
 
@@ -44,7 +45,7 @@ int main(int argc, char **argv)
    * than we can send them, the number here specifies how many messages to
    * buffer up before throwing some away.
    */
-  ros::Publisher chatter_pub = n.advertise<std_msgs::String>("dummy_time", 1000);
+  ros::Publisher chatter_pub = n.advertise<std_msgs::Float64>("dummy_time", 1000);
 
   ros::Rate loop_rate(10);
 
@@ -58,13 +59,15 @@ int main(int argc, char **argv)
     /**
      * This is a message object. You stuff it with data, and then publish it.
      */
-    std_msgs::String msg;
+    std_msgs::Float64 f_data;
 
-    std::stringstream ss;
-    ss << "hello world " << count;
-    msg.data = ss.str();
+//    std::stringstream ss;
+//    ss << "hello world " << count;
+    f_data.data = ros::Time::now().toSec();
 
-    ROS_INFO("%s", msg.data.c_str());
+
+//    ROS_INFO("%s", msg.data.c_str());
+      ROS_INFO("%f", f_data.data);
 
     /**
      * The publish() function is how you send messages. The parameter
@@ -72,7 +75,7 @@ int main(int argc, char **argv)
      * given as a template parameter to the advertise<>() call, as was done
      * in the constructor above.
      */
-    chatter_pub.publish(msg);
+    chatter_pub.publish(f_data);
 
     ros::spinOnce();
 
