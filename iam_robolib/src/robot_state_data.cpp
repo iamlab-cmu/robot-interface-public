@@ -91,6 +91,7 @@ void RobotStateData::writeBufferData_0() {
                                               log_O_ddP_EE_c_0_,
                                               log_theta_0_,
                                               log_dtheta_0_,
+                                              log_frames_0_,
                                               log_current_errors_0_,
                                               log_last_motion_errors_0_,
                                               log_control_command_success_rate_0_,
@@ -152,6 +153,7 @@ void RobotStateData::writeBufferData_0() {
     log_O_ddP_EE_c_0_.clear();
     log_theta_0_.clear();
     log_dtheta_0_.clear();
+    log_frames_0_.clear();
     log_current_errors_0_.clear();
     log_last_motion_errors_0_.clear();
     log_control_command_success_rate_0_.clear();
@@ -221,6 +223,7 @@ void RobotStateData::writeBufferData_1() {
                                               log_O_ddP_EE_c_1_,
                                               log_theta_1_,
                                               log_dtheta_1_,
+                                              log_frames_1_,
                                               log_current_errors_1_,
                                               log_last_motion_errors_1_,
                                               log_control_command_success_rate_1_,
@@ -281,6 +284,7 @@ void RobotStateData::writeBufferData_1() {
     log_O_ddP_EE_c_1_.clear();
     log_theta_1_.clear();
     log_dtheta_1_.clear();
+    log_frames_1_.clear();
     log_current_errors_1_.clear();
     log_last_motion_errors_1_.clear();
     log_control_command_success_rate_1_.clear();
@@ -343,6 +347,7 @@ void RobotStateData::clearAllBuffers() {
   log_O_ddP_EE_c_0_.clear();
   log_theta_0_.clear();
   log_dtheta_0_.clear();
+  log_frames_0_.clear();
   log_current_errors_0_.clear();
   log_last_motion_errors_0_.clear();
   log_control_command_success_rate_0_.clear();
@@ -398,6 +403,7 @@ void RobotStateData::clearAllBuffers() {
   log_O_ddP_EE_c_1_.clear();
   log_theta_1_.clear();
   log_dtheta_1_.clear();
+  log_frames_1_.clear();
   log_current_errors_1_.clear();
   log_last_motion_errors_1_.clear();
   log_control_command_success_rate_1_.clear();
@@ -490,7 +496,7 @@ void RobotStateData::printData(int print_count) {
   }
 }
 
-void RobotStateData::log_robot_state(std::array<double, 16> &desired_pose, franka::RobotState robot_state, double time_since_skill_started) {
+void RobotStateData::log_robot_state(std::array<double, 16> &desired_pose, franka::RobotState robot_state, franka::Model *robot_model, double time_since_skill_started) {
   current_robot_state_ = robot_state;
 
   current_pose_desired_ = desired_pose;
@@ -573,6 +579,16 @@ void RobotStateData::log_robot_state(std::array<double, 16> &desired_pose, frank
   last_motion_errors[35] = robot_state.last_motion_errors.instability_detected;
   last_motion_errors[36] = robot_state.last_motion_errors.joint_move_in_wrong_direction;
 
+  int n_frame = 0;
+  for (franka::Frame frame = franka::Frame::kJoint1; frame <= franka::Frame::kEndEffector; frame++) {
+      auto pose = robot_model->pose(frame, robot_state);
+      for (int i = 0; i < 16; i++)
+      {
+        current_robot_frames_[n_frame * 16 + i] = pose[i];
+      }
+      n_frame++;
+  }
+
   if (use_buffer_0) {
     if (buffer_0_mutex_.try_lock()) {
       log_time_since_skill_started_0_.push_back(time_since_skill_started);
@@ -617,6 +633,7 @@ void RobotStateData::log_robot_state(std::array<double, 16> &desired_pose, frank
       log_O_ddP_EE_c_0_.push_back(robot_state.O_ddP_EE_c);
       log_theta_0_.push_back(robot_state.theta);
       log_dtheta_0_.push_back(robot_state.dtheta);
+      log_frames_0_.push_back(current_robot_frames_);
       log_current_errors_0_.push_back(current_errors);
       log_last_motion_errors_0_.push_back(last_motion_errors);
       log_control_command_success_rate_0_.push_back(robot_state.control_command_success_rate);
@@ -675,6 +692,7 @@ void RobotStateData::log_robot_state(std::array<double, 16> &desired_pose, frank
       log_O_ddP_EE_c_1_.push_back(robot_state.O_ddP_EE_c);
       log_theta_1_.push_back(robot_state.theta);
       log_dtheta_1_.push_back(robot_state.dtheta);
+      log_frames_1_.push_back(current_robot_frames_);
       log_current_errors_1_.push_back(current_errors);
       log_last_motion_errors_1_.push_back(last_motion_errors);
       log_control_command_success_rate_1_.push_back(robot_state.control_command_success_rate);

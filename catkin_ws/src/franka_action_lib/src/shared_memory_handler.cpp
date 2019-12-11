@@ -521,7 +521,7 @@ namespace franka_action_lib
     // The lock of the run_loop_info_mutex_ should be released automatically
   }
 
-  franka_action_lib::RobotState SharedMemoryHandler::getRobotState() {
+  franka_action_lib::RobotState SharedMemoryHandler::getRobotState(std::array<double, 144> &robot_frames) {
     franka_action_lib::RobotState robot_state;
 
     boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> current_robot_state_lock(*shared_current_robot_state_mutex_, boost::interprocess::defer_lock);
@@ -648,6 +648,9 @@ namespace franka_action_lib
 
       memcpy(&robot_state.dtheta, &current_robot_state_buffer_[offset], robot_state.dtheta.size() * sizeof(SharedBufferType));
       offset += robot_state.dtheta.size();
+
+      memcpy(&robot_frames, &current_robot_state_buffer_[offset], robot_frames.size() * sizeof(SharedBufferType));
+      offset += robot_frames.size();
 
       robot_state.current_errors.joint_position_limits_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;
       robot_state.current_errors.cartesian_position_limits_violation = current_robot_state_buffer_[offset++] == 1 ? true : false;

@@ -47,6 +47,7 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
                                  std::vector<std::array<double, 6>>& O_ddP_EE_c_vector,
                                  std::vector<std::array<double, 7>>& theta_vector,
                                  std::vector<std::array<double, 7>>& dtheta_vector,
+                                 std::vector<std::array<double, 144>>& frames_vector,
                                  std::vector<std::array<bool, 37>>& current_errors_vector,
                                  std::vector<std::array<bool, 37>>& last_motion_errors_vector,
                                  std::vector<double>& control_command_success_rate_vector,
@@ -183,6 +184,9 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
     } else if (time_since_skill_started_vector_size != dtheta_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and dtheta vector size do not match\n";
+    } else if (time_since_skill_started_vector_size != frames_vector.size()) {
+        all_sizes_equal = false;
+        std::cout << "Time since skill started vector size and frames vector size do not match\n";
     } else if (write_current_errors_ && time_since_skill_started_vector_size != current_errors_vector.size()) {
         all_sizes_equal = false;
         std::cout << "Time since skill started vector size and current errors vector size do not match\n";
@@ -405,13 +409,17 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
             open_file_stream_ << e << ",";
         }
 
-        if(write_current_errors_) {
+        for (const auto &e : frames_vector[i]) {
+            open_file_stream_ << e << ",";
+        }
+
+        if (write_current_errors_) {
             for (const auto &e : current_errors_vector[i]) {
                 open_file_stream_ << e << ",";
             }
         }
         
-        if(write_last_motion_errors_) {
+        if (write_last_motion_errors_) {
             for (const auto &e : last_motion_errors_vector[i]) {
                 open_file_stream_ << e << ",";
             }  
@@ -425,7 +433,7 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
 
         open_file_stream_ << gripper_width_vector[i] << ",";
 
-        if(write_gripper_max_width_){
+        if (write_gripper_max_width_){
             open_file_stream_ << gripper_max_width_vector[i] << ",";
         }
 
@@ -569,11 +577,13 @@ void FileStreamLogger::initializeFile() {
 
     open_file_stream_ << "dtheta(7)" << ",";
 
-    if(write_current_errors_) {
+    open_file_stream_ << "frames(144)" << ",";
+
+    if (write_current_errors_) {
         open_file_stream_ << "current_errors(37)" << ",";
     }
 
-    if(write_last_motion_errors_) {
+    if (write_last_motion_errors_) {
         open_file_stream_ << "last_motion_errors(37)" << ",";
     }
 
@@ -585,7 +595,7 @@ void FileStreamLogger::initializeFile() {
 
     open_file_stream_ << "gripper_width(1)" << ",";
 
-    if(write_gripper_max_width_) {
+    if (write_gripper_max_width_) {
         open_file_stream_ << "gripper_max_width(1)" << ",";
     }
     

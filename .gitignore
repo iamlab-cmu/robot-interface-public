@@ -76,3 +76,9 @@ notebooks/.ipynb_checkpoints
 *cmake-build-debug
 *imgui.ini
 *egg-info
+
+# Vscode
+.vscode
+
+# Saved data
+catkin_ws/src/franka_action_lib/out*

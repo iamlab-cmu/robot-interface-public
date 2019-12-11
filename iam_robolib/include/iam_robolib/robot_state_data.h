@@ -73,6 +73,7 @@ class RobotStateData {
   std::vector<std::array<double, 6>> log_O_ddP_EE_c_0_{};
   std::vector<std::array<double, 7>> log_theta_0_{};
   std::vector<std::array<double, 7>> log_dtheta_0_{};
+  std::vector<std::array<double, 144>> log_frames_0_{};
   std::vector<std::array<bool, 37>> log_current_errors_0_{};
   std::vector<std::array<bool, 37>> log_last_motion_errors_0_{};
   std::vector<double> log_control_command_success_rate_0_{};
@@ -127,6 +128,7 @@ class RobotStateData {
   std::vector<std::array<double, 6>> log_O_ddP_EE_c_1_{};
   std::vector<std::array<double, 7>> log_theta_1_{};
   std::vector<std::array<double, 7>> log_dtheta_1_{};
+  std::vector<std::array<double, 144>> log_frames_1_{};
   std::vector<std::array<bool, 37>> log_current_errors_1_{};
   std::vector<std::array<bool, 37>> log_last_motion_errors_1_{};
   std::vector<double> log_control_command_success_rate_1_{};
@@ -147,6 +149,7 @@ class RobotStateData {
 
   franka::RobotState current_robot_state_;
   franka::GripperState current_gripper_state_;
+  std::array<double, 144> current_robot_frames_;
 
   std::array<double, 16> current_pose_desired_;
 
@@ -191,7 +194,8 @@ class RobotStateData {
    * Helper methods for logging.
    */
   void log_robot_state(std::array<double, 16> &desired_pose, 
-                       franka::RobotState robot_state, 
+                       franka::RobotState robot_state,
+                       franka::Model *robot_model, 
                        double time_since_skill_started);
 
   void update_current_gripper_state(franka::GripperState gripper_state);
