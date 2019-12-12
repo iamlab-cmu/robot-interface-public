@@ -464,8 +464,8 @@ void run_loop::didFinishSkillInMetaSkill(BaseSkill* skill) {
 
 void run_loop::setup_data_loggers() {
   // LoggerUtils::all_logger_files();
-  int logger_integer_suffix = LoggerUtils::integer_suffix_for_new_log_file();
-  std::string filename = "./robot_state_data_" + std::to_string(logger_integer_suffix) + ".txt";
+  int logger_integer_suffix = LoggerUtils::integer_suffix_for_new_log_file(logdir_);
+  std::string filename = logdir_ + "/" + "robot_state_data_" + std::to_string(logger_integer_suffix) + ".txt";
   std::cout << "Will save data to: " << filename << std::endl;
   FileStreamLogger *robot_logger = new FileStreamLogger(filename);
   robot_state_data_->setFileStreamLogger(robot_logger);
@@ -603,8 +603,8 @@ void run_loop::run_on_franka() {
 
       if(use_new_filestream_on_error_ == 1) {
         // Write new logs to a new log file.
-        int logger_integer_suffix = LoggerUtils::integer_suffix_for_new_log_file();
-        std::string filename = "./robot_state_data_" + std::to_string(logger_integer_suffix) + ".txt";
+        int logger_integer_suffix = LoggerUtils::integer_suffix_for_new_log_file(logdir_);
+        std::string filename = logdir_ + "/" + "robot_state_data_" + std::to_string(logger_integer_suffix) + ".txt";
         std::cout << "Will save data to: " << filename << std::endl;
         robot_state_data_->updateFileStreamLogger(filename);
       }
