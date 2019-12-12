@@ -108,7 +108,7 @@ namespace franka_action_lib
         shared_memory_info_.getSharedMemoryNameForParameters(1).c_str(),
         boost::interprocess::read_write
         );
-    std::cout << "line 113 " << std::endl;
+
     // Allocate regions for each parameter array
     region_traj_params_1_ =  boost::interprocess::mapped_region(
         shared_memory_object_1_,
@@ -145,7 +145,6 @@ namespace franka_action_lib
     sensor_data_0_mutex_ = sensor_data_0_mutex_pair.first;
     assert(sensor_data_0_mutex_ != 0);
 
-
     /**
      * Open shared memory region for sensor data buffer 1.
      */
@@ -156,7 +155,7 @@ namespace franka_action_lib
                                 (shared_memory_info_.getExecutionResponseMutexName(0).c_str());
     shared_execution_response_0_mutex_ = shared_execution_response_0_mutex_pair.first;
     assert(shared_execution_response_0_mutex_ != 0);
-    std::cout << "line 240 " << std::endl;
+
     /**
      * Open shared memory region for execution response buffer 0.
      */

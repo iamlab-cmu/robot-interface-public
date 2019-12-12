@@ -18,7 +18,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto2',
   serialized_options=None,
-  serialized_pb=b'\n\x10sensor_msg.proto\"S\n\x0b\x42oundingBox\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\n\n\x02id\x18\x02 \x02(\x05\x12\t\n\x01x\x18\x03 \x02(\x05\x12\t\n\x01y\x18\x04 \x02(\x05\x12\t\n\x01w\x18\x05 \x02(\x05\x12\t\n\x01h\x18\x06 \x02(\x05\"\x83\x01\n\x0eJointPositions\x12\x11\n\ttimestamp\x18\x01 \x02(\x01\x12\n\n\x02id\x18\x02 \x02(\x05\x12\n\n\x02q1\x18\x03 \x02(\x01\x12\n\n\x02q2\x18\x04 \x02(\x01\x12\n\n\x02q3\x18\x05 \x02(\x01\x12\n\n\x02q4\x18\x06 \x02(\x01\x12\n\n\x02q5\x18\x07 \x02(\x01\x12\n\n\x02q6\x18\x08 \x02(\x01\x12\n\n\x02q7\x18\t \x02(\x01'
+  serialized_pb=b'\n\x10sensor_msg.proto\"S\n\x0b\x42oundingBox\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\n\n\x02id\x18\x02 \x02(\x05\x12\t\n\x01x\x18\x03 \x02(\x05\x12\t\n\x01y\x18\x04 \x02(\x05\x12\t\n\x01w\x18\x05 \x02(\x05\x12\t\n\x01h\x18\x06 \x02(\x05\"\x84\x01\n\x0fJointSensorInfo\x12\n\n\x02id\x18\x01 \x02(\x05\x12\x11\n\ttimestamp\x18\x02 \x02(\x05\x12\n\n\x02q1\x18\x03 \x02(\x02\x12\n\n\x02q2\x18\x04 \x02(\x02\x12\n\n\x02q3\x18\x05 \x02(\x02\x12\n\n\x02q4\x18\x06 \x02(\x02\x12\n\n\x02q5\x18\x07 \x02(\x02\x12\n\n\x02q6\x18\x08 \x02(\x02\x12\n\n\x02q7\x18\t \x02(\x02'
 )
 
 
@@ -90,72 +90,72 @@ _BOUNDINGBOX = _descriptor.Descriptor(
 )
 
 
-_JOINTPOSITIONS = _descriptor.Descriptor(
-  name='JointPositions',
-  full_name='JointPositions',
+_JOINTSENSORINFO = _descriptor.Descriptor(
+  name='JointSensorInfo',
+  full_name='JointSensorInfo',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='timestamp', full_name='JointPositions.timestamp', index=0,
-      number=1, type=1, cpp_type=5, label=2,
-      has_default_value=False, default_value=float(0),
+      name='id', full_name='JointSensorInfo.id', index=0,
+      number=1, type=5, cpp_type=1, label=2,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='id', full_name='JointPositions.id', index=1,
+      name='timestamp', full_name='JointSensorInfo.timestamp', index=1,
       number=2, type=5, cpp_type=1, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='q1', full_name='JointPositions.q1', index=2,
-      number=3, type=1, cpp_type=5, label=2,
+      name='q1', full_name='JointSensorInfo.q1', index=2,
+      number=3, type=2, cpp_type=6, label=2,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='q2', full_name='JointPositions.q2', index=3,
-      number=4, type=1, cpp_type=5, label=2,
+      name='q2', full_name='JointSensorInfo.q2', index=3,
+      number=4, type=2, cpp_type=6, label=2,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='q3', full_name='JointPositions.q3', index=4,
-      number=5, type=1, cpp_type=5, label=2,
+      name='q3', full_name='JointSensorInfo.q3', index=4,
+      number=5, type=2, cpp_type=6, label=2,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='q4', full_name='JointPositions.q4', index=5,
-      number=6, type=1, cpp_type=5, label=2,
+      name='q4', full_name='JointSensorInfo.q4', index=5,
+      number=6, type=2, cpp_type=6, label=2,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='q5', full_name='JointPositions.q5', index=6,
-      number=7, type=1, cpp_type=5, label=2,
+      name='q5', full_name='JointSensorInfo.q5', index=6,
+      number=7, type=2, cpp_type=6, label=2,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='q6', full_name='JointPositions.q6', index=7,
-      number=8, type=1, cpp_type=5, label=2,
+      name='q6', full_name='JointSensorInfo.q6', index=7,
+      number=8, type=2, cpp_type=6, label=2,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='q7', full_name='JointPositions.q7', index=8,
-      number=9, type=1, cpp_type=5, label=2,
+      name='q7', full_name='JointSensorInfo.q7', index=8,
+      number=9, type=2, cpp_type=6, label=2,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -173,11 +173,11 @@ _JOINTPOSITIONS = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=106,
-  serialized_end=237,
+  serialized_end=238,
 )
 
 DESCRIPTOR.message_types_by_name['BoundingBox'] = _BOUNDINGBOX
-DESCRIPTOR.message_types_by_name['JointPositions'] = _JOINTPOSITIONS
+DESCRIPTOR.message_types_by_name['JointSensorInfo'] = _JOINTSENSORINFO
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 BoundingBox = _reflection.GeneratedProtocolMessageType('BoundingBox', (_message.Message,), {
@@ -187,12 +187,12 @@ BoundingBox = _reflection.GeneratedProtocolMessageType('BoundingBox', (_message.
   })
 _sym_db.RegisterMessage(BoundingBox)
 
-JointPositions = _reflection.GeneratedProtocolMessageType('JointPositions', (_message.Message,), {
-  'DESCRIPTOR' : _JOINTPOSITIONS,
+JointSensorInfo = _reflection.GeneratedProtocolMessageType('JointSensorInfo', (_message.Message,), {
+  'DESCRIPTOR' : _JOINTSENSORINFO,
   '__module__' : 'sensor_msg_pb2'
-  # @@protoc_insertion_point(class_scope:JointPositions)
+  # @@protoc_insertion_point(class_scope:JointSensorInfo)
   })
-_sym_db.RegisterMessage(JointPositions)
+_sym_db.RegisterMessage(JointSensorInfo)
 
 
 # @@protoc_insertion_point(module_scope)

@@ -6,7 +6,7 @@
 
 int main(int argc, char **argv) {
 
-  ros::init(argc, argv, "sensor_subscriber_node", ros::init_options::AnonymousName);
+  ros::init(argc, argv, "sensor_data_subscriber_node", ros::init_options::AnonymousName);
 
   ros::NodeHandle n;
 

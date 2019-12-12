@@ -40,6 +40,7 @@ void JointPositionDynamicInterpSkill::execute_skill_on_franka(
     throw std::bad_cast();
   }
 
+  bool did_receive_sensor_msg = false;
   std::function<franka::JointPositions(const franka::RobotState&, franka::Duration)>
       joint_pose_callback = [&](
       const franka::RobotState& robot_state,
@@ -76,16 +77,17 @@ void JointPositionDynamicInterpSkill::execute_skill_on_franka(
 
     SensorDataManagerReadStatus sensor_msg_status = sensor_data_manager->readJointSensorInfoMessage(
         new_joint_sensor_info);
-    if (sensor_msg_status == SensorDataManagerReadStatus::SUCCESS) {
+    if (!did_receive_sensor_msg && sensor_msg_status == SensorDataManagerReadStatus::SUCCESS) {
+      did_receive_sensor_msg = true;
       assert(new_joint_sensor_info.IsInitialized());
       std::array<double, 7> new_goal_joints = {
-          new_joint_sensor_info.j0(),
-          new_joint_sensor_info.j1(),
-          new_joint_sensor_info.j2(),
-          new_joint_sensor_info.j3(),
-          new_joint_sensor_info.j4(),
-          new_joint_sensor_info.j5(),
-          new_joint_sensor_info.j6(),
+          new_joint_sensor_info.q1(),
+          new_joint_sensor_info.q2(),
+          new_joint_sensor_info.q3(),
+          new_joint_sensor_info.q4(),
+          new_joint_sensor_info.q5(),
+          new_joint_sensor_info.q6(),
+          new_joint_sensor_info.q7(),
       };
       joint_trajectory_generator->setGoalJoints(new_goal_joints);
       std::cout << "Updated new goal joints: ";
@@ -93,8 +95,24 @@ void JointPositionDynamicInterpSkill::execute_skill_on_franka(
         std::cout << new_goal_joints[i] << ", ";
       }
       std::cout << std::endl;
+      // HACK: Reset the time manually. This is bad because we should not manually set this here.
+      joint_trajectory_generator->setInitialJoints(robot_state.q_d);
+      std::cout << "q" << std::endl;
+      for (int i = 0; i < 7; i++) {
+        std::cout << robot_state.q[i] << ", ";
+      }
+      std::cout << std::endl;
+
+      std::cout << "q_d" << std::endl;
+      for (int i = 0; i < 7; i++) {
+        std::cout << robot_state.q_d[i] << ", ";
+      }
+      std::cout << std::endl;
+      time = 0.0;
+      traj_generator_->time_ = 0.0;
     }
 
+    // Set the desired joints manually
 
     if (done && time > 0.0) {
       try {

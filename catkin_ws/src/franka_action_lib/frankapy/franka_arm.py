@@ -919,6 +919,60 @@ class FrankaArm:
                 cb=lambda x: skill.feedback_callback(x),
                 ignore_errors=ignore_errors)
 
+    def run_dynamic_joint_position_interpolation(self,
+         joints,
+         duration=5,
+         stop_on_contact_forces=None,
+         joint_impedances=None,
+         k_gains=None,
+         d_gains=None,
+         ignore_errors=True,
+         skill_desc='',
+         skill_type=SkillType.JointPositionDynamicInterpolationSkill):
+        '''Commands Arm to the given joint configuration
+
+        Args:
+            joints (list): A list of 7 numbers that correspond to joint angles
+                           in radians
+            duration (float): How much time this robot motion should take
+            joint_impedances (list): A list of 7 numbers that represent the desired
+                                     joint impedances for the internal robot joint
+                                     controller
+
+        Raises:
+            ValueError: If is_joints_reachable(joints) returns False
+        '''
+        if not self.is_joints_reachable(joints):
+            raise ValueError('Joints not reachable!')
+
+        skill = GoToJointsSkill(skill_desc, skill_type)
+
+        skill.add_initial_sensor_values(FC.EMPTY_SENSOR_VALUES)
+
+        if joint_impedances is not None:
+            skill.add_joint_impedances(joint_impedances)
+        elif k_gains is not None and d_gains is not None:
+            skill.add_joint_gains(k_gains, d_gains)
+        else:
+            if(skill_type == SkillType.ImpedanceControlSkill):
+                skill.add_joint_gains(FC.DEFAULT_K_GAINS, FC.DEFAULT_D_GAINS)
+            else:
+                skill.add_feedback_controller_params([])
+
+        if stop_on_contact_forces is not None:
+            skill.add_contact_termination_params(FC.DEFAULT_TERM_BUFFER_TIME,
+                                                 stop_on_contact_forces,
+                                                 stop_on_contact_forces)
+        else:
+            skill.add_termination_params([FC.DEFAULT_TERM_BUFFER_TIME])
+
+        skill.add_goal_joints(duration, joints)
+        goal = skill.create_goal()
+
+        self._send_goal(goal,
+                        cb=lambda x: skill.feedback_callback(x),
+                        ignore_errors=ignore_errors)
+
     def open_gripper(self):
         '''Opens gripper to maximum width
         '''
@@ -1051,5 +1105,7 @@ class FrankaArm:
         for i, val in enumerate(joints):
             if val <= FC.JOINT_LIMITS_MIN[i] or val >= FC.JOINT_LIMITS_MAX[i]:
                 return False
+
+
 
         return True

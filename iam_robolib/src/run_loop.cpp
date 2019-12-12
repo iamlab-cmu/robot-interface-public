@@ -28,6 +28,7 @@
 #include "iam_robolib/skills/impedance_control_skill.h"
 #include "iam_robolib/skills/joint_position_continuous_skill.h"
 #include "iam_robolib/skills/joint_position_skill.h"
+#include "iam_robolib/skills/joint_position_dynamic_interp_skill.h"
 #include "iam_robolib/utils/logger_utils.h"
 
 std::atomic<bool> run_loop::run_loop_ok_{false};
@@ -255,10 +256,15 @@ void run_loop::update_process_info() {
               new_skill = new GripperSkill(new_skill_id, new_meta_skill_id, new_skill_description);
               break;
             case SkillType::ImpedanceControlSkill:
+              std::cout << "Impedance control " << std::endl;
               new_skill = new ImpedanceControlSkill(new_skill_id, new_meta_skill_id, new_skill_description);
               break;
             case SkillType::JointPositionSkill:
               new_skill = new JointPositionSkill(new_skill_id, new_meta_skill_id, new_skill_description);
+              break;
+            case SkillType::JointPositionDynamicInterpolationSkill:
+              std::cout << "JointPositionDynamicInterpolationSkill " << std::endl;
+              new_skill = new JointPositionDynamicInterpSkill(new_skill_id, new_meta_skill_id, new_skill_description);
               break;
             default:
               std::cout << "Incorrect skill type: " << 
@@ -521,8 +527,6 @@ void run_loop::run_on_franka() {
   setup_current_robot_state_io_thread();
   setup_save_robot_state_thread();
 
-  BoundingBox msg;
-
   while (true) {
     BaseSkill* skill;
     try {
@@ -565,8 +569,6 @@ void run_loop::run_on_franka() {
           start_new_skill(new_skill);
           robot_access_mutex_.unlock();
         }
-
-        sensor_data_manager_->readBoundingBoxMessage(msg);
 
         // Sleep to maintain 1Khz frequency, not sure if this is required or not.
         auto finish = std::chrono::high_resolution_clock::now();

@@ -10,15 +10,16 @@ message BoundingBox {
   required int32 h = 6;
 }
 
-message JointPositions{
-  required double timestamp= 1;
-  required int32 id = 2;
-  required double q1 = 3;
-  required double q2 = 4;
-  required double q3 = 5;
-  required double q4 = 6;
-  required double q5 = 7;
-  required double q6 = 8;
-  required double q7 = 9;
-  
+message JointSensorInfo {
+  required int32 id = 1;
+  required int32 timestamp = 2;
+
+  required float q1 = 3;
+  required float q2 = 4;
+  required float q3 = 5;
+  required float q4 = 6;
+  required float q5 = 7;
+  required float q6 = 8;
+  required float q7 = 9;
 }
+

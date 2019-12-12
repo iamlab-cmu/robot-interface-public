@@ -59,6 +59,12 @@ void JointTrajectoryGenerator::setGoalJoints(const std::array<double, 7> joints)
   }
 }
 
+void JointTrajectoryGenerator::setInitialJoints(const std::array<double, 7> joints) {
+  for (int i = 0; i < 7; i++) {
+    initial_joints_[i] = static_cast<double>(joints[i]);
+  }
+}
+
 const std::array<double, 7>& JointTrajectoryGenerator::get_desired_joints() const {
   return desired_joints_;
 }

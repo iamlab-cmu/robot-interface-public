@@ -26,4 +26,8 @@
     <param name="robolib_status_topic_name" value="/robolib_status_publisher_node_$(arg robot_num)/robolib_status" />
   </node>
 
+  <node pkg="franka_action_lib" type="sensor_data_subscriber_node" name="sensor_data_subscriber_node" output="screen">
+  </node>
+
+
 </launch>

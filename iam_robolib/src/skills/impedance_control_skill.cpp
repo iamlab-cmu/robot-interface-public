@@ -10,6 +10,7 @@
 #include "iam_robolib/robot_state_data.h"
 #include "iam_robolib/run_loop.h"
 #include "iam_robolib/run_loop_shared_memory_handler.h"
+#include "iam_robolib/trajectory_generator/joint_trajectory_generator.h"
 
 #include <iam_robolib_common/definitions.h>
 #include <iam_robolib_common/run_loop_process_info.h>
@@ -38,6 +39,8 @@ void ImpedanceControlSkill::execute_skill_on_franka(run_loop* run_loop,
   boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> lock(
                                   *(shared_memory_handler->getRunLoopProcessInfoMutex()),
                                   boost::interprocess::defer_lock);
+  SensorDataManager* sensor_data_manager = run_loop->get_sensor_data_manager();
+  JointTrajectoryGenerator* joint_trajectory_generator = dynamic_cast<JointTrajectoryGenerator*>(traj_generator_);
 
   std::cout << "Will run the control loop\n";
 
@@ -77,6 +80,29 @@ void ImpedanceControlSkill::execute_skill_on_franka(run_loop* run_loop,
     if (log_counter % 1 == 0) {
       pose_desired = robot_state.O_T_EE_d;
       robot_state_data->log_robot_state(pose_desired, robot_state, robot->getModel(), time);
+    }
+
+    JointSensorInfo new_joint_sensor_info;
+
+    SensorDataManagerReadStatus sensor_msg_status = sensor_data_manager->readJointSensorInfoMessage(
+        new_joint_sensor_info);
+    if (sensor_msg_status == SensorDataManagerReadStatus::SUCCESS) {
+      assert(new_joint_sensor_info.IsInitialized());
+      std::array<double, 7> new_goal_joints = {
+          new_joint_sensor_info.q1(),
+          new_joint_sensor_info.q2(),
+          new_joint_sensor_info.q3(),
+          new_joint_sensor_info.q4(),
+          new_joint_sensor_info.q5(),
+          new_joint_sensor_info.q6(),
+          new_joint_sensor_info.q7(),
+      };
+      joint_trajectory_generator->setGoalJoints(new_goal_joints);
+      std::cout << "Updated new goal joints: ";
+      for (int i = 0; i < new_goal_joints.size(); i++) {
+        std::cout << new_goal_joints[i] << ", ";
+      }
+      std::cout << std::endl;
     }
 
     feedback_controller_->get_next_step(robot_state, traj_generator_);
