@@ -83,6 +83,7 @@ class BaseSkill {
                                        RobotStateData* robot_state_data) = 0;
 
   virtual bool has_terminated(Robot* robot);
+  // Check if termination was due to collision with virtual walls.
   virtual bool has_terminated_by_virt_coll();
 
 

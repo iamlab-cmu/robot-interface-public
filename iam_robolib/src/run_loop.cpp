@@ -155,8 +155,7 @@ void run_loop::write_skill_result_to_shared_memory(BaseSkill* skill) {
   
   if (skill->has_terminated_by_virt_coll()) {
     skill->set_skill_status(SkillStatus::VIRT_COLL_ERR);
-  }
-  else {
+  } else {
     skill->set_skill_status(SkillStatus::FINISHED);
   }
   
