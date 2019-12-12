@@ -5,7 +5,8 @@ from autolab_core import RigidTransform
 
 class FrankaConstants:
     '''
-    All units are SI. 
+    Contains default robot values, as well as robot limits.
+    All units are in SI. 
     '''
 
     LOGGING_LEVEL = logging.INFO

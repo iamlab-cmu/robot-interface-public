@@ -219,6 +219,7 @@ class BaseSkill(object):
     def feedback_callback(self, feedback):
         pass
 
+# Define an instance of a gripper skill
 class GripperSkill(BaseSkill):
     def __init__(self, skill_desc=''):
         if len(skill_desc) == 0:
@@ -235,6 +236,7 @@ class GripperSkill(BaseSkill):
               TerminationHandlerType.NoopTerminationHandler,
               1)
 
+# Define an instance of a DMP skill using joint position control
 class JointDMPSkill(BaseSkill):
     def __init__(self, skill_desc='', skill_type=SkillType.JointPositionSkill):
         if len(skill_desc) == 0:
@@ -274,6 +276,7 @@ class JointDMPSkill(BaseSkill):
                   TerminationHandlerType.TimeTerminationHandler,
                   1)
 
+# Define an instance of a DMP skill using cartesian control
 class PoseDMPSkill(BaseSkill):
     def __init__(self, skill_desc='', skill_type=SkillType.CartesianPoseSkill):
         if len(skill_desc) == 0:
@@ -313,6 +316,7 @@ class PoseDMPSkill(BaseSkill):
                   TerminationHandlerType.TimeTerminationHandler,
                   1)
 
+# Define an instance of a DMP skill (used for Sony Project, ask Kevin Zhang)
 class GoalPoseDMPSkill(BaseSkill):
     def __init__(self, skill_desc='', skill_type=SkillType.CartesianPoseSkill):
         if len(skill_desc) == 0:
@@ -352,7 +356,7 @@ class GoalPoseDMPSkill(BaseSkill):
                   TerminationHandlerType.TimeTerminationHandler,
                   1)
     
-
+# Define skill that uses joint position control relative to base
 class GoToJointsSkill(BaseSkill):
     def __init__(self, skill_desc='', skill_type=SkillType.JointPositionSkill):
         if len(skill_desc) == 0:
@@ -392,7 +396,7 @@ class GoToJointsSkill(BaseSkill):
                   TerminationHandlerType.FinalJointTerminationHandler,
                   1)
     
-
+# Define skill that uses cartesian impedance control relative to base
 class GoToPoseSkill(BaseSkill):
     def __init__(self, skill_desc='', skill_type=SkillType.ImpedanceControlSkill):
         if len(skill_desc) == 0:
@@ -432,7 +436,7 @@ class GoToPoseSkill(BaseSkill):
                   TerminationHandlerType.FinalPoseTerminationHandler,
                   1)
 
-
+# Define skill that uses cartesian impedance to go position relative to current position
 class GoToPoseDeltaSkill(BaseSkill):
     def __init__(self, skill_desc='', skill_type=SkillType.ImpedanceControlSkill):
         if len(skill_desc) == 0:
@@ -472,6 +476,7 @@ class GoToPoseDeltaSkill(BaseSkill):
                   TerminationHandlerType.FinalPoseTerminationHandler,
                   1)
 
+# Define skill that stays in pose
 class StayInInitialPoseSkill(BaseSkill):
     def __init__(self, skill_desc='', skill_type=SkillType.ImpedanceControlSkill,
                  feedback_controller_type=FeedbackControllerType.CartesianImpedanceFeedbackController):
@@ -545,6 +550,7 @@ class StayInInitialPoseSkill(BaseSkill):
                   TerminationHandlerType.TimeTerminationHandler,
                   1)
 
+# Define skill that uses force control
 class ForceTorqueSkill(BaseSkill):
     def __init__(self, skill_desc=''):
         if len(skill_desc) == 0:
@@ -560,6 +566,7 @@ class ForceTorqueSkill(BaseSkill):
               TerminationHandlerType.TimeTerminationHandler,
               1)
 
+# Define skill that uses force control along a specific axis
 class ForceAlongAxisSkill(BaseSkill):
     def __init__(self, skill_desc=''):
         if len(skill_desc) == 0:
