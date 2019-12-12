@@ -11,6 +11,7 @@
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
+#include <boost/filesystem.hpp> 
 
 #include <iam_robolib_common/definitions.h>
 #include <iam_robolib_common/run_loop_process_info.h>
@@ -41,20 +42,22 @@ class run_loop {
            std::string robot_ip,
            int stop_on_error,
            int reset_skill_numbering_on_error,
-           int use_new_filestream_on_error)  :  limit_rate_(false),
-                                                cutoff_frequency_(0.0),
-                                                logger_(logger_mutex),
-                                                elapsed_time_(0.0),
-                                                process_info_requires_update_(false),
-                                                stop_on_error_(stop_on_error),
-                                                reset_skill_numbering_on_error_(reset_skill_numbering_on_error),
-                                                use_new_filestream_on_error_(use_new_filestream_on_error)
+           int use_new_filestream_on_error,
+           std::string logdir
+          )  :  limit_rate_(false),
+                cutoff_frequency_(0.0),
+                logger_(logger_mutex),
+                elapsed_time_(0.0),
+                process_info_requires_update_(false),
+                stop_on_error_(stop_on_error),
+                reset_skill_numbering_on_error_(reset_skill_numbering_on_error),
+                use_new_filestream_on_error_(use_new_filestream_on_error),
+                logdir_(logdir)
   {
 
     robot_state_data_ = new RobotStateData(robot_loop_data_mutex);
 
-    switch(robot_type)
-    {
+    switch(robot_type) {
       case RobotType::FRANKA:
         robot_ = new FrankaRobot(robot_ip, robot_type);
         break;
@@ -63,6 +66,14 @@ class run_loop {
         break;
       default:
         throw "Unrecognized Robot Type!";
+    }
+
+    if (logdir_.back() == '/') {
+      logdir_.pop_back();
+    }
+    boost::filesystem::path boost_logdir(logdir_);
+    if (boost::filesystem::create_directory(boost_logdir)) {
+        std::cout << "Logdir didn't exist, so it was created: " << logdir_ << std::endl;
     }
 
   };
@@ -165,6 +176,8 @@ class run_loop {
   int stop_on_error_;
   int reset_skill_numbering_on_error_;
   int use_new_filestream_on_error_;
+
+  std::string logdir_;
 
   TrajectoryGeneratorFactory traj_gen_factory_={};
   FeedbackControllerFactory feedback_controller_factory_={};
