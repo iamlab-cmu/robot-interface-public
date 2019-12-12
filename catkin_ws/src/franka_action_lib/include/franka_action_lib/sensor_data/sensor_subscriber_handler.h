@@ -9,6 +9,7 @@
 #include <ros/ros.h>
 //#include <std_msgs/String.h>
 #include <std_msgs/Float64.h>
+#include "franka_action_lib/SensorData.h"
 
 #include "franka_action_lib/RobolibStatus.h"
 #include "franka_action_lib/shared_memory_handler.h"
@@ -29,7 +30,7 @@ namespace franka_action_lib
       SensorSubscriberHandler(ros::NodeHandle& nh);
       ~SensorSubscriberHandler(){};
       
-      void dummyTimeCallback(const std_msgs::Float64::ConstPtr& msg);
+      void dummyTimeCallback(const franka_action_lib::SensorData::ConstPtr& msg);
 
 
   };

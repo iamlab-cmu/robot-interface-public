@@ -141,12 +141,23 @@ namespace franka_action_lib
         );
     timer_buffer_1_ = reinterpret_cast<SharedBufferTypePtr>(region_timer_params_1_.get_address());
     std::cout << "line 143 " << std::endl;
+
+
     // Get mutex for sensor data buffer 0 from the shared memory segment.
-    std::pair<boost::interprocess::interprocess_mutex *, std::size_t> shared_sensor_data_0_mutex_pair = \
+//    std::pair<boost::interprocess::interprocess_mutex *, std::size_t> shared_sensor_data_0_mutex_pair = \
+//                                managed_shared_memory_.find<boost::interprocess::interprocess_mutex>
+//                                (shared_memory_info_.getSensorDataMutexName(0).c_str());
+//    shared_sensor_data_0_mutex_ = shared_sensor_data_0_mutex_pair.first;
+//    assert(shared_sensor_data_0_mutex_ != 0);
+
+
+      std::pair<boost::interprocess::interprocess_mutex *, std::size_t> sensor_data_0_mutex_pair = \
                                 managed_shared_memory_.find<boost::interprocess::interprocess_mutex>
-                                (shared_memory_info_.getSensorDataMutexName(0).c_str());
-    shared_sensor_data_0_mutex_ = shared_sensor_data_0_mutex_pair.first;
-    assert(shared_sensor_data_0_mutex_ != 0);
+              (shared_memory_info_.getSensorDataMutexName(0).c_str());
+      sensor_data_0_mutex_ = sensor_data_0_mutex_pair.first;
+      assert(sensor_data_0_mutex_ != 0);
+
+
       std::cout << "line 150 " << std::endl;
     /**
      * Open shared memory region for sensor data buffer 0.
@@ -949,15 +960,21 @@ namespace franka_action_lib
   }
 
     //Adding new function to load sensor data into sensor memory buffer
-void SharedMemoryHandler::loadSensorData_dummy_Unprotected(const std_msgs::Float64::ConstPtr &ptr,
+void SharedMemoryHandler::loadSensorData_dummy_Unprotected(const franka_action_lib::SensorData::ConstPtr &ptr,
                                                            int current_free_shared_memory_index)
 {
     if(current_free_shared_memory_index == 0)
     {
-        std::cout << std::setprecision(10) <<ptr->data << std::endl;
-        std::cout << sensor_data_buffer_0_ << std::endl;
-        sensor_data_buffer_0_[0] = static_cast<SharedBufferType>(ptr->data);
-        memcpy(sensor_data_buffer_0_ + 2, &ptr->data, 1 * sizeof(SharedBufferType));  //TODO change size of parameters
+        //std::cout << std::setprecision(10) <<ptr->data << std::endl;
+        //std::cout << sensor_data_buffer_0_ << std::endl;
+
+        // if(sensor_data_0_mutex_.try_lock()) {
+            sensor_data_buffer_0_[0] = static_cast<SharedBufferType>(ptr->size);
+            memcpy(sensor_data_buffer_0_ + 2, &ptr->sensorData,
+                   ptr->size * sizeof(SharedBufferType));  //TODO change size of parameters
+            // sensor_data_0_mutex_.unlock();
+        // }
+
     }
 //    else if(current_free_shared_memory_index == 1)
 //    {

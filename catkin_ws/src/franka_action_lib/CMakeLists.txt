@@ -71,6 +71,7 @@ add_message_files(
   RobolibStatus.msg
   RobotState.msg
   RunLoopProcessInfoState.msg
+  SensorData.msg
 )
 
 ## Generate services in the 'srv' folder

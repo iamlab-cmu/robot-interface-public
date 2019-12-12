@@ -8,6 +8,8 @@
 
 #include "ros/ros.h" // For ROS::ERROR messages
 #include <std_msgs/Float64.h>
+#include "franka_action_lib/SensorData.h"
+
 
 #include <array>
 #include <vector>
@@ -34,7 +36,7 @@ namespace franka_action_lib
       ~SharedMemoryHandler(void){}
 
       int loadSkillParametersIntoSharedMemory(const franka_action_lib::ExecuteSkillGoalConstPtr &goal);
-      void loadSensorData_dummy_Unprotected(const std_msgs::Float64::ConstPtr &ptr, int current_free_shared_memory_index);
+      void loadSensorData_dummy_Unprotected(const franka_action_lib::SensorData::ConstPtr &ptr, int current_free_shared_memory_index);
 
       // void startSensorSubscribers(const franka_action_lib::ExecuteSkillGoalConstPtr &goal);
 
@@ -77,8 +79,9 @@ namespace franka_action_lib
       boost::interprocess::interprocess_mutex *shared_memory_object_0_mutex_;
       boost::interprocess::interprocess_mutex *shared_memory_object_1_mutex_;
 
-      boost::interprocess::interprocess_mutex *shared_sensor_data_0_mutex_;
-      boost::interprocess::interprocess_mutex *shared_sensor_data_1_mutex_;
+//      boost::interprocess::interprocess_mutex *shared_sensor_data_0_mutex_;
+//      boost::interprocess::interprocess_mutex *shared_sensor_data_1_mutex_;
+      boost::interprocess::interprocess_mutex *sensor_data_0_mutex_;
 
       boost::interprocess::interprocess_mutex *shared_execution_response_0_mutex_;
       boost::interprocess::interprocess_mutex *shared_execution_response_1_mutex_;
