@@ -33,6 +33,7 @@ class FinalPoseTerminationHandler : public TerminationHandler {
    * Should we terminate the current skill.
    */
   virtual bool should_terminate_on_franka(const franka::RobotState &robot_state, 
+                                          franka::Model *robot_model,
                                           TrajectoryGenerator *traj_generator) override;
 
  private:

@@ -26,6 +26,7 @@ void BaseMetaSkill::execute_skill_on_franka(run_loop* run_loop, FrankaRobot *rob
                                             RobotStateData *robot_state_data) {
   BaseSkill* skill = run_loop->getSkillInfoManager()->get_current_skill();
   if (skill != nullptr) {
+    model_ = robot->getModel();
     skill->execute_skill_on_franka(run_loop, robot, robot_state_data);
     run_loop->finish_current_skill(skill);
   }

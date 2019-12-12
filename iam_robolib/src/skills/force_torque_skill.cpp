@@ -62,7 +62,7 @@ void ForceTorqueSkill::execute_skill_on_franka(run_loop* run_loop,
       robot_state_data->log_robot_state(pose_desired, robot_state, robot->getModel(), time);
     }
 
-    bool done = termination_handler_->should_terminate_on_franka(robot_state, 
+    bool done = termination_handler_->should_terminate_on_franka(robot_state, model_,
                                                                  traj_generator_);
     if (done && time > 0.0) {
       try {

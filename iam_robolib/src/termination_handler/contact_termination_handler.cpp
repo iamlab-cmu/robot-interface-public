@@ -261,8 +261,11 @@ bool ContactTerminationHandler::should_terminate(TrajectoryGenerator *trajectory
 }
 
 bool ContactTerminationHandler::should_terminate_on_franka(const franka::RobotState &robot_state,
+                                                            franka::Model *model,
                                                            TrajectoryGenerator *trajectory_generator) {
   check_terminate_preempt();
+
+  check_terminate_virtual_wall_collisions(robot_state, model);
 
   if(!done_) {
     if(trajectory_generator->time_ > trajectory_generator->run_time_ + buffer_time_) {

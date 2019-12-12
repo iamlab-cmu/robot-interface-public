@@ -143,11 +143,22 @@ void run_loop::finish_current_skill(BaseSkill* skill) {
   if (status == SkillStatus::FINISHED) {
     process_info_requires_update_ = true;
   }
+
+  if (status == SkillStatus::VIRT_COLL_ERR) {
+    throw franka::Exception("Robot is in collision with virtual walls!");
+  }
   // TODO(Mohit): Do any other-preprocessing if required
 }
 
 void run_loop::write_skill_result_to_shared_memory(BaseSkill* skill) {
-  skill->set_skill_status(SkillStatus::FINISHED);
+  SkillStatus status = skill->get_current_skill_status();
+  
+  if (skill->has_terminated_by_virt_coll()) {
+    skill->set_skill_status(SkillStatus::VIRT_COLL_ERR);
+  } else {
+    skill->set_skill_status(SkillStatus::FINISHED);
+  }
+  
 
   // Write results to memory
   int memory_index = skill->get_skill_id() % 2;
@@ -453,8 +464,8 @@ void run_loop::didFinishSkillInMetaSkill(BaseSkill* skill) {
 
 void run_loop::setup_data_loggers() {
   // LoggerUtils::all_logger_files();
-  int logger_integer_suffix = LoggerUtils::integer_suffix_for_new_log_file();
-  std::string filename = "./robot_state_data_" + std::to_string(logger_integer_suffix) + ".txt";
+  int logger_integer_suffix = LoggerUtils::integer_suffix_for_new_log_file(logdir_);
+  std::string filename = logdir_ + "/" + "robot_state_data_" + std::to_string(logger_integer_suffix) + ".txt";
   std::cout << "Will save data to: " << filename << std::endl;
   FileStreamLogger *robot_logger = new FileStreamLogger(filename);
   robot_state_data_->setFileStreamLogger(robot_logger);
@@ -592,8 +603,8 @@ void run_loop::run_on_franka() {
 
       if(use_new_filestream_on_error_ == 1) {
         // Write new logs to a new log file.
-        int logger_integer_suffix = LoggerUtils::integer_suffix_for_new_log_file();
-        std::string filename = "./robot_state_data_" + std::to_string(logger_integer_suffix) + ".txt";
+        int logger_integer_suffix = LoggerUtils::integer_suffix_for_new_log_file(logdir_);
+        std::string filename = logdir_ + "/" + "robot_state_data_" + std::to_string(logger_integer_suffix) + ".txt";
         std::cout << "Will save data to: " << filename << std::endl;
         robot_state_data_->updateFileStreamLogger(filename);
       }
