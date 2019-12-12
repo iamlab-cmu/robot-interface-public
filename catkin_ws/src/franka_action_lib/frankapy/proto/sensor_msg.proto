@@ -9,3 +9,16 @@ message BoundingBox {
   required int32 w = 5;
   required int32 h = 6;
 }
+
+message JointPositions{
+  required double timestamp= 1;
+  required int32 id = 2;
+  required double q1 = 3;
+  required double q2 = 4;
+  required double q3 = 5;
+  required double q4 = 6;
+  required double q5 = 7;
+  required double q6 = 8;
+  required double q7 = 9;
+  
+}
