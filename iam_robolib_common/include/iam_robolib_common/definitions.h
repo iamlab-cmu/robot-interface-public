@@ -77,7 +77,8 @@ enum class TerminationHandlerType : uint8_t {
 enum class SkillStatus : uint8_t { 
   TO_START = 0, 
   RUNNING = 1, 
-  FINISHED = 2 
+  FINISHED = 2,
+  VIRT_COLL_ERR = 3
 }; 
 
 #endif  // IAM_ROBOLIB_COMMON_DEFINITIONS_H_

@@ -52,6 +52,8 @@ class TerminationHandler {
    */
   virtual bool has_terminated();
 
+  virtual bool has_terminated_by_virt_coll();
+
   /**
    * Sets done_ to true if preempt flag is true.
    */
@@ -60,6 +62,7 @@ class TerminationHandler {
   void check_terminate_virtual_wall_collisions(const franka::RobotState &robot_state, franka::Model *robot_model);
 
   bool done_ = false;
+
  protected:
   SharedBufferTypePtr params_ = 0;
   RunLoopProcessInfo *run_loop_info_ = nullptr;
@@ -81,6 +84,8 @@ class TerminationHandler {
 
   // Create dist thresholds
   std::array<double, 7> dist_thresholds_ = std::array<double, 7>{0.11, 0.11, 0.08, 0.08, 0.07, 0.07, 0.1};
+
+  bool terminated_by_virt_coll_ = false;
 
 };
 

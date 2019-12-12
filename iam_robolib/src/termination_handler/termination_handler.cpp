@@ -14,6 +14,10 @@ bool TerminationHandler::has_terminated() {
   return done_;
 }
 
+bool TerminationHandler::has_terminated_by_virt_coll() {
+  return terminated_by_virt_coll_;
+}
+
 void TerminationHandler::check_terminate_virtual_wall_collisions(const franka::RobotState &robot_state, franka::Model *robot_model) {
   if (!done_) {
     int n_frame = 0;
@@ -30,6 +34,7 @@ void TerminationHandler::check_terminate_virtual_wall_collisions(const franka::R
         {
           printf("Frame %d is in collision with wall %d with distance %f\n", n_frame + 1, n_plane, dist);
           done_ = true;
+          terminated_by_virt_coll_ = true;
           break;
         }
       }

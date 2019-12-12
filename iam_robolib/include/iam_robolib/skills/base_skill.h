@@ -83,6 +83,8 @@ class BaseSkill {
                                        RobotStateData* robot_state_data) = 0;
 
   virtual bool has_terminated(Robot* robot);
+  virtual bool has_terminated_by_virt_coll();
+
 
   virtual void write_result_to_shared_memory(SharedBufferTypePtr result_buffer);
   virtual void write_result_to_shared_memory(SharedBufferTypePtr result_buffer, 

@@ -67,6 +67,10 @@ bool BaseSkill::has_terminated(Robot* robot) {
   return termination_handler_->has_terminated();
 }
 
+bool BaseSkill::has_terminated_by_virt_coll() {
+  return termination_handler_->has_terminated_by_virt_coll();
+}
+
 void BaseSkill::write_result_to_shared_memory(SharedBufferTypePtr result_buffer) {
   std::cout << "Should write result to shared memory\n";
 }
