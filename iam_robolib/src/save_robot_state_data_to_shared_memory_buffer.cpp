@@ -14,7 +14,7 @@ void save_current_robot_state_data_to_shared_memory_buffer(RunLoopSharedMemoryHa
                                                                              7+7+7+7+7+7+7+7+
                                                                              7+6+7+6+
                                                                              7+6+6+6+16+6+6+
-                                                                             7+7+37+37+1+1+1+
+                                                                             7+7+144+37+37+1+1+1+
                                                                              1+1+1+1+1); // 360
 
     memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data->current_pose_desired_.data(), 
@@ -170,6 +170,10 @@ void save_current_robot_state_data_to_shared_memory_buffer(RunLoopSharedMemoryHa
     memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data->current_robot_state_.dtheta.data(), 
                                     robot_state_data->current_robot_state_.dtheta.size() * sizeof(SharedBufferType));
     buffer_idx += robot_state_data->current_robot_state_.dtheta.size();
+
+    memcpy(&current_robot_state_buffer[buffer_idx], robot_state_data->current_robot_frames_.data(), 
+                                    robot_state_data->current_robot_frames_.size() * sizeof(SharedBufferType));
+    buffer_idx += robot_state_data->current_robot_frames_.size();
 
     current_robot_state_buffer[buffer_idx++] = robot_state_data->current_robot_state_.current_errors.joint_position_limits_violation? 1.0 : 0.0;
     current_robot_state_buffer[buffer_idx++] = robot_state_data->current_robot_state_.current_errors.cartesian_position_limits_violation? 1.0 : 0.0;

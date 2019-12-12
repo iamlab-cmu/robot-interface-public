@@ -78,5 +78,8 @@ notebooks/.ipynb_checkpoints
 *imgui.ini
 *egg-info
 
-# VSCode
+# Vscode
 .vscode
+
+# Saved data
+catkin_ws/src/franka_action_lib/out*
