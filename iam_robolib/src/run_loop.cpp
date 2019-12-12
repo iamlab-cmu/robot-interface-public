@@ -695,3 +695,7 @@ SkillInfoManager* run_loop::getSkillInfoManager() {
 RunLoopSharedMemoryHandler* run_loop::get_shared_memory_handler() {
   return shared_memory_handler_;
 }
+
+SensorDataManager* run_loop::get_sensor_data_manager() {
+  return sensor_data_manager_;
+}

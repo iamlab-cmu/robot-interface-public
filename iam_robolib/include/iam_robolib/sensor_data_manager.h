@@ -21,7 +21,15 @@ class SensorDataManager {
      */
     SensorDataManagerReadStatus readBoundingBoxMessage(BoundingBox& message);
 
-private:
+
+    /**
+     * Read the sensor message with joint positions for @joint_position_dynamic_interp_skill
+     * @param message
+     * @return
+     */
+    SensorDataManagerReadStatus readJointSensorInfoMessage(JointSensorInfo& message);
+
+ private:
     SensorBufferTypePtr buffer_;
     boost::interprocess::interprocess_mutex* buffer_mutex_= nullptr;
 
@@ -30,6 +38,8 @@ private:
      * @return
      */
     float getMessageSize();
+
+    SensorDataManagerReadStatus readMessageAsBytes(std::function< bool(const void *bytes, int data_size)> parse_callback);
 };
 
 #endif //MAIN_IAM_ROBOLIB_SENSOR_DATA_MANAGER_H

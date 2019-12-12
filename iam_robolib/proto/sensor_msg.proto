@@ -9,3 +9,16 @@ message BoundingBox {
   required int32 w = 5;
   required int32 h = 6;
 }
+
+message JointSensorInfo {
+  required int32 id = 1;
+  required int32 timestamp = 2;
+
+  required float j0 = 3;
+  required float j1 = 4;
+  required float j2 = 5;
+  required float j3 = 6;
+  required float j4 = 7;
+  required float j5 = 8;
+  required float j6 = 9;
+}
