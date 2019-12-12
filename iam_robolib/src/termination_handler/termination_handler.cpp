@@ -3,6 +3,7 @@
 //
 
 #include "iam_robolib/termination_handler/termination_handler.h"
+#include <iostream>
 
 void TerminationHandler::check_terminate_preempt() {
   if (!done_) {
@@ -30,7 +31,7 @@ void TerminationHandler::check_terminate_virtual_wall_collisions(const franka::R
         double dist = planes_[n_plane].absDistance(pos);
         
         if (dist < dist_thresholds_[n_frame]) {
-          std::out << string_format("Frame %d is in collision with wall %d with distance %f\n", n_frame + 1, n_plane, dist);
+          std::cout << "Frame " << n_frame + 1 << "is in collision with wall" << n_plane << "with distance " << dist << std::endl;
           done_ = true;
           terminated_by_virt_coll_ = true;
           break;
@@ -38,7 +39,7 @@ void TerminationHandler::check_terminate_virtual_wall_collisions(const franka::R
       }
 
       n_frame++;
-      if (done_) { break };
+      if (done_) { break; }
     }
   }
 }
