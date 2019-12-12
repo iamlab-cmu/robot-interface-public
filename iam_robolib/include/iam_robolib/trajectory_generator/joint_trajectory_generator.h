@@ -23,12 +23,19 @@ class JointTrajectoryGenerator : public TrajectoryGenerator {
   void initialize_initial_and_desired_joints(const franka::RobotState &robot_state, SkillType skill_type);
 
   /**
-   * Returns the desired joints
+   * Set the goal joints to new value. This is called when new data is received from sensor buffer.
+   * @param joints
+   */
+  void setGoalJoints(const std::array<double, 7> joints);
+
+  /**
+   * Returns the desired joints. This method is called at every time step of the control loop to
+   * find the joint positions to move to at the next step.
    */
   const std::array<double, 7>& get_desired_joints() const;
 
   /**
-   * Returns the goal joints
+   * Returns the goal joints. These are the final set of joint positions that the skill needs to reach.
    */
   const std::array<double, 7>& get_goal_joints() const;
 

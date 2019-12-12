@@ -77,7 +77,22 @@ void JointPositionDynamicInterpSkill::execute_skill_on_franka(
     SensorDataManagerReadStatus sensor_msg_status = sensor_data_manager->readJointSensorInfoMessage(
         new_joint_sensor_info);
     if (sensor_msg_status == SensorDataManagerReadStatus::SUCCESS) {
-
+      assert(new_joint_sensor_info.IsInitialized());
+      std::array<double, 7> new_goal_joints = {
+          new_joint_sensor_info.j0(),
+          new_joint_sensor_info.j1(),
+          new_joint_sensor_info.j2(),
+          new_joint_sensor_info.j3(),
+          new_joint_sensor_info.j4(),
+          new_joint_sensor_info.j5(),
+          new_joint_sensor_info.j6(),
+      };
+      joint_trajectory_generator->setGoalJoints(new_goal_joints);
+      std::cout << "Updated new goal joints: ";
+      for (int i = 0; i < new_goal_joints.size(); i++) {
+        std::cout << new_goal_joints[i] << ", ";
+      }
+      std::cout << std::endl;
     }
 
 
