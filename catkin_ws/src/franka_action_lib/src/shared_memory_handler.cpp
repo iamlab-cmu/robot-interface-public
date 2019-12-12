@@ -963,25 +963,33 @@ namespace franka_action_lib
 void SharedMemoryHandler::loadSensorData_dummy_Unprotected(const franka_action_lib::SensorData::ConstPtr &ptr,
                                                            int current_free_shared_memory_index)
 {
-    if(current_free_shared_memory_index == 0)
-    {
+    if(current_free_shared_memory_index == 0) {
         //std::cout << std::setprecision(10) <<ptr->data << std::endl;
         //std::cout << sensor_data_buffer_0_ << std::endl;
 
-        // if(sensor_data_0_mutex_.try_lock()) {
-            sensor_data_buffer_0_[0] = static_cast<SharedBufferType>(ptr->size);
-            memcpy(sensor_data_buffer_0_ + 2, &ptr->sensorData,
-                   ptr->size * sizeof(SharedBufferType));  //TODO change size of parameters
-            // sensor_data_0_mutex_.unlock();
-        // }
+        if(sensor_data_0_mutex_->try_lock()) {
 
+            std::string sensor_data_desc = ptr->sensorDataInfo;
+            int sensor_data_size = ptr->size;
+            auto sensor_data = ptr->sensorData;
+
+            // First let's indicate this is new data.
+            sensor_data_buffer_0_[0] = 1.0;
+            // Now add the type for the message. Set it to 4 for now.
+            sensor_data_buffer_0_[1] = 4.0;
+            // Now add the size of the data.
+            sensor_data_buffer_0_[2] = sensor_data_size;
+
+            memcpy(sensor_data_buffer_0_ + 3, &ptr->sensorData, 
+                   sensor_data_size * sizeof(uint8_t));
+            sensor_data_0_mutex_->unlock();
+        } else {
+          std::cout << "Failed to get sensor data 0 mutex" << std::endl;
+        }
+
+    } else {
+      assert(false);
     }
-//    else if(current_free_shared_memory_index == 1)
-//    {
-//        sensor_data_buffer_1_[0] = static_cast<SharedBufferType>(goal->termination_type);
-//        sensor_data_buffer_1_[1] = static_cast<SharedBufferType>(goal->num_termination_params);
-//        memcpy(sensor_data_buffer_1_ + 2, &goal->termination_params[0], goal->num_termination_params * sizeof(SharedBufferType));
-//    }
 }
 
   // Loads traj gen parameters into the designated current_free_shared_memory_index buffer

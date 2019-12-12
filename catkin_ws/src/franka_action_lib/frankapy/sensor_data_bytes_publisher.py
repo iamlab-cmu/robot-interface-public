@@ -5,16 +5,31 @@ from proto import sensor_msg_pb2
 
 def talker():
     sensor_msg = sensor_msg_pb2.BoundingBox()
-    data_in_bytes=sensor_msg.SerializeToString()
+    sensor_msg.name = "hello"
+    sensor_msg.id = 0
+    sensor_msg.x = 1
+    sensor_msg.y = 2
+    sensor_msg.w = 3
+    sensor_msg.h = 4
 
-    print('data_in_bytes',data_in_bytes)
-    print(type(data_in_bytes)
+    sensor_data_bytes = sensor_msg.SerializeToString()
 
-    pub = rospy.Publisher('dummy_time', SensorData, queue_size=1000)
+    print('data_in_bytes: type: {}, data: {}'.format(
+       type(sensor_data_bytes), sensor_data_bytes))
+
+    pub = rospy.Publisher('dummy_sensor', SensorData, queue_size=1000)
+    rospy.init_node('talker', anonymous=True)
+
     f_data = SensorData()
     f_data.sensorDataInfo = "BoundingBox"   
+    f_data.size = len(sensor_data_bytes)
+    f_data.sensorData = sensor_data_bytes
 
-    f_data.SensorData = data_in_bytes
+    rate = rospy.Rate(1)
+    while not rospy.is_shutdown():
+        pub.publish(f_data)
+        rate.sleep()
+
     #f_data.size =len10
 
     # rospy.init_node('dummy_sensor_bytes_publisher', anonymous=True)

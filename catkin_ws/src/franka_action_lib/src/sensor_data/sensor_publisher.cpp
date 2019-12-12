@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 
     f_data.sensorDataInfo = "Torque";
     f_data.size =10;
-    f_data.sensorData = {0.0,1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0};
+    f_data.sensorData = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
 
 //    ROS_INFO("%s", msg.data.c_str());
       ROS_INFO("%f", f_data.sensorData[0]);

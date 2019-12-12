@@ -12,7 +12,7 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
 
   franka_action_lib::SensorSubscriberHandler handler(n);
-  ros::Subscriber sub = n.subscribe("dummy_time", 1000, &franka_action_lib::SensorSubscriberHandler::dummyTimeCallback, &handler);
+  ros::Subscriber sub = n.subscribe("dummy_sensor", 1000, &franka_action_lib::SensorSubscriberHandler::dummyTimeCallback, &handler);
 
   ros::spin();
 
