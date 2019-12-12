@@ -27,6 +27,7 @@ class BaseMetaSkill {
   int skill_idx_;
   SkillStatus skill_status_;
   bool is_composable_{false};
+  franka::Model* model_= nullptr;
 
 };
 

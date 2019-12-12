@@ -1023,15 +1023,15 @@ class FrankaArm:
     '''
     Misc
     '''
-    def reset_joints(self, skill_desc=''):
+    def reset_joints(self, skill_desc='', ignore_errors=True):
         '''Commands Arm to goto hardcoded home joint configuration
         '''
-        self.goto_joints(FC.HOME_JOINTS, duration=5, skill_desc=skill_desc)
+        self.goto_joints(FC.HOME_JOINTS, duration=5, skill_desc=skill_desc, ignore_errors=ignore_errors)
 
-    def reset_pose(self, skill_desc=''):
+    def reset_pose(self, skill_desc='', ignore_errors=True):
         '''Commands Arm to goto hardcoded home pose
         '''
-        self.goto_pose(FC.HOME_POSE, duration=5, skill_desc=skill_desc)
+        self.goto_pose(FC.HOME_POSE, duration=5, skill_desc=skill_desc, ignore_errors=ignore_errors)
 
     def is_joints_reachable(self, joints):
         '''

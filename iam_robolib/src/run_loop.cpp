@@ -143,11 +143,22 @@ void run_loop::finish_current_skill(BaseSkill* skill) {
   if (status == SkillStatus::FINISHED) {
     process_info_requires_update_ = true;
   }
+
+  if (status == SkillStatus::VIRT_COLL_ERR) {
+    throw franka::Exception("Robot is in collision with virtual walls!");
+  }
   // TODO(Mohit): Do any other-preprocessing if required
 }
 
 void run_loop::write_skill_result_to_shared_memory(BaseSkill* skill) {
-  skill->set_skill_status(SkillStatus::FINISHED);
+  SkillStatus status = skill->get_current_skill_status();
+  
+  if (skill->has_terminated_by_virt_coll()) {
+    skill->set_skill_status(SkillStatus::VIRT_COLL_ERR);
+  } else {
+    skill->set_skill_status(SkillStatus::FINISHED);
+  }
+  
 
   // Write results to memory
   int memory_index = skill->get_skill_id() % 2;

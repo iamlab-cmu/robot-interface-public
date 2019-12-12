@@ -60,8 +60,11 @@ bool FinalJointTerminationHandler::should_terminate(TrajectoryGenerator *traject
   return done_;
 }
 
-bool FinalJointTerminationHandler::should_terminate_on_franka(const franka::RobotState &_, 
+bool FinalJointTerminationHandler::should_terminate_on_franka(const franka::RobotState &robot_state, 
+                                                              franka::Model *model,
                                                               TrajectoryGenerator *trajectory_generator) {
+
+  check_terminate_virtual_wall_collisions(robot_state, model);
   return should_terminate(trajectory_generator);
 }
 

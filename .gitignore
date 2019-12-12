@@ -76,3 +76,6 @@ notebooks/.ipynb_checkpoints
 *cmake-build-debug
 *imgui.ini
 *egg-info
+
+# VSCode
+.vscode
