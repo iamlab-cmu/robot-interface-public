@@ -62,7 +62,7 @@ void setCurrentThreadToRealtime(bool throw_on_error) {
 bool run_loop::init() {
   // TODO(Mohit): Initialize memory and stuff.
   bool throw_on_error;
-  setCurrentThreadToRealtime(throw_on_error);
+  // setCurrentThreadToRealtime(throw_on_error);
   shared_memory_handler_ = new RunLoopSharedMemoryHandler();
 }
 
@@ -72,7 +72,7 @@ void run_loop::start() {
   std::cout << "start run loop.\n";
   shared_memory_handler_->start();
 
-  sensor_data_wrapper_ = new SensorDataManager(
+  sensor_data_manager_ = new SensorDataManager(
       shared_memory_handler_->getSensorDataBuffer(0),
       shared_memory_handler_->getSensorDataBufferMutex());
 }
@@ -521,6 +521,8 @@ void run_loop::run_on_franka() {
   setup_current_robot_state_io_thread();
   setup_save_robot_state_thread();
 
+  BoundingBox msg;
+
   while (true) {
     BaseSkill* skill;
     try {
@@ -564,11 +566,7 @@ void run_loop::run_on_franka() {
           robot_access_mutex_.unlock();
         }
 
-
-        SharedBufferTypePtr buffer_sensor = shared_memory_handler_->getSensorDataBuffer(0);
-        SharedBufferType buf =  static_cast<SharedBufferType>(buffer_sensor[0]);
-        std::cout << "sensor data:" <<  std::setprecision(10) << buf << std::endl;
-        std::cout << "hi" << std::endl;
+        sensor_data_manager_->readBoundingBoxMessage(msg);
 
         // Sleep to maintain 1Khz frequency, not sure if this is required or not.
         auto finish = std::chrono::high_resolution_clock::now();

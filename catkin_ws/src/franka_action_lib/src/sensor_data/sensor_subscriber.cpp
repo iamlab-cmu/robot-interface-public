@@ -4,10 +4,9 @@
 
 #include "franka_action_lib/sensor_data/sensor_subscriber_handler.h"
 
+int main(int argc, char **argv) {
 
-
-int main(int argc, char **argv)
-{
+  ros::init(argc, argv, "sensor_subscriber_node", ros::init_options::AnonymousName);
 
   ros::NodeHandle n;
 

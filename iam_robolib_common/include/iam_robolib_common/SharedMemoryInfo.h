@@ -104,10 +104,10 @@ class SharedMemoryInfo {
   const std::string current_robot_state_mutex_name_ = "current_robot_state_mutex";
 
   // Declare sizes
-  const int params_memory_size_0_ = 4 * 1024 * sizeof(SharedBufferType);
+  const int sensor_buffer_size_ = 2 * 1024 * sizeof(SensorBufferType);  // Notice the different "type"
+  const int params_memory_size_0_ = 4 * 1024 * sizeof(SharedBufferType) + sensor_buffer_size_;
   const int params_memory_size_1_ = 4 * 1024 * sizeof(SharedBufferType);
   const int objects_memory_size_ = 2 * 1024 * sizeof(SharedBufferType);
-  const int sensor_buffer_size_ = 5 * 1024 * sizeof(SharedBufferType);
 
   const int trajectory_params_buffer_size_= 1024 * sizeof(SharedBufferType);
   const int feedback_controller_params_buffer_size_= 1024 * sizeof(SharedBufferType);

@@ -8,7 +8,7 @@
 
 class SensorDataManager {
     public:
-    SensorDataManager(SharedBufferTypePtr buffer,
+    SensorDataManager(SensorBufferTypePtr buffer,
                       boost::interprocess::interprocess_mutex *mutex) :
                       buffer_(buffer),
                       buffer_mutex_(mutex)
@@ -22,7 +22,7 @@ class SensorDataManager {
     SensorDataManagerReadStatus readBoundingBoxMessage(BoundingBox& message);
 
 private:
-    SharedBufferTypePtr buffer_ ;
+    SensorBufferTypePtr buffer_;
     boost::interprocess::interprocess_mutex* buffer_mutex_= nullptr;
 
     /**

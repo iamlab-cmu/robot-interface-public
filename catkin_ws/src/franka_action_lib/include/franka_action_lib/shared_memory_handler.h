@@ -133,17 +133,7 @@ namespace franka_action_lib
       SharedBufferTypePtr termination_buffer_1_;
       SharedBufferTypePtr timer_buffer_1_;
 
-      SharedBufferTypePtr sensor_data_buffer_0_ ;
-
-//      SharedBufferTypePtr traj_gen_sensor_buffer_0_; //want to remove this later
-//      SharedBufferTypePtr feedback_controller_sensor_buffer_0_;
-//      SharedBufferTypePtr termination_sensor_buffer_0_;
-//      SharedBufferTypePtr timer_sensor_buffer_0_;
-
-//      SharedBufferTypePtr traj_gen_sensor_buffer_1_;
-//      SharedBufferTypePtr feedback_controller_sensor_buffer_1_;
-//      SharedBufferTypePtr termination_sensor_buffer_1_;
-//      SharedBufferTypePtr timer_sensor_buffer_1_;
+      SensorBufferTypePtr sensor_data_buffer_0_ ;
 
       SharedBufferTypePtr execution_feedback_buffer_0_;
       SharedBufferTypePtr execution_result_buffer_0_;

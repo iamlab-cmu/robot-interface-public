@@ -89,7 +89,7 @@ SharedBufferTypePtr RunLoopSharedMemoryHandler::getCurrentRobotStateBuffer() {
     return current_robot_state_buffer_;
 }
 
-SharedBufferTypePtr RunLoopSharedMemoryHandler::getSensorDataBuffer(int memory_region) {
+SensorBufferTypePtr RunLoopSharedMemoryHandler::getSensorDataBuffer(int memory_region) {
     if (memory_region == 0) {
         return sensor_data_buffer_0_;
     } else {
@@ -106,14 +106,13 @@ void RunLoopSharedMemoryHandler::clearAllBuffers() {
     boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> shared_execution_result_1_lock(*shared_execution_result_mutex_1_);
     boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> shared_current_robot_state_lock(*shared_current_robot_state_mutex_);
 
-    boost::interprocess::scoped_lock<boost::interprocess::interprocess_mutex> shared_sensor_data_0_lock(*sensor_data_mutex_0_); //may or may not need
-
-
     memset(traj_gen_buffer_0_, 0.0, shared_memory_info_.getSizeForTrajectoryParameters());
     memset(feedback_controller_buffer_0_, 0.0, shared_memory_info_.getSizeForFeedbackControllerParameters());
     memset(termination_buffer_0_, 0.0, shared_memory_info_.getSizeForTerminationParameters());
     memset(timer_buffer_0_, 0.0, shared_memory_info_.getSizeForTimerParameters());
-    memset(sensor_data_buffer_0_, 0.0, shared_memory_info_.getSizeForSensorData());
+
+    // sensor_data_buffer is of type uint8_t
+    memset(sensor_data_buffer_0_, 0, shared_memory_info_.getSizeForSensorData());
 
     memset(traj_gen_buffer_1_, 0.0, shared_memory_info_.getSizeForTrajectoryParameters());
     memset(feedback_controller_buffer_1_, 0.0, shared_memory_info_.getSizeForFeedbackControllerParameters());
@@ -207,32 +206,18 @@ void RunLoopSharedMemoryHandler::start() {
   );
   timer_buffer_0_ = reinterpret_cast<SharedBufferTypePtr>(region_timer_params_0_.get_address());
 
-//    shared_sensor_data_0_ = boost::interprocess::shared_memory_object(
-//            boost::interprocess::open_or_create,
-//            shared_memory_info_.getSharedMemoryNameForSensorData(0).c_str(),
-//            boost::interprocess::read_write
-//    );
-
-    region_sensor_data_0_ =  boost::interprocess::mapped_region(
+  region_sensor_data_0_ =  boost::interprocess::mapped_region(
             shared_memory_object_0_,
             boost::interprocess::read_write,
             shared_memory_info_.getOffsetForSensorData(),
             shared_memory_info_.getSizeForSensorData()
-    );
+  );
 
+  sensor_data_buffer_0_ = reinterpret_cast<SensorBufferTypePtr >(region_sensor_data_0_.get_address());
 
-
-    sensor_data_buffer_0_ = reinterpret_cast<SharedBufferTypePtr>(
-            region_sensor_data_0_.get_address());
-
-    sensor_data_buffer_0_[0]=1000.0;
-    std::cout << "test " << sensor_data_buffer_0_[0] << std::endl;
-    std::cout << "HELLO WORLD" << std::endl;
-
-
-    /**
-     * Create shared memory region for buffer 1.
-     */
+  /**
+   * Create shared memory region for buffer 1.
+   */
 
   // Create shared memory objects. for different parameters
   const char *shm_name_1 = shared_memory_info_.getSharedMemoryNameForParameters(1).c_str();

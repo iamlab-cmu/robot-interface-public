@@ -176,7 +176,10 @@ int SharedMemoryInfo::getSizeForSensorData()  {
 }
 
 int SharedMemoryInfo::getOffsetForSensorData()  {
-    return 0;
+  return (trajectory_params_buffer_size_
+          + feedback_controller_params_buffer_size_
+          + termination_params_buffer_size_
+          + timer_params_buffer_size_);
 }
 
 int SharedMemoryInfo::getSizeForExecutionFeedbackData() {

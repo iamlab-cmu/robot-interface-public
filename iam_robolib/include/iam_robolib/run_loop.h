@@ -183,7 +183,7 @@ class run_loop {
   TrajectoryGeneratorFactory traj_gen_factory_={};
   FeedbackControllerFactory feedback_controller_factory_={};
   TerminationHandlerFactory termination_handler_factory_={};
-  SensorDataManager* sensor_data_wrapper_ = nullptr;
+  SensorDataManager* sensor_data_manager_ = nullptr;
 
   void set_robolib_status(bool is_ready, std::string error_message);
 

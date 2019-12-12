@@ -53,7 +53,6 @@ namespace franka_action_lib
         shared_memory_info_.getSharedMemoryNameForParameters(0).c_str(),
         boost::interprocess::read_write
     );
-    std::cout << "line 56 " << std::endl;
 
     // Allocate regions for each parameter array
     region_traj_params_0_ = boost::interprocess::mapped_region(
@@ -77,7 +76,6 @@ namespace franka_action_lib
         shared_memory_info_.getSizeForTerminationParameters()
     );
 
-    std::cout << "line 80 " << std::endl;
     termination_buffer_0_ = reinterpret_cast<SharedBufferTypePtr>(region_termination_params_0_.get_address());
     region_timer_params_0_ = boost::interprocess::mapped_region(
         shared_memory_object_0_,
@@ -93,8 +91,8 @@ namespace franka_action_lib
         shared_memory_info_.getSizeForSensorData()
     );
     std::cout << region_sensor_data_0_.get_address() << std::endl;
-    sensor_data_buffer_0_ = reinterpret_cast<SharedBufferTypePtr>(region_sensor_data_0_.get_address());
-    std::cout << "line 97 " << std::endl;
+    sensor_data_buffer_0_ = reinterpret_cast<SensorBufferTypePtr>(region_sensor_data_0_.get_address());
+
     // Get mutex for buffer 1 from the shared memory segment.
     std::pair<boost::interprocess::interprocess_mutex *, std::size_t> shared_memory_object_1_mutex_pair = \
                                 managed_shared_memory_.find<boost::interprocess::interprocess_mutex>
@@ -974,13 +972,13 @@ void SharedMemoryHandler::loadSensorData_dummy_Unprotected(const franka_action_l
             auto sensor_data = ptr->sensorData;
 
             // First let's indicate this is new data.
-            sensor_data_buffer_0_[0] = 1.0;
+            sensor_data_buffer_0_[0] = 1;
             // Now add the type for the message. Set it to 4 for now.
-            sensor_data_buffer_0_[1] = 4.0;
+            sensor_data_buffer_0_[1] = 4;
             // Now add the size of the data.
             sensor_data_buffer_0_[2] = sensor_data_size;
 
-            memcpy(sensor_data_buffer_0_ + 3, &ptr->sensorData, 
+            memcpy(sensor_data_buffer_0_ + 3, &ptr->sensorData[0], 
                    sensor_data_size * sizeof(uint8_t));
             sensor_data_0_mutex_->unlock();
         } else {

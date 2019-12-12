@@ -14,6 +14,9 @@
 typedef double SharedBufferType;
 typedef SharedBufferType* SharedBufferTypePtr;
 
+typedef uint8_t SensorBufferType;
+typedef SensorBufferType* SensorBufferTypePtr;
+
 // Enum for Robot Types
 enum class RobotType : uint8_t {
     FRANKA = 0,
@@ -85,7 +88,8 @@ enum class SkillStatus : uint8_t {
 enum class SensorDataManagerReadStatus : uint8_t {
   FAIL_TO_GET_LOCK = 0,
   FAIL_TO_READ = 1,
-  SUCCESS = 2,
+  NO_NEW_MESSAGE = 2,
+  SUCCESS = 3,
 };
 
 #endif  // IAM_ROBOLIB_COMMON_DEFINITIONS_H_

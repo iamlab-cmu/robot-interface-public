@@ -13,12 +13,13 @@ def talker():
     sensor_msg.h = 4
 
     sensor_data_bytes = sensor_msg.SerializeToString()
-
+    
     print('data_in_bytes: type: {}, data: {}'.format(
        type(sensor_data_bytes), sensor_data_bytes))
 
-    pub = rospy.Publisher('dummy_sensor', SensorData, queue_size=1000)
     rospy.init_node('talker', anonymous=True)
+    
+    pub = rospy.Publisher('dummy_sensor', SensorData, queue_size=1000)
 
     f_data = SensorData()
     f_data.sensorDataInfo = "BoundingBox"   
@@ -27,6 +28,7 @@ def talker():
 
     rate = rospy.Rate(1)
     while not rospy.is_shutdown():
+        rospy.loginfo("will send message")
         pub.publish(f_data)
         rate.sleep()
 
