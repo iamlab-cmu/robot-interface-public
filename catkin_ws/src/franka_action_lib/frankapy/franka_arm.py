@@ -136,6 +136,8 @@ class FrankaArm:
             stop_on_contact_forces (list): List of 6 floats corresponding to
                 force limits on translation (xyz) and rotation about (xyz) axes.
                 Default is None. If None then will not stop on contact.
+            ignore_errors : function ignores errors by default. If False, errors
+                and some exceptions can be thrown
             skill_desc (string) : Skill description to use for logging on
                 control-pc.
         '''
@@ -164,6 +166,8 @@ class FrankaArm:
             stop_on_contact_forces (list): List of 6 floats corresponding to
                 force limits on translation (xyz) and rotation about (xyz) axes.
                 Default is None. If None then will not stop on contact.
+            ignore_errors : function ignores errors by default. If False, errors
+                and some exceptions can be thrown
             skill_desc (string) : Skill description to use for logging on
                 control-pc.
         '''
@@ -193,6 +197,8 @@ class FrankaArm:
             stop_on_contact_forces (list): List of 6 floats corresponding to
                 force limits on translation (xyz) and rotation about (xyz) axes.
                 Default is None. If None then will not stop on contact.
+            ignore_errors : function ignores errors by default. If False, errors
+                and some exceptions can be thrown
             skill_desc (string) : Skill description to use for logging on
                 control-pc.
         '''
@@ -268,6 +274,8 @@ class FrankaArm:
             stop_on_contact_forces (list): List of 6 floats corresponding to
                 force limits on translation (xyz) and rotation about (xyz) axes.
                 Default is None. If None then will not stop on contact.
+            ignore_errors : function ignores errors by default. If False, errors
+                and some exceptions can be thrown
             skill_desc (string) : Skill description to use for logging on
                 control-pc.
         '''
@@ -315,6 +323,8 @@ class FrankaArm:
             cartesian_impedance (list): List of 6 floats. Used to set the cartesian
                 impedance of Franka's internal cartesian controller. 
                 List of (x, y, z, roll, pitch, yaw)
+            ignore_errors : function ignores errors by default. If False, errors
+                and some exceptions can be thrown
             skill_desc (string) : Skill description to use for logging on
                 control-pc.
         '''
@@ -871,7 +881,7 @@ class FrankaArm:
             translational_stiffnesses=FC.DEFAULT_TRANSLATIONAL_STIFFNESSES,
             rotational_stiffnesses=FC.DEFAULT_ROTATIONAL_STIFFNESSES,
             cartesian_impedances=None,
-            ignore_errors=True, skill_type=SkillType.ImpedanceControlSkill):
+            ignore_errors=True, skill_desc='', skill_type=SkillType.ImpedanceControlSkill):
         '''Run guide mode with selective pose compliance given translational
         and rotational stiffnesses
 
@@ -891,7 +901,7 @@ class FrankaArm:
             if cartesian_impedances is not None:
                 skill.add_cartesian_impedances(cartesian_impedances)
             else:
-                skill.add_feedback_controller_params([translational_stiffness] + [rotational_stiffness]) 
+                skill.add_feedback_controller_params([translational_stiffnesses] + [rotational_stiffnesses]) 
         elif skill_type == SkillType.CartesianPoseSkill:
             if cartesian_impedances is not None:
                 skill.add_cartesian_impedances(cartesian_impedances)
