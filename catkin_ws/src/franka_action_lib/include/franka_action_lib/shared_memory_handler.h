@@ -48,7 +48,7 @@ namespace franka_action_lib
 
       franka_action_lib::ExecuteSkillResult getSkillResult(int skill_id);
 
-      franka_action_lib::RobotState getRobotState();
+      franka_action_lib::RobotState getRobotState(std::array<double, 144> &robot_frames);
 
       franka_action_lib::RobolibStatus getRobolibStatus();
 

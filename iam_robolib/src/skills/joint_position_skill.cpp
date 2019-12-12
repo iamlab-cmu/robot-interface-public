@@ -68,14 +68,14 @@ void JointPositionSkill::execute_skill_on_franka(run_loop* run_loop,
       traj_generator_->get_next_step();
     }
 
-    bool done = termination_handler_->should_terminate_on_franka(robot_state, 
+    bool done = termination_handler_->should_terminate_on_franka(robot_state, model_,
                                                                  traj_generator_);
     franka::JointPositions joint_desired(joint_trajectory_generator->get_desired_joints());
 
     log_counter += 1;
     if (log_counter % 1 == 0) {
       pose_desired = robot_state.O_T_EE_d;
-      robot_state_data->log_robot_state(pose_desired, robot_state, time);
+      robot_state_data->log_robot_state(pose_desired, robot_state, robot->getModel(), time);
     }
     
     if (done && time > 0.0) {

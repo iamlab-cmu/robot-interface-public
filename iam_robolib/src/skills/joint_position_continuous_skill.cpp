@@ -88,11 +88,11 @@ void JointPositionContinuousSkill::execute_skill_on_franka(run_loop *run_loop,
     log_counter += 1;
     if (log_counter % 1 == 0) {
       pose_desired = robot_state.O_T_EE_d;
-      robot_state_data->log_robot_state(pose_desired, robot_state, time);
+      robot_state_data->log_robot_state(pose_desired, robot_state, robot->getModel(), time);
     }
 
     TerminationHandler *termination_handler = current_skill->get_termination_handler();
-    bool done = termination_handler->should_terminate_on_franka(robot_state, 
+    bool done = termination_handler->should_terminate_on_franka(robot_state, model_,
                                                                 traj_generator);
     franka::JointPositions joint_desired(traj_generator->get_desired_joints());
 

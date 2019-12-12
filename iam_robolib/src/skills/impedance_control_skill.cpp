@@ -79,12 +79,12 @@ void ImpedanceControlSkill::execute_skill_on_franka(run_loop* run_loop,
 
     if (log_counter % 1 == 0) {
       pose_desired = robot_state.O_T_EE_d;
-      robot_state_data->log_robot_state(pose_desired, robot_state, time);
+      robot_state_data->log_robot_state(pose_desired, robot_state, robot->getModel(), time);
     }
 
     feedback_controller_->get_next_step(robot_state, traj_generator_);
 
-    bool done = termination_handler_->should_terminate_on_franka(robot_state, traj_generator_);
+    bool done = termination_handler_->should_terminate_on_franka(robot_state, model_, traj_generator_);
 
     if(done && time > 0.0) {
       try {

@@ -83,6 +83,9 @@ class BaseSkill {
                                        RobotStateData* robot_state_data) = 0;
 
   virtual bool has_terminated(Robot* robot);
+  // Check if termination was due to collision with virtual walls.
+  virtual bool has_terminated_by_virt_coll();
+
 
   virtual void write_result_to_shared_memory(SharedBufferTypePtr result_buffer);
   virtual void write_result_to_shared_memory(SharedBufferTypePtr result_buffer, 
@@ -103,6 +106,7 @@ class BaseSkill {
   TrajectoryGenerator* traj_generator_= nullptr;
   FeedbackController* feedback_controller_= nullptr;
   TerminationHandler* termination_handler_= nullptr;
+  franka::Model* model_= nullptr;
 };
 
 #endif  // IAM_ROBOLIB_SKILLS_BASE_SKILL_H_

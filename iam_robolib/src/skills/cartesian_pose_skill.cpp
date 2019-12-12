@@ -156,7 +156,7 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
 
   PoseTrajectoryGenerator* pose_trajectory_generator = dynamic_cast<PoseTrajectoryGenerator*>(traj_generator_);
 
-  if(pose_trajectory_generator == nullptr) {
+  if (pose_trajectory_generator == nullptr) {
     throw std::bad_cast();
   }
 
@@ -189,7 +189,7 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
       traj_generator_->get_next_step();
     }
 
-    bool done = termination_handler_->should_terminate_on_franka(robot_state, traj_generator_);
+    bool done = termination_handler_->should_terminate_on_franka(robot_state, model_, traj_generator_);
 
     std::array<double, 16> desired_pose = pose_trajectory_generator->get_desired_pose();
     std::array<double, 16> limited_desired_pose = desired_pose;
@@ -199,7 +199,7 @@ void CartesianPoseSkill::execute_skill_on_franka(run_loop* run_loop,
 
     log_counter += 1;
     if (log_counter % 1 == 0) {
-      robot_state_data->log_robot_state(desired_pose, robot_state, time);
+      robot_state_data->log_robot_state(desired_pose, robot_state, robot->getModel(), time);
     } 
 
     if(time > 0.0 && done) {
