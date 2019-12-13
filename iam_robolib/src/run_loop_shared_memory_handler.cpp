@@ -275,33 +275,6 @@ void RunLoopSharedMemoryHandler::start() {
       (shared_memory_info_.getParameterMemoryMutexName(1).c_str())
       ();
 
-//  /**
-//   * Create shared memory region for sensor data buffer 0.
-//   */
-//  // Create shared memory objects. for different parameters
-//  const char *sensor_name_0 = shared_memory_info_.getSharedMemoryNameForSensorData(0).c_str();
-//  boost::interprocess::shared_memory_object::remove(sensor_name_0);
-//  shared_sensor_data_0_ = boost::interprocess::shared_memory_object(
-//      boost::interprocess::open_or_create,
-//      shared_memory_info_.getSharedMemoryNameForSensorData(0).c_str(),
-//      boost::interprocess::read_write
-//  );
-//  shared_sensor_data_0_.truncate(shared_memory_info_.getSensorDataMemorySize());
-//
-//
-//  /**
-//   * Create shared memory region for sensor data buffer 1.
-//   */
-//  // Create shared memory objects. for different parameters
-//  const char *sensor_name_1 = shared_memory_info_.getSharedMemoryNameForSensorData(1).c_str();
-//  boost::interprocess::shared_memory_object::remove(sensor_name_1);
-//  shared_sensor_data_1_ = boost::interprocess::shared_memory_object(
-//      boost::interprocess::open_or_create,
-//      shared_memory_info_.getSharedMemoryNameForSensorData(1).c_str(),
-//      boost::interprocess::read_write
-//  );
-//  shared_sensor_data_1_.truncate(shared_memory_info_.getSensorDataMemorySize());
-
   /**
    * Create mutexes for sensor data.
    */

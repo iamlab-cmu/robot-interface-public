@@ -11,9 +11,6 @@ control_pc_password=$7
 rosmaster_path="bash_scripts/set_rosmaster.sh"
 catkin_ws_setup_path="catkin_ws/devel/setup.bash"
 
-echo "debug"$control_pc_ip_address
-echo "debug"$workstation_ip_address
-
 if [ "$control_pc_use_password" = "0" ]; then
 ssh -tt $control_pc_uname@$control_pc_ip_address << EOSSH
 cd $control_pc_robolib_path
