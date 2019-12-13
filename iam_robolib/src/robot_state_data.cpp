@@ -44,7 +44,7 @@ void RobotStateData::writeBufferData_0() {
         if (log_skill_info_0_.size() > 0) {
           bool result = file_logger_->writeStringData(log_skill_info_0_);
           if (result) {
-            // std::cout << "Success: Did write string data from buffer 0." << std::endl;
+            std::cout << "Success: Did write string data from buffer 0." << std::endl;
           } else {
             std::cout << "Fail: Did not write string data from buffer 0." << std::endl;
           }
@@ -177,7 +177,7 @@ void RobotStateData::writeBufferData_1() {
         if (log_skill_info_1_.size() > 0) {
           bool result = file_logger_->writeStringData(log_skill_info_1_);
           if (result) {
-            // std::cout << "Success: Did write string data from buffer 0." << std::endl;
+            std::cout << "Success: Did write string data from buffer 0." << std::endl;
           } else {
             std::cout << "Fail: Did not write string data from buffer 0." << std::endl;
           }
