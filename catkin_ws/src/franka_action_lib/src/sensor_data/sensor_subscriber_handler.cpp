@@ -19,7 +19,7 @@ namespace franka_action_lib
     //ROS_INFO("%s",&f_data->sensorDataInfo.c_str());
     ROS_INFO_STREAM(f_data->sensorDataInfo);
 
-    shared_memory_handler_.loadSensorData_dummy_Unprotected(f_data, 0);
+    shared_memory_handler_.tryToLoadSensorDataIntoSharedMemory(f_data);
   }
 
 

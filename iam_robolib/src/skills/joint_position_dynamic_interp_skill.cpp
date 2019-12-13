@@ -63,14 +63,13 @@ void JointPositionDynamicInterpSkill::execute_skill_on_franka(
       traj_generator_->get_next_step();
     }
 
-    bool done = termination_handler_->should_terminate_on_franka(robot_state,
-                                                                 traj_generator_);
+    bool done = termination_handler_->should_terminate_on_franka(robot_state, model_, traj_generator_);
     franka::JointPositions joint_desired(joint_trajectory_generator->get_desired_joints());
 
     log_counter += 1;
     if (log_counter % 1 == 0) {
       pose_desired = robot_state.O_T_EE_d;
-      robot_state_data->log_robot_state(pose_desired, robot_state, time);
+      robot_state_data->log_robot_state(pose_desired, robot_state, model_, time);
     }
 
     JointSensorInfo new_joint_sensor_info;

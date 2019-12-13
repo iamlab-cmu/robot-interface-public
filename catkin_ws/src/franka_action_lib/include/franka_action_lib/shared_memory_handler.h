@@ -36,7 +36,31 @@ namespace franka_action_lib
       ~SharedMemoryHandler(void){}
 
       int loadSkillParametersIntoSharedMemory(const franka_action_lib::ExecuteSkillGoalConstPtr &goal);
-      void loadSensorData_dummy_Unprotected(const franka_action_lib::SensorData::ConstPtr &ptr, int current_free_shared_memory_index);
+
+      /**
+       * Will try to load sensor data into shared memory. This method tries to acquire the lock to write to the
+       * sensor data part of shared memory. If successful, it writes the data into shared memory, else if it cannot
+       * acquire the lock it does not do anything.
+       *
+       * The protocol for writing data to the shared memory is the following. Note that the shared memory is of type
+       * unsigned int (uint_8) i.e. raw bytes.
+       *
+       * 1) First byte of the shared memory is set to 1, which indicates that there is new sensor data in the shared
+       *    memory.
+       *
+       * 2) The second byte is the type of shared memory message type. This should be used to verify if the right
+       *    message is being read by the iam-robolib library running on control-PC. This is arbitrarily set for now.
+       *    More importantly, this is just a single byte for now so the type value should lie between 0 and 255.
+       *
+       * 3) In the next 4 bytes (i.e. byte 2 to 6) we write the size of the sensor data message being written. We write
+       *    the lowest byte (2) as the least significant byte of the integer size and so on.
+       *
+       * 4) From byte 6 onwards we write the raw proto data that we received via ROS from the workstation PC.
+       *
+       * @param ptr Pointer to the sensor data message to be written to the shared memory.
+       * @param current_free_shared_memory_index
+       */
+      void tryToLoadSensorDataIntoSharedMemory(const franka_action_lib::SensorData::ConstPtr &ptr);
 
       // void startSensorSubscribers(const franka_action_lib::ExecuteSkillGoalConstPtr &goal);
 
