@@ -62,11 +62,11 @@ if __name__ == "__main__":
 
     ret = fa.goto_pose(T_ready_world)
 
-    logging.info('Init Camera')
+    logging.info('Init camera')
     sensor = get_first_realsense_sensor(cfg['rs'])
     sensor.start()
 
-    logging.info('April Tag Detection')
+    logging.info('Detecting April Tags')
     april = AprilTagDetector(cfg['april_tag'])
     intr = sensor.color_intrinsics
     T_tag_camera = april.detect(sensor, intr, vis=cfg['vis_detect'])[0]

@@ -15,11 +15,10 @@ april_tag:
     refine_pose: False
     debug: False
     quad_contours: True
-  tag_size: 0.0254   
-  path_to_april_tag: /home/jacky/ws/apriltag
+  tag_size: 0.0254 # in meters  
 
 camera_ee_tra: [-0.03472, -0.04649, -0.08327]
 
 cube_size: 0.04
 
-vis_detect: False
+vis_detect: True
