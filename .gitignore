@@ -85,4 +85,4 @@ notebooks/.ipynb_checkpoints
 catkin_ws/src/franka_action_lib/out*
 
 # Docker
-.docker_util_scripts
+.docker_tmp
