@@ -15,7 +15,7 @@ april_tag:
     refine_pose: False
     debug: False
     quad_contours: True
-  tag_size: 0.0254 # in meters  
+  tag_size: 0.0254 # 1 inch in meters  
 
 camera_ee_tra: [-0.03472, -0.04649, -0.08327]
 
