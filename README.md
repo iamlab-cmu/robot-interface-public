@@ -13,6 +13,7 @@ This is a software package used for controlling and learning skills on the Frank
 2. Instructions for setting up the computer specifically for Franka Robots is located here: [franka control pc setup guide](docs/franka_control_pc_setup_guide.md)
 3. Instructions for setting up the computer specifically for the UR5e robots is located here: [ur5e control pc setup guide](docs/ur5e_control_pc_setup_guide.md)
 
+
 ## Installation
 
 1. Clone Repo and its Submodules:
@@ -117,7 +118,9 @@ See `catkin_ws/src/franka_action_lib/scripts/reset_arm.py` for an example of how
 
 #### LibPoco issue
 
-libFranka requires libPoco, which can be installed using `sudo apt-get install libpoco-doc libpoco-dev`. However, trying to build libFranka might still fail since `CMAKE` cannot run ` find_package(Poco)` since there doesn't exist `/usr/local/lib/cmake/Poco/PocoConfig.cmake`. To fix this we have copied the `libPoco.cmake` file in `{robot-interface-dir}/cmake`, and we add the following line to the CMakeLists.txt
+libFranka requires libPoco, which can be installed using `sudo apt-get install libpoco-doc libpoco-dev`. However, trying to build libFranka might still fail since `CMAKE` cannot run ` find_package(Poco)` since there doesn't exist `/usr/local/lib/cmake/Poco/PocoConfig.cmake`. This is a peculiarity of libPoco which installs in a weird way without providing an option for us to link against it. 
+
+To fix this we have copied the `libPoco.cmake` file in `{robot-interface-dir}/cmake`, and we add the following line to the CMakeLists.txt
 
 `list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake`
 
