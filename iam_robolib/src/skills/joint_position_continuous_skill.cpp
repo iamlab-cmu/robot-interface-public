@@ -56,6 +56,9 @@ void JointPositionContinuousSkill::execute_skill_on_franka(run_loop *run_loop,
     JointDmpTrajectoryGenerator* traj_generator = dynamic_cast<JointDmpTrajectoryGenerator *>(
         current_skill->get_trajectory_generator());
 
+    current_period_ = period.toSec();
+    time += current_period_;
+
     if(traj_generator == nullptr) {
       throw std::bad_cast();
     }
@@ -74,12 +77,10 @@ void JointPositionContinuousSkill::execute_skill_on_franka(run_loop *run_loop,
         // Do nothing
       }
     }
-
-    double period_in_seconds = period.toSec();
-    time += period_in_seconds;
-    current_skill_time += period_in_seconds;
+    
+    current_skill_time += current_period_;
     traj_generator->time_ = current_skill_time;
-    traj_generator->dt_ = static_cast<double>(period_in_seconds);
+    traj_generator->dt_ = current_period_;
     if(time > 0.0) {
       traj_generator->get_next_step();
     }

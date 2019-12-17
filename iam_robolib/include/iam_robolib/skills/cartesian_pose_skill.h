@@ -32,8 +32,6 @@ class CartesianPoseSkill : public BaseSkill {
  private:
   bool return_status_{false};
 
-  double current_period_;
-
   std::array<double, 16> previous_desired_pose_;
 
   std::array<double, 3> current_error_;
