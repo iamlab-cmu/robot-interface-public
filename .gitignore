@@ -83,3 +83,6 @@ notebooks/.ipynb_checkpoints
 
 # Saved data
 catkin_ws/src/franka_action_lib/out*
+
+# Docker
+.docker_tmp
