@@ -50,9 +50,12 @@ if __name__ == "__main__":
     parser.add_argument('--no_grasp', '-ng', action='store_true')
     args = parser.parse_args()
     cfg = YamlConfig(args.cfg)
+    T_camera_ee = RigidTransform.load(cfg['T_camera_ee_path'])
+    T_camera_mount_delta = RigidTransform.load(cfg['T_camera_mount_path'])
 
     logging.info('Starting robot')
     fa = FrankaArm()
+    fa.set_tool_delta_pose(T_camera_mount_delta)
     fa.reset_joints()
     fa.open_gripper()
 
@@ -70,10 +73,6 @@ if __name__ == "__main__":
     april = AprilTagDetector(cfg['april_tag'])
     intr = sensor.color_intrinsics
     T_tag_camera = april.detect(sensor, intr, vis=cfg['vis_detect'])[0]
-    T_camera_ee = RigidTransform(
-        translation=np.array(cfg['camera_ee_tra']),
-        from_frame=sensor.frame, to_frame=T_ready_world.from_frame
-    )
     T_camera_world = T_ready_world * T_camera_ee
     T_tag_world = T_camera_world * T_tag_camera
     logging.info('Tag has translation {}'.format(T_tag_world.translation))
@@ -87,25 +86,27 @@ if __name__ == "__main__":
     _, depth_im, _ = sensor.frames()
     points_world = T_camera_world * intr.deproject(depth_im)
 
-    vis3d.figure()
-    vis3d.points(subsample(points_world.data.T), color=(0,1,0), scale=0.002)
-    vis3d.pose(T_ready_world, length=0.05)
-    vis3d.pose(T_camera_world, length=0.1)
-    vis3d.pose(T_tag_world)
-    vis3d.pose(T_grasp_world)
-    vis3d.pose(T_lift_world)
-    vis3d.show()
+    if cfg['vis_detect']:
+        vis3d.figure()
+        vis3d.pose(RigidTransform())
+        vis3d.points(subsample(points_world.data.T), color=(0,1,0), scale=0.002)
+        vis3d.pose(T_ready_world, length=0.05)
+        vis3d.pose(T_camera_world, length=0.1)
+        vis3d.pose(T_tag_world)
+        vis3d.pose(T_grasp_world)
+        vis3d.pose(T_lift_world)
+        vis3d.show()
 
     if not args.no_grasp:
         logging.info('Commanding robot')
-        fa.goto_pose(T_lift_world)
-        fa.goto_pose(T_grasp_world)
+        fa.goto_pose_with_cartesian_control(T_lift_world)
+        fa.goto_pose_with_cartesian_control(T_grasp_world)
         fa.close_gripper()
-        fa.goto_pose(T_lift_world)
+        fa.goto_pose_with_cartesian_control(T_lift_world)
         sleep(3)
-        fa.goto_pose(T_grasp_world)
+        fa.goto_pose_with_cartesian_control(T_grasp_world)
         fa.open_gripper()
-        fa.goto_pose(T_lift_world)
-        fa.goto_pose(T_ready_world)
+        fa.goto_pose_with_cartesian_control(T_lift_world)
+        fa.goto_pose_with_cartesian_control(T_ready_world)
 
     import IPython; IPython.embed(); exit(0)
