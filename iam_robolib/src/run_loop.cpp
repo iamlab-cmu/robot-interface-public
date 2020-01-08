@@ -59,9 +59,9 @@ void setCurrentThreadToRealtime(bool throw_on_error) {
   }
 }
 
-bool run_loop::init() {
+void run_loop::init() {
   // TODO(Mohit): Initialize memory and stuff.
-  bool throw_on_error;
+  bool throw_on_error = false;
   setCurrentThreadToRealtime(throw_on_error);
   shared_memory_handler_ = new RunLoopSharedMemoryHandler();
 }

@@ -225,7 +225,7 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
         return false;
     }
 
-    for (int i = 0; i < time_since_skill_started_vector_size; i++) {
+    for (size_t i = 0; i < time_since_skill_started_vector_size; i++) {
         open_file_stream_ << time_since_skill_started_vector[i] << ",";
 
         if(write_pose_desired_) {
@@ -454,12 +454,17 @@ bool FileStreamLogger::writeStringData(std::vector<std::string> data) {
         open_file_stream_ = std::ofstream(filename_, std::ofstream::out | std::ofstream::app);
     }
     size_t data_size = data.size();
-    for (int i = 0; i < data_size ; i++) {
+    bool status = true;
+    for (size_t i = 0; i < data_size ; i++) {
         open_file_stream_ << "info: " << data[i] << "\n";
+        if (status == true && open_file_stream_.good() == false) {
+            status = false;
+        }
     }
+    return status; 
 }
 
-bool FileStreamLogger::updateFileName(std::string new_filename) {
+void FileStreamLogger::updateFileName(std::string new_filename) {
     filename_ = new_filename;
     open_file_stream_ = std::ofstream(new_filename, std::ofstream::out | std::ofstream::app);
 }
