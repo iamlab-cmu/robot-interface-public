@@ -42,6 +42,7 @@ void RobotStateData::writeBufferData_0() {
 
     if (file_logger_ != nullptr) {
         if (log_skill_info_0_.size() > 0) {
+          // below line doesn't actually return anything right now
           bool result = file_logger_->writeStringData(log_skill_info_0_);
           if (result) {
             // the line below inundates the logs
@@ -175,7 +176,8 @@ void RobotStateData::writeBufferData_1() {
     // std::cout << "Will save buffer 1\n";
 
     if (file_logger_ != nullptr) {
-        if (log_skill_info_1_.size() > 0) {
+        if (log_skill_info_1_.size() >
+          // below line doesn't actually return anythin right now
           bool result = file_logger_->writeStringData(log_skill_info_1_);
           if (result) {
             // the line below inundates the logs

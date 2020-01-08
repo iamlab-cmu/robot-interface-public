@@ -450,18 +450,18 @@ bool FileStreamLogger::writeData(std::vector<double>& time_since_skill_started_v
 }
 
 bool FileStreamLogger::writeStringData(std::vector<std::string> data) {
-    bool status;
     if (!open_file_stream_.is_open()) {
         open_file_stream_ = std::ofstream(filename_, std::ofstream::out | std::ofstream::app);
-        size_t data_size = data.size();
-        for (size_t i = 0; i < data_size ; i++) {
-        open_file_stream_ << "info: " << data[i] << "\n";
-        status = true;
-        } 
-    } else {
-        status = false;
     }
-    return status;
+    size_t data_size = data.size();
+    bool status = true;
+    for (size_t i = 0; i < data_size ; i++) {
+        open_file_stream_ << "info: " << data[i] << "\n";
+        if (status == true && open_file_stream_.good() == false) {
+            status = false;
+        }
+    }
+    return status; 
 }
 
 void FileStreamLogger::updateFileName(std::string new_filename) {
