@@ -45,11 +45,11 @@ class run_loop {
            int reset_skill_numbering_on_error,
            int use_new_filestream_on_error,
            std::string logdir
-          )  :  limit_rate_(false),
-                cutoff_frequency_(0.0),
-                logger_(logger_mutex),
-                elapsed_time_(0.0),
+          )  :  logger_(logger_mutex),
                 process_info_requires_update_(false),
+                limit_rate_(false),
+                cutoff_frequency_(0.0),
+                elapsed_time_(0.0),
                 stop_on_error_(stop_on_error),
                 reset_skill_numbering_on_error_(reset_skill_numbering_on_error),
                 use_new_filestream_on_error_(use_new_filestream_on_error),
@@ -82,7 +82,7 @@ class run_loop {
   // Todo(Mohit): Implement this!!! We should free up the shared memory correctly.
   // ~run_loop();
 
-  bool init();
+  void init();
 
   /**
    *  Start the RunLoop.

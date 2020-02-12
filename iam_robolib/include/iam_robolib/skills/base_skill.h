@@ -101,6 +101,8 @@ class BaseSkill {
   SkillStatus skill_status_;
   std::string description_;
 
+  double current_period_;
+
   TrajectoryGenerator* traj_generator_= nullptr;
   FeedbackController* feedback_controller_= nullptr;
   TerminationHandler* termination_handler_= nullptr;

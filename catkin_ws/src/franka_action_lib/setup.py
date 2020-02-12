@@ -6,6 +6,7 @@ from setuptools import setup
 requirements = [
     'autolab_core',
     'numpy',
+    'rospkg'
 ]
 
 setup(name='frankapy',

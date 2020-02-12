@@ -46,6 +46,9 @@ void ImpedanceControlSkill::execute_skill_on_franka(run_loop* run_loop,
       impedance_control_callback = [&](const franka::RobotState& robot_state,
                                               franka::Duration period) -> franka::Torques {
 
+    current_period_ = period.toSec();
+    time += current_period_;
+
     if (time == 0.0) {
       traj_generator_->initialize_trajectory(robot_state, SkillType::ImpedanceControlSkill);
       try {
@@ -65,8 +68,8 @@ void ImpedanceControlSkill::execute_skill_on_franka(run_loop* run_loop,
       robot_state_data->mutex_.unlock();
     }
 
-    traj_generator_->dt_ = period.toSec();
-    traj_generator_->time_ += period.toSec();
+    traj_generator_->time_ = time;
+    traj_generator_->dt_ = current_period_;
     time += period.toSec();
     log_counter += 1;
 

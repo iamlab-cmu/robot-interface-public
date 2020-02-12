@@ -96,7 +96,7 @@ class FileStreamLogger {
    * @param new_filename
    * @return
    */
-  bool updateFileName(std::string new_filename);
+  void updateFileName(std::string new_filename);
 
   /**
    * Initialize the first line of the file with the parameters that are being saved. 
@@ -104,8 +104,8 @@ class FileStreamLogger {
   void initializeFile();
 
  private:
-  std::ofstream open_file_stream_;
   std::string filename_;
+  std::ofstream open_file_stream_;
 };
 
 #endif  // IAM_ROBOLIB_FILE_STREAM_LOGGER_H_

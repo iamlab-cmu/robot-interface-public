@@ -27,8 +27,8 @@ class BaseMetaSkill {
   int skill_idx_;
   SkillStatus skill_status_;
   bool is_composable_{false};
+  double current_period_;
   franka::Model* model_= nullptr;
-
 };
 
 #endif  // IAM_ROBOLIB_SKILLS_BASE_META_SKILL_H_

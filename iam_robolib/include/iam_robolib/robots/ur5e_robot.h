@@ -48,9 +48,9 @@ class UR5eRobot : public Robot
  public:
   UR5eRobot(std::string &robot_ip, RobotType robot_type) : 
                             Robot(robot_ip, robot_type),
+                            rt_transmit_stream_(robot_ip, UR_RT_TRANSMIT_PORT_),
                             factory_(robot_ip),
-                            rt_receive_stream_(robot_ip, UR_RT_RECEIVE_PORT_),
-                            rt_transmit_stream_(robot_ip, UR_RT_TRANSMIT_PORT_)
+                            rt_receive_stream_(robot_ip, UR_RT_RECEIVE_PORT_)
   {
     std::unique_ptr<URParser<RTPacket>> rt_parser = factory_.getRTParser();
     URProducer<RTPacket> rt_prod(rt_receive_stream_, *rt_parser);
