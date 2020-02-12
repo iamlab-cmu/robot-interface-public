@@ -35,13 +35,6 @@ class SensorDataManager {
                       buffer_mutex_(mutex)
                       {};
 
-    /**
-     * Read the current bounding box message.
-     * @param message
-     * @return
-     */
-    SensorDataManagerReadStatus readBoundingBoxMessage(BoundingBox& message);
-
 
     /**
      * Read the sensor message with joint positions for @joint_position_dynamic_interp_skill

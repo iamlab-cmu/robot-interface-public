@@ -45,6 +45,8 @@ void JointPositionDynamicInterpSkill::execute_skill_on_franka(
       joint_pose_callback = [&](
       const franka::RobotState& robot_state,
       franka::Duration period) -> franka::JointPositions {
+    time += period.toSec();
+
     if (time == 0.0) {
       joint_trajectory_generator->initialize_trajectory(robot_state, SkillType::JointPositionSkill);
       try {
@@ -56,7 +58,6 @@ void JointPositionDynamicInterpSkill::execute_skill_on_franka(
         // Do nothing
       }
     }
-    time += period.toSec();
     traj_generator_->time_ = time;
     traj_generator_->dt_ = period.toSec();
     if(time > 0.0) {
@@ -96,6 +97,7 @@ void JointPositionDynamicInterpSkill::execute_skill_on_franka(
       std::cout << std::endl;
       // HACK: Reset the time manually. This is bad because we should not manually set this here.
       joint_trajectory_generator->setInitialJoints(robot_state.q_d);
+      // DEBUG
       std::cout << "q" << std::endl;
       for (int i = 0; i < 7; i++) {
         std::cout << robot_state.q[i] << ", ";
@@ -107,6 +109,12 @@ void JointPositionDynamicInterpSkill::execute_skill_on_franka(
         std::cout << robot_state.q_d[i] << ", ";
       }
       std::cout << std::endl;
+
+      // We have to set time to 0, to smoothly change positions. In an idealized world there is a
+      // better way to do this, i.e., we assume that there is a non-zero joint velocity at the
+      // start of the robot motion and we want to smoothly interpolate it to the target location
+      // with 0 target velocity.
+      // We do something similar for our contacts based stuff.
       time = 0.0;
       traj_generator_->time_ = 0.0;
     }

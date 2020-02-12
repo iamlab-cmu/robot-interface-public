@@ -13,7 +13,6 @@ set(ProtobufIncludePath ${CMAKE_CURRENT_BINARY_DIR}
 
 add_library(proto SHARED ${PROTO_SENSOR_MSG} ${PROTO_SENSOR_MSG_HDRS})
 target_link_libraries(proto ${PROTOBUF_LIBRARIES})
-message("Hello ${CMAKE_CURRENT_BINARY_DIR}")
 target_include_directories(proto PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 # set_target_properties(proto PROPERTIES POSITION_INDEPENDENT_CODE ON)

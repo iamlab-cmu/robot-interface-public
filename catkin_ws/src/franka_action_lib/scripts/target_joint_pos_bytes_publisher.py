@@ -28,6 +28,7 @@ def create_sensor_data_message():
     f_data = SensorData()
     f_data.sensorDataInfo = "JointPositions"   
     f_data.size = len(sensor_data_bytes)
+    f_data.type = 4
     f_data.sensorData = sensor_data_bytes
     print('data_in_bytes: type: {}, data_len: {}'.format(
     type(sensor_data_bytes), len(sensor_data_bytes)))

@@ -22,7 +22,8 @@ def talker():
     pub = rospy.Publisher('dummy_sensor', SensorData, queue_size=1000)
 
     f_data = SensorData()
-    f_data.sensorDataInfo = "BoundingBox"   
+    f_data.sensorDataInfo = "BoundingBox"
+    f_data.type = 5
     f_data.size = len(sensor_data_bytes)
     f_data.sensorData = sensor_data_bytes
 

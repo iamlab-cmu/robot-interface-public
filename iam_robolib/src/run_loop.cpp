@@ -61,9 +61,8 @@ void setCurrentThreadToRealtime(bool throw_on_error) {
 }
 
 bool run_loop::init() {
-  // TODO(Mohit): Initialize memory and stuff.
   bool throw_on_error;
-  // setCurrentThreadToRealtime(throw_on_error);
+  setCurrentThreadToRealtime(throw_on_error);
   shared_memory_handler_ = new RunLoopSharedMemoryHandler();
 }
 
@@ -129,12 +128,12 @@ void run_loop::start_new_skill(BaseSkill* new_skill) {
   SharedBufferTypePtr termination_handler_buffer = shared_memory_handler_->getTerminationParametersBuffer(
       memory_index);
   TerminationHandler* termination_handler =
-      termination_handler_factory_.getTerminationHandlerForSkill(termination_handler_buffer, run_loop_info); //add one for sensor_data
+      termination_handler_factory_.getTerminationHandlerForSkill(termination_handler_buffer, run_loop_info);
   std::cout << "Did get TerminationHandler\n";
 
   // Start skill, does any pre-processing if required.
   
-  new_skill->start_skill(robot_, traj_generator, feedback_controller, termination_handler); //pass in sensor_data
+  new_skill->start_skill(robot_, traj_generator, feedback_controller, termination_handler);
 }
 
 void run_loop::finish_current_skill(BaseSkill* skill) {

@@ -865,7 +865,7 @@ namespace franka_action_lib
       // First let's indicate this is new data.
       sensor_data_buffer_0_[0] = 1;
       // Now add the type for the message. Set it to 4 for now.
-      sensor_data_buffer_0_[1] = 4;
+      sensor_data_buffer_0_[1] = ptr->type;
       // Now add the size of the data.
       sensor_data_buffer_0_[2] = (sensor_data_size & 0xFF);
       sensor_data_buffer_0_[3] = ((sensor_data_size >> 8) & 0xFF);

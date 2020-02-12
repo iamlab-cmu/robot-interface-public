@@ -93,4 +93,9 @@ enum class SensorDataManagerReadStatus : uint8_t {
   SUCCESS = 3,
 };
 
+enum class SensorDataMessageType : uint8_t {
+  JOINT_POSITION = 4,
+  BOUNDING_BOX = 5,
+};
+
 #endif  // IAM_ROBOLIB_COMMON_DEFINITIONS_H_
