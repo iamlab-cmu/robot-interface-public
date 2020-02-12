@@ -15,6 +15,7 @@ class SkillType:
     GripperSkill = 2
     ImpedanceControlSkill = 3
     JointPositionSkill = 4
+    JointPositionDynamicInterpolationSkill = 5
 
 class MetaSkillType:
     BaseMetaSkill = 0

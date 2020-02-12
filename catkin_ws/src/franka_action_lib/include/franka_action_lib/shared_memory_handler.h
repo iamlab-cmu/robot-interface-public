@@ -7,6 +7,9 @@
 #include <franka_action_lib/RunLoopProcessInfoState.h>
 
 #include "ros/ros.h" // For ROS::ERROR messages
+#include <std_msgs/Float64.h>
+#include "franka_action_lib/SensorData.h"
+
 
 #include <array>
 #include <vector>
@@ -33,6 +36,31 @@ namespace franka_action_lib
       ~SharedMemoryHandler(void){}
 
       int loadSkillParametersIntoSharedMemory(const franka_action_lib::ExecuteSkillGoalConstPtr &goal);
+
+      /**
+       * Will try to load sensor data into shared memory. This method tries to acquire the lock to write to the
+       * sensor data part of shared memory. If successful, it writes the data into shared memory, else if it cannot
+       * acquire the lock it does not do anything.
+       *
+       * The protocol for writing data to the shared memory is the following. Note that the shared memory is of type
+       * unsigned int (uint_8) i.e. raw bytes.
+       *
+       * 1) First byte of the shared memory is set to 1, which indicates that there is new sensor data in the shared
+       *    memory.
+       *
+       * 2) The second byte is the type of shared memory message type. This should be used to verify if the right
+       *    message is being read by the iam-robolib library running on control-PC. This is arbitrarily set for now.
+       *    More importantly, this is just a single byte for now so the type value should lie between 0 and 255.
+       *
+       * 3) In the next 4 bytes (i.e. byte 2 to 6) we write the size of the sensor data message being written. We write
+       *    the lowest byte (2) as the least significant byte of the integer size and so on.
+       *
+       * 4) From byte 6 onwards we write the raw proto data that we received via ROS from the workstation PC.
+       *
+       * @param ptr Pointer to the sensor data message to be written to the shared memory.
+       * @param current_free_shared_memory_index
+       */
+      void tryToLoadSensorDataIntoSharedMemory(const franka_action_lib::SensorData::ConstPtr &ptr);
 
       // void startSensorSubscribers(const franka_action_lib::ExecuteSkillGoalConstPtr &goal);
 
@@ -75,8 +103,9 @@ namespace franka_action_lib
       boost::interprocess::interprocess_mutex *shared_memory_object_0_mutex_;
       boost::interprocess::interprocess_mutex *shared_memory_object_1_mutex_;
 
-      boost::interprocess::interprocess_mutex *shared_sensor_data_0_mutex_;
-      boost::interprocess::interprocess_mutex *shared_sensor_data_1_mutex_;
+//      boost::interprocess::interprocess_mutex *shared_sensor_data_0_mutex_;
+//      boost::interprocess::interprocess_mutex *shared_sensor_data_1_mutex_;
+      boost::interprocess::interprocess_mutex *sensor_data_0_mutex_;
 
       boost::interprocess::interprocess_mutex *shared_execution_response_0_mutex_;
       boost::interprocess::interprocess_mutex *shared_execution_response_1_mutex_;
@@ -105,6 +134,7 @@ namespace franka_action_lib
       boost::interprocess::mapped_region region_feedback_controller_sensor_data_0_;
       boost::interprocess::mapped_region region_termination_sensor_data_0_;
       boost::interprocess::mapped_region region_timer_sensor_data_0_;
+      boost::interprocess::mapped_region region_sensor_data_0_;
 
       boost::interprocess::mapped_region region_traj_sensor_data_1_;
       boost::interprocess::mapped_region region_feedback_controller_sensor_data_1_;
@@ -127,15 +157,7 @@ namespace franka_action_lib
       SharedBufferTypePtr termination_buffer_1_;
       SharedBufferTypePtr timer_buffer_1_;
 
-      SharedBufferTypePtr traj_gen_sensor_buffer_0_;
-      SharedBufferTypePtr feedback_controller_sensor_buffer_0_;
-      SharedBufferTypePtr termination_sensor_buffer_0_;
-      SharedBufferTypePtr timer_sensor_buffer_0_;
-
-      SharedBufferTypePtr traj_gen_sensor_buffer_1_;
-      SharedBufferTypePtr feedback_controller_sensor_buffer_1_;
-      SharedBufferTypePtr termination_sensor_buffer_1_;
-      SharedBufferTypePtr timer_sensor_buffer_1_;
+      SensorBufferTypePtr sensor_data_buffer_0_ ;
 
       SharedBufferTypePtr execution_feedback_buffer_0_;
       SharedBufferTypePtr execution_result_buffer_0_;
@@ -158,6 +180,9 @@ namespace franka_action_lib
       void setResultSkillIdInSharedMemoryUnprotected(int result_skill_id);
 
       void loadSensorDataUnprotected(const franka_action_lib::ExecuteSkillGoalConstPtr &goal, int current_free_shared_memory_index);
+
+
+
       void loadTrajGenParamsUnprotected(const franka_action_lib::ExecuteSkillGoalConstPtr &goal, int current_free_shared_memory_index);
       void loadFeedbackControllerParamsUnprotected(const franka_action_lib::ExecuteSkillGoalConstPtr &goal, int current_free_shared_memory_index);
       void loadTerminationParamsUnprotected(const franka_action_lib::ExecuteSkillGoalConstPtr &goal, int current_free_shared_memory_index);

@@ -50,26 +50,21 @@ class SharedMemoryInfo {
 
   int getSizeForTrajectoryParameters();
   int getOffsetForTrajectoryParameters();
-  int getSizeForTrajectorySensorData();
-  int getOffsetForTrajectorySensorData();
+
 
   int getSizeForFeedbackControllerParameters();
   int getOffsetForFeedbackControllerParameters();
-  int getSizeForFeedbackControllerSensorData();
-  int getOffsetForFeedbackControllerSensorData();
+
 
   int getSizeForTerminationParameters();
   int getOffsetForTerminationParameters();
-  int getSizeForTerminationSensorData();
-  int getOffsetForTerminationSensorData();
 
   int getSizeForTimerParameters();
   int getOffsetForTimerParameters();
-  int getSizeForTimerSensorData();
-  int getOffsetForTimerSensorData();
 
-  int getOffsetForExtraSensorData();
-  int getSizeForExtraSensorData();
+  int getSizeForSensorData();
+  int getOffsetForSensorData();
+
  
   int getSizeForCurrentRobotState();
   int getOffsetForCurrentRobotState();
@@ -109,21 +104,16 @@ class SharedMemoryInfo {
   const std::string current_robot_state_mutex_name_ = "current_robot_state_mutex";
 
   // Declare sizes
-  const int params_memory_size_0_ = 4 * 1024 * sizeof(SharedBufferType);
+  const int sensor_buffer_size_ = 2 * 1024 * sizeof(SensorBufferType);  // Notice the different "type"
+  const int params_memory_size_0_ = 4 * 1024 * sizeof(SharedBufferType) + sensor_buffer_size_;
   const int params_memory_size_1_ = 4 * 1024 * sizeof(SharedBufferType);
   const int objects_memory_size_ = 2 * 1024 * sizeof(SharedBufferType);
-  const int sensor_buffer_size_ = 5 * 1024 * sizeof(SharedBufferType);
 
   const int trajectory_params_buffer_size_= 1024 * sizeof(SharedBufferType);
   const int feedback_controller_params_buffer_size_= 1024 * sizeof(SharedBufferType);
   const int termination_params_buffer_size_= 1024 * sizeof(SharedBufferType);
   const int timer_params_buffer_size_= 1024 * sizeof(SharedBufferType);
 
-  const int trajectory_sensor_data_buffer_size_= 1024 * sizeof(SharedBufferType);
-  const int feedback_controller_sensor_data_buffer_size_= 1024 * sizeof(SharedBufferType);
-  const int termination_sensor_data_buffer_size_= 1024 * sizeof(SharedBufferType);
-  const int timer_sensor_data_buffer_size_ = 1024 * sizeof(SharedBufferType);
-  const int extra_sensor_data_buffer_size_ = 1024 * sizeof(SharedBufferType);
 
   const int execution_response_feedback_size_= 1024 * sizeof(SharedBufferType);
   const int execution_response_result_size_= 1024 * sizeof(SharedBufferType);

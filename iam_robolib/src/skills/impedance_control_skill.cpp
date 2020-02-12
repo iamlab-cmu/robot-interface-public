@@ -82,6 +82,32 @@ void ImpedanceControlSkill::execute_skill_on_franka(run_loop* run_loop,
       robot_state_data->log_robot_state(pose_desired, robot_state, robot->getModel(), time);
     }
 
+    // This code was added for dynamic interpolation skill, but this is not the right way to change
+    // the controller. Hence, for now just comment this code out.
+
+//    JointSensorInfo new_joint_sensor_info;
+//
+//    SensorDataManagerReadStatus sensor_msg_status = sensor_data_manager->readJointSensorInfoMessage(
+//        new_joint_sensor_info);
+//    if (sensor_msg_status == SensorDataManagerReadStatus::SUCCESS) {
+//      assert(new_joint_sensor_info.IsInitialized());
+//      std::array<double, 7> new_goal_joints = {
+//          new_joint_sensor_info.q1(),
+//          new_joint_sensor_info.q2(),
+//          new_joint_sensor_info.q3(),
+//          new_joint_sensor_info.q4(),
+//          new_joint_sensor_info.q5(),
+//          new_joint_sensor_info.q6(),
+//          new_joint_sensor_info.q7(),
+//      };
+//      joint_trajectory_generator->setGoalJoints(new_goal_joints);
+//      std::cout << "Updated new goal joints: ";
+//      for (int i = 0; i < new_goal_joints.size(); i++) {
+//        std::cout << new_goal_joints[i] << ", ";
+//      }
+//      std::cout << std::endl;
+//    }
+
     feedback_controller_->get_next_step(robot_state, traj_generator_);
 
     bool done = termination_handler_->should_terminate_on_franka(robot_state, model_, traj_generator_);

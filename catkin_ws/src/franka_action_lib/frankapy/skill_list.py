@@ -384,6 +384,17 @@ class GoToJointsSkill(BaseSkill):
                   FeedbackControllerType.JointImpedanceFeedbackController,
                   TerminationHandlerType.FinalJointTerminationHandler,
                   1)
+        elif skill_type == SkillType.JointPositionDynamicInterpolationSkill:
+            super(GoToJointsSkill, self).__init__(
+                SkillType.JointPositionDynamicInterpolationSkill,
+                skill_desc,
+                MetaSkillType.BaseMetaSkill,
+                0,
+                ['/franka_robot/camera'],
+                TrajectoryGeneratorType.MinJerkJointTrajectoryGenerator,
+                FeedbackControllerType.JointImpedanceFeedbackController,
+                TerminationHandlerType.FinalJointTerminationHandler,
+                1)
         else:
             super(GoToJointsSkill, self).__init__(
                   SkillType.JointPositionSkill,

@@ -28,6 +28,7 @@
 #include "iam_robolib/skills/impedance_control_skill.h"
 #include "iam_robolib/skills/joint_position_continuous_skill.h"
 #include "iam_robolib/skills/joint_position_skill.h"
+#include "iam_robolib/skills/joint_position_dynamic_interp_skill.h"
 #include "iam_robolib/utils/logger_utils.h"
 
 std::atomic<bool> run_loop::run_loop_ok_{false};
@@ -60,7 +61,6 @@ void setCurrentThreadToRealtime(bool throw_on_error) {
 }
 
 void run_loop::init() {
-  // TODO(Mohit): Initialize memory and stuff.
   bool throw_on_error = false;
   setCurrentThreadToRealtime(throw_on_error);
   shared_memory_handler_ = new RunLoopSharedMemoryHandler();
@@ -71,6 +71,10 @@ void run_loop::start() {
   // Start processing, might want to do some pre-processing 
   std::cout << "start run loop.\n";
   shared_memory_handler_->start();
+
+  sensor_data_manager_ = new SensorDataManager(
+      shared_memory_handler_->getSensorDataBuffer(0),
+      shared_memory_handler_->getSensorDataBufferMutex());
 }
 
 void run_loop::start_ur5e() {
@@ -251,10 +255,15 @@ void run_loop::update_process_info() {
               new_skill = new GripperSkill(new_skill_id, new_meta_skill_id, new_skill_description);
               break;
             case SkillType::ImpedanceControlSkill:
+              std::cout << "Impedance control " << std::endl;
               new_skill = new ImpedanceControlSkill(new_skill_id, new_meta_skill_id, new_skill_description);
               break;
             case SkillType::JointPositionSkill:
               new_skill = new JointPositionSkill(new_skill_id, new_meta_skill_id, new_skill_description);
+              break;
+            case SkillType::JointPositionDynamicInterpolationSkill:
+              std::cout << "JointPositionDynamicInterpolationSkill " << std::endl;
+              new_skill = new JointPositionDynamicInterpSkill(new_skill_id, new_meta_skill_id, new_skill_description);
               break;
             default:
               std::cout << "Incorrect skill type: " << 
@@ -336,6 +345,7 @@ void run_loop::run() {
     if (should_start_new_skill(skill, new_skill)) {
       start_new_skill(new_skill);
     }
+
 
     // Sleep to maintain 1Khz frequency, not sure if this is required or not.
     auto finish = std::chrono::high_resolution_clock::now();
@@ -522,6 +532,7 @@ void run_loop::run_on_franka() {
       run_loop_ok_ = true;
       set_robolib_status(true, "");
 
+
       while (true) {
         start = std::chrono::high_resolution_clock::now();
 
@@ -684,4 +695,8 @@ SkillInfoManager* run_loop::getSkillInfoManager() {
 
 RunLoopSharedMemoryHandler* run_loop::get_shared_memory_handler() {
   return shared_memory_handler_;
+}
+
+SensorDataManager* run_loop::get_sensor_data_manager() {
+  return sensor_data_manager_;
 }

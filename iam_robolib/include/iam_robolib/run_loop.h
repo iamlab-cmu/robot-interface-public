@@ -28,6 +28,7 @@
 #include "iam_robolib/robots/franka_robot.h"
 #include "iam_robolib/robots/ur5e_robot.h"
 #include "ur_modern_driver/log.h"
+#include "sensor_data_manager.h"
 
 // Set thread to real time priority.
 void setCurrentThreadToRealtime(bool throw_on_error);
@@ -150,6 +151,12 @@ class run_loop {
 
   RunLoopSharedMemoryHandler* get_shared_memory_handler();
 
+  /**
+   * Return the sensor data manager.
+   * @return
+   */
+  SensorDataManager* get_sensor_data_manager();
+
   static std::atomic<bool> run_loop_ok_;
 
  private:
@@ -182,6 +189,7 @@ class run_loop {
   TrajectoryGeneratorFactory traj_gen_factory_={};
   FeedbackControllerFactory feedback_controller_factory_={};
   TerminationHandlerFactory termination_handler_factory_={};
+  SensorDataManager* sensor_data_manager_ = nullptr;
 
   void set_robolib_status(bool is_ready, std::string error_message);
 

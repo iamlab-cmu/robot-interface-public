@@ -75,6 +75,7 @@ namespace franka_action_lib
         shared_memory_info_.getOffsetForTerminationParameters(),
         shared_memory_info_.getSizeForTerminationParameters()
     );
+
     termination_buffer_0_ = reinterpret_cast<SharedBufferTypePtr>(region_termination_params_0_.get_address());
     region_timer_params_0_ = boost::interprocess::mapped_region(
         shared_memory_object_0_,
@@ -83,6 +84,14 @@ namespace franka_action_lib
         shared_memory_info_.getSizeForTimerParameters()
     );
     timer_buffer_0_ = reinterpret_cast<SharedBufferTypePtr>(region_timer_params_0_.get_address());
+    region_sensor_data_0_ =  boost::interprocess::mapped_region(
+        shared_memory_object_0_,
+        boost::interprocess::read_write,
+        shared_memory_info_.getOffsetForSensorData(),
+        shared_memory_info_.getSizeForSensorData()
+    );
+    std::cout << region_sensor_data_0_.get_address() << std::endl;
+    sensor_data_buffer_0_ = reinterpret_cast<SensorBufferTypePtr>(region_sensor_data_0_.get_address());
 
     // Get mutex for buffer 1 from the shared memory segment.
     std::pair<boost::interprocess::interprocess_mutex *, std::size_t> shared_memory_object_1_mutex_pair = \
@@ -130,95 +139,15 @@ namespace franka_action_lib
         );
     timer_buffer_1_ = reinterpret_cast<SharedBufferTypePtr>(region_timer_params_1_.get_address());
 
-    // Get mutex for sensor data buffer 0 from the shared memory segment.
-    std::pair<boost::interprocess::interprocess_mutex *, std::size_t> shared_sensor_data_0_mutex_pair = \
-                                managed_shared_memory_.find<boost::interprocess::interprocess_mutex>
-                                (shared_memory_info_.getSensorDataMutexName(0).c_str());
-    shared_sensor_data_0_mutex_ = shared_sensor_data_0_mutex_pair.first;
-    assert(shared_sensor_data_0_mutex_ != 0);
-
-    /**
-     * Open shared memory region for sensor data buffer 0.
-     */
-    shared_sensor_data_0_ = boost::interprocess::shared_memory_object(
-        boost::interprocess::open_only,
-        shared_memory_info_.getSharedMemoryNameForSensorData(0).c_str(),
-        boost::interprocess::read_write
-    );
-
-    region_traj_sensor_data_0_ =  boost::interprocess::mapped_region(
-        shared_sensor_data_0_,
-        boost::interprocess::read_write,
-        shared_memory_info_.getOffsetForTrajectorySensorData(),
-        shared_memory_info_.getSizeForTrajectorySensorData()
-    );
-    traj_gen_sensor_buffer_0_ = reinterpret_cast<SharedBufferTypePtr>(region_traj_sensor_data_0_.get_address());
-    region_feedback_controller_sensor_data_0_= boost::interprocess::mapped_region(
-        shared_sensor_data_0_,
-        boost::interprocess::read_write,
-        shared_memory_info_.getOffsetForFeedbackControllerSensorData(),
-        shared_memory_info_.getSizeForFeedbackControllerSensorData()
-    );
-    feedback_controller_sensor_buffer_0_ = reinterpret_cast<SharedBufferTypePtr>(region_feedback_controller_sensor_data_0_.get_address());
-    region_termination_sensor_data_0_ = boost::interprocess::mapped_region(
-        shared_sensor_data_0_,
-        boost::interprocess::read_write,
-        shared_memory_info_.getOffsetForTerminationSensorData(),
-        shared_memory_info_.getSizeForTerminationSensorData()
-    );
-    termination_sensor_buffer_0_ = reinterpret_cast<SharedBufferTypePtr>(region_termination_sensor_data_0_.get_address());
-    region_timer_sensor_data_0_= boost::interprocess::mapped_region(
-        shared_sensor_data_0_,
-        boost::interprocess::read_write,
-        shared_memory_info_.getOffsetForTimerParameters(),
-        shared_memory_info_.getSizeForTimerParameters()
-    );
-    timer_sensor_buffer_0_ = reinterpret_cast<SharedBufferTypePtr>(region_timer_sensor_data_0_.get_address());
-
-    // Get mutex for sensor data buffer 0 from the shared memory segment.
-    std::pair<boost::interprocess::interprocess_mutex *, std::size_t> shared_sensor_data_1_mutex_pair = \
-                                managed_shared_memory_.find<boost::interprocess::interprocess_mutex>
-                                (shared_memory_info_.getSensorDataMutexName(1).c_str());
-    shared_sensor_data_1_mutex_ = shared_sensor_data_1_mutex_pair.first;
-    assert(shared_sensor_data_1_mutex_ != 0);
+    std::pair<boost::interprocess::interprocess_mutex *, std::size_t> sensor_data_0_mutex_pair = \
+      managed_shared_memory_.find<boost::interprocess::interprocess_mutex>
+              (shared_memory_info_.getSensorDataMutexName(0).c_str());
+    sensor_data_0_mutex_ = sensor_data_0_mutex_pair.first;
+    assert(sensor_data_0_mutex_ != 0);
 
     /**
      * Open shared memory region for sensor data buffer 1.
      */
-    shared_sensor_data_1_ = boost::interprocess::shared_memory_object(
-        boost::interprocess::open_only,
-        shared_memory_info_.getSharedMemoryNameForSensorData(1).c_str(),
-        boost::interprocess::read_write
-    );
-
-    region_traj_sensor_data_1_ =  boost::interprocess::mapped_region(
-        shared_sensor_data_1_,
-        boost::interprocess::read_write,
-        shared_memory_info_.getOffsetForTrajectorySensorData(),
-        shared_memory_info_.getSizeForTrajectorySensorData()
-    );
-    traj_gen_sensor_buffer_1_ = reinterpret_cast<SharedBufferTypePtr>(region_traj_sensor_data_1_.get_address());
-    region_feedback_controller_sensor_data_1_= boost::interprocess::mapped_region(
-        shared_sensor_data_1_,
-        boost::interprocess::read_write,
-        shared_memory_info_.getOffsetForFeedbackControllerSensorData(),
-        shared_memory_info_.getSizeForFeedbackControllerSensorData()
-    );
-    feedback_controller_sensor_buffer_1_ = reinterpret_cast<SharedBufferTypePtr>(region_feedback_controller_sensor_data_1_.get_address());
-    region_termination_sensor_data_1_ = boost::interprocess::mapped_region(
-        shared_sensor_data_1_,
-        boost::interprocess::read_write,
-        shared_memory_info_.getOffsetForTerminationSensorData(),
-        shared_memory_info_.getSizeForTerminationSensorData()
-    );
-    termination_sensor_buffer_1_ = reinterpret_cast<SharedBufferTypePtr>(region_termination_sensor_data_1_.get_address());
-    region_timer_sensor_data_1_= boost::interprocess::mapped_region(
-        shared_sensor_data_1_,
-        boost::interprocess::read_write,
-        shared_memory_info_.getOffsetForTimerParameters(),
-        shared_memory_info_.getSizeForTimerParameters()
-    );
-    timer_sensor_buffer_1_ = reinterpret_cast<SharedBufferTypePtr>(region_timer_sensor_data_1_.get_address());
 
     // Get mutex for execution response buffer 0 from the shared memory segment.
     std::pair<boost::interprocess::interprocess_mutex *, std::size_t> shared_execution_response_0_mutex_pair = \
@@ -346,6 +275,7 @@ namespace franka_action_lib
 
       // Load all of the data into shared_memory_0_
       loadSensorDataUnprotected(goal, 0);
+
       loadTrajGenParamsUnprotected(goal, 0);
       loadFeedbackControllerParamsUnprotected(goal, 0);
       loadTerminationParamsUnprotected(goal, 0);
@@ -919,19 +849,36 @@ namespace franka_action_lib
   // Loads sensor data into the designated sensor memory buffer
   // Requires a lock on the mutex of the designated sensor memory buffer
   void SharedMemoryHandler::loadSensorDataUnprotected(const franka_action_lib::ExecuteSkillGoalConstPtr &goal,
-                                                      int current_free_shared_memory_index)
+                                                      int current_free_shared_memory_index) {
+    // Do nothing.
+  }
+
+    //Adding new function to load sensor data into sensor memory buffer
+  void SharedMemoryHandler::tryToLoadSensorDataIntoSharedMemory(const franka_action_lib::SensorData::ConstPtr &ptr)
   {
-    if(current_free_shared_memory_index == 0)
+    if(sensor_data_0_mutex_->try_lock())
     {
-      // Currently ignoring sensor names and putting everything into the traj_gen_sensor_buffer
-      traj_gen_sensor_buffer_0_[0] = static_cast<SharedBufferType>(goal->sensor_value_sizes[0]);
-      memcpy(traj_gen_sensor_buffer_0_ + 1, &goal->initial_sensor_values[0], goal->sensor_value_sizes[0] * sizeof(SharedBufferType));
+      std::string sensor_data_desc = ptr->sensorDataInfo;
+      int sensor_data_size = ptr->size;
+      auto sensor_data = ptr->sensorData;
+
+      // First let's indicate this is new data.
+      sensor_data_buffer_0_[0] = 1;
+      // Now add the type for the message. Set it to 4 for now.
+      sensor_data_buffer_0_[1] = ptr->type;
+      // Now add the size of the data.
+      sensor_data_buffer_0_[2] = (sensor_data_size & 0xFF);
+      sensor_data_buffer_0_[3] = ((sensor_data_size >> 8) & 0xFF);
+      sensor_data_buffer_0_[4] = ((sensor_data_size >> 16) & 0xFF);
+      sensor_data_buffer_0_[5] = ((sensor_data_size >> 24) & 0xFF);
+
+      memcpy(sensor_data_buffer_0_ + 6, &ptr->sensorData[0],
+             sensor_data_size * sizeof(uint8_t));
+      sensor_data_0_mutex_->unlock();
     }
-    else if(current_free_shared_memory_index == 1)
+    else
     {
-      // Currently ignoring sensor names and putting everything into the traj_gen_sensor_buffer
-      traj_gen_sensor_buffer_1_[0] = static_cast<SharedBufferType>(goal->sensor_value_sizes[0]);
-      memcpy(traj_gen_sensor_buffer_1_ + 1, &goal->initial_sensor_values[0], goal->sensor_value_sizes[0] * sizeof(SharedBufferType));
+      ROS_DEBUG("Failed to get sensor data 0 mutex");
     }
   }
 
