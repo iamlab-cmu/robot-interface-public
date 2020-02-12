@@ -6,6 +6,7 @@ This is a software package used for controlling and learning skills on the Frank
 
 * A computer with the Ubuntu 16.04 Realtime Kernel and at least 1 ethernet port.
 * ROS Kinetic 
+* [Protocol Buffers](https://github.com/protocolbuffers/protobuf)
 
 ## Computer Setup Instructions
 
@@ -13,6 +14,19 @@ This is a software package used for controlling and learning skills on the Frank
 2. Instructions for setting up the computer specifically for Franka Robots is located here: [franka control pc setup guide](docs/franka_control_pc_setup_guide.md)
 3. Instructions for setting up the computer specifically for the UR5e robots is located here: [ur5e control pc setup guide](docs/ur5e_control_pc_setup_guide.md)
 
+## Install ProtoBufs
+
+1. Clone the [protobuf repo](https://github.com/protocolbuffers/protobuf) and install version 3.12 (that is the one we test on). Read installation instructions here https://github.com/protocolbuffers/protobuf/blob/master/src/README.md.
+
+2. We use both C++ and Python versions of protobufs so you would need to install Protobufs from source. In short you will have to do the following. NOTE: However, make to read protobuf installation instructions once.
+
+```shell
+     ./configure
+     make
+     make check
+     sudo make install
+     sudo ldconfig # refresh shared library cache.
+```
 
 ## Installation
 
@@ -50,6 +64,8 @@ Once catkin_make has finished there should be a build and devel folder in the ca
    pip install -e .
    pip install rospkg
    ```
+   
+6. To make the protobufs on the Python (FrankaPy) side (i.e. on workstation-PC) use the following script `<repo>/catkin_ws/src/franka_action_lib/frankapy/proto/compile_proto.sh`.
 
 ## Setting Up SSH Key to Control PC
 1. Generate an ssh key by executing the following commands or reading the instructions here: https://help.github.com/en/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
