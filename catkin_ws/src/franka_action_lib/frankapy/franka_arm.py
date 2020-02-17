@@ -52,7 +52,7 @@ class FrankaArm:
                 self._execute_skill_action_server_name, ExecuteSkillAction)
         self._client.wait_for_server()
         self.wait_for_robolib()
-
+        
         # done init ROS
         self._connected = True
 
@@ -513,6 +513,9 @@ class FrankaArm:
         '''
         if not self.is_joints_reachable(joints):
             raise ValueError('Joints not reachable!')
+
+        if isinstance(joints, np.ndarray):
+            joints = joints.tolist()
 
         skill = GoToJointsSkill(skill_desc, skill_type)
 

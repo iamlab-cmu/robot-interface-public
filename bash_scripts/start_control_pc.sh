@@ -10,17 +10,17 @@ usage="$(basename "$0") [-h] [-i xxx.xxx.xxx.xxx] -- Start control PC from works
 where:
     -h show this help text
     -i IP address for the control PC.
-    -u Username on control PC. (default iam-lab)
+    -u Username on control PC. (default student)
     -p Control PC password
     -d Path to robolib on control PC (default ~/ws/robot-interface)
     -r Robot number (default 1)
     -s Start iam-robolib on control PC (0 / 1 (default))
     
     ./start_control_pc.sh -i iam-space
-    ./start_control_pc.sh -i iam-space -u iam-lab -p 12345678 -d ~/ws/robot-interface -r 1 -s 0
+    ./start_control_pc.sh -i iam-space -u student -p 12345678 -d ~/ws/robot-interface -r 1 -s 0
     "
 
-control_pc_uname="iam-lab"
+control_pc_uname="student"
 control_pc_use_password=0
 control_pc_password=""
 control_pc_robolib_path="~/ws/robot-interface"
