@@ -79,7 +79,7 @@ class TerminationHandler {
     // Top
     Eigen::Hyperplane<double, 3>(Eigen::Vector3d(0., 0., 1.), Eigen::Vector3d(0., 0., 1.25)),
     // Back
-    Eigen::Hyperplane<double, 3>(Eigen::Vector3d(1., 0., 0.), Eigen::Vector3d(-0.45, 0., 0.))
+    Eigen::Hyperplane<double, 3>(Eigen::Vector3d(1., 0., 0.), Eigen::Vector3d(-0.41, 0., 0.))
   };
 
   // Create dist thresholds
