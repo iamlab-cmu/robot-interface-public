@@ -12,18 +12,18 @@ where:
     -i IP address for the control PC.
     -u Username on control PC. (default student)
     -p Control PC password
-    -d Path to robolib on control PC (default ~/ws/robot-interface)
+    -d Path to robolib on control PC (default ~/ws/robot-interface-public)
     -r Robot number (default 1)
     -s Start iam-robolib on control PC (0 / 1 (default))
     
     ./start_control_pc.sh -i iam-space
-    ./start_control_pc.sh -i iam-space -u student -p 12345678 -d ~/ws/robot-interface -r 1 -s 0
+    ./start_control_pc.sh -i iam-space -u student -p 12345678 -d ~/ws/robot-interface-public -r 1 -s 0
     "
 
 control_pc_uname="student"
 control_pc_use_password=0
 control_pc_password=""
-control_pc_robolib_path="~/ws/robot-interface"
+control_pc_robolib_path="~/ws/robot-interface-public"
 start_iam_robolib=1
 robot_number=1
 
